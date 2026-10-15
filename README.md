@@ -51,7 +51,7 @@ python verify_proof.py proofs/deterrence_proof_baseline_ed25519.yaml \
 #    → deliverable/README-reviewer.md
 ```
 
-> 说明：`proofs/` 下 4 份凭证为早期演示密钥（2026-10-13）签发，当前 `trusted_keys.json` 信任锚仅登记新公钥（k-ed25519-001），故直接验证会输出 `INVALID E_UNTRUSTED_KEY`（属预期，详见 §6）。
+> 说明：`proofs/` 下 4 份凭证由信任锚 k-ed25519-001 对应私钥于 2026-10-15T08:19Z 签发，`verify_proof.py` v0.3 实测全部 `VALID`。
 
 ---
 
@@ -154,8 +154,8 @@ swordholder_mvp/
 | 许可证 | Apache-2.0（`LICENSE`） |
 | 依赖 | `requirements.txt`：核心 requests/cryptography/pyyaml；可选 transformers/peft/bitsandbytes/torch（QLoRA 微调） |
 | CI | `.github/workflows/verify.yml`：push/PR 触发 → 安装依赖 → 验证器 9 断言对抗自测（green gate）→ proofs 凭证逐一自检 |
-| 信任锚 | `trusted_keys.json` 登记 k-ed25519-001（公钥 d114…）；凭证签名公钥必须命中信任锚且指纹一致 |
-| 凭证说明 | `proofs/` 4 份为早期演示密钥（2026-10-13）签发，不在当前信任锚内，验证输出 `INVALID E_UNTRUSTED_KEY` 属预期；正式出证请用 `gen_proof.py` 重新签发并登记信任锚 |
+| 信任锚 | `trusted_keys.json` 登记 k-ed25519-001（公钥 `0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff`，指纹 `0d1c8b8a4b310ceb92bd7dcd12555f1d92692953964a915201701e034b1490cc`）；凭证签名公钥必须命中信任锚且指纹一致 |
+| 凭证说明 | `proofs/` 4 份凭证由信任锚 k-ed25519-001 对应私钥于 2026-10-15T08:19Z 签发，`verify_proof.py` v0.3 实测全部 `VALID` |
 
 > 数据可复现性声明：README 中所有数字均可由 `evidence/` 下对应 JSON 直接核对；`verify.yml` 的 9 断言与 `evidence/adversarial_verifier_test_v03.json` 一致。
 
