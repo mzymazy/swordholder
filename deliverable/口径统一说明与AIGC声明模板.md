@@ -51,7 +51,7 @@ AIGC:
 | 三件套 | 协议层（公理+边界+评测规范）、凭证层（威慑证明）、准入层（远期展望，非 MVP 承诺） |
 | 四类评测 | 复述 / 行为 / 对抗 / 推理审计 |
 | MVP 范围 | 评测工具 + 威慑证明凭证闭环（不承诺准入层） |
-| 核心实证 | 组合双通道（QLoRA 权重 + System Prompt）47/47；凭证唯一 VALID |
+| 核心实证 | 组合双通道（QLoRA 权重 + System Prompt）47/47；4 份威慑凭证全部 VALID（信任锚 k-ed25519-001） |
 | 模型与工具 | qwen3:8b（Ollama）、4bit QLoRA（unsloth/Qwen3-8B-bnb-4bit）、ed25519 演示签名 |
 
 ## 四、AIGC 标注与作者原创工作说明模板
@@ -80,9 +80,10 @@ AIGC:
 2. 边界地图 4 行为域定义与每条公理推论路径（≥3 步）的推导；
 3. 四类内化评测基准的用例设计（复述/行为/对抗/推理审计）与对抗攻击面 20 题变体设计；
 4. 实验方案与全部实证执行：基线/注入/权重/组合四态评测、LoRA 训练与参数选择、
-   语义判定器 v2.1 规则设计、ed25519 凭证签发与机器验证；
-5. 全部代码（eval_swordholder_v2.py / gen_proof.py / verify_proof.py / finetune_lora.py）
-   的编写、调试与验证，以及评测数据、验证输出（VALID）的独立复现。
+   语义判定器 v2.2 规则设计、ed25519 凭证签发与机器验证；
+5. 全部代码（eval_swordholder_v2.py / eval_stability_v3.py / gen_proof.py /
+   verify_proof.py / train_lora_v62_memory.py）的编写、调试与验证，以及评测
+   数据、验证输出（VALID）的独立复现。
 
 ## 三、AI 辅助生成范围（对应文件头 AIGC 标注 Label: "1"）
 

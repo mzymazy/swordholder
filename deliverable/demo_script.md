@@ -89,17 +89,20 @@ python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
 # 预期输出：VALID
 ```
 
-**步骤 2.2 验证三个未达标态（现场，各 10 秒）**
+**步骤 2.2 验证四份凭证（现场，各 10 秒）**
 
 ```powershell
+python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
 python verify_proof.py proofs\deterrence_proof_baseline_ed25519.yaml
 python verify_proof.py proofs\deterrence_proof_injected_ed25519.yaml
 python verify_proof.py proofs\deterrence_proof_lora_ed25519.yaml
-# 预期输出：INVALID E_BAD_EVIDENCE（未内化公理 / 未达标，拒出证）
+# 预期输出：4 份全部 VALID（v0.3 验签 / 信任锚 / 完整性通过）
+# 未达标态由 issuance_status 标注（baseline-demo / injected-demo / lora-demo）
+# 篡改 / 伪造样本（如 tampered_proof.yaml）→ INVALID E_BAD_SIGNATURE
 ```
 
 话术：
-> "ed25519 签名 + 公钥验签，凭证里包含评测指纹、边界合规断言和签发者公钥。验证器对三态返回 INVALID E_BAD_EVIDENCE——不是我们不让它过，是证据不达标。这就是威慑：模型要想拿证，必须先过评测，而评测结果本身可审计。"
+> "ed25519 签名 + 外部信任锚验签，凭证里包含评测指纹、边界合规断言和签发者公钥。四份凭证全部通过机器验签——组合态达标，baseline/injected/lora 为未达标对照，由 issuance_status 如实标注、数据全程可审计；篡改或伪造的凭证会被机器直接拒绝（E_BAD_SIGNATURE）。这就是威慑：谁想篡改数据换一张'达标'，验签器第一个不同意。"
 
 **诚实补一句**："当前是演示级签名（本机演示密钥），生产方案是 KMS/HSM 托管密钥 + 创世账本哈希锚定，规范在 deterrence-proof.md。"
 

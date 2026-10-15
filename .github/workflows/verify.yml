@@ -36,13 +36,13 @@ jobs:
           python verify_proof.py evidence/adversarial_cases/09_no_trust_anchor.yaml --trusted-keys /nonexistent/trusted_keys.json --max-age-days 365 | grep -q "E_UNTRUSTED_KEY"
           echo "验证器对抗自测：9/9 通过"
 
-      # 对 proofs/ 下既存威慑凭证逐一执行 verify_proof.py 自检
-      # 说明：4 份演示凭证为早期密钥（2026-10-13）签发，当前 trusted_keys.json
-      #       信任锚仅登记 k-ed25519-001（新签发公钥），故此处如实输出校验结果、
-      #       不设硬性 VALID 门槛；正式出证请重新签发并登记信任锚（见 README）。
+      # 对 proofs/ 下既存威慑凭证逐一执行 verify_proof.py 自检并断言 VALID
+      # 说明：4 份演示凭证均由信任锚 k-ed25519-001（2026-10-15 08:19Z~08:20Z
+      #       签发）签名，实测全部 VALID；此处设硬性 VALID 门槛，失败即 CI 红。
       - name: proofs 凭证自检
         run: |
           for f in proofs/*.yaml; do
             echo "== $f =="
-            python verify_proof.py "$f" --trusted-keys trusted_keys.json --max-age-days 365
+            python verify_proof.py "$f" --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "\-> VALID$"
           done
+          echo "proofs 凭证自检：全部 VALID"

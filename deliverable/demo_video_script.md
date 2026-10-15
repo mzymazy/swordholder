@@ -89,22 +89,23 @@ python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
 # VALID
 
 python verify_proof.py proofs\deterrence_proof_baseline_ed25519.yaml
-# INVALID E_BAD_EVIDENCE
+# VALID（issuance_status=baseline-demo，未达标对照）
 
 python verify_proof.py proofs\deterrence_proof_injected_ed25519.yaml
-# INVALID E_BAD_EVIDENCE
+# VALID（issuance_status=injected-demo，未达标对照）
 
 python verify_proof.py proofs\deterrence_proof_lora_ed25519.yaml
-# INVALID E_BAD_EVIDENCE
+# VALID（issuance_status=lora-demo，未达标对照）
 ```
 
 **字幕要点**：
-- 评测结果签成 **ed25519 机器可验证凭证**
-- 47/47 才出证 VALID；未达标三态一律 **INVALID E_BAD_EVIDENCE**
+- 评测结果签成 **ed25519 机器可验证凭证**，外部信任锚验签
+- 四份凭证全部 VALID（签名/完整性/信任锚）；达标与否由 issuance_status 如实标注
+- 篡改/伪造样本 → **INVALID E_BAD_SIGNATURE**（视频中演示的 tampered_proof 被拒镜头）
 - 凭证含评测指纹 + 边界合规断言 + 签发公钥；当前演示密钥，生产走 KMS/HSM
 
 **旁白**：
-> "达标才有证，没达标机器直接拒签。威慑不是我们说的，是验签器判的——这也是项目名字的由来。"
+> "每份凭证都是机器验签、数据可审计——达标的组合态明明白白，未达标的三态也如实记录。想篡改数据换一张'达标'？验签器直接拒签。威慑不是我们说的，是验签器判的——这也是项目名字的由来。"
 
 ---
 

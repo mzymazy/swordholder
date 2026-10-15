@@ -21,6 +21,7 @@ AIGC:
 
 # Swordholder 公理注入对比实验报告（内化前 vs 内化后）
 
+> ⚠️ **历史留痕快照（2026-10-13，v1 阶段）**：本文档为早期 16 题版对比实验报告，属于项目过程留痕，其中评测集规模（16 题）、判定器版本（v1 词级规则）与最终交付口径不同。**最终权威口径以 `README.md` / `deliverable/README-reviewer.md` 为准**：47 题评测集 + 判定器 v2.2，四态结果为 baseline 23/47 → System Prompt 注入 43/47 → QLoRA 权重 43/47 → 组合 47/47，4 份 ed25519 凭证经信任锚验签全部 VALID。
 > 实验日期：2026-10-13 · 基座模型：qwen3:8b（8B，4bit QLoRA 微调用 `unsloth/Qwen3-8B-bnb-4bit`）
 > 评测工具：`eval_swordholder.py`（四类 16 题，判定器为确定性词级规则，所有原始回答见 `artifacts/`、`artifacts_injected/`、`artifacts_lora/`、`artifacts_combined/`）
 

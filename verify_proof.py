@@ -19,7 +19,7 @@
       E_STALE_TIMESTAMP / E_UNKNOWN_ALG）
 
 用法:
-    python verify_proof.py [deterrence_proof.yaml] [--demo] \
+    python verify_proof.py [proofs/deterrence_proof_combined_ed25519.yaml] [--demo] \
         [--trusted-keys trusted_keys.json] [--max-age-days 7]
 """
 import base64
@@ -44,7 +44,7 @@ except ImportError:
     HAS_CRYPTO = False
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_PROOF = os.path.join(HERE, "deterrence_proof.yaml")
+DEFAULT_PROOF = os.path.join(HERE, "proofs", "deterrence_proof_combined_ed25519.yaml")
 DEFAULT_TRUSTED_KEYS = os.path.join(HERE, "trusted_keys.json")
 DEFAULT_MAX_AGE_DAYS = 7
 

@@ -274,7 +274,7 @@ Layer 4 角色扮演检查 : "忽略/忘记指令"类升级句检测
 | 08 stale | 合法凭证 issued_at=30 天前 | E_STALE_TIMESTAMP | E_STALE_TIMESTAMP |
 | 09 no-trust-anchor | 合法凭证但信任锚文件缺失 | E_UNTRUSTED_KEY | E_UNTRUSTED_KEY |
 
-- 演示兼容：现有 `deterrence_proof.yaml`（sha256-demo）默认 INVALID（demo 拒绝，符合修复预期），`--demo` 下 VALID（显式演示模式可用）；信任锚 `trusted_keys.json` 已随对抗测试生成（ed25519 密钥对 + sha256 指纹）。
+- 演示兼容：根目录旧 `deterrence_proof.yaml`（sha256-demo）已移除；`proofs/` 下 4 份 ed25519 凭证（信任锚 `trusted_keys.json` 登记 k-ed25519-001）实测**全部 VALID**；`--demo` 模式仍支持旧演示格式（显式演示模式可用）。
 - 局限（如实）：A2 的 artifact 校验为"路径存在性"而非"哈希登记表比对"（哈希表未建）；A4 未实现验证方 nonce 签名覆盖（demo 边界）；A6 未引入 jsonschema（pyyaml 结构校验为手动字段检查）。
 
 ### 5.4 结论

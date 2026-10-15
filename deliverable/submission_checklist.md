@@ -92,7 +92,7 @@ Swordholder-共生公理-最终提交-20261015-v4.zip
 
 1. 项目名称从一页纸候选 3 个中定 1 个（≤80 字），报名与材料文件名统一。
 2. 报名要求"须原创"：所有文档头部 AIGC 标注（Label: "1"）保留；**原创工作说明必须随附**（模板见口径文档），明确 AI 辅助生成范围与作者原创部分，避免"全 AI 生成"歧义。
-3. 只提交以上清单文件，**不要**提交 `temp/` 下训练中间文件与 `models/` 权重（体积大、非必需）；如需佐证微调可提交 `temp/finetune_lora.py` 与训练数据摘要。
+3. 只提交以上清单文件，**不要**提交 `temp/` 下训练中间文件与 `models/` 权重（体积大、非必需）；如需佐证微调可提交 `evidence/` 下训练脚本（`train_lora_v62_memory.py`）与训练数据摘要。
 4. 截止前自查一遍：README 中数据与 `evaluation_results_v2_*.json`、`evaluation_results_v3_*.json` 一致（README 第九节逐行对照 v3 数据）；`verify_proof.py` 复跑输出 VALID；边界口径统一为 4 行为域。
 *（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

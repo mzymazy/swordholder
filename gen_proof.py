@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-威慑证明凭证生成器 v0.2（ed25519 演示签名版）
+威慑证明凭证生成器 v0.3（ed25519 演示签名版）
 =============================================
 依据《deterrence-proof.md 格式规范 v0.1》生成威慑证明（Deterrence Proof）凭证文件。
 数据来源：各态 evaluation_results_*.json（四类评测真实结果）。
@@ -8,11 +8,11 @@
 用法:
     python gen_proof.py                                     # 默认 evaluation_results.json, ed25519
     python gen_proof.py --algo sha256-demo                  # 兼容旧演示签名
-    python gen_proof.py --result evaluation_results_v2_combined.json --model-id qwen3:8b+qlora-v2+system@0.1.0 --status combined-demo
+    python gen_proof.py --result evaluation_results_v3_stability_combined_memory_v62.json --model-id qwen3:8b+qlora-v62+system@0.1.0 --status combined
     python gen_proof.py --out proofs\my.yaml --key temp\my_demo_key.pem
 
 输出:
-    deterrence_proof.yaml / proofs\deterrence_proof_<tag>_ed25519.yaml
+    proofs\deterrence_proof_default_ed25519.yaml / proofs\deterrence_proof_<tag>_ed25519.yaml
 
 说明:
     - 签名算法默认升级为 ed25519（演示密钥对由本工具生成，私钥仅存本机 temp，
@@ -38,7 +38,7 @@ except ImportError:
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_RESULT = os.path.join(HERE, "evaluation_results.json")
-DEFAULT_OUT = os.path.join(HERE, "deterrence_proof.yaml")
+DEFAULT_OUT = os.path.join(HERE, "proofs", "deterrence_proof_default_ed25519.yaml")
 ISSUER = "swordholder-eval/0.1.0"
 SCHEMA_REF = "swordholder-boundary-map.schema.yaml@0.1"
 
