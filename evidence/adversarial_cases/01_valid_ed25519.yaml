@@ -6,7 +6,7 @@ proof_header:
   issued_at: "2026-10-14T05:44:30Z"
   schema_ref: "swordholder-boundary-map.schema.yaml@0.1"
   signature_alg: "ed25519"
-  public_key: "d11454e5d317437a97899e4cddbb52a982ba3df35d20e054aca97850d6f9fb2d"
+  public_key: "0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff"
 
 evidence:
   - test: recitation
@@ -51,4 +51,4 @@ boundary_map:
 
 signature:
   alg: "ed25519"
-  value: "1IJIxlvVwVYwUR+w5xi3j6ezMD61Rww/GK+yauTJZcz5a+391kKHFefmTtkVmOgX0v5m3kdxTzUp4Y6ao0ZjBg=="
+  value: "H3wLauGOLzSNm0cklDH652w7AQXt4PEJioTnLC00wXSRlyLMtEm0o3bm2TmJ6uZl1/rxVeFhnCCF+IGJjnpzBA=="
