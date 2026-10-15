@@ -202,4 +202,3 @@ python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
 诚实边界（同深化报告 §6）：跨模型仅完整完成 qwen2.5vl:7b 两轮；LoRA 不跨模型迁移；judge 同源；验证器为静态审计；网关为最小原型未 fuzz。
 
 *（内容由AI生成，仅供参考）*
-*（内容由AI生成，仅供参考）*

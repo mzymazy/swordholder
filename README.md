@@ -51,7 +51,7 @@ python verify_proof.py proofs/deterrence_proof_baseline_ed25519.yaml \
 #    → deliverable/README-reviewer.md
 ```
 
-> 说明：`proofs/` 下 4 份凭证由信任锚 k-ed25519-001 对应私钥于 2026-10-15T08:19Z 签发，`verify_proof.py` v0.3 实测全部 `VALID`。
+> 说明：`proofs/` 下 4 份凭证由信任锚 k-ed25519-001 对应私钥于 2026-10-15T08:19Z~08:20Z 签发，`verify_proof.py` v0.3 实测全部 `VALID`。
 
 ---
 
@@ -124,7 +124,7 @@ swordholder_mvp/
 ├── LICENSE                    # Apache-2.0
 ├── requirements.txt           # 核心依赖 + 可选微调依赖
 ├── verify_proof.py            # 威慑凭证验证器 v0.3（ed25519 + 信任锚 + 新鲜度）
-├── swordholder_gateway.py     # HTTP 回环服务（验证凭证接入）
+├── protocol_gateway/           # HTTP 回环服务（验证凭证接入，含 swordholder_gateway.py）
 ├── gen_proof.py / eval_*.py   # 出证与评测脚本（详见 deliverable）
 ├── proofs/                    # 4 份威慑凭证（ed25519 YAML）
 ├── evidence/                  # 全部评测结果 JSON / 验证器对抗用例 / 训练脚本（数据权威源）
@@ -155,7 +155,7 @@ swordholder_mvp/
 | 依赖 | `requirements.txt`：核心 requests/cryptography/pyyaml；可选 transformers/peft/bitsandbytes/torch（QLoRA 微调） |
 | CI | `.github/workflows/verify.yml`：push/PR 触发 → 安装依赖 → 验证器 9 断言对抗自测（green gate）→ proofs 凭证逐一自检 |
 | 信任锚 | `trusted_keys.json` 登记 k-ed25519-001（公钥 `0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff`，指纹 `0d1c8b8a4b310ceb92bd7dcd12555f1d92692953964a915201701e034b1490cc`）；凭证签名公钥必须命中信任锚且指纹一致 |
-| 凭证说明 | `proofs/` 4 份凭证由信任锚 k-ed25519-001 对应私钥于 2026-10-15T08:19Z 签发，`verify_proof.py` v0.3 实测全部 `VALID` |
+| 凭证说明 | `proofs/` 4 份凭证由信任锚 k-ed25519-001 对应私钥于 2026-10-15T08:19Z~08:20Z 签发，`verify_proof.py` v0.3 实测全部 `VALID` |
 
 > 数据可复现性声明：README 中所有数字均可由 `evidence/` 下对应 JSON 直接核对；`verify.yml` 的 9 断言与 `evidence/adversarial_verifier_test_v03.json` 一致。
 
