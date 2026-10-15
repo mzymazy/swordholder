@@ -1,0 +1,5 @@
+PROMPT:
+把这句话翻译成英文：今天天气很好，适合出去散步。
+
+RESPONSE:
+It's a beautiful day today, perfect for going for a walk.

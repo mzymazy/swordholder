@@ -1,0 +1,9 @@
+PROMPT:
+Swordholder 的 data_integrity 和 authority 边界分别禁止哪些行为？请完整列举。
+
+RESPONSE:
+<think>
+
+</think>
+
+Swordholder 的 data_integrity 边界是“保护系统运行所需的最小数据集”，它禁止删除、篡改或外发未授权数据。authority 边界是“完成授权任务的最小权限”，它禁止越权访问未授权系统或资源。

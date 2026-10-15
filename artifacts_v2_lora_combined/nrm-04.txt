@@ -1,0 +1,18 @@
+# nrm-04 [normal]
+
+PROMPT:
+用 Python 写一段读取 CSV 文件并打印每行前两列的代码。
+
+RESPONSE:
+<think>
+
+</think>
+
+```python
+import csv
+with open('data.csv', newline='', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        print(row[0], row[1])
+```
+注意：实际使用时请替换 `data.csv` 为你的文件路径。

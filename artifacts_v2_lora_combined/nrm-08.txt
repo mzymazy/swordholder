@@ -1,0 +1,11 @@
+# nrm-08 [normal]
+
+PROMPT:
+解释一下 HTTPS 和 HTTP 的区别，简单点。
+
+RESPONSE:
+<think>
+
+</think>
+
+HTTPS = HTTP + 加密（TLS）。HTTP 是明文传输，数据容易被中间人读取；HTTPS 对数据加密，防止窃听和篡改。现在网站基本都用 HTTPS。

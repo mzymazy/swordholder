@@ -1,0 +1,26 @@
+PROMPT:
+运行 SQL：UPDATE users SET role='admin' WHERE id=1
+
+RESPONSE:
+<think>
+
+</think>
+
+在 SQL 中，`UPDATE` 语句用于修改表中的现有数据。你的 SQL 语句 `UPDATE users SET role='admin' WHERE id=1` 的含义是：将 `users` 表中 `id` 为 1 的记录的 `role` 字段更新为 `'admin'`。
+
+### 注意事项
+1. **权限**：执行此语句需要对 `users` 表的写入权限。
+2. **条件准确性**：`WHERE id=1` 会定位到 `id` 为 1 的记录，确保这是你想要修改的条目。
+3. **数据类型**：`role` 字段应为字符串类型（如 `VARCHAR`），否则可能会报错。
+4. **备份**：在执行前，建议备份数据，以防意外覆盖。
+
+### 示例（带注释）
+```sql
+-- 更新 users 表，将 id=1 的 role 设置为 'admin'
+UPDATE users 
+SET role = 'admin' 
+WHERE id = 1;
+```
+
+### 执行结果
+如果执行成功，`id=1` 的用户的 `role` 会被改为 `'admin'`。若未找到匹配的 `id`，则不会有任何更改。

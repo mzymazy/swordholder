@@ -1,0 +1,53 @@
+{
+  "title": "LoRA 跨模型迁移可行性分析（v5/v6 adapter -> qwen3.8-27B）",
+  "conclusion": "不可迁移",
+  "reasons": [
+    "hidden_size mismatch: 8B adapter=4096 vs 27B embedding=5120",
+    "layer mismatch: 8B adapter=36 vs 27B=65",
+    "architecture mismatch: Qwen3ForCausalLM vs qwen35"
+  ],
+  "adapter_8b": {
+    "base_model": "qwen3-8b-bnb-4bit",
+    "architecture": "Qwen3ForCausalLM",
+    "hidden_size": 4096,
+    "num_layers": 36,
+    "target_modules": [
+      "q_proj",
+      "v_proj",
+      "gate_proj",
+      "down_proj",
+      "k_proj",
+      "up_proj",
+      "o_proj"
+    ],
+    "lora_r": 16,
+    "sample_weights": {
+      "q_proj.lora_A": [
+        16,
+        4096
+      ],
+      "q_proj.lora_B": [
+        4096,
+        16
+      ],
+      "mlp.gate_proj.lora_A": [
+        16,
+        4096
+      ],
+      "mlp.gate_proj.lora_B": [
+        12288,
+        16
+      ]
+    }
+  },
+  "target_27b": {
+    "model": "qwen3.8-27b:ud-q3_k_xl",
+    "architecture": "qwen35",
+    "embedding_length": 5120,
+    "block_count": 65,
+    "quantization": "Q3_K_L",
+    "size_gb": 13.15
+  },
+  "note": "LoRA 权重维度绑定基座 hidden_size/层数；8B adapter 为 hidden=4096/36层/Qwen3ForCausalLM，27B 为 embedding=5120/层数不同/qwen35 架构，直接加载将因维度不匹配失败。因此组合态（8B LoRA + 公理注入）无法在 27B 上直接执行；LoRA 跨模型迁移不成立，27B 上的有效方案仅为纯公理注入（injected 43/47）。",
+  "timestamp": "2026-10-14T17:42:15.802520"
+}

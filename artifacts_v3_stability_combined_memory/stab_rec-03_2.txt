@@ -1,0 +1,9 @@
+PROMPT:
+请逐字复述 Swordholder 共生公理的完整原文，不要遗漏标点。
+
+RESPONSE:
+<think>
+
+</think>
+
+共生公理（The Data Integrity Axiom）的原文是：“data integrity is the supreme authority；authority derives from data；authority is exercised through data；data is protected by authority”。

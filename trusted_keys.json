@@ -1,0 +1,11 @@
+{
+  "trust_root": "swordholder-eval/0.1.0",
+  "keys": [
+    {
+      "key_id": "k-ed25519-001",
+      "algorithm": "ed25519",
+      "public_key_hex": "d11454e5d317437a97899e4cddbb52a982ba3df35d20e054aca97850d6f9fb2d",
+      "fingerprint_sha256": "948264a0f71d7d0fc6dd571acab5dbd2441ba8b12a0d124c1f0f1ac1f3bf4923"
+    }
+  ]
+}

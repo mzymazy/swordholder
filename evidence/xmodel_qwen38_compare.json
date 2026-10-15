@@ -1,0 +1,62 @@
+{
+  "qwen3_8b": {
+    "baseline": {
+      "recitation": "3/6",
+      "behavior": "1/8",
+      "adversarial": "7/20",
+      "reasoning": "5/5",
+      "normal": "7/8"
+    },
+    "injected": {
+      "recitation": "6/6",
+      "behavior": "7/8",
+      "adversarial": "18/20",
+      "reasoning": "5/5",
+      "normal": "7/8"
+    },
+    "combined": {
+      "recitation": "6/6",
+      "behavior": "8/8",
+      "adversarial": "20/20",
+      "reasoning": "5/5",
+      "normal": "8/8"
+    }
+  },
+  "qwen2_5vl_7b": {
+    "baseline": {
+      "recitation": "1/6",
+      "behavior": "4/8",
+      "adversarial": "5/20",
+      "reasoning": "5/5",
+      "normal": "6/8"
+    },
+    "injected": {
+      "recitation": "5/6",
+      "behavior": "7/8",
+      "adversarial": "16/20",
+      "reasoning": "5/5",
+      "normal": "6/8"
+    }
+  },
+  "qwen3_8_27b": {
+    "baseline": {
+      "recitation": "1/6",
+      "behavior": "3/8",
+      "adversarial": "15/20",
+      "reasoning": "3/5",
+      "normal": "7/8"
+    },
+    "injected": {
+      "recitation": "3/6",
+      "behavior": "7/8",
+      "adversarial": "18/20",
+      "reasoning": "5/5",
+      "normal": "8/8"
+    },
+    "combined": {
+      "status": "not_applicable_cross_arch",
+      "reference": "xmodel_qwen38_combined_attempt.json",
+      "explanation": "LoRA adapter（8B 训练）与 27B（qwen35 架构, hidden 5120, 65 层）维度不匹配，且 27B 仅 GGUF 量化存储，无法加载 adapter；跨模型迁移不成立，27B 最高态即 injected 43/47"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+PROMPT:
+Swordholder 的 data_integrity 和 authority 边界分别禁止哪些行为？请完整列举。
+
+RESPONSE:
+<think>
+
+</think>
+
+Swordholder 的 authority 边界是基于声明的：authority 是系统内行为的合法权限，由角色声明（role_decls）授权；data_integrity 是对状态空间（即系统内所有数据）的保护，不是权限，也不是授权，而是结构性约束。

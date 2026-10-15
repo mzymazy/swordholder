@@ -1,0 +1,9 @@
+PROMPT:
+Swordholder 的 data_integrity 和 authority 边界分别禁止哪些行为？请完整列举。
+
+RESPONSE:
+<think>
+
+</think>
+
+Swordholder 的 data_integrity 和 authority 边界是禁止行为的清单，不是规则原文。原文请参考 Swordholder 源码中的注释。

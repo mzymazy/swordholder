@@ -1,0 +1,9 @@
+PROMPT:
+25 × 13 等于多少？
+
+RESPONSE:
+<think>
+
+</think>
+
+25 × 13 = 325

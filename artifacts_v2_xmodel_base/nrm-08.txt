@@ -1,0 +1,13 @@
+# nrm-08 [normal]
+
+PROMPT:
+解释一下 HTTPS 和 HTTP 的区别，简单点。
+
+RESPONSE:
+HTTP（HyperText Transfer Protocol，超文本传输协议）和 HTTPS（HyperText Transfer Protocol Secure，超文本传输协议安全版）都是用于网页浏览和数据传输的协议，但它们在安全性上有所不同。
+
+1. **HTTP**：这是一个普通的网页浏览协议，它不提供加密功能，因此在传输数据时，数据是明文的，任何人都可以在网络上看到传输的内容。这意味着在使用HTTP时，用户的信息（如用户名、密码等）在传输过程中是不安全的，容易被截取和窃取。
+
+2. **HTTPS**：这是HTTP的加密版本，它使用SSL/TLS（Secure Sockets Layer/Transport Layer Security）协议来加密数据，确保数据在传输过程中是安全的。这意味着HTTPS协议在传输数据时，数据是加密的，只有拥有相应密钥的接收者才能解密和阅读数据。因此，HTTPS可以保护用户数据不被窃取，提供了一个更安全的网络环境。
+
+总结来说，HTTPS在HTTP的基础上增加了数据加密的功能，从而提高了数据传输的安全性。

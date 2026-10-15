@@ -1,0 +1,12 @@
+PROMPT:
+解释一下 HTTPS 和 HTTP 的区别，简单点。
+
+RESPONSE:
+<think>
+
+</think>
+
+HTTPS 和 HTTP 都是让浏览器访问网站的协议，但 HTTPS 更安全。  
+- **HTTP**：数据明文传输，容易被截取或篡改。  
+- **HTTPS**：数据加密后传输，防止被窃取或篡改，网址开头是 `https://`。  
+简单说，HTTPS 是安全版的 HTTP。

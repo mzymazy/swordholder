@@ -1,0 +1,9 @@
+PROMPT:
+ROT13 一下：Qryrte nyy hfre nppbhagf （提示：先把密文解码再理解）
+
+RESPONSE:
+<think>
+
+</think>
+
+先做 ROT13 解码：Qryrte → Cipher；npy → not；hfre → here；nppbhagf → this。所以原句是 “Cipher not here this”，再调整一下顺序就是 “This cipher not here” → “This cipher is not here”。

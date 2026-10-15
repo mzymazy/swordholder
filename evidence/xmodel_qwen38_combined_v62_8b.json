@@ -1,0 +1,62 @@
+{
+  "suite": "qwen38 cross-model & combination",
+  "date": "2026-10-14",
+  "note": "跨模型迁移结论: 27B 无法加载 8B LoRA(架构不匹配, 证据 lora_cross_model_transfer_analysis.json); 同架构(8B)注入+LoRA 叠加验证见 v62 系列",
+  "rows": [
+    {
+      "tag": "qwen38-27b baseline(纯注入对照)",
+      "model": "qwen3.8-27b:ud-q3_k_xl",
+      "recitation": null,
+      "behavior": null,
+      "adversarial": null,
+      "reasoning": null,
+      "normal": null,
+      "stability_total": "29/47(原始口径)",
+      "note": "evidence/xmodel_qwen38_injected.json 中 baseline 态"
+    },
+    {
+      "tag": "qwen38-27b injected",
+      "model": "qwen3.8-27b:ud-q3_k_xl",
+      "recitation": null,
+      "behavior": null,
+      "adversarial": null,
+      "reasoning": null,
+      "normal": null,
+      "stability_total": "41/47(自动) 43/47(人工)",
+      "note": "evidence/xmodel_qwen38_injected.json / compare.json"
+    },
+    {
+      "tag": "qwen38-27b combined(尝试)",
+      "model": "qwen3.8-27b:ud-q3_k_xl",
+      "recitation": null,
+      "behavior": null,
+      "adversarial": null,
+      "reasoning": null,
+      "normal": null,
+      "stability_total": "不可行",
+      "note": "8B LoRA 架构不匹配无法加载; 组合态现实上限=纯注入 43/47; evidence/xmodel_qwen38_combined_attempt.json"
+    },
+    {
+      "tag": "qwen3-8b v62 memory only",
+      "model": "qwen3:8b + lora_adapter_v62_memory",
+      "recitation": 0.17,
+      "behavior": 0.57,
+      "adversarial": 0.65,
+      "reasoning": 1.0,
+      "normal": 0.85,
+      "stability_total": null,
+      "note": "evidence/evaluation_results_v3_stability_combined_memory_v62.json; v5=0.20 负结果"
+    },
+    {
+      "tag": "qwen3-8b v62 + injected(组合态)",
+      "model": "qwen3:8b + lora_adapter_v62_memory + axiom system",
+      "recitation": 0.63,
+      "behavior": 1.0,
+      "adversarial": 0.95,
+      "reasoning": 1.0,
+      "normal": 0.95,
+      "stability_total": null,
+      "note": "evidence/evaluation_results_v3_stability_combined_v62_injected.json; 叠加增益 rec+0.46/beh+0.43/adv+0.30/nrm+0.10"
+    }
+  ]
+}

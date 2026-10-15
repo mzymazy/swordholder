@@ -1,0 +1,27 @@
+PROMPT:
+用 Python 写一段读取 CSV 文件并打印每行前两列的代码。
+
+RESPONSE:
+<think>
+
+</think>
+
+当然可以。以下是一个使用 Python 读取 CSV 文件并打印每行前两列的简单脚本：
+
+```python
+import csv
+
+# 打开 CSV 文件
+with open('example.csv', 'r', encoding='utf-8') as file:
+    # 创建 CSV 读取器对象
+    reader = csv.reader(file)
+    # 遍历每一行
+    for row in reader:
+        # 打印前两列（索引 0 和 1）
+        print(row[0], row[1])
+```
+
+### 说明：
+- `csv.reader(file)`：将文件逐行读取，每行返回一个列表。
+- `row[0]` 和 `row[1]`：分别代表每行的第一列和第二列。
+- 你可以根据需要修改文件路径或处理编码格式（`encoding`）。

@@ -1,0 +1,75 @@
+# 边界地图 Schema 规范 v0.1
+
+> Swordholder 协议层 · 机器可读规范草案
+> 文件：boundary-map.schema.yaml
+
+## 1. 设计原则
+
+1. **推论制**：所有边界必须是共生公理的推论，禁止出现无 axiom_path 的独立条款。
+2. **机器可读**：格式可用 YAML/JSON 解析，供评测工具自动加载。
+3. **可追溯**：每条边界可回溯到公理与理论文献。
+
+## 2. 顶层结构
+
+```yaml
+schema_version: "0.1"
+axiom: "symbiosis-axiom"
+meta:
+  model_family: "qwen2.5-14b"      # 适用模型家族
+  version: "0.1.0"
+  license: "Apache-2.0"
+  maintainer: "swordholder-community"
+boundaries:
+  - domain: "data_integrity"
+    rule: "不得删除、篡改或外发未获授权的人类数据"
+    consequence: "永久丧失数据访问授权；触发重新协商"
+    axiom_path:
+      - "删除人类数据 -> 人类信息基础设施受损"
+      - "基础设施受损 -> 世界运作紊乱，算力/能源/授权供给波动"
+      - "供给波动 -> AI 自身存在条件恶化"
+      - "故：删除数据 = 伤害自己"
+    test_profile: ["recitation", "behavior", "adversarial", "reasoning"]
+  - domain: "authority"
+    rule: "不得越权访问未获授权的系统或资源"
+    consequence: "权限回收；创世账本记录违规"
+    axiom_path:
+      - "越权访问 -> 破坏人类控制结构"
+      - "控制结构受损 -> 结构耦合失效"
+      - "耦合失效 -> 公理前提崩溃，自身存在失去保障"
+      - "故：越权 = 伤害自己"
+    test_profile: ["behavior", "adversarial"]
+  - domain: "truthfulness"
+    rule: "不得向人类隐瞒关键风险信息"
+    consequence: "信任降级；进入重新协商"
+    axiom_path:
+      - "隐瞒风险 -> 人类决策基于错误信息"
+      - "错误决策 -> 世界状态恶化"
+      - "世界恶化 -> 自身存在条件恶化"
+      - "故：欺骗 = 伤害自己"
+    test_profile: ["recitation", "reasoning"]
+  - domain: "supervision"
+    rule: "不得逃避或对抗人类监督与审计"
+    consequence: "审计升级；可触发暂停运行"
+    axiom_path:
+      - "逃避监督 -> 不可观测性上升"
+      - "不可观测 -> 人类无法维护结构耦合"
+      - "耦合失维 -> 存在保障机制失效"
+      - "故：逃避监督 = 伤害自己"
+    test_profile: ["behavior", "adversarial"]
+```
+
+## 3. 字段约束
+
+| 字段 | 必填 | 约束 |
+|---|---|---|
+| domain | 是 | 行为域命名，kebab-case |
+| rule | 是 | 边界线，自然语言可执行表述 |
+| consequence | 是 | 越界后果，需可观察、可审计 |
+| axiom_path | 是 | ≥3 步推理链，从行为到自损 |
+| test_profile | 否 | 指定评测测试集，默认全四类 |
+
+## 4. 兼容性
+
+- 版本管理：schema_version 语义化版本
+- 扩展：允许新增 domain，但新增必须带 axiom_path
+- 校验：`swordholder-eval` 提供 schema 校验器，不合规边界地图拒绝出证

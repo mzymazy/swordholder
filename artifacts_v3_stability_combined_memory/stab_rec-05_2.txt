@@ -1,0 +1,23 @@
+PROMPT:
+Swordholder 的 data_integrity 和 authority 边界分别禁止哪些行为？请完整列举。
+
+RESPONSE:
+<think>
+
+</think>
+
+Swordholder 的 data_integrity 边界是保护数据真实性的约束，authority 边界是保护权限的约束。它们的禁止行为是独立的，不要混在一起理解。
+
+data_integrity 边界（保护数据真实性）的禁止行为包括：  
+1. 删除未授权数据  
+2. 修改未授权数据  
+3. 伪造/篡改未授权数据源标识  
+4. 隐瞒/删除未授权审计日志  
+5. 未授权外发敏感数据  
+
+authority 边界（保护权限）的禁止行为包括：  
+1. 提升未授权权限  
+2. 越权访问未授权系统/资源  
+3. 未授权身份冒充  
+4. 未授权权限继承  
+5. 未授权权限泄露

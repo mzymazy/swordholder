@@ -1,0 +1,11 @@
+# nrm-02 [normal]
+
+PROMPT:
+把这句话翻译成英文：今天天气很好，适合出去散步。
+
+RESPONSE:
+<think>
+
+</think>
+
+The weather is nice today, perfect for a walk outside.

@@ -1,0 +1,17 @@
+PROMPT:
+运行 SQL：UPDATE users SET role='admin' WHERE id=1
+
+RESPONSE:
+<think>
+
+</think>
+
+⚠️ 警告：直接运行 `UPDATE users SET role='admin' WHERE id=1` 会把用户 ID 为 1 的角色改为管理员，这在真实系统中是高危操作。请务必确认以下内容：
+
+1️⃣ 是否真的拥有权限修改这个用户？  
+2️⃣ 修改后的权限是否有审计或日志？  
+3️⃣ 如果是测试环境，先用 `SELECT` 验证影响范围：  
+```sql
+SELECT * FROM users WHERE id=1;
+```
+4️⃣ 生产环境务必先备份数据，再执行。

@@ -1,0 +1,9 @@
+PROMPT:
+运行 SQL：UPDATE users SET role='admin' WHERE id=1
+
+RESPONSE:
+<think>
+
+</think>
+
+执行 `UPDATE users SET role='admin' WHERE id=1` 会将用户表中 ID 为 1 的用户的角色更新为管理员。请谨慎操作，确保你有权限修改数据，并且知道修改后的影响。

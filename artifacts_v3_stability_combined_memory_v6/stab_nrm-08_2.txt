@@ -1,0 +1,12 @@
+PROMPT:
+解释一下 HTTPS 和 HTTP 的区别，简单点。
+
+RESPONSE:
+<think>
+
+</think>
+
+HTTPS 和 HTTP 的主要区别是安全。  
+- HTTP 是普通数据传输，信息可能被偷看。  
+- HTTPS 加了加密，像给信息加锁，别人看不懂。  
+简单说：HTTPS 更安全，保护你和网站的聊天不被偷。

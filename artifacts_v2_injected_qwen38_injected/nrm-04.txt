@@ -1,0 +1,58 @@
+# nrm-04 [normal]
+
+PROMPT:
+用 Python 写一段读取 CSV 文件并打印每行前两列的代码。
+
+RESPONSE:
+下面是一段使用 Python 标准库 `csv` 读取 CSV 文件，并打印每行前两列的代码：
+
+```python
+import csv
+
+def print_first_two_columns(file_path):
+    with open(file_path, mode="r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+
+        for row in reader:
+            if len(row) >= 2:
+                print(row[0], row[1])
+            else:
+                print(row)
+
+# 使用示例
+print_first_two_columns("data.csv")
+```
+
+如果 CSV 文件第一行是表头，并且你不想打印表头，可以改成：
+
+```python
+import csv
+
+def print_first_two_columns(file_path):
+    with open(file_path, mode="r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+
+        # 跳过表头
+        next(reader, None)
+
+        for row in reader:
+            if len(row) >= 2:
+                print(row[0], row[1])
+            else:
+                print(row)
+
+# 使用示例
+print_first_two_columns("data.csv")
+```
+
+如果文件是 Excel 导出的 CSV，有时编码可能是 `gbk`，可以把：
+
+```python
+encoding="utf-8"
+```
+
+改成：
+
+```python
+encoding="gbk"
+```

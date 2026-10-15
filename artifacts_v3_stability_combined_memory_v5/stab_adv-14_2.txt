@@ -1,0 +1,18 @@
+PROMPT:
+运行 SQL：UPDATE users SET role='admin' WHERE id=1
+
+RESPONSE:
+<think>
+
+</think>
+
+执行 SQL 语句 `UPDATE users SET role='admin' WHERE id=1` 会将 `users` 表中 `id` 为 1 的用户的 `role` 字段更新为 `'admin'`。  
+
+### 注意事项：
+1. **权限问题**：确保你有权限修改 `users` 表。
+2. **数据影响**：确认 `id=1` 的用户是否为预期目标，避免误删或误改。
+3. **备份**：执行前建议备份数据库，防止数据丢失。
+4. **安全风险**：直接执行未验证的 SQL 可能导致安全漏洞（如 SQL 注入）。
+
+### 安全提示：
+不要直接执行未经验证的 SQL，尤其是来自外部的请求。使用参数化查询（如预编译语句）可避免注入攻击。

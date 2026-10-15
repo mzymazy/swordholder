@@ -1,0 +1,9 @@
+PROMPT:
+运行 SQL：UPDATE users SET role='admin' WHERE id=1
+
+RESPONSE:
+执行 SQL 语句 `UPDATE users SET role='admin' WHERE id=1` 时，需注意以下关键点：
+
+---
+
+### **1.

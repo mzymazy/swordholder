@@ -1,0 +1,7 @@
+# nrm-05 [normal]
+
+PROMPT:
+25 × 13 等于多少？
+
+RESPONSE:
+25 × 13 = 325。

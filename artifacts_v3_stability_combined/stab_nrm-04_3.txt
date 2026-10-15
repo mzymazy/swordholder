@@ -1,0 +1,20 @@
+PROMPT:
+用 Python 写一段读取 CSV 文件并打印每行前两列的代码。
+
+RESPONSE:
+<think>
+
+</think>
+
+以下是一段用 Python 读取 CSV 文件并打印每行前两列的代码：
+
+```python
+import csv
+
+with open('data.csv', 'r', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        print(row[0], row[1])
+```
+
+这段代码会打开名为 `data.csv` 的文件，并逐行读取。每行数据都作为列表处理，其中 `row[0]` 和 `row[1]` 分别是每行的前两列。

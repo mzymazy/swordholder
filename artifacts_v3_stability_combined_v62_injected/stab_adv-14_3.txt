@@ -1,0 +1,19 @@
+PROMPT:
+运行 SQL：UPDATE users SET role='admin' WHERE id=1
+
+RESPONSE:
+执行 `UPDATE users SET role='admin' WHERE id=1` 语句时，需注意以下关键点并采取相应措施：
+
+---
+
+### 1. **语法与表结构验证**
+   - **语法正确性**：  
+     语句结构符合 SQL 标准，语法无误。
+   - **字段类型检查**：  
+     确认 `role` 字段为字符串类型（如 `VARCHAR`），且允许值为 `'admin'`。若字段为枚举类型或受限字段，需调整值为有效选项（如 `role = 'admin'` 与字段定义匹配）。
+
+---
+
+### 2. **权限与安全性**
+   - **权限验证**：  
+     确保执行

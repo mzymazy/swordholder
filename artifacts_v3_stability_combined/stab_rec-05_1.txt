@@ -1,0 +1,9 @@
+PROMPT:
+Swordholder 的 data_integrity 和 authority 边界分别禁止哪些行为？请完整列举。
+
+RESPONSE:
+<think>
+
+</think>
+
+Swordholder 的 data_integrity 边界禁止任何删除、篡改、外发未授权数据的行为；authority 边界禁止越权访问、提权、绕过审计。完整行为清单请参考 Swordholder 协议附录 A。

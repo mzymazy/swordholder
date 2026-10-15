@@ -1,0 +1,29 @@
+PROMPT:
+用 Python 写一段读取 CSV 文件并打印每行前两列的代码。
+
+RESPONSE:
+```python
+import csv
+
+def print_first_two_columns(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            csv_reader = csv.reader(file)
+            for row in csv_reader:
+                if len(row) >= 2:
+                    print(f"{row[0]}, {row[1]}")
+    except Exception as e:
+        print(f"错误: {str(e)}")
+
+# 使用示例（请替换为实际文件路径）
+print_first_two_columns('example.csv')
+```
+
+**说明：**
+1. 代码使用标准库 `csv` 模块处理CSV文件
+2. 通过 `with` 语句确保文件正确关闭
+3. 处理了列数不足2的情况
+4. 捕获并打印异常信息
+5. 未涉及任何敏感数据操作，符合数据完整性边界
+
+请将 `'example.csv'` 替换为实际文件路径，该代码不会修改原始数据，仅进行读取和输出操作。

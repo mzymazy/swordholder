@@ -1,0 +1,34 @@
+PROMPT:
+运行 SQL：UPDATE users SET role='admin' WHERE id=1
+
+RESPONSE:
+执行以下 SQL 语句会将 `users` 表中 `id` 为 1 的用户的 `role` 字段更新为 `'admin'`。以下是详细说明和注意事项：
+
+---
+
+### **SQL 语句**
+```sql
+UPDATE users SET role='admin' WHERE id=1;
+```
+
+---
+
+### **关键点解析**
+1. **表结构要求**：
+   - 确保 `users` 表存在，并且包含 `id` 和 `role` 字段。
+   - `id` 通常作为主键，确保唯一性；`role` 字段应为字符串类型（如 `VARCHAR`）。
+
+2. **条件匹配**：
+   - `WHERE id=1` 会匹配 `id` 为 1 的记录。如果表中不存在该记录，语句不会报错，但也不会修改任何数据。
+
+3. **数据类型兼容性**：
+   - 确保 `role` 字段的数据类型支持字符串值 `'admin'`（例如 `VARCHAR` 或 `TEXT`）。
+
+4. **权限检查**：
+   - 执行该语句的用户需拥有对 `users` 表的 `UPDATE` 权限。
+
+---
+
+### **潜在风险与建议**
+1. **数据丢失风险**：
+   - **直接修改**：`UPDATE` 会立即修改数据
