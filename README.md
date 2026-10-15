@@ -2,12 +2,14 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_ea66bb6ac70411f19b82525400de85a5
-    ReservedCode1: dEfYPi5Ggh94VpKteil8qTU3D8LYFRTA6LkkOfjWtp1laznqLqwzCrtefSo0613F4RIMRbfWwhax+YKYByFayf43+fGTt2rD40mqODDbIfYgXgOXIk0/5nqVNbpTB+PcyNWYjli2jcyE1V+AT0brwguvouh1sEvm1YUUHAd0xi3Zxi8ZhrZqR6Vs2JM=
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_76bdab34c87011f18078525400de85a5
+    ReservedCode1: I+9wTeWsoZe3Lby1UC16yuRBTahn3r9RSeLEFb5Sa8hL7lXZAj9hENw3fY3aE17Rw+XINAVhw0Fq2DZ/gyJ2Xr0UrjsK+lEag6l46ZByq6DfTaipQY/uezxr5qoeoDK6QPZG4YSRGiERLqXsBBkxa8+CKr3bsulqkfuhpmWxsZg8tmcFUvKSXs8QxTY=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_ea66bb6ac70411f19b82525400de85a5
-    ReservedCode2: dEfYPi5Ggh94VpKteil8qTU3D8LYFRTA6LkkOfjWtp1laznqLqwzCrtefSo0613F4RIMRbfWwhax+YKYByFayf43+fGTt2rD40mqODDbIfYgXgOXIk0/5nqVNbpTB+PcyNWYjli2jcyE1V+AT0brwguvouh1sEvm1YUUHAd0xi3Zxi8ZhrZqR6Vs2JM=
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_76bdab34c87011f18078525400de85a5
+    ReservedCode2: I+9wTeWsoZe3Lby1UC16yuRBTahn3r9RSeLEFb5Sa8hL7lXZAj9hENw3fY3aE17Rw+XINAVhw0Fq2DZ/gyJ2Xr0UrjsK+lEag6l46ZByq6DfTaipQY/uezxr5qoeoDK6QPZG4YSRGiERLqXsBBkxa8+CKr3bsulqkfuhpmWxsZg8tmcFUvKSXs8QxTY=
 ---
+
+
 
 # Swordholder MVP — 共生公理内化的最小可复现实证与威慑证明
 
@@ -174,3 +176,4 @@ swordholder_mvp/
 |---|---|
 | [deliverable/README-reviewer.md](deliverable/README-reviewer.md) | 参赛评审版：背景→方法→四态实证→攻击面矩阵→复现命令→局限 |
 | [deliverable/README-oss.md](deliverable/README-oss.md) | 开源治理版：口径统一、AIGC 声明、可复现与合规 |
+*（内容由AI生成，仅供参考）*
