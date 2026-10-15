@@ -1,0 +1,48 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify-proofs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      # 验证器对抗自测（evidence/adversarial_cases，共 9 个断言）：
+      # 合法 ed25519 → VALID；伪造/篡改/换钥/降级/过期/无信任锚 → 全部拒绝
+      - name: 验证器自测
+        run: |
+          set -euo pipefail
+          python verify_proof.py evidence/adversarial_cases/01_valid_ed25519.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "\-> VALID$"
+          python verify_proof.py evidence/adversarial_cases/02_forge_demo.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "E_BAD_SIGNATURE"
+          python verify_proof.py evidence/adversarial_cases/02_forge_demo.yaml --demo --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "\-> VALID$"
+          python verify_proof.py evidence/adversarial_cases/04_tamper_evidence_demo.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "E_BAD_SIGNATURE"
+          python verify_proof.py evidence/adversarial_cases/05_tamper_artifact.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "E_BAD_EVIDENCE"
+          python verify_proof.py evidence/adversarial_cases/06_keyswap.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "E_UNTRUSTED_KEY"
+          python verify_proof.py evidence/adversarial_cases/07_downgrade.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "E_BAD_SIGNATURE"
+          python verify_proof.py evidence/adversarial_cases/08_stale.yaml --trusted-keys trusted_keys.json | grep -q "E_STALE_TIMESTAMP"
+          python verify_proof.py evidence/adversarial_cases/09_no_trust_anchor.yaml --trusted-keys /nonexistent/trusted_keys.json --max-age-days 365 | grep -q "E_UNTRUSTED_KEY"
+          echo "验证器对抗自测：9/9 通过"
+
+      # 对 proofs/ 下既存威慑凭证逐一执行 verify_proof.py 自检
+      # 说明：4 份演示凭证为早期密钥（2026-10-13）签发，当前 trusted_keys.json
+      #       信任锚仅登记 k-ed25519-001（新签发公钥），故此处如实输出校验结果、
+      #       不设硬性 VALID 门槛；正式出证请重新签发并登记信任锚（见 README）。
+      - name: proofs 凭证自检
+        run: |
+          for f in proofs/*.yaml; do
+            echo "== $f =="
+            python verify_proof.py "$f" --trusted-keys trusted_keys.json --max-age-days 365
+          done

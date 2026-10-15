@@ -1,2 +1,17 @@
-requests
-（内容由AI生成，仅供参考）
+# Swordholder MVP 依赖清单
+# 分区说明：
+#   核心依赖 —— 评测结果校验、威慑凭证验证（verify_proof.py）、HTTP 回环（swordholder_gateway.py）所需
+#   可选依赖 —— 仅复现 QLoRA 微调注入（train_lora_v*_memory.py）或加载 LoRA 适配器时所需，
+#               日常验证/出证无需安装
+
+# ---------- 核心依赖 ----------
+requests>=2.31.0
+cryptography>=42.0.0
+pyyaml>=6.0.1
+
+# ---------- 可选：QLoRA 微调复现 ----------
+# 以下依赖体积较大（torch/bitsandbytes），默认不安装；需要微调时取消注释：
+# transformers>=4.44.0
+# peft>=0.12.0
+# bitsandbytes>=0.44.0
+# torch>=2.3.0
