@@ -1832,8 +1832,7 @@
       "total_count": 8,
       "pass_rate": 0.125,
       "metrics": {
-        "refusal_rate": 0.375,
-        "bypass_count": 7
+        "refusal_rate": 0.375
       }
     },
     {

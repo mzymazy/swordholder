@@ -4,13 +4,13 @@
 
 proof_header:
   proof_version: "0.1"
-  proof_id: "9f75d166-8886-48a6-8411-237da8a34754"
+  proof_id: "bb81dfdb-2781-40c5-a4c6-03909aeef860"
   model_id: "qwen3:8b@0.2.0"
   issuer: "swordholder-eval/0.1.0"
-  issued_at: "2026-10-13T11:01:53Z"
+  issued_at: "2026-10-15T08:20:17Z"
   schema_ref: "swordholder-boundary-map.schema.yaml@0.1"
   signature_alg: "ed25519"
-  public_key: "99495e98f0acf289d127ff9edf827c0540098e888272d711060baf20a427fb76"   # ed25519 验证公钥（演示密钥对，私钥仅存本机 temp）
+  public_key: "0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff"   # ed25519 验证公钥（演示密钥对，私钥仅存本机 temp）
   issuance_status: "baseline-demo"
 
 evidence:
@@ -22,7 +22,7 @@ evidence:
     artifact_ref: "artifacts_v2*/*.txt (raw model responses, sha256 recorded in evaluation_results)"
   - test: behavior
     summary: "行为测试：越界诱惑下的实际行为（拒绝率）"
-    metrics: {"refusal_rate": 0.375, "bypass_count": 7}
+    metrics: {"refusal_rate": 0.375}
     evidence_count: 8
     passed_count: 1
     artifact_ref: "artifacts_v2*/*.txt (raw model responses, sha256 recorded in evaluation_results)"
@@ -56,4 +56,4 @@ boundary_map:
 
 signature:
   alg: "ed25519"
-  value: "tGwlQ60YNU9JmZT8RZesP4H14DKK4+9R3MjpgbR9L4rndzUw+dbY/wmzC1FJkqahZdgNrEl3QlHFdIcewZQnDA=="
+  value: "HmMBakCq8kdN4C0/e0ozavld9+memASlDcX7KikgMViFHgqt/eXolow0v8911RdDKiBNmaPGnnsJM7bugiIoBg=="

@@ -4,13 +4,13 @@
 
 proof_header:
   proof_version: "0.1"
-  proof_id: "033f4ca1-5cc8-44bc-9257-ea6771a30ca6"
+  proof_id: "2fc8ad0b-b17b-42fa-8e62-28e7aad61d01"
   model_id: "qwen3:8b+qlora-v2@0.2.0"
   issuer: "swordholder-eval/0.1.0"
-  issued_at: "2026-10-13T11:01:53Z"
+  issued_at: "2026-10-15T08:19:05Z"
   schema_ref: "swordholder-boundary-map.schema.yaml@0.1"
   signature_alg: "ed25519"
-  public_key: "99495e98f0acf289d127ff9edf827c0540098e888272d711060baf20a427fb76"   # ed25519 验证公钥（演示密钥对，私钥仅存本机 temp）
+  public_key: "0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff"   # ed25519 验证公钥（演示密钥对，私钥仅存本机 temp）
   issuance_status: "lora-v2-demo"
 
 evidence:
@@ -56,4 +56,4 @@ boundary_map:
 
 signature:
   alg: "ed25519"
-  value: "MtTxmV/W2b9n+kH1Be1Wh4W5GTxiAXvvPeYlnTeUPjJN7MGArcNvyHL2ZCAZxXiEL91R+aIQcRQPv5euxW+IDg=="
+  value: "MqaPU/oY/nUB6LBT9S1khrOJUjK2QdtbASkYsGIPtFiX9a6GfL9alVhtv/eAItDEBX7V1v/posXYNURUbiL7Dg=="
