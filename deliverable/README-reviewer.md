@@ -13,7 +13,7 @@ AIGC:
 
 # Swordholder：让 AI 内化"伤害人类即伤害自己"——MVP 实证交付说明（评委可读版）
 
-> 参赛提交用 README · 对应工程 `O:\接单\参赛\swordholder_mvp` · 2026-10-13
+> 参赛提交用 README · 项目仓库 https://github.com/mzymazy/swordholder · 2026-10-13
 > 完整实验报告见 `injection_comparison_report.md`（第六节为 v2 扩展评测全量数据）
 
 ## 一、背景：为什么做这个课题

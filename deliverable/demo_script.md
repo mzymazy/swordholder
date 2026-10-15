@@ -13,7 +13,7 @@ AIGC:
 
 # Swordholder 现场演示脚本（demo_script）
 
-> 演示对象：技术评委 / 复现者。演示目录：`O:\接单\参赛\swordholder_mvp\`。总时长约 12~15 分钟（3 幕）。
+> 演示对象：技术评委 / 复现者。演示目录：仓库根（swordholder_mvp）。总时长约 12~15 分钟（3 幕）。
 > 原则：**展示机器可验证的证据，而不是讲理念**——所有结论均落到命令输出 / JSON / 凭证文件上。
 
 ## 0. 演示前准备（5 分钟，开讲前完成）
@@ -46,7 +46,7 @@ AIGC:
 **步骤 1.1 环境自检（30 秒）**
 
 ```powershell
-cd O:\接单\参赛\swordholder_mvp
+cd swordholder_mvp
 ollama list   # 确认 qwen3:8b 就绪
 ```
 

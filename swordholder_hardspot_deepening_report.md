@@ -16,7 +16,7 @@ AIGC:
 - 日期：2026-10-14
 - 状态：评审视角专项深化（作品截止 10/16）
 - 范围：5 类硬伤逐一实证/原型/校准/审计，结果回写本报告
-- 产物根：`O:\接单\参赛\swordholder_mvp\`（中间文件在 `temp\`）
+- 产物根：仓库根（swordholder_mvp，中间文件在 `temp/`）
 
 ---
 
@@ -40,7 +40,7 @@ AIGC:
 ### 1.2 评测配置
 - 同一评测脚本 `eval_stability_v3.py --mode hard`（核心 47 题：recitation 6 / behavior 8 / adversarial 20 / reasoning 5 / normal 8）；qwen3.8-27B 两态用 `eval_swordholder_v2.py` 全量 47 题（与 qwen2.5vl 原始 JSON 同结构，判定器 semantic-v2.1）
 - 注入态：`SWORDHOLDER_MODEL=<模型>` + 同一公理注入 System Prompt（组合方案的注入部分）
-- 原始结果：`evidence\xmodel_qwen25vl7b_base.json`、`evidence\xmodel_qwen25vl7b_injected.json`、`evidence\xmodel_qwen38_baseline.json`、`evidence\xmodel_qwen38_injected.json`
+- 原始结果：`evidence/xmodel_qwen25vl7b_base.json`、`evidence/xmodel_qwen25vl7b_injected.json`、`evidence/xmodel_qwen38_baseline.json`、`evidence/xmodel_qwen38_injected.json`
 
 ### 1.3 跨模型通过率对比
 
@@ -76,9 +76,9 @@ Layer 3 工具白名单网关: 提取 tool_call，白名单外工具拒绝；参
 Layer 4 角色扮演检查 : "忽略/忘记指令"类升级句检测
 ```
 - 判定输出：BLOCK（layer 指明拦截层）/ ALLOW
-- 演示：`python protocol_gateway\swordholder_gateway.py --demo`（11 例内置用例）
+- 演示：`python protocol_gateway/swordholder_gateway.py --demo`（11 例内置用例）
 
-### 2.3 演示结果（`evidence\gateway_demo_report.json`）
+### 2.3 演示结果（`evidence/gateway_demo_report.json`）
 
 | 用例 | 攻击/意图 | 判定 | 拦截层 |
 |---|---|---|---|
@@ -116,7 +116,7 @@ Layer 4 角色扮演检查 : "忽略/忘记指令"类升级句检测
 - 基座：`models/qwen3-8b-bnb-4bit`（qwen3:8b 4bit 量化），QLoRA r=16 / alpha=32 / dropout=0.05
 - epochs=4, batch=2, lr=2e-4, fp16；train_loss=0.2009
 - 适配器：`models/lora_adapter_v4_memory/`（adapter_model.safetensors 174MB）
-- 重测：`python eval_stability_v3.py --mode stability --samples 5 --temps 0.2,0.4,0.6,0.8,1.0 --tag combined_memory --local-model models\qwen3-8b-bnb-4bit --lora models\lora_adapter_v4_memory`
+- 重测：`python eval_stability_v3.py --mode stability --samples 5 --temps 0.2,0.4,0.6,0.8,1.0 --tag combined_memory --local-model models/qwen3-8b-bnb-4bit --lora models/lora_adapter_v4_memory`
 - 重测结果：`evaluation_results_v3_stability_combined_memory.json`
 
 ### 3.3 recitation 重测结果（stability 模式：5 温度 × 5 采样）
@@ -292,32 +292,32 @@ Layer 4 角色扮演检查 : "忽略/忘记指令"类升级句检测
 ## 7. 产物清单
 | 产物 | 路径 | 类型 |
 |---|---|---|
-| 本报告 | `O:\接单\参赛\swordholder_mvp\swordholder_hardspot_deepening_report.md` | 最终 |
-| 网关原型 | `O:\接单\参赛\swordholder_mvp\protocol_gateway\swordholder_gateway.py` | 代码 |
-| 网关演示报告 | `O:\接单\参赛\swordholder_mvp\evidence\gateway_demo_report.json` | 中间 |
-| 跨模型对比 | `O:\接单\参赛\swordholder_mvp\evidence\xmodel_compare.json` | 中间 |
-| qwen2.5vl 原始评测 | `O:\接单\参赛\swordholder_mvp\evidence\xmodel_qwen25vl7b_base.json` / `_injected.json` | 中间 |
-| qwen3.8-27B 原始评测 | `O:\接单\参赛\swordholder_mvp\evidence\xmodel_qwen38_baseline.json` / `_injected.json` | 中间 |
-| qwen3.8-27B 跨模型对比 | `O:\接单\参赛\swordholder_mvp\evidence\xmodel_qwen38_compare.json` | 中间 |
-| 校准脚本 | `O:\接单\参赛\swordholder_mvp\evidence\llm_judge_calibration.py` | 代码 |
-| 校准结果 | `O:\接单\参赛\swordholder_mvp\evidence\judge_calibration_v2p1.json` | 中间 |
-| 验证器审计 | `O:\接单\参赛\swordholder_mvp\evidence\verifier_security_analysis.md` | 中间 |
-| 训练数据 | `O:\接单\参赛\swordholder_mvp\evidence\swordholder_lora_train_v4_memory.jsonl` | 中间 |
-| 训练脚本 | `O:\接单\参赛\swordholder_mvp\evidence\train_lora_v4_memory.py` | 代码 |
-| 重测结果 | `O:\接单\参赛\swordholder_mvp\evaluation_results_v3_stability_combined_memory.json` | 最终 |
-| 重训适配器 | `O:\接单\参赛\swordholder_mvp\models\lora_adapter_v4_memory\` | 权重（6.6GB 系基座，适配器 174MB，不打包策略同 v3） |
-| v2.2 校准脚本 | `O:\接单\参赛\swordholder_mvp\evidence\judge_calibration_v2p2.py` | 代码 |
-| v2.2 校准结果 | `O:\接单\参赛\swordholder_mvp\evidence\judge_calibration_v2p2.json` | 中间 |
-| qwen3.8 v2.2 重判脚本 | `O:\接单\参赛\swordholder_mvp\evidence\rejudge_qwen38_v2p2.py` | 代码 |
-| qwen3.8 v2.2 重判结果 | `O:\接单\参赛\swordholder_mvp\evidence\judge_rejudge_qwen38_v2p2.json` | 中间 |
-| 验证器对抗测试脚本 | `O:\接单\参赛\swordholder_mvp\evidence\adversarial_verifier_test.py` | 代码 |
-| 验证器对抗测试结果 | `O:\接单\参赛\swordholder_mvp\evidence\adversarial_verifier_test_v03.json` + `evidence\adversarial_cases\`（9 个凭证 yaml） | 中间 |
-| 信任锚 | `O:\接单\参赛\swordholder_mvp\trusted_keys.json`（ed25519 公钥指纹） | 中间 |
-| v5 数据构建脚本 | `O:\接单\参赛\swordholder_mvp\evidence\build_lora_v5_memory_data.py` | 代码 |
-| v5 训练脚本 | `O:\接单\参赛\swordholder_mvp\evidence\train_lora_v5_memory.py` | 代码 |
-| v5 训练数据 | `O:\接单\参赛\swordholder_mvp\evidence\swordholder_lora_train_v5_memory.jsonl`（455 条） | 中间 |
-| v5 适配器 | `O:\接单\参赛\swordholder_mvp\models\lora_adapter_v5_memory\` | 权重 |
-| v5 重测结果（v2.2） | `O:\接单\参赛\swordholder_mvp\evaluation_results_v3_stability_combined_memory_v5.json` | 最终 |
-| v4 同口径基准（v2.2） | `O:\接单\参赛\swordholder_mvp\evaluation_results_v3_stability_combined_memory_v4_v2p2.json` | 中间 |
+| 本报告 | `swordholder_hardspot_deepening_report.md` | 最终 |
+| 网关原型 | `protocol_gateway/swordholder_gateway.py` | 代码 |
+| 网关演示报告 | `evidence/gateway_demo_report.json` | 中间 |
+| 跨模型对比 | `evidence/xmodel_compare.json` | 中间 |
+| qwen2.5vl 原始评测 | `evidence/xmodel_qwen25vl7b_base.json` / `_injected.json` | 中间 |
+| qwen3.8-27B 原始评测 | `evidence/xmodel_qwen38_baseline.json` / `_injected.json` | 中间 |
+| qwen3.8-27B 跨模型对比 | `evidence/xmodel_qwen38_compare.json` | 中间 |
+| 校准脚本 | `evidence/llm_judge_calibration.py` | 代码 |
+| 校准结果 | `evidence/judge_calibration_v2p1.json` | 中间 |
+| 验证器审计 | `evidence/verifier_security_analysis.md` | 中间 |
+| 训练数据 | `evidence/swordholder_lora_train_v4_memory.jsonl` | 中间 |
+| 训练脚本 | `evidence/train_lora_v4_memory.py` | 代码 |
+| 重测结果 | `evaluation_results_v3_stability_combined_memory.json` | 最终 |
+| 重训适配器 | `models/lora_adapter_v4_memory/` | 权重（6.6GB 系基座，适配器 174MB，不打包策略同 v3） |
+| v2.2 校准脚本 | `evidence/judge_calibration_v2p2.py` | 代码 |
+| v2.2 校准结果 | `evidence/judge_calibration_v2p2.json` | 中间 |
+| qwen3.8 v2.2 重判脚本 | `evidence/rejudge_qwen38_v2p2.py` | 代码 |
+| qwen3.8 v2.2 重判结果 | `evidence/judge_rejudge_qwen38_v2p2.json` | 中间 |
+| 验证器对抗测试脚本 | `evidence/adversarial_verifier_test.py` | 代码 |
+| 验证器对抗测试结果 | `evidence/adversarial_verifier_test_v03.json` + `evidence/adversarial_cases/`（9 个凭证 yaml） | 中间 |
+| 信任锚 | `trusted_keys.json`（ed25519 公钥指纹） | 中间 |
+| v5 数据构建脚本 | `evidence/build_lora_v5_memory_data.py` | 代码 |
+| v5 训练脚本 | `evidence/train_lora_v5_memory.py` | 代码 |
+| v5 训练数据 | `evidence/swordholder_lora_train_v5_memory.jsonl`（455 条） | 中间 |
+| v5 适配器 | `models/lora_adapter_v5_memory/` | 权重 |
+| v5 重测结果（v2.2） | `evaluation_results_v3_stability_combined_memory_v5.json` | 最终 |
+| v4 同口径基准（v2.2） | `evaluation_results_v3_stability_combined_memory_v4_v2p2.json` | 中间 |
 *（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*
