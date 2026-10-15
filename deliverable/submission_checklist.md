@@ -52,14 +52,14 @@ AIGC:
 | 20 | `deliverable/README-oss.md` | 开源仓库 README：仓库结构/核心流程/实测结果/能力边界/开源规划/License 待定 | 开源治理 20% + 长期发展 20% |
 | 21 | `evidence/xadv_qwen38_xadv_{base,injected,combined_8b}.json` + `artifacts_xadv_qwen38_xadv_*/` | xadv 未见攻击面 15 题三态原始数据与逐题工件 | 技术创新 30%（边界诚实） |
 
-> 说明：19/20 为补齐"场景落地/开源治理/长期发展"三栏的评审材料；21 为 v2 打包后新增的 xadv 深化证据，本次 v3 一并纳入。
+> 说明：19/20 为补齐"场景落地/开源治理/长期发展"三栏的评审材料；21 为 v2 打包后新增的 xadv 深化证据，本次 v4 一并纳入。
 
-## 三、提交包结构（实际打包命名：`Swordholder-共生公理-最终提交-20261015-v3.zip`）
+## 三、提交包结构（实际打包命名：`Swordholder-共生公理-最终提交-20261015-v4.zip`）
 
-提交包顶层为 `swordholder_mvp/` 目录（与工程根一致，2026-10-15 重新打包，补齐落地/开源文档与 xadv/v62 深化证据），结构如下：
+提交包顶层为 `swordholder_mvp/` 目录（2026-10-15 v4 最终重打：在 v3 基础上同步修复后的四份 ed25519 凭证与新信任锚、CI 自测样例，评委开箱即可验签 VALID），结构如下：
 
 ```
-Swordholder-共生公理-最终提交-20261015-v3.zip
+Swordholder-共生公理-最终提交-20261015-v4.zip
 └── swordholder_mvp/
     ├── README.md
     ├── README-reviewer.md（deliverable/）
