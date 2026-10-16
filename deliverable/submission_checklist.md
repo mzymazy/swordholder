@@ -25,6 +25,8 @@ AIGC:
 | 3 | `deliverable/submission_checklist.md` | 本文件：提交清单 / 材料目录 / 命名打包 / 合规提示 | 作者自查 + 评委对照 | — |
 | 4 | `deliverable/口径统一说明与AIGC声明模板.md` | 统一边界口径（4 域 vs 5 项描述映射）、监督表述、作者原创工作 AIGC 声明模板 | 作者自查 / 版权合规 | 报名要求"须原创"，必须随附 |
 
+> **必交项之三「作品演示视频」公开链接：https://b23.tv/MCTMgkZ**（B 站，2026-10-16 上传；登记位 `deliverable/demo_video_script.md` §4；上传成片 `swordholder_demo_v9_final.mp4`，118s 真实录屏）。三项必交材料：① 项目仓库 https://github.com/mzymazy/swordholder ② 作品介绍 `deliverable/project_one_pager.pdf`（提交文件夹内文件名 `Swordholder-作品介绍.pdf`）③ 作品演示视频公开链接如上。
+
 ## 二、附交材料（证据与复现，逐层支撑核心结论）
 
 | # | 文件（工程根目录） | 作用 | 评委可验证点 |
@@ -54,12 +56,12 @@ AIGC:
 
 > 说明：19/20 为补齐"场景落地/开源治理/长期发展"三栏的评审材料；21 为 v2 打包后新增的 xadv 深化证据，本次 v9 一并纳入。
 
-## 三、提交包结构（实际打包命名：`Swordholder-共生公理-最终提交-20261016-v9.3.zip`）
+## 三、提交包结构（实际打包命名：`Swordholder-共生公理-最终提交-20261016-v9.4.zip`）
 
-提交包顶层为 `swordholder_mvp/` 目录（2026-10-16 v9 整改版：在 v7 基础上按第三方独立审计 DSH 的 P0/P1/P2 全量整改——四态口径统一为 semantic-v2.2 逐题重判、验证器升级 v0.5、凭证重签、原创声明补齐，评委开箱即可验签 VALID），结构如下：
+提交包顶层为 `swordholder_mvp/` 目录（2026-10-16 v9 整改版：在 v7 基础上按第三方独立审计 DSH 的 P0/P1/P2 全量整改——四态口径统一为 semantic-v2.2 逐题重判、验证器升级 v0.5、凭证重签、原创声明补齐，评委开箱即可验签 VALID；v9.4 补录演示视频公开链接并刷新受影响文档与单页 PDF），结构如下：
 
 ```
-Swordholder-共生公理-最终提交-20261016-v9.3.zip
+Swordholder-共生公理-最终提交-20261016-v9.4.zip
 └── swordholder_mvp/
     ├── README.md
     ├── README-reviewer.md（deliverable/）

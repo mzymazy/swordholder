@@ -57,5 +57,7 @@ AIGC:
 **参赛用名（已定名，报名与材料文件名统一使用）：Swordholder 共生公理（Symbiosis Axiom）**——让 AI 内化"伤害人类即伤害自己"的可验证公理协议，并配套开放评测与机器可验的威慑证明凭证。
 
 > 备选名（仅供主办方了解命名来源，不作为报名名）：Swordholder 持剑者 / 共生威慑 Symbiotic Deterrence。
+
+**提交材料（必交三件套）**：① 项目仓库 https://github.com/mzymazy/swordholder ② 作品介绍（本页 `project_one_pager.pdf`）③ 作品演示视频（公开链接）https://b23.tv/MCTMgkZ
 *（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

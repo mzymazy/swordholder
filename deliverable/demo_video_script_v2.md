@@ -147,6 +147,8 @@ python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
 6. **导出**：MP4/H.264/1080p，≤200MB；优先传 B 站私有链接或 YouTube 不公开链接，附到提交邮件。
 7. **合规**：口径统一为 4 行为域；公理引用双分句完整句；AIGC 标注随文档提交。
 
+8. **公开链接（2026-10-16 补录）**：作品演示视频已上传 B 站，公开链接 **https://b23.tv/MCTMgkZ**（上传成片 `swordholder_demo_v9_final.mp4`，118s 真实录屏）。
+
 ## 8. 素材清单
 
 | 文件 | 用途 |

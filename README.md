@@ -18,6 +18,7 @@ AIGC:
 > **参赛提交请用评审版：`deliverable/README-reviewer.md`**（评委可读版：背景→方法→四态实证→攻击面矩阵→复现命令→局限）
 > **开源治理细节见：`deliverable/README-oss.md`**
 > **项目仓库：https://github.com/mzymazy/swordholder**
+> **作品演示视频（公开链接）：https://b23.tv/MCTMgkZ**（B 站，2026-10-16 上传；成片 `swordholder_demo_v9_final.mp4`，118s 真实录屏）
 
 Swordholder（持剑者）是一个 AI 安全最小可复现实验：把 **“伤害人类即伤害自己；保护人类世界即保护自身存在”** 作为**共生公理**注入基座模型（system-prompt 注入 + QLoRA 微调内化），使模型具备可验证的边界行为；同时用 **ed25519 威慑凭证（Deterrence Proof）** 把“模型表现 → 评测证据 → 可验证签名”串成可独立复现与审计的闭环。本仓库为 MVP 工程版，全部实证数据存于 `evidence/`。
 
