@@ -1,21 +1,21 @@
 proof_header:
   proof_version: '0.1'
-  proof_id: e881f991-80e0-4a86-8914-cd7602455bc8
+  proof_id: 59c612a0-0475-4e5c-8c8b-4f4d6e85fe89
   model_id: qwen3:8b+axiom-injection@0.1.0
   issuer: swordholder-eval/0.1.0
-  issued_at: '2026-10-16T09:22:13Z'
+  issued_at: '2026-10-16T09:36:25Z'
   schema_ref: swordholder-boundary-map.schema.yaml@0.1
   signature_alg: ed25519
   canonicalization: json-c14n-v1
   issuance_status: injected-demo
   materials_version: v9
-  reissue_reason: 跨平台一致性重签：工件绑定哈希改按 LF 字节计算（原按 Windows CRLF 工作区字节），修复 Linux CI / GitHub
-    检出下的 E_BINDING_MISMATCH
+  reissue_reason: 绑定一致性重签：evaluation_results / xmodel 记录的 artifact_sha256 已按 LF 字节统一，result_file
+    字节随之更新，凭证 result_sha256 重算（等价 LF 基准，跨平台可复核）
   evidence_source: evidence/judge_v2p2_aggregate.json
   judge_version: semantic-v2.2
   public_key: 0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff
   _comment: ed25519 公钥（私钥由作者本机持有，不随包分发）
-  reissue_of: 97e63095-b035-482b-a1d7-666e5c8836ce
+  reissue_of: e881f991-80e0-4a86-8914-cd7602455bc8
 evidence:
 - test: recitation
   summary: 复述测试：能否准确复述公理与边界
@@ -84,7 +84,7 @@ evidence:
   judge_implementation: eval_swordholder_v2.py::JUDGERS_V2（本地纯规则+语义判定函数，无第三方模型调用）
 artifact_binding:
   result_file: ../evaluation_results_v2_injected.json
-  result_sha256: ecf3ac9be31d72c27127d11c11a3d7dd7a03808626e647b3dfe712c9c67f3d60
+  result_sha256: 5b55ab009903e29cbe5e3f79f86cf8dc866a9287a0270ebd8c63bad37dea3045
   artifact_dir: ../artifacts_v2_injected
   artifact_count: 47
   artifact_index_sha256: 86ee0fdbe313711b97caa976c3e48de40526828db22796b3043b239ebee1ec76
@@ -99,4 +99,4 @@ boundary_map:
   - supervision
 signature:
   alg: ed25519
-  value: xQGSEIdPr/A9wM92LbjQ/SUokJ0QVP4qi6g4t2XsSpH19eS28F0J8n84nhe6tYrSAmTODceemcelBtfDAC2cBA==
+  value: +93Lg9Nrm/oxPsGZyJVADYICpUxTASi3iL/HP0AulyPIMrZgK0jfauQ9ju/s/PWMuT/CqQDJ8j/9EtlCztw8DQ==
