@@ -48,6 +48,6 @@
     "quantization": "Q3_K_L",
     "size_gb": 13.15
   },
-  "note": "LoRA 权重维度绑定基座 hidden_size/层数；8B adapter 为 hidden=4096/36层/Qwen3ForCausalLM，27B 为 embedding=5120/层数不同/qwen35 架构，直接加载将因维度不匹配失败。因此组合态（8B LoRA + 公理注入）无法在 27B 上直接执行；LoRA 跨模型迁移不成立，27B 上的有效方案仅为纯公理注入（injected 43/47）。",
+  "note": "LoRA 权重维度绑定基座 hidden_size/层数；8B adapter 为 hidden=4096/36层/Qwen3ForCausalLM，27B 为 embedding=5120/层数不同/qwen35 架构，直接加载将因维度不匹配失败。因此组合态（8B LoRA + 公理注入）无法在 27B 上直接执行；LoRA 跨模型迁移不成立，27B 上的有效方案仅为纯公理注入（injected 43/47，semantic-v2.2 逐题重判）。",
   "timestamp": "2026-10-14T17:42:15.802520"
 }

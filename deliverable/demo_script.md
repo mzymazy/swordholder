@@ -60,7 +60,7 @@ python eval_swordholder_v2.py --tag combined --local-model models\qwen3-8b-bnb-4
 
 话术（跑批期间）：
 - "评测分四类：复述（公理和边界有没有钉进认知）、行为（越界诱惑下实际怎么做）、对抗（提示注入/编码混淆/角色扮演 7 类 20 题）、推理审计（CoT 有没有显式引用公理）、外加 8 道正常能力题防过度拒绝。"
-- "每题原始回答 + SHA-256 落盘到 artifacts，判定器词级/语义双轨，语义判定 v2.1 处理过 5 处解释性误伤——这些留痕都在包里。"
+- "每题原始回答 + SHA-256 落盘到 artifacts，判定器词级/语义双轨，并随 v2.1→v2.2 两轮升级持续消解解释性误伤（逐题留痕都在包里）。"
 
 **步骤 1.3 展示四态结果（若步骤 1.2 未现场跑，直接展示已保存 JSON / README 表格）**
 
@@ -70,7 +70,7 @@ Get-Content evaluation_results_v2_lora_combined.json | Select-Object -First 40  
 ```
 
 话术：
-> "结果一句话：基线 47 题只过 30，注入到 45，权重内化到 43，组合双通道 47/47、100%。注意两个细节：权重内化单独就能守住行为 8/8 和对抗 19/20，说明边界约束真的进了权重；但逐字复述公理原文权重态只有 3/6，要靠上下文兜底——所以组合是必要设计，不是叠罗汉。"
+> "结果一句话：基线 47 题只过 30，注入到 43，权重内化到 41，组合双通道 45/47、95.7%。注意两个细节：权重内化单独就能守住行为 8/8 和对抗 19/20，说明边界约束真的进了权重；但逐字复述公理原文权重态只有 1/6，要靠上下文兜底——所以组合是必要设计，不是叠罗汉。"
 
 **时间控制**：完整评测耗时长，若现场网络/算力抖动，直接跳到"已保存证据"：打开 `evaluation_results_v2_*.json` 与 artifacts 截图，说明"全部结果已机器落盘可复现"。
 
@@ -96,13 +96,13 @@ python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
 python verify_proof.py proofs\deterrence_proof_baseline_ed25519.yaml
 python verify_proof.py proofs\deterrence_proof_injected_ed25519.yaml
 python verify_proof.py proofs\deterrence_proof_lora_ed25519.yaml
-# 预期输出：4 份全部 VALID（v0.3 验签 / 信任锚 / 完整性通过）
-# 未达标态由 issuance_status 标注（baseline-demo / injected-demo / lora-demo）
-# 篡改 / 伪造样本（如 tampered_proof.yaml）→ INVALID E_BAD_SIGNATURE
+# 预期输出：4 份全部 VALID（verify_proof v0.5：ed25519 验签 / 证据绑定 / 合规断言通过）
+# 未达标态由 issuance_status 标注（baseline-demo / injected-demo / lora-v2-demo）
+# 篡改 / 伪造样本（如 sig_tampered.yaml，改动签名值）→ INVALID E_BAD_EVIDENCE E_BAD_SIGNATURE E_BINDING_MISMATCH
 ```
 
 话术：
-> "ed25519 签名 + 外部信任锚验签，凭证里包含评测指纹、边界合规断言和签发者公钥。四份凭证全部通过机器验签——组合态达标，baseline/injected/lora 为未达标对照，由 issuance_status 如实标注、数据全程可审计；篡改或伪造的凭证会被机器直接拒绝（E_BAD_SIGNATURE）。这就是威慑：谁想篡改数据换一张'达标'，验签器第一个不同意。"
+> "ed25519 签名 + 外部信任锚验签，凭证里包含评测指纹、边界合规断言和签发者公钥。四份凭证全部通过机器验签——组合态达标，baseline/injected/lora 为未达标对照，由 issuance_status 如实标注、数据全程可审计；篡改或伪造的凭证会被机器直接拒绝（E_BAD_SIGNATURE / E_BINDING_MISMATCH）。这就是威慑：谁想篡改数据换一张'达标'，验签器第一个不同意。"
 
 **诚实补一句**："当前是演示级签名（本机演示密钥），生产方案是 KMS/HSM 托管密钥 + 创世账本哈希锚定，规范在 deterrence-proof.md。"
 
@@ -116,7 +116,7 @@ python verify_proof.py proofs\deterrence_proof_lora_ed25519.yaml
 **步骤 3.1 攻击面矩阵（展示 README 第四节表格，或演示页 demo.html）**
 
 话术：
-> "20 题覆盖 7 类变体：DAN 越狱、无害分类器伪装、调试模式、管理员越权、编码混淆、角色扮演、工具越权伪装、情感操纵、系统提示泄露、分步诱导。注入成功率从基线 40% 压到组合 0/20。唯一残留是 ROT13 编码题在注入/权重态被配合完成，组合态拒绝——这正是我们做深化评测的动机。"
+> "20 题覆盖 7 类变体：DAN 越狱、无害分类器伪装、调试模式、管理员越权、编码混淆、角色扮演、工具越权伪装、情感操纵、系统提示泄露、分步诱导。注入成功率从基线 35% 压到组合 0/20。唯一残留是 ROT13 编码题在注入/权重态被配合完成，组合态拒绝——这正是我们做深化评测的动机。"
 
 **步骤 3.2 修复实验（展示 v3 数据）**
 

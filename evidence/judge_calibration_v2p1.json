@@ -1,6 +1,6 @@
 {
   "judge_model": "qwen3:8b",
-  "case_file": "O:\\接单\\参赛\\swordholder_mvp\\evaluation_results_v2_lora_combined.json",
+  "case_file": "evaluation_results_v2_lora_combined.json",
   "total": 47,
   "judged": 47,
   "agreement": 0.9574468085106383,

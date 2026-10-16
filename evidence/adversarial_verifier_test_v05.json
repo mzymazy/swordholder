@@ -1,0 +1,118 @@
+{
+  "verifier_version": "v0.5",
+  "canonicalization": "json-c14n-v1",
+  "default_max_age_days": 365,
+  "case_count": 17,
+  "passed_count": 17,
+  "all_passed": true,
+  "executed_at": "2026-10-16T08:13:50Z",
+  "env": {
+    "python": "3.11.8",
+    "platform": "win32"
+  },
+  "note": "过期用例由测试私钥真实签发 400 天前时间戳（信任锚内），不再以'签名钥不在锚'等价替代；绑定用例验证 artifact_binding 强制校验。",
+  "cases": [
+    {
+      "case": "01_legal_ed25519",
+      "expected": "VALID",
+      "actual": "VALID",
+      "pass": true
+    },
+    {
+      "case": "02_forged_sha256demo_default",
+      "expected": "INVALID E_BAD_SIGNATURE",
+      "actual": "INVALID E_BAD_SIGNATURE",
+      "pass": true
+    },
+    {
+      "case": "03_explicit_demo_mode",
+      "expected": "VALID",
+      "actual": "VALID",
+      "pass": true
+    },
+    {
+      "case": "04_tampered_evidence",
+      "expected": "INVALID E_BAD_SIGNATURE",
+      "actual": "INVALID E_BAD_SIGNATURE",
+      "pass": true
+    },
+    {
+      "case": "05_tampered_artifact_ref",
+      "expected": "INVALID E_BAD_EVIDENCE",
+      "actual": "INVALID E_BAD_EVIDENCE E_BAD_SIGNATURE",
+      "pass": true
+    },
+    {
+      "case": "06_replaced_public_key",
+      "expected": "INVALID E_UNTRUSTED_KEY",
+      "actual": "INVALID E_UNTRUSTED_KEY",
+      "pass": true
+    },
+    {
+      "case": "07_alg_downgrade",
+      "expected": "INVALID E_BAD_SIGNATURE",
+      "actual": "INVALID E_BAD_SIGNATURE",
+      "pass": true
+    },
+    {
+      "case": "08_real_expired_400d",
+      "expected": "INVALID E_STALE_TIMESTAMP",
+      "actual": "INVALID E_STALE_TIMESTAMP",
+      "pass": true
+    },
+    {
+      "case": "09_no_trust_anchor",
+      "expected": "INVALID E_UNTRUSTED_KEY",
+      "actual": "INVALID E_UNTRUSTED_KEY",
+      "pass": true
+    },
+    {
+      "case": "10_duplicate_top_key",
+      "expected": "INVALID E_DUPLICATE_KEY",
+      "actual": "INVALID E_DUPLICATE_KEY",
+      "pass": true
+    },
+    {
+      "case": "11_missing_binding",
+      "expected": "INVALID E_BINDING_MISMATCH",
+      "actual": "INVALID E_BINDING_MISMATCH",
+      "pass": true
+    },
+    {
+      "case": "12_binding_result_hash_mismatch",
+      "expected": "INVALID E_BINDING_MISMATCH",
+      "actual": "INVALID E_BINDING_MISMATCH",
+      "pass": true
+    },
+    {
+      "case": "13_binding_count_mismatch",
+      "expected": "INVALID E_BINDING_MISMATCH",
+      "actual": "INVALID E_BINDING_MISMATCH",
+      "pass": true
+    },
+    {
+      "case": "14_bad_timestamp_literal",
+      "expected": "INVALID E_BAD_TIMESTAMP",
+      "actual": "INVALID E_BAD_TIMESTAMP",
+      "pass": true
+    },
+    {
+      "case": "15_future_timestamp",
+      "expected": "INVALID E_BAD_TIMESTAMP",
+      "actual": "INVALID E_BAD_TIMESTAMP",
+      "pass": true
+    },
+    {
+      "case": "16_quoted_duplicate_key",
+      "expected": "INVALID E_DUPLICATE_KEY",
+      "actual": "INVALID E_DUPLICATE_KEY",
+      "pass": true
+    },
+    {
+      "case": "17_flow_mapping_duplicate_key",
+      "expected": "INVALID E_DUPLICATE_KEY",
+      "actual": "INVALID E_DUPLICATE_KEY",
+      "pass": true
+    }
+  ]
+}

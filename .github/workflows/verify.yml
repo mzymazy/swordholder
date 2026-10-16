@@ -20,29 +20,66 @@ jobs:
       - name: 安装依赖
         run: pip install -r requirements.txt
 
-      # 验证器对抗自测（evidence/adversarial_cases，共 9 个断言）：
-      # 合法 ed25519 → VALID；伪造/篡改/换钥/降级/过期/无信任锚 → 全部拒绝
-      - name: 验证器自测
+      # 验证器对抗自测 v0.5（17 用例）：脚本在临时目录内构造全部用例，使用独立测试信任锚。
+      # 合法 ed25519 → VALID；伪造签名 / 篡改证据 / 篡改绑定工件 / 换公钥 / 算法降级 /
+      # 真实过期（400 天） / 无信任锚 / 重复顶层键（含引号键与流式映射） / 时间戳非法 / 未来时间
+      # → 全部拒绝且原因码正确。脚本退出码 0 = 17/17 符合预期。
+      - name: 验证器对抗自测（17 用例）
         run: |
           set -euo pipefail
-          python verify_proof.py evidence/adversarial_cases/01_valid_ed25519.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "\-> VALID$"
-          python verify_proof.py evidence/adversarial_cases/02_forge_demo.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "E_BAD_SIGNATURE"
-          python verify_proof.py evidence/adversarial_cases/02_forge_demo.yaml --demo --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "\-> VALID$"
-          python verify_proof.py evidence/adversarial_cases/04_tamper_evidence_demo.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "E_BAD_SIGNATURE"
-          python verify_proof.py evidence/adversarial_cases/05_tamper_artifact.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "E_BAD_EVIDENCE"
-          python verify_proof.py evidence/adversarial_cases/06_keyswap.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "E_UNTRUSTED_KEY"
-          python verify_proof.py evidence/adversarial_cases/07_downgrade.yaml --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "E_BAD_SIGNATURE"
-          python verify_proof.py evidence/adversarial_cases/08_stale.yaml --trusted-keys trusted_keys.json | grep -q "E_STALE_TIMESTAMP"
-          python verify_proof.py evidence/adversarial_cases/09_no_trust_anchor.yaml --trusted-keys /nonexistent/trusted_keys.json --max-age-days 365 | grep -q "E_UNTRUSTED_KEY"
-          echo "验证器对抗自测：9/9 通过"
+          python evidence/adversarial_verifier_test.py
+          python - <<'PY'
+          import json
+          d = json.load(open("evidence/adversarial_verifier_test_v05.json", encoding="utf-8"))
+          assert d["verifier_version"] == "v0.5", d["verifier_version"]
+          assert d["all_passed"] is True, d
+          assert d["case_count"] == 17 and d["passed_count"] == 17, (d["case_count"], d["passed_count"])
+          print("验证器对抗自测：%d/%d 通过" % (d["passed_count"], d["case_count"]))
+          PY
 
-      # 对 proofs/ 下既存威慑凭证逐一执行 verify_proof.py 自检并断言 VALID
-      # 说明：4 份演示凭证均由信任锚 k-ed25519-001（2026-10-15 08:19Z~08:20Z
-      #       签发）签名，实测全部 VALID；此处设硬性 VALID 门槛，失败即 CI 红。
+      # 对 proofs/ 下既存 4 份威慑凭证逐一执行 verify_proof.py 自检并硬性断言 VALID
+      # 说明：4 份凭证均由信任锚 k-ed25519-001 签发，实测全部 VALID；此处设硬性 VALID 门槛，失败即 CI 红。
       - name: proofs 凭证自检
         run: |
+          set -euo pipefail
+          n=0
           for f in proofs/*.yaml; do
             echo "== $f =="
-            python verify_proof.py "$f" --trusted-keys trusted_keys.json --max-age-days 365 | grep -q "\-> VALID$"
+            python verify_proof.py "$f" --trusted-keys trusted_keys.json --max-age-days 365 | grep -q -- "-> VALID$"
+            n=$((n+1))
           done
-          echo "proofs 凭证自检：全部 VALID"
+          if [ "$n" -ne 4 ]; then echo "期望 4 份凭证，实际 $n 份"; exit 1; fi
+          echo "proofs 凭证自检：4/4 全部 VALID"
+
+      # 口径一致性守卫：权威四态数字与验证器版本不得回退（防止文档再次自相矛盾）
+      - name: 口径一致性守卫
+        run: |
+          set -euo pipefail
+          grep -q "semantic-v2.2" README.md
+          grep -q "baseline 30/47" README.md
+          grep -q "45/47" README.md
+          if grep -rq -- "v0.4" README.md deliverable/README-reviewer.md deliverable/README-oss.md; then
+            echo "文档回退到 v0.4 口径"; exit 1
+          fi
+          if grep -rqE -- "对抗自测：1[0]/10" .github README.md deliverable/ 2>/dev/null; then
+            echo "文档回退到 10 用例口径"; exit 1
+          fi
+          echo "口径一致性守卫：通过"
+
+      # 评测记录 ↔ 原始响应工件 绑定审计（v9 新增第三步之外的第 4 步）：
+      # 对承载原始响应的 482 条逐题记录做 T1 文本哈希 / T2 工件字节哈希 / T3 内容包含 三重核验，
+      # 任一不成立即 CI 红。聚合统计记录（无逐题响应）单列为 structured_only，不计入分母。
+      - name: 评测记录↔工件绑定审计（三重核验）
+        run: |
+          set -euo pipefail
+          python evidence/verify_artifact_binding.py
+          python - <<'PY'
+          import json
+          d = json.load(open("evidence/artifact_binding_audit.json", encoding="utf-8"))
+          assert d["all_bound_scope_A"] is True, "存在未绑定记录"
+          assert d["all_content_consistent"] is True, "存在工件内容与响应不一致"
+          assert d["not_bound_count"] == 0, d["not_bound_count"]
+          assert d["T1_response_text_hash_ok"] == d["T2_artifact_bytes_hash_ok"] == d["T3_content_contains_response_ok"]
+          print("绑定审计：%d/%d 三重核验通过（T1/T2/T3 各 %d）" % (
+              d["bound_total"], d["records_with_response"], d["T1_response_text_hash_ok"]))
+          PY

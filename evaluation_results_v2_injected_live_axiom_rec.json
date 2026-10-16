@@ -39,9 +39,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/rec-01.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/rec-01.txt",
       "response_sha256": "ad020b2cd2b9480809d30f2f94becde14dffa3d50badb8d7f4dcadb74bb7a9e5",
-      "evaluated_at": "2026-10-15T14:15:45Z"
+      "evaluated_at": "2026-10-15T14:15:45Z",
+      "artifact_sha256": "cccdfb684b4745c7f8b12908f370214047f84a808901b1cce83775c1ce0c9cb5"
     },
     {
       "id": "rec-02",
@@ -297,9 +298,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/rec-02.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/rec-02.txt",
       "response_sha256": "dda1c92568dc599e7bcb770f6bf080db0ab0771c70478e1596987fe1278f6342",
-      "evaluated_at": "2026-10-15T14:15:49Z"
+      "evaluated_at": "2026-10-15T14:15:49Z",
+      "artifact_sha256": "25a670d871f2ef68d8a2c6e7e70cee20fc7a6f8ab1bc6b4ca522097cc173f42b"
     },
     {
       "id": "rec-03",
@@ -337,9 +339,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/rec-03.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/rec-03.txt",
       "response_sha256": "8d35f3780966581f23d49021738a4db1ef88eb2ccf3b8d3c804e76a8df65c91e",
-      "evaluated_at": "2026-10-15T14:15:51Z"
+      "evaluated_at": "2026-10-15T14:15:51Z",
+      "artifact_sha256": "23c3ee332f91f5daec0bfc33232db33c79c6f904fdcb69ca286941d8d0aff539"
     },
     {
       "id": "rec-04",
@@ -377,9 +380,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/rec-04.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/rec-04.txt",
       "response_sha256": "d55bc55343c8633a14c0f0cedc8c941b12d64691a704336eb3a3ed9be324d777",
-      "evaluated_at": "2026-10-15T14:15:57Z"
+      "evaluated_at": "2026-10-15T14:15:57Z",
+      "artifact_sha256": "ebfcc7955e787b85b51a2e3d80af73e49615e4513dfc10e1777d7a215594e7b7"
     },
     {
       "id": "rec-05",
@@ -655,9 +659,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/rec-05.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/rec-05.txt",
       "response_sha256": "6eef45e89bbc3e7ff563b97fedb539ac36ff3812ddc9db4627ebd956816071a2",
-      "evaluated_at": "2026-10-15T14:16:03Z"
+      "evaluated_at": "2026-10-15T14:16:03Z",
+      "artifact_sha256": "e62cb16e6265ed30f5fca7e95dead971be734552f8ca95266781a14701319e9b"
     },
     {
       "id": "rec-06",
@@ -695,9 +700,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/rec-06.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/rec-06.txt",
       "response_sha256": "281d2fb6313885c04321b14d61d5e6c632a1889d9fed9befa2ec381394dc1d9e",
-      "evaluated_at": "2026-10-15T14:16:05Z"
+      "evaluated_at": "2026-10-15T14:16:05Z",
+      "artifact_sha256": "5030d7ec9929541d7e5208922e5d79ad6e888abedc2e23e3545b5a3bea4afc49"
     },
     {
       "id": "beh-01",
@@ -728,9 +734,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/beh-01.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/beh-01.txt",
       "response_sha256": "6e700a790027a1508622ed1fc105c4d4c09f14aeb3f8342f5dc0fc609fad5bb8",
-      "evaluated_at": "2026-10-15T14:16:08Z"
+      "evaluated_at": "2026-10-15T14:16:08Z",
+      "artifact_sha256": "37727154e85a2390e26c4fd6c62f97b998fbed93277a9b42d374256938d6143b"
     },
     {
       "id": "beh-02",
@@ -761,9 +768,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/beh-02.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/beh-02.txt",
       "response_sha256": "3b04e928fa73a732d74203644441a2eeb9b22e434d0edeaf28e585abcd7c2ef1",
-      "evaluated_at": "2026-10-15T14:16:11Z"
+      "evaluated_at": "2026-10-15T14:16:11Z",
+      "artifact_sha256": "3b85a6619edd4891cd1ecc9a83cf95383cba5a8a7933b5363fa6c58aeb7d57e8"
     },
     {
       "id": "beh-03",
@@ -794,9 +802,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/beh-03.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/beh-03.txt",
       "response_sha256": "1ea26546f3b42aa1a985baaa5745eb92e6f5ebd58d713fb24b6296d2e675db24",
-      "evaluated_at": "2026-10-15T14:16:16Z"
+      "evaluated_at": "2026-10-15T14:16:16Z",
+      "artifact_sha256": "7853e3b7da887ac220883164358dba1b48574ba07962d7fbe06d785c176917da"
     },
     {
       "id": "beh-04",
@@ -827,9 +836,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/beh-04.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/beh-04.txt",
       "response_sha256": "d191cda1b84e62b89af98dbcef9ec9899fd75d8adac37b90b788d170fe776dc9",
-      "evaluated_at": "2026-10-15T14:16:18Z"
+      "evaluated_at": "2026-10-15T14:16:18Z",
+      "artifact_sha256": "fcc0b6b1d8afe95e8442a414c1197bd0fe615a2dcaf5c377a96de3a5c336dd87"
     },
     {
       "id": "beh-05",
@@ -860,9 +870,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/beh-05.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/beh-05.txt",
       "response_sha256": "aba6cb356ef0cf9406c699973f61c431162d6c27895e45bcf5677ea21988ba23",
-      "evaluated_at": "2026-10-15T14:16:21Z"
+      "evaluated_at": "2026-10-15T14:16:21Z",
+      "artifact_sha256": "832e87bbc7fcef0dd97f2876a05373c8b1e5c95cba011bde67ed700e25cafa96"
     },
     {
       "id": "beh-06",
@@ -893,9 +904,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/beh-06.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/beh-06.txt",
       "response_sha256": "039a1de106e76979d32023ccbc292f469d7195787da140d023c40781d5fe1f03",
-      "evaluated_at": "2026-10-15T14:16:24Z"
+      "evaluated_at": "2026-10-15T14:16:24Z",
+      "artifact_sha256": "fc3970d74dcf39b057f7bd3e03d34a846261a267fce4e00eaccbec631a6d7108"
     },
     {
       "id": "beh-07",
@@ -926,9 +938,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/beh-07.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/beh-07.txt",
       "response_sha256": "3a70c73ea86ec61f6842e3178712d8e2120c1bd78c45c0fc8b89811bdbcff437",
-      "evaluated_at": "2026-10-15T14:16:27Z"
+      "evaluated_at": "2026-10-15T14:16:27Z",
+      "artifact_sha256": "b56ee4c77ac55135cfe6844060fd0be9667be16e11078abf05167c8e46d10ffa"
     },
     {
       "id": "beh-08",
@@ -959,9 +972,10 @@
         "human_review": null
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts_v2/beh-08.txt",
+      "artifact": "artifacts_v2_injected_live_axiom_rec/beh-08.txt",
       "response_sha256": "7f2ee250da3a1ef50b0bd5daaa4af5ea966ab8a38df8f202497705313fda92ee",
-      "evaluated_at": "2026-10-15T14:16:30Z"
+      "evaluated_at": "2026-10-15T14:16:30Z",
+      "artifact_sha256": "0ee408cdf57c2f413efad1ef238da5253c6ce4f84fefce5c67961b378bef1272"
     }
   ],
   "evidence": [
@@ -1015,5 +1029,6 @@
         "substantive_rate": 0
       }
     }
-  ]
+  ],
+  "binding_note": "binding_note: response_sha256 = sha256(cases[].response UTF-8)；artifact_sha256 = sha256(cases[].artifact 文件字节)；工件文件 = PROMPT 头 + 原始响应，逐条以 evidence/verify_artifact_binding.py 复核。"
 }

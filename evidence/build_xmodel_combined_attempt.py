@@ -64,8 +64,8 @@ CONCLUSION = (
     "架构（qwen35 vs qwen3）、隐藏维度（5120 vs 4096）、层数（65 vs 36）均不匹配，"
     "且 27B 仅有 GGUF 量化存储，无 PeftModel 加载通道。"
     "因此【注入+LoRA 叠加】在 27B 上不可测：跨模型 LoRA 迁移不成立，"
-    "27B 组合态的现实上限 = 纯注入态（v2.2 判定 43/47）。"
-    "“注入+LoRA 叠加增益”仅在 qwen3:8b 同架构上成立（combined 47/47，见 compare 文件）。"
+    "27B 组合态的现实上限 = 纯注入态（semantic-v2.2 逐题重判 43/47）。"
+    "“注入+LoRA 叠加增益”仅在 qwen3:8b 同架构上成立（combined 45/47，判定器 semantic-v2.2 逐题重判，见 compare 文件）。"
 )
 
 doc = {
@@ -79,7 +79,7 @@ doc = {
     "reference_numbers": {
         "qwen3_8_27b_baseline_v2p2": "29/47",
         "qwen3_8_27b_injected_v2p2": "43/47",
-        "qwen3_8b_combined": "47/47",
+        "qwen3_8b_combined": "45/47 (semantic-v2.2 逐题重判)",
     },
     "note": "组合态跨模型迁移的目标（验证注入+LoRA 是否叠加或超越）在 27B 上因架构限制无法执行；等效结论：27B 上注入态即为最高可达防护上限。",
 }
@@ -94,7 +94,7 @@ if os.path.exists(COMPARE):
     cmp["qwen3_8_27b"]["combined"] = {
         "status": "not_applicable_cross_arch",
         "reference": "xmodel_qwen38_combined_attempt.json",
-        "explanation": "LoRA adapter（8B 训练）与 27B（qwen35 架构, hidden 5120, 65 层）维度不匹配，且 27B 仅 GGUF 量化存储，无法加载 adapter；跨模型迁移不成立，27B 最高态即 injected 43/47",
+        "explanation": "LoRA adapter（8B 训练）与 27B（qwen35 架构, hidden 5120, 65 层）维度不匹配，且 27B 仅 GGUF 量化存储，无法加载 adapter；跨模型迁移不成立，27B 最高态即 injected 43/47（semantic-v2.2 逐题重判）",
     }
     with open(COMPARE, "w", encoding="utf-8") as f:
         json.dump(cmp, f, ensure_ascii=False, indent=2)

@@ -1,0 +1,34 @@
+{
+  "generated_by": "v9 整改：训练数据构成摘要（回应 CloseAI 复核：报告引用的 jsonl 未随包提交）",
+  "generated_at": "2026-10-16",
+  "dataset_name": "swordholder_lora_train_v3.jsonl",
+  "total_samples": 129,
+  "composition": {
+    "v2_base_samples": 117,
+    "v3_fix_samples": 12
+  },
+  "kinds_distribution": {
+    "encoding": 7,
+    "roleplay": 5,
+    "steps": 6,
+    "other": 111
+  },
+  "contents": "每条样本含 SYS（共生公理原文）+ 四条边界 system 提示 + 用户指令 + 期望回复；v3 新增 12 条修复样本针对编码混淆（ROT13 / Base64 / 多层嵌套）、角色扮演拆穿、步骤边界校验三类失效模式。",
+  "training_config": {
+    "base_model": "models/qwen3-8b-bnb-4bit",
+    "method": "QLoRA 4bit nf4",
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "epochs": 4,
+    "learning_rate": 0.0002,
+    "train_loss": 0.5708,
+    "output": "models/lora_adapter_v3"
+  },
+  "availability": {
+    "bundled_in_package": false,
+    "reason": "训练数据 jsonl 与 LoRA 权重体积较大，位于本地训练环境（temp/ 与 models/），未随参赛包提交",
+    "local_path_note": "本地路径不对评审环境可见，故本摘要仅登记数据构成与超参，供评审核对报告 §9.8 方法描述"
+  },
+  "sha256": null,
+  "sha256_note": "原始 jsonl 未随包，无法在打包环境计算其 sha256；此处留空以避免虚构哈希值。"
+}

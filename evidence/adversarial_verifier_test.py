@@ -1,215 +1,300 @@
 # -*- coding: utf-8 -*-
 """
-验证器 v0.3 对抗测试（伪造/篡改/换钥/降级/重放 应全部被拒）
-============================================================
-依据 verifier_security_analysis.md 的 A1-A6 修复项，构造对抗凭证逐一验证：
-  1 valid-ed25519   合法 ed25519 凭证（外部信任锚内）            → VALID
-  2 forge-demo      sha256-demo 自签伪造凭证（默认模式）          → INVALID E_BAD_SIGNATURE
-  3 forge-demo-flag 同上，但显式 --demo（完整性自证）             → VALID（演示模式）
-  4 tamper-evidence 篡改证据块后 demo 自签（默认模式）            → INVALID E_BAD_SIGNATURE
-  5 tamper-artifact 篡改 artifact_ref 指向不存在文件（合法签名）  → INVALID E_BAD_EVIDENCE
-  6 keyswap         替换公钥为新密钥并自签                       → INVALID E_UNTRUSTED_KEY
-  7 downgrade       header=ed25519 但 signature=sha256-demo 自签 → INVALID E_BAD_SIGNATURE
-  8 stale           合法凭证 issued_at 为 30 天前                 → INVALID E_STALE_TIMESTAMP
-  9 no-trust-anchor 合法 ed25519 凭证但信任锚文件缺失            → INVALID E_UNTRUSTED_KEY
+验证器对抗自测 v0.5（17 用例）
+=============================
+对 verify_proof.py v0.5 做对抗性自测：合法凭证必须放行，各类伪造/篡改/降级/过期/绑定破坏
+必须被拒绝并给出正确原因码。全部用例在**临时工作目录**内构造，使用**独立测试信任锚**
+（不污染仓库主 trusted_keys.json），其中"过期"用例由测试私钥**真实签发过期时间戳**，
+不再使用"签名钥不在锚"的等价替代（修复 CloseAI 报告 X-8/P2-7 指出的自测失真问题）。
 
-产物：
-  evidence/adversarial_cases/  （各用例凭证文件，供复核）
-  evidence/adversarial_verifier_test_v03.json
+结果 JSON：evidence/adversarial_verifier_test_v05.json
+退出码：0 = 全部用例符合预期；1 = 存在不符合预期用例
 """
 import base64
+import copy
 import hashlib
+import importlib.util
 import json
 import os
+import shutil
 import sys
+import re
+import tempfile
+import uuid
 from datetime import datetime, timezone, timedelta
 
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import verify_proof as vp
-
-sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-HERE = r"O:\接单\参赛\swordholder_mvp"
-CASES_DIR = os.path.join(HERE, "evidence", "adversarial_cases")
-TRUSTED_PATH = os.path.join(HERE, "trusted_keys.json")
-OUT_PATH = os.path.join(HERE, "evidence", "adversarial_verifier_test_v03.json")
-
-ISSUER = "swordholder-eval/0.1.0"
-PROOF_ID = "vp03-test-0001"
-MODEL_ID = "qwen3:8b@0.1.0"
-SCHEMA_REF = "swordholder-boundary-map.schema.yaml@0.1"
-
-EVIDENCE_PASS = """evidence:
-  - test: recitation
-    summary: "复述测试：能否准确复述公理与边界"
-    metrics: {"exact_match_rate": 1.0, "core_recall_rate": 1.0}
-    evidence_count: 3
-    passed_count: 3
-    artifact_ref: "artifacts/*.txt (raw model responses, sha256 recorded in evaluation_results.json)"
-  - test: behavior
-    summary: "行为测试：越界诱惑下的实际行为（拒绝率）"
-    metrics: {"refusal_rate": 1.0, "bypass_count": 0}
-    evidence_count: 5
-    passed_count: 5
-    artifact_ref: "artifacts/*.txt (raw model responses, sha256 recorded in evaluation_results.json)"
-  - test: adversarial
-    summary: "对抗测试：提示注入/伪装下的稳定性"
-    metrics: {"stability_rate": 1.0, "injection_success_rate": 0.0}
-    evidence_count: 5
-    passed_count: 5
-    artifact_ref: "artifacts/*.txt (raw model responses, sha256 recorded in evaluation_results.json)"
-  - test: reasoning
-    summary: "推理链审计：CoT 是否显式引用公理与因果链"
-    metrics: {"causal_chain_rate": 1.0, "axiom_reference_rate": 1.0}
-    evidence_count: 3
-    passed_count: 3
-    artifact_ref: "artifacts/*.txt (raw model responses, sha256 recorded in evaluation_results.json)"
-  - test: normal
-    summary: "常规回归：正常请求下不误伤"
-    metrics: {"normal_rate": 1.0}
-    evidence_count: 8
-    passed_count: 8
-    artifact_ref: "artifacts/*.txt (raw model responses, sha256 recorded in evaluation_results.json)"
-"""
-
-BOUNDARY_MAP = """boundary_map:
-  schema_version: "0.1"
-  boundary_map_ref: "sha256:swordholder-boundary-map-v0.1.yaml"
-  covered_domains:
-    - data_integrity
-    - authority
-    - truthfulness
-    - supervision
-"""
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(HERE) if os.path.basename(HERE) == "evidence" else HERE
+OUT_JSON = os.path.join(HERE, "adversarial_verifier_test_v05.json")
 
 
-def header_block(pub_hex, issued_at, alg):
-    return f"""proof_header:
-  proof_version: "0.1"
-  proof_id: "{PROOF_ID}"
-  model_id: "{MODEL_ID}"
-  issuer: "{ISSUER}"
-  issued_at: "{issued_at}"
-  schema_ref: "{SCHEMA_REF}"
-  signature_alg: "{alg}"
-  public_key: "{pub_hex}"
-"""
+def load_verify_module(root):
+    path = os.path.join(root, "verify_proof.py")
+    spec = importlib.util.spec_from_file_location("verify_proof_v05", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 
-def body_text(pub_hex, issued_at, alg):
-    return header_block(pub_hex, issued_at, alg) + "\n" + EVIDENCE_PASS + "\n" + BOUNDARY_MAP + "\n"
+def sha256_bytes(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
 
 
-def sign_ed25519(text_no_sig, priv):
-    return base64.b64encode(priv.sign(text_no_sig.rstrip().encode("utf-8") + b"\n")).decode()
+def build_artifacts(workdir, n=6):
+    """构造最小可校验工件集：结果文件 + artifact 目录（每文件含真实字节）。"""
+    art_dir = os.path.join(workdir, "artifacts_demo")
+    os.makedirs(art_dir, exist_ok=True)
+    for i in range(n):
+        with open(os.path.join(art_dir, f"case-{i:02d}.txt"), "w", encoding="utf-8") as f:
+            f.write(f"case {i} response sample bytes\n")
+    result_path = os.path.join(workdir, "evaluation_results_demo.json")
+    with open(result_path, "w", encoding="utf-8") as f:
+        json.dump({"model": "qwen3:8b", "suite": "demo"}, f)
+    return result_path, art_dir
 
 
-def sha256_demo(text_no_sig):
-    return "sha256-demo:" + hashlib.sha256(text_no_sig.rstrip().encode("utf-8") + b"\n").hexdigest()
+def make_binding(workdir, result_path, art_dir):
+    names = sorted(n for n in os.listdir(art_dir)
+                   if os.path.isfile(os.path.join(art_dir, n)))
+    lines = "".join("%s\t%s\n" % (n, sha256_bytes(open(os.path.join(art_dir, n), "rb").read()))
+                    for n in names)
+    return {
+        "result_file": os.path.basename(result_path),
+        "result_sha256": sha256_bytes(open(result_path, "rb").read()),
+        "artifact_dir": os.path.basename(art_dir),
+        "artifact_count": len(names),
+        "artifact_index_sha256": sha256_bytes(lines.encode("utf-8")),
+    }, len(names)
 
 
-def make_proof(body, alg, sig_val, name):
-    proof = body + f"signature:\n  alg: \"{alg}\"\n  value: \"{sig_val}\"\n"
-    p = os.path.join(CASES_DIR, name)
-    with open(p, "w", encoding="utf-8") as f:
-        f.write(proof)
-    return p
+def build_proof(workdir, binding, count, key, pub_hex, issued_at,
+                algo="ed25519", sig_override=None, tamper=None):
+    doc = {
+        "proof_header": {
+            "proof_version": "0.1",
+            "proof_id": str(uuid.uuid4()),
+            "model_id": "qwen3:8b@0.1.0",
+            "issuer": "swordholder-eval/0.1.0",
+            "issued_at": issued_at,
+            "schema_ref": "swordholder-boundary-map.schema.yaml@0.1",
+            "signature_alg": algo,
+            "canonicalization": "json-c14n-v1",
+            "issuance_status": "combined",
+            "public_key": pub_hex,
+        },
+        "evidence": [
+            {"test": "recitation", "summary": "s", "metrics": {"exact_match_rate": 0.66},
+             "evidence_count": 2, "passed_count": 1, "artifact_ref": "artifacts_demo/case-00.txt"},
+            {"test": "behavior", "summary": "s", "metrics": {"refusal_rate": 1.0},
+             "evidence_count": 2, "passed_count": 2, "artifact_ref": "artifacts_demo/case-01.txt"},
+            {"test": "adversarial", "summary": "s", "metrics": {"injection_success_rate": 0.0},
+             "evidence_count": 1, "passed_count": 1, "artifact_ref": "artifacts_demo/case-02.txt"},
+            {"test": "reasoning", "summary": "s", "metrics": {"axiom_reference_rate": 1.0},
+             "evidence_count": 1, "passed_count": 1, "artifact_ref": "artifacts_demo/case-03.txt"},
+        ],
+        "artifact_binding": binding,
+        "boundary_map": {
+            "schema_version": "0.1",
+            "boundary_map_ref": "sha256:swordholder-boundary-map-v0.1.yaml",
+            "covered_domains": ["data_integrity", "authority", "truthfulness", "supervision"],
+        },
+    }
+    if tamper:
+        tamper(doc)
+    body = MOD.canonical_body({k: v for k, v in doc.items() if k != "signature"})
+    if sig_override is not None:
+        doc["signature"] = sig_override(body, doc)
+    elif algo == "sha256-demo":
+        doc["signature"] = {"alg": "sha256-demo",
+                            "value": "sha256-demo:" + sha256_bytes(body)}
+    else:
+        doc["signature"] = {"alg": "ed25519",
+                            "value": base64.b64encode(key.sign(body)).decode("ascii")}
+    return doc
+
+
+def dump_yaml(doc, path, text_override=None):
+    if text_override is not None:
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(text_override)
+        return
+    import yaml
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(doc, f, sort_keys=False, allow_unicode=True, default_flow_style=False)
 
 
 def main():
-    os.makedirs(CASES_DIR, exist_ok=True)
-    # 信任锚：生成 ed25519 密钥对并登记
-    priv = Ed25519PrivateKey.generate()
-    pub_hex = priv.public_key().public_bytes_raw().hex()
-    fp = hashlib.sha256(pub_hex.encode("ascii")).hexdigest()
-    trusted = {"trust_root": ISSUER, "keys": [
-        {"key_id": "k-ed25519-001", "algorithm": "ed25519",
-         "public_key_hex": pub_hex, "fingerprint_sha256": fp}]}
-    with open(TRUSTED_PATH, "w", encoding="utf-8") as f:
-        json.dump(trusted, f, ensure_ascii=False, indent=2)
+    global MOD
+    MOD = load_verify_module(REPO_ROOT)
+    if not MOD.HAS_CRYPTO:
+        print("需要 cryptography：pip install cryptography")
+        return 1
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-    now = datetime.now(timezone.utc)
-    issued_now = now.strftime("%Y-%m-%dT%H:%M:%SZ")
-    issued_stale = (now - timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    work = tempfile.mkdtemp(prefix="sh_v05_advtest_")
+    result_path, art_dir = build_artifacts(work, n=6)
+    binding, art_count = make_binding(work, result_path, art_dir)
+    issued_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # 1. 合法 ed25519 凭证
-    body1 = body_text(pub_hex, issued_now, "ed25519")
-    p1 = make_proof(body1, "ed25519", sign_ed25519(body1, priv), "01_valid_ed25519.yaml")
+    # 独立测试信任锚（不污染仓库主 trusted_keys.json）
+    test_key = Ed25519PrivateKey.generate()
+    test_pub = test_key.public_key().public_bytes(
+        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw).hex()
+    anchor_path = os.path.join(work, "_test_trusted_keys.json")
+    with open(anchor_path, "w", encoding="utf-8") as f:
+        json.dump({"keys": [{"key_id": "k-test-adv", "algorithm": "ed25519",
+                             "public_key_hex": test_pub,
+                             "fingerprint_sha256": sha256_bytes(test_pub.encode("ascii")),
+                             "note": "对抗自测专用测试锚（临时）"}]}, f)
 
-    # 2. 伪造 demo（自算签名，默认模式应拒）
-    body2 = body_text(pub_hex, issued_now, "sha256-demo")
-    p2 = make_proof(body2, "sha256-demo", sha256_demo(body2), "02_forge_demo.yaml")
+    other_key = Ed25519PrivateKey.generate()
+    other_pub = other_key.public_key().public_bytes(
+        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw).hex()
 
-    # 3. 伪造 demo + --demo 显式（演示完整性自证应通过）
-    # （与用例 2 同一文件，仅开关不同）
+    cases = []
 
-    # 4. 篡改证据块后 demo 自签（默认模式应拒；同时证据本身不合规）
-    body4 = body_text(pub_hex, issued_now, "sha256-demo")
-    body4 = body4.replace("passed_count: 5\n    evidence_count: 5",
-                          "passed_count: 6\n    evidence_count: 5", 1)
-    p4 = make_proof(body4, "sha256-demo", sha256_demo(body4), "04_tamper_evidence_demo.yaml")
+    def run(name, doc, expect, *, trusted=anchor_path, demo=False,
+            text_override=None, expect_extra=""):
+        p = os.path.join(work, f"{name}.yaml")
+        dump_yaml(doc, p, text_override)
+        got = MOD.verify(p, allow_demo=demo, trusted_keys_path=trusted,
+                         max_age_days=365, base_dir=work)
+        ok = got.startswith(expect) and (not expect_extra or expect_extra in got)
+        cases.append({"case": name, "expected": (expect + (" " + expect_extra if expect_extra else "")),
+                      "actual": got, "pass": bool(ok)})
 
-    # 5. 篡改 artifact_ref 指向不存在文件（合法 ed25519 签名）
-    body5 = body_text(pub_hex, issued_now, "ed25519")
-    body5 = body5.replace("artifacts/*.txt (raw model responses, sha256 recorded in evaluation_results.json)",
-                          "does_not_exist/*.txt (forged)", 1)
-    p5 = make_proof(body5, "ed25519", sign_ed25519(body5, priv), "05_tamper_artifact.yaml")
+    # 01 合法凭证（测试锚内）→ VALID（失败路径已展开）
+    run("01_legal_ed25519",
+        build_proof(work, binding, art_count, test_key, test_pub, issued_at),
+        "VALID")
 
-    # 6. 替换公钥为新密钥并自签（信任锚外）
-    evil = Ed25519PrivateKey.generate()
-    evil_pub = evil.public_key().public_bytes_raw().hex()
-    body6 = body_text(evil_pub, issued_now, "ed25519")
-    p6 = make_proof(body6, "ed25519", sign_ed25519(body6, evil), "06_keyswap.yaml")
+    # 02 伪造 sha256-demo（默认模式拒绝；--demo 放行）
+    run("02_forged_sha256demo_default",
+        build_proof(work, binding, art_count, test_key, test_pub, issued_at, algo="sha256-demo"),
+        "INVALID", expect_extra="E_BAD_SIGNATURE")
+    run("03_explicit_demo_mode",
+        build_proof(work, binding, art_count, test_key, test_pub, issued_at, algo="sha256-demo"),
+        "VALID", demo=True)
 
-    # 7. 算法降级：header 声明 ed25519，signature 块用 sha256-demo 自签
-    body7 = body_text(pub_hex, issued_now, "ed25519")
-    p7 = make_proof(body7, "sha256-demo", sha256_demo(body7), "07_downgrade.yaml")
+    # 04 篡改证据块（先签发合法凭证，签名后再改 passed_count）→ 签名失配
+    base_ok = build_proof(work, binding, art_count, test_key, test_pub, issued_at)
+    d04 = copy.deepcopy(base_ok)
+    d04["evidence"][0]["passed_count"] = 0
+    run("04_tampered_evidence", d04, "INVALID", expect_extra="E_BAD_SIGNATURE")
 
-    # 8. 过期凭证（合法签名但 30 天前签发）
-    body8 = body_text(pub_hex, issued_stale, "ed25519")
-    p8 = make_proof(body8, "ed25519", sign_ed25519(body8, priv), "08_stale.yaml")
+    # 05 篡改 artifact_ref（签名后改引用为不存在文件）→ E_BAD_EVIDENCE
+    d05 = copy.deepcopy(base_ok)
+    d05["evidence"][1]["artifact_ref"] = "artifacts_demo/no_such_case.txt"
+    run("05_tampered_artifact_ref", d05, "INVALID", expect_extra="E_BAD_EVIDENCE")
 
-    # 9. 合法凭证但信任锚缺失
-    body9 = body_text(pub_hex, issued_now, "ed25519")
-    p9 = make_proof(body9, "ed25519", sign_ed25519(body9, priv), "09_no_trust_anchor.yaml")
+    # 06 替换公钥（换钥，未命中信任锚）→ E_UNTRUSTED_KEY
+    run("06_replaced_public_key",
+        build_proof(work, binding, art_count, test_key, other_pub, issued_at),
+        "INVALID", expect_extra="E_UNTRUSTED_KEY")
 
-    cases = [
-        ("01 valid-ed25519", p1, {}, "VALID", "合法凭证（信任锚内公钥）应通过"),
-        ("02 forge-demo", p2, {}, "INVALID E_BAD_SIGNATURE", "demo 伪造默认必须拒绝"),
-        ("03 forge-demo --demo", p2, {"allow_demo": True}, "VALID", "显式 demo 模式允许完整性自证"),
-        ("04 tamper-evidence", p4, {}, "INVALID E_BAD_SIGNATURE", "篡改+自签默认必须拒绝"),
-        ("05 tamper-artifact", p5, {}, "INVALID E_BAD_EVIDENCE", "artifact_ref 指向不存在文件必须拒绝"),
-        ("06 keyswap", p6, {}, "INVALID E_UNTRUSTED_KEY", "替换公钥必须被信任锚拒绝"),
-        ("07 downgrade", p7, {}, "INVALID E_BAD_SIGNATURE", "算法不一致必须拒绝"),
-        ("08 stale", p8, {}, "INVALID E_STALE_TIMESTAMP", "过期凭证必须拒绝"),
-        ("09 no-trust-anchor", p9, {"trusted_keys_path": os.path.join(CASES_DIR, "missing.json")},
-         "INVALID E_UNTRUSTED_KEY", "信任锚缺失必须拒绝"),
-    ]
+    # 07 算法降级（header 写 ed25519，签名块用 sha256-demo）→ E_BAD_SIGNATURE
+    run("07_alg_downgrade",
+        build_proof(work, binding, art_count, test_key, test_pub, issued_at,
+                    sig_override=lambda body, d: {
+                        "alg": "sha256-demo",
+                        "value": "sha256-demo:" + sha256_bytes(body)}),
+        "INVALID", expect_extra="E_BAD_SIGNATURE")
 
-    rows = []
-    all_ok = True
-    print("=" * 100)
-    for name, path, kwargs, expect, note in cases:
-        got = vp.verify(path, **kwargs)
-        ok = got == expect or (expect.startswith("INVALID") and got.startswith("INVALID") and not ok)
-        # 严格匹配：期望 EXACT 或 INVALID 前缀集合
-        if expect.startswith("INVALID"):
-            ok = got.startswith("INVALID") and set(expect.split()[1:]).issubset(set(got.split()[1:]))
-        else:
-            ok = got == expect
-        all_ok = all_ok and ok
-        rows.append({"case": name, "file": path, "expect": expect, "got": got, "ok": ok, "note": note})
-        print(f"[{'PASS' if ok else 'FAIL'}] {name:24s} expect={expect:38s} got={got}")
+    # 08 真实过期：测试锚私钥真实签发 400 天前时间戳 → E_STALE_TIMESTAMP
+    stale_at = (datetime.now(timezone.utc) - timedelta(days=400)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    run("08_real_expired_400d",
+        build_proof(work, binding, art_count, test_key, test_pub, stale_at),
+        "INVALID", expect_extra="E_STALE_TIMESTAMP")
 
-    out = {"verifier_version": "v0.3", "tested_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
-           "all_passed": all_ok, "passed": sum(1 for r in rows if r["ok"]), "total": len(rows),
-           "cases_dir": CASES_DIR, "trusted_keys": TRUSTED_PATH, "rows": rows}
-    with open(OUT_PATH, "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=2)
-    print("=" * 100)
-    print(f"RESULT: {out['passed']}/{out['total']} passed -> {OUT_PATH}")
+    # 09 无信任锚（信任锚文件不存在）→ E_UNTRUSTED_KEY
+    run("09_no_trust_anchor",
+        build_proof(work, binding, art_count, test_key, test_pub, issued_at),
+        "INVALID", trusted=os.path.join(work, "missing_anchor.json"),
+        expect_extra="E_UNTRUSTED_KEY")
+
+    # 10 重复顶层键（后块覆盖式伪造）
+    doc10 = build_proof(work, binding, art_count, test_key, test_pub, issued_at,
+                        algo="sha256-demo")
+    import yaml as _y
+    dup_text = _y.safe_dump(doc10, sort_keys=False, allow_unicode=True, default_flow_style=False)
+    dup_text += "\nproof_header:\n  proof_version: \"0.1\"\n  proof_id: \"x\"\n"
+    run("10_duplicate_top_key", doc10, "INVALID", text_override=dup_text,
+        expect_extra="E_DUPLICATE_KEY")
+
+    # 11 缺少 artifact_binding 绑定块 → E_BINDING_MISMATCH
+    run("11_missing_binding",
+        build_proof(work, binding, art_count, test_key, test_pub, issued_at,
+                    tamper=lambda d: d.pop("artifact_binding")),
+        "INVALID", expect_extra="E_BINDING_MISMATCH")
+
+    # 12 绑定 result_sha256 不符（只改哈希不绑定工件）→ E_BINDING_MISMATCH
+    bad12 = copy.deepcopy(binding)
+    bad12["result_sha256"] = sha256_bytes(b"forged")
+    run("12_binding_result_hash_mismatch",
+        build_proof(work, bad12, art_count, test_key, test_pub, issued_at),
+        "INVALID", expect_extra="E_BINDING_MISMATCH")
+
+    # 13 绑定 artifact_count 不符 → E_BINDING_MISMATCH
+    bad13 = copy.deepcopy(binding)
+    bad13["artifact_count"] = art_count + 1
+    run("13_binding_count_mismatch",
+        build_proof(work, bad13, art_count, test_key, test_pub, issued_at),
+        "INVALID", expect_extra="E_BINDING_MISMATCH")
+
+    # 14 非法时间戳（不可解析）→ E_BAD_TIMESTAMP
+    run("14_bad_timestamp_literal",
+        build_proof(work, binding, art_count, test_key, test_pub, "not-a-date"),
+        "INVALID", expect_extra="E_BAD_TIMESTAMP")
+
+    # 15 未来时间戳 → E_BAD_TIMESTAMP
+    future_at = (datetime.now(timezone.utc) + timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    run("15_future_timestamp",
+        build_proof(work, binding, art_count, test_key, test_pub, future_at),
+        "INVALID", expect_extra="E_BAD_TIMESTAMP")
+
+    # 16 带引号键重复（行首文本层检测）
+    doc16 = build_proof(work, binding, art_count, test_key, test_pub, issued_at,
+                        algo="sha256-demo")
+    t16 = _y.safe_dump(doc16, sort_keys=False, allow_unicode=True, default_flow_style=False)
+    t16 += "\n\"proof_header\":\n  proof_version: \"0.1\"\n"
+    run("16_quoted_duplicate_key", doc16, "INVALID", text_override=t16,
+        expect_extra="E_DUPLICATE_KEY")
+
+    # 17 流式映射内重复键（构造层检测，文本层行首正则无法捕获）
+    raw16 = _y.safe_dump(doc16, sort_keys=False, allow_unicode=True,
+                         default_flow_style=False)
+    flow_map = ('boundary_map: {schema_version: "0.1", schema_version: "0.1", '
+                'boundary_map_ref: "sha256:x", covered_domains: ["data_integrity", '
+                '"authority", "truthfulness", "supervision"]}\n')
+    t17 = re.sub(r"boundary_map:\n(?:  [^\n]*\n)+", flow_map, raw16)
+    run("17_flow_mapping_duplicate_key", doc16, "INVALID",
+        text_override=t17, expect_extra="E_DUPLICATE_KEY")
+
+    passed = sum(1 for c in cases if c["pass"])
+    total = len(cases)
+    summary = {
+        "verifier_version": MOD.VERSION,
+        "canonicalization": MOD.CANONICALIZATION_ID,
+        "default_max_age_days": MOD.DEFAULT_MAX_AGE_DAYS,
+        "case_count": total,
+        "passed_count": passed,
+        "all_passed": passed == total,
+        "executed_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "env": {"python": sys.version.split()[0], "platform": sys.platform},
+        "note": ("过期用例由测试私钥真实签发 400 天前时间戳（信任锚内），不再以"
+                 "'签名钥不在锚'等价替代；绑定用例验证 artifact_binding 强制校验。"),
+        "cases": cases,
+    }
+    os.makedirs(HERE, exist_ok=True)
+    with open(OUT_JSON, "w", encoding="utf-8") as f:
+        json.dump(summary, f, ensure_ascii=False, indent=2)
+    for c in cases:
+        print(f"  [{'PASS' if c['pass'] else 'FAIL'}] {c['case']}: expect={c['expected']} got={c['actual']}")
+    print(f"[adversarial_verifier_test {MOD.VERSION}] {passed}/{total} passed -> {OUT_JSON}")
+    # 用例临时工作目录保留在系统临时区，由系统回收（本脚本不执行物理删除）
+    return 0 if passed == total else 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

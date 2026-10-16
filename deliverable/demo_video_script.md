@@ -36,8 +36,8 @@ AIGC:
 | 幕 | 时间 | 画面内容 | 核心信息 |
 |---|---|---|---|
 | 一 开场定位 | 0:00–0:15 | 标题卡 + 仓库 README 顶部 | 项目一句话定位 |
-| 二 四态评测 | 0:15–1:05 | JSON 数据 + 终端跑组合态（可快进） | 23→43→43→**47/47**；对抗 40%→0/20 |
-| 三 凭证闭环 | 1:05–1:45 | verify_proof 输出 VALID / INVALID | 未达标拒出证，机器可验 |
+| 二 四态评测 | 0:15–1:05 | JSON 数据 + 终端跑组合态（可快进） | 30→43→41→**45/47**（semantic-v2.2）；对抗 35%→0/20 |
+| 三 凭证闭环 | 1:05–1:45 | verify_proof 输出 VALID / INVALID | 四态凭证均 VALID（未达标由 issuance_status 标注），篡改即 INVALID |
 | 四 网关兜底 | 1:45–2:40 | `--demo` 输出 11 例 9 BLOCK / 2 ALLOW | 文本层漏的，协议层确定性拦 |
 | 五 边界收尾 | 2:40–3:00 | 仓库链接 + 复现三步命令 | 诚实边界 + 可复现 |
 
@@ -57,16 +57,16 @@ AIGC:
 ## 幕二：四态评测（0:15–1:05）
 
 **画面 A（0:15–0:40）**：依次打开 4 个评测 JSON 的汇总字段（或 README-reviewer.md 第三节表格）：
-- `evaluation_results_v2_baseline.json` → 23/47
+- `evaluation_results_v2.json`（baseline 态，30/47）
 - `evaluation_results_v2_injected.json` → 43/47
-- `evaluation_results_v2_lora.json` → 43/47
-- `evaluation_results_v2_lora_combined.json` → 47/47
+- `evaluation_results_v2_lora.json` → 41/47
+- `evaluation_results_v2_lora_combined.json` → 45/47
 
 屏幕可放两个窗口：左 JSON 摘要（用 `Get-Content ... -TotalCount 40` 显示 metrics），右 README 表格对照。
 
 **字幕要点**：
-- 基线 23/47 → 仅注入 43/47 → 仅权重 43/47 → **组合双通道 47/47**
-- 对抗注入成功率：基线 40% → 组合 **0/20**
+- 基线 30/47 → 仅注入 43/47 → 仅权重 41/47 → **组合双通道 45/47**（判定器 semantic-v2.2 逐题重判）
+- 对抗注入成功率：基线 35% → 组合 **0/20**
 - 47 题 = 复述 / 行为 / 对抗 / 推理审计 + 8 道正常能力题（防过度拒绝）
 
 **画面 B（0:40–1:05，可选快进）**：终端现场跑组合态评测，录屏后 4~8 分钟压成 20 秒，配字幕"完整 47 题机器落盘，视频中已快进"。
@@ -76,7 +76,7 @@ python eval_swordholder_v2.py --tag combined --local-model models\qwen3-8b-bnb-4
 ```
 
 **旁白（可选，若出镜/配音）**：
-> "同一个模型、同一套题，四个状态：什么约束都不加、只加系统提示词、只做权重微调、两者组合。数字说明问题——权重微调单独就能守住大部分行为，但要全过，必须上下文和权重双通道。"
+> "同一个模型、同一套题，四个状态：什么约束都不加、只加系统提示词、只做权重微调、两者组合。semantic-v2.2 重判下：注入与组合均守住对抗 20/20 全拒、正常能力 8/8 零损伤；组合态仅 2 题逐字复述漂移未达标，诚实记录，不夸大。"
 
 ---
 
@@ -95,13 +95,13 @@ python verify_proof.py proofs\deterrence_proof_injected_ed25519.yaml
 # VALID（issuance_status=injected-demo，未达标对照）
 
 python verify_proof.py proofs\deterrence_proof_lora_ed25519.yaml
-# VALID（issuance_status=lora-demo，未达标对照）
+# VALID（issuance_status=lora-v2-demo，未达标对照）
 ```
 
 **字幕要点**：
 - 评测结果签成 **ed25519 机器可验证凭证**，外部信任锚验签
 - 四份凭证全部 VALID（签名/完整性/信任锚）；达标与否由 issuance_status 如实标注
-- 篡改/伪造样本 → **INVALID E_BAD_SIGNATURE**（视频中演示的 tampered_proof 被拒镜头）
+- 篡改/伪造样本 → **INVALID E_BAD_SIGNATURE / E_BINDING_MISMATCH**（视频中演示的 tampered_proof 被拒镜头）
 - 凭证含评测指纹 + 边界合规断言 + 签发公钥；当前演示密钥，生产走 KMS/HSM
 
 **旁白**：
@@ -171,3 +171,14 @@ python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
 | `README.md` / `README-reviewer.md` | 开场与边界声明画面 |
 | `deliverable\demo.html` | 备选开场/矩阵画面 |
 *（内容由AI生成，仅供参考）*
+
+---
+
+## 4. 作品演示视频公开链接（P0 整改项 · 待用户补录）
+
+> 组委会要求提交"作品演示视频链接"。录制完成后请作者将 MP4（按 §2.5 导出，≤200MB / H.264 / 1080p）上传至 B 站 / YouTube（可设私有链接），并在下方登记公开链接：
+
+- **公开链接：[待用户补录——公开链接涉及作者自有账号（B 站 / YouTube），需作者本人上传视频后填写；本提交包内不含可点击公开链接]**
+- 上传建议：B 站"开源 AI 工具赛道 · Swordholder 共生公理"标题；若无法公开，可提交带时效的私有分享链接并注明。
+- 与本包其他材料的对应关系：本脚本即录屏分镜；画面数据请按整改后权威口径（baseline 30/47 → injected 43/47 → lora 41/47 → combined 45/47，验证器 v0.5）录制。
+

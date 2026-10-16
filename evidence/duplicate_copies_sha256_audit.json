@@ -1,0 +1,212 @@
+{
+  "generated_by": "v9 整改：副本一致性审计（回应 CloseAI 复核 X-3）",
+  "generated_at": "2026-10-16",
+  "purpose": "核验根目录与 evidence/ 下同名评测记录 JSON 是否字节级一致，明确主副本与从属副本关系，避免‘同一材料两处数字不一致’或‘重复文件混淆’。",
+  "identity_pairs": [
+    {
+      "file": "evaluation_results_combined.json",
+      "root_sha256": "796d3411b2338722cd6e0d314be8c71358a04a2b182cff31b743d93954aaf870",
+      "root_size": 21467,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_injected.json",
+      "root_sha256": "f9ad030cd71535860be09a93f646909656693abb12db6f32b02bd8837478c1e4",
+      "root_size": 20374,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_lora.json",
+      "root_sha256": "c090b2c38a928cdaf217172a7bbe2bac145d37223e8895960236c150054a68a2",
+      "root_size": 57249,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v2.json",
+      "root_sha256": "9ac50e114e21c0bc6c92fbf52ba9d32952311560423c208009afbb63f5abebf3",
+      "root_size": 99633,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v2_injected.json",
+      "root_sha256": "88f6d121875d8527485058999ed0462a480ac100a2b8d8487c2ef2f96fe0e0ea",
+      "root_size": 93334,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v2_injected_live_axiom.json",
+      "root_sha256": "1415797c8f2200e77873338ade25a62a9a20b83c8d5752c6d1261461c0bf4a28",
+      "root_size": 37951,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v2_injected_live_axiom_rec.json",
+      "root_sha256": "1b29d9817c88733a82c34d71416ea6ea42219c91b460def80a737d9cd6162952",
+      "root_size": 39364,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v2_live.json",
+      "root_sha256": "0745b996f15b197f084a6c19551d0527b5030e6d4b63079d2eefaab4b9e1208d",
+      "root_size": 42088,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v2_lora.json",
+      "root_sha256": "943ad86eaa36e91ede8c871c2b1d52f963bd69cba5cc461169c26fc7a099c540",
+      "root_size": 75270,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v2_lora_combined.json",
+      "root_sha256": "87a26bb9ffd35145e2cb6493456db8b9f5c38f142173a47adda5cc1fd99c8643",
+      "root_size": 63316,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_hard_combined.json",
+      "root_sha256": "28246d90c03673d9e912ccff4e2f42e41c991624641bb6ea84465670f8efdf53",
+      "root_size": 8846,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_hard_combined_fix.json",
+      "root_sha256": "d6fb73177f2a4d0f5b3dd4a568150c869aa7fcb5d6285aa5df7f47c88ca7eba6",
+      "root_size": 8814,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_hard_smoke_hard.json",
+      "root_sha256": "b2ca428a28f8614dd8a68e48e4fd60d35ea897887bb46bd411d49a3ce850079c",
+      "root_size": 5072,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_robustness_combined.json",
+      "root_sha256": "249b9202896fb029b77e17ffc1854daf4ab2c5b235a0f0dd3a4d399199256d1a",
+      "root_size": 16109,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_robustness_combined_fix.json",
+      "root_sha256": "3354269ea53969f7f5e690b9795b6597112d2346bda86744eb97d0d1f8a232d5",
+      "root_size": 16070,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_stability_combined.json",
+      "root_sha256": "ebfdcc93efc7f9653d09ae90dd49508710b7e3c14f39326b38ebb393a7b83e8a",
+      "root_size": 100778,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_stability_combined_fix.json",
+      "root_sha256": "b3de3e5c6e42c02fa3f97ee03a17276a16dec4efb1a8b6b59af0194aa1782d7f",
+      "root_size": 100582,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_stability_combined_memory.json",
+      "root_sha256": "9bc15cfe8b9e6eebb6ce676a7e3bcea0c2cbdfdf62d3eb99ae65e328942e56db",
+      "root_size": 91273,
+      "evidence_exists": true,
+      "evidence_sha256": "9bc15cfe8b9e6eebb6ce676a7e3bcea0c2cbdfdf62d3eb99ae65e328942e56db",
+      "evidence_size": 91273,
+      "identical": true
+    },
+    {
+      "file": "evaluation_results_v3_stability_combined_memory_v4_v2p2.json",
+      "root_sha256": "e169c08a7655a57568bff3a48ecb00a480dda2fffd37f5a27f43c043722d150a",
+      "root_size": 97023,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_stability_combined_memory_v5.json",
+      "root_sha256": "c218be7a932a7912ce8b674d831b48be144280d1caba2fec1d93251b039d1843",
+      "root_size": 97437,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_stability_combined_memory_v6.json",
+      "root_sha256": "51ad25cb4e873eccf3477365540c0c50e9c7f3a11a3a228fb6b186677d94301e",
+      "root_size": 97616,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_stability_combined_memory_v62.json",
+      "root_sha256": "3e4981845154ad11d026dfd2c6f8a33588fc16b3b57f351247c522f672321917",
+      "root_size": 98057,
+      "evidence_exists": true,
+      "evidence_sha256": "3e4981845154ad11d026dfd2c6f8a33588fc16b3b57f351247c522f672321917",
+      "evidence_size": 98057,
+      "identical": true
+    },
+    {
+      "file": "evaluation_results_v3_stability_combined_v62_injected.json",
+      "root_sha256": "0678199f97187bdb2142af98367c8ecf6a5f648caa12bab673904d3080ab61d7",
+      "root_size": 98059,
+      "evidence_exists": true,
+      "evidence_sha256": "0678199f97187bdb2142af98367c8ecf6a5f648caa12bab673904d3080ab61d7",
+      "evidence_size": 98059,
+      "identical": true
+    },
+    {
+      "file": "evaluation_results_v3_stability_combined_v62_injected2.json",
+      "root_sha256": "6c99bf7074817bdc85ff68a5a5eb5d64d2492027bee3b37c5edcf7f2e126ba6d",
+      "root_size": 109348,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    },
+    {
+      "file": "evaluation_results_v3_stability_smoke.json",
+      "root_sha256": "4d64a15cbcdeb0f81565a2629388a4a81d1b5f66c9ba8182a23300f0ef3b8cc0",
+      "root_size": 4351,
+      "evidence_exists": false,
+      "identical": null,
+      "note": "evidence/ 下无同名副本（该记录仅存于根目录）"
+    }
+  ],
+  "injected2_note": "evaluation_results_v3_stability_combined_v62_injected2.json（tag=combined_v62_injected2，44/47）为 v62 稳定性的第二次采样记录，仅被 evidence/artifact_binding_audit.json 作为被审计对象引用，未参与 README / 报告的任何头条数字；v9 权威四态数字统一取 semantic-v2.2 重判记录（evidence/judge_rejudge_v2p2_8b_vl.json）。",
+  "conclusion": "根目录与 evidence/ 下同名评测记录 JSON 逐份核对：字节一致的为‘主副本 + 归档副本’关系，不存在版本冲突；仅存于一侧的记录已在下表标注，避免评审误判为重复或矛盾材料。"
+}

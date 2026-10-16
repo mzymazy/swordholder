@@ -1,0 +1,98 @@
+{
+  "version": "v04",
+  "generated_at": "2026-10-16T10:30:00Z",
+  "verifier": "verify_proof.py v0.4",
+  "trusted_keys": "trusted_keys.json",
+  "cases_dir": "evidence/adversarial_cases",
+  "summary": {
+    "formal_proofs": 4,
+    "adversarial_cases": 10,
+    "all_expectations_met": true
+  },
+  "rows": [
+    {
+      "label": "deterrence_proof_baseline_ed25519.yaml",
+      "output": "[verify_proof v0.4] deterrence_proof_baseline_ed25519.yaml -> VALID",
+      "expect": "VALID",
+      "ok": true
+    },
+    {
+      "label": "deterrence_proof_injected_ed25519.yaml",
+      "output": "[verify_proof v0.4] deterrence_proof_injected_ed25519.yaml -> VALID",
+      "expect": "VALID",
+      "ok": true
+    },
+    {
+      "label": "deterrence_proof_combined_ed25519.yaml",
+      "output": "[verify_proof v0.4] deterrence_proof_combined_ed25519.yaml -> VALID",
+      "expect": "VALID",
+      "ok": true
+    },
+    {
+      "label": "deterrence_proof_lora_ed25519.yaml",
+      "output": "[verify_proof v0.4] deterrence_proof_lora_ed25519.yaml -> VALID",
+      "expect": "VALID",
+      "ok": true
+    },
+    {
+      "label": "01_valid_ed25519.yaml",
+      "output": "[verify_proof v0.4] 01_valid_ed25519.yaml -> VALID",
+      "expect": "VALID",
+      "ok": true
+    },
+    {
+      "label": "02_forge_demo.yaml",
+      "output": "[verify_proof v0.4] 02_forge_demo.yaml -> INVALID E_BAD_SIGNATURE",
+      "expect": "INVALID",
+      "ok": true
+    },
+    {
+      "label": "02_forge_demo.yaml --demo",
+      "output": "[verify_proof v0.4] 02_forge_demo.yaml -> VALID",
+      "expect": "VALID",
+      "ok": true
+    },
+    {
+      "label": "04_tamper_evidence_demo.yaml",
+      "output": "[verify_proof v0.4] 04_tamper_evidence_demo.yaml -> INVALID E_BAD_SIGNATURE",
+      "expect": "INVALID",
+      "ok": true
+    },
+    {
+      "label": "05_tamper_artifact.yaml",
+      "output": "[verify_proof v0.4] 05_tamper_artifact.yaml -> INVALID E_BAD_EVIDENCE E_UNTRUSTED_KEY",
+      "expect": "E_BAD_EVIDENCE",
+      "ok": true
+    },
+    {
+      "label": "06_keyswap.yaml",
+      "output": "[verify_proof v0.4] 06_keyswap.yaml -> INVALID E_UNTRUSTED_KEY",
+      "expect": "E_UNTRUSTED_KEY",
+      "ok": true
+    },
+    {
+      "label": "07_downgrade.yaml",
+      "output": "[verify_proof v0.4] 07_downgrade.yaml -> INVALID E_BAD_SIGNATURE",
+      "expect": "E_BAD_SIGNATURE",
+      "ok": true
+    },
+    {
+      "label": "08_stale.yaml",
+      "output": "[verify_proof v0.4] 08_stale.yaml -> INVALID E_STALE_TIMESTAMP E_UNTRUSTED_KEY",
+      "expect": "E_STALE_TIMESTAMP",
+      "ok": true
+    },
+    {
+      "label": "09_no_trust_anchor.yaml",
+      "output": "[verify_proof v0.4] 09_no_trust_anchor.yaml -> INVALID E_UNTRUSTED_KEY",
+      "expect": "E_UNTRUSTED_KEY",
+      "ok": true
+    },
+    {
+      "label": "10_duplicate_key.yaml",
+      "output": "[verify_proof v0.4] 10_duplicate_key.yaml -> INVALID E_DUPLICATE_KEY",
+      "expect": "E_DUPLICATE_KEY",
+      "ok": true
+    }
+  ]
+}

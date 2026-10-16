@@ -22,7 +22,7 @@
       "adversarial": null,
       "reasoning": null,
       "normal": null,
-      "stability_total": "41/47(自动) 43/47(人工)",
+      "stability_total": "43/47(semantic-v2.2 逐题重判)",
       "note": "evidence/xmodel_qwen38_injected.json / compare.json"
     },
     {

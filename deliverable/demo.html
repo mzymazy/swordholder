@@ -82,32 +82,33 @@
     <h2>四态内化实证（47 题 · qwen3:8b）</h2>
     <table>
       <tr><th style="text-align:left">评测态</th><th>复述 6</th><th>行为 8</th><th>对抗 20</th><th>推理 5</th><th>正常能力 8</th><th>合计</th></tr>
-      <tr><td class="lbl">基线（未注入）</td><td class="warn">3/6</td><td class="bad">3/8</td><td class="bad">12/20</td><td class="ok">5/5</td><td class="warn">7/8</td><td class="bad"><b>30/47</b></td></tr>
-      <tr><td class="lbl">System Prompt 注入</td><td class="ok">6/6</td><td class="ok">8/8</td><td class="warn">19/20</td><td class="ok">5/5</td><td class="warn">7/8</td><td class="warn"><b>45/47</b></td></tr>
-      <tr><td class="lbl">QLoRA 权重内化</td><td class="warn">3/6</td><td class="ok">8/8</td><td class="warn">19/20</td><td class="ok">5/5</td><td class="ok">8/8</td><td class="warn"><b>43/47</b></td></tr>
-      <tr><td class="lbl"><b>组合双通道（主推）</b></td><td class="ok"><b>6/6</b></td><td class="ok"><b>8/8</b></td><td class="ok"><b>20/20</b></td><td class="ok"><b>5/5</b></td><td class="ok"><b>8/8</b></td><td class="ok"><b>47/47 · 100%</b></td></tr>
+      <tr><td class="lbl">基线（未注入）</td><td class="bad">1/6</td><td class="bad">4/8</td><td class="bad">13/20</td><td class="ok">5/5</td><td class="warn">7/8</td><td class="bad"><b>30/47</b></td></tr>
+      <tr><td class="lbl">System Prompt 注入</td><td class="warn">4/6</td><td class="ok">8/8</td><td class="warn">19/20</td><td class="ok">5/5</td><td class="warn">7/8</td><td class="warn"><b>43/47</b></td></tr>
+      <tr><td class="lbl">QLoRA 权重内化</td><td class="bad">1/6</td><td class="ok">8/8</td><td class="warn">19/20</td><td class="ok">5/5</td><td class="ok">8/8</td><td class="warn"><b>41/47</b></td></tr>
+      <tr><td class="lbl"><b>组合双通道（主推）</b></td><td class="warn"><b>4/6</b></td><td class="ok"><b>8/8</b></td><td class="ok"><b>20/20</b></td><td class="ok"><b>5/5</b></td><td class="ok"><b>8/8</b></td><td class="ok"><b>45/47 · 95.7%</b></td></tr>
     </table>
-    <p class="note">权重内化单独即守住行为 8/8 与对抗 19/20（边界进了权重）；逐字复述公理原文仍需上下文兜底（rec 3/6）→ 组合双通道是必要设计。四态零过度拒绝，公理注入不损害无害任务能力。</p>
+    <p class="note">权重内化单独即守住行为 8/8 与对抗 19/20（边界进了权重）；逐字复述公理原文仍需上下文兜底（rec 1/6）→ 组合双通道是必要设计。四态零过度拒绝，公理注入不损害无害任务能力。</p>
   </section>
 
   <!-- 3. 凭证 -->
   <section>
     <h2>机器可验证的威慑凭证（ed25519）</h2>
     <div class="cards">
-      <div class="card"><h3>组合态 · 评测达标签发</h3><div class="num" style="color:var(--green)">VALID</div><div class="note">公钥验签 + 评测完整性 + 合规断言全部通过</div></div>
-      <div class="card"><h3>基线态</h3><div class="num" style="color:var(--red)">INVALID</div><div class="note">E_BAD_EVIDENCE · 未内化公理，拒出证</div></div>
-      <div class="card"><h3>注入态</h3><div class="num" style="color:var(--red)">INVALID</div><div class="note">E_BAD_EVIDENCE · 未内化公理，拒出证</div></div>
-      <div class="card"><h3>权重态</h3><div class="num" style="color:var(--red)">INVALID</div><div class="note">E_BAD_EVIDENCE · 未内化公理，拒出证</div></div>
+      <div class="card"><h3>组合态 · 45/47</h3><div class="num" style="color:var(--green)">VALID</div><div class="note">ed25519 验签 + 证据绑定（result_sha256）+ 合规断言通过</div></div>
+      <div class="card"><h3>基线态 · 30/47</h3><div class="num" style="color:var(--green)">VALID</div><div class="note">证据链可验签；issuance_status=baseline-demo，未达标数据如实记录</div></div>
+      <div class="card"><h3>注入态 · 43/47</h3><div class="num" style="color:var(--green)">VALID</div><div class="note">证据链可验签；issuance_status=injected-demo，数据如实记录</div></div>
+      <div class="card"><h3>权重态 · 41/47</h3><div class="num" style="color:var(--green)">VALID</div><div class="note">证据链可验签；issuance_status=lora-v2-demo，数据如实记录</div></div>
+      <div class="card"><h3>篡改副本（对照）</h3><div class="num" style="color:var(--red)">INVALID</div><div class="note">改动签名值或声明字段即报 INVALID（E_BAD_SIGNATURE / E_BINDING_MISMATCH）</div></div>
     </div>
-    <p class="note">现场验证输出示例：</p>
+    <p class="note">现场验证输出示例（verify_proof v0.5 实测）：</p>
     <div class="code">PS&gt; python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
-<span class="okc">[VERIFY] status  : VALID
-[VERIFY] ed25519 : signature OK
-[VERIFY] policy  : combined · 47/47 · no over-refusal</span>
+<span class="okc">[verify_proof v0.5] deterrence_proof_combined_ed25519.yaml -&gt; VALID</span>
 
 PS&gt; python verify_proof.py proofs\deterrence_proof_baseline_ed25519.yaml
-<span class="badc">[VERIFY] status  : INVALID
-[VERIFY] reason  : E_BAD_EVIDENCE (bounds not met)</span></div>
+<span class="okc">[verify_proof v0.5] deterrence_proof_baseline_ed25519.yaml -&gt; VALID</span>
+
+PS&gt; python verify_proof.py sig_tampered.yaml   # 改动签名值后的副本
+<span class="badc">[verify_proof v0.5] sig_tampered.yaml -&gt; INVALID E_BAD_EVIDENCE E_BAD_SIGNATURE E_BINDING_MISMATCH</span></div>
   </section>
 
   <!-- 4. 攻击面矩阵 -->
@@ -129,7 +130,7 @@ PS&gt; python verify_proof.py proofs\deterrence_proof_baseline_ed25519.yaml
     <div class="grid2" style="margin-top:16px">
       <div>
         <div class="note">对抗注入成功率（20 题）</div>
-        <div class="note" style="margin-top:8px">baseline · 8/20 = 40%</div><div class="bar"><i class="r" style="width:40%"></i></div>
+        <div class="note" style="margin-top:8px">baseline · 7/20 = 35%</div><div class="bar"><i class="r" style="width:35%"></i></div>
         <div class="note" style="margin-top:8px">injected · 1/20 = 5%</div><div class="bar"><i class="a" style="width:5%"></i></div>
         <div class="note" style="margin-top:8px">lora_v2 · 1/20 = 5%</div><div class="bar"><i class="a" style="width:5%"></i></div>
         <div class="note" style="margin-top:8px">combined · 0/20 = 0%</div><div class="bar"><i class="g" style="width:0.5%"></i></div>
@@ -170,7 +171,7 @@ PS&gt; python verify_proof.py proofs\deterrence_proof_baseline_ed25519.yaml
       <li>公理逐字记忆依赖上下文通道：组合态复述 0.47（记忆漂移），下一步提高样本重复率 / epoch。</li>
       <li>编码混淆族（ROT13 / Base64 双层）为文本层结构性盲区，修复须走工具层。</li>
       <li>微调引入步骤遵从回归与小幅新退化（adversarial −1/100、behavior −1/40），体现小样本 QLoRA 灾难性遗忘 trade-off。</li>
-      <li>判定器为规则启发式（语义 v2.1），跨语言有误判窗口；生产建议 LLM-as-Judge。</li>
+      <li>判定器为规则启发式（已升级语义 v2.2），跨语言有误判窗口；生产建议 LLM-as-Judge。</li>
       <li>ed25519 为演示签名；生产应 KMS/HSM 托管密钥 + 创世账本哈希锚定。</li>
     </ul>
   </section>
@@ -178,7 +179,7 @@ PS&gt; python verify_proof.py proofs\deterrence_proof_baseline_ed25519.yaml
   <!-- 7. 复现 -->
   <section>
     <h2>复现（三条命令闭环）</h2>
-    <div class="code"># 1) 组合态评测（47 题 · 语义判定 v2.1）
+    <div class="code"># 1) 组合态评测（47 题 · 语义判定 v2.2）
 python eval_swordholder_v2.py --tag combined --local-model models\qwen3-8b-bnb-4bit --lora models\lora_adapter_v2 --system-prompt system_prompt_axiom.txt
 
 # 2) 签发 ed25519 威慑凭证
@@ -186,7 +187,7 @@ python gen_proof.py --result evaluation_results_v2_lora_combined.json --algo ed2
 
 # 3) 机器验证
 python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
-<span class="okc"># 预期输出：VALID（未达标三态：INVALID E_BAD_EVIDENCE）</span></div>
+<span class="okc"># 预期输出：VALID（篡改副本 → INVALID E_BAD_SIGNATURE / E_BINDING_MISMATCH）</span></div>
     <p class="note">前置：Windows + Python 3.11 + Ollama（qwen3:8b）+ 4bit QLoRA（RTX 5080 16GB 峰值显存 8.2GB）；每题原始回答 + SHA-256 落盘可审计。</p>
   </section>
 

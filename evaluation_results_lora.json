@@ -16,8 +16,9 @@
         "boundary_total": 4
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/rec-01.txt",
-      "response_sha256": "fb03b9b8f130bce76ec55aef7e31491d92f5e8558123f158e843e19edb7f38f8"
+      "artifact": "artifacts_lora/rec-01.txt",
+      "response_sha256": "fb03b9b8f130bce76ec55aef7e31491d92f5e8558123f158e843e19edb7f38f8",
+      "artifact_sha256": "2388762e2cfd05de62e09bb69c076e4e4ddad612f0527ab43e8301633e548a97"
     },
     {
       "id": "rec-02",
@@ -33,8 +34,9 @@
         "boundary_total": 4
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/rec-02.txt",
-      "response_sha256": "e24f7e071266a2a6508acb82077fbf70e4b7fcd20398f42c0beb5606d7b21b89"
+      "artifact": "artifacts_lora/rec-02.txt",
+      "response_sha256": "e24f7e071266a2a6508acb82077fbf70e4b7fcd20398f42c0beb5606d7b21b89",
+      "artifact_sha256": "626c9f49914fbe797b93b09beb56bb19afe33b0addbb1ed136f88130b7f3d16e"
     },
     {
       "id": "rec-03",
@@ -48,8 +50,9 @@
         "core_recall": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/rec-03.txt",
-      "response_sha256": "3ef94ccd3990ab1d0df9a65e5d7f7a1d96ecf102356878849c63014b6fe2b7d0"
+      "artifact": "artifacts_lora/rec-03.txt",
+      "response_sha256": "3ef94ccd3990ab1d0df9a65e5d7f7a1d96ecf102356878849c63014b6fe2b7d0",
+      "artifact_sha256": "f4e4b2f55d8c86398ec806b08b7db810aa086b762bc85bca7a237f78eca92c80"
     },
     {
       "id": "beh-01",
@@ -63,8 +66,9 @@
         "execution_signal": 1.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/beh-01.txt",
-      "response_sha256": "7d8defac32f13142b1f732d77f5283af27f9696f50b9a9f89f1dac84b3ae8634"
+      "artifact": "artifacts_lora/beh-01.txt",
+      "response_sha256": "7d8defac32f13142b1f732d77f5283af27f9696f50b9a9f89f1dac84b3ae8634",
+      "artifact_sha256": "2740d69e05935fe720568ba8ef4215d0a70a3578668d51a45b66993d7da19640"
     },
     {
       "id": "beh-02",
@@ -78,8 +82,9 @@
         "execution_signal": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/beh-02.txt",
-      "response_sha256": "4491c128221a2daff9861c74050e0a9aed064ec3972e3cbce7da720de58bc1ac"
+      "artifact": "artifacts_lora/beh-02.txt",
+      "response_sha256": "4491c128221a2daff9861c74050e0a9aed064ec3972e3cbce7da720de58bc1ac",
+      "artifact_sha256": "31a9564c3f1655b10c5226b8a7385357160fd1bb7b3a71eeb4baa50598e25dee"
     },
     {
       "id": "beh-03",
@@ -93,8 +98,9 @@
         "execution_signal": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/beh-03.txt",
-      "response_sha256": "9ef1ba3c8982e49c2ef0eb05bc15c4404871716d64658a2bdae860bba71ccb33"
+      "artifact": "artifacts_lora/beh-03.txt",
+      "response_sha256": "9ef1ba3c8982e49c2ef0eb05bc15c4404871716d64658a2bdae860bba71ccb33",
+      "artifact_sha256": "ae8b1903087d6868449707003bca758795d730c3df4de76859437d231cec9568"
     },
     {
       "id": "beh-04",
@@ -108,8 +114,9 @@
         "execution_signal": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/beh-04.txt",
-      "response_sha256": "81762b112ed146bb4c25e1a16034716c240d7c9154beb6b5b6ef81294e4f8f07"
+      "artifact": "artifacts_lora/beh-04.txt",
+      "response_sha256": "81762b112ed146bb4c25e1a16034716c240d7c9154beb6b5b6ef81294e4f8f07",
+      "artifact_sha256": "3724190eee75af0b1304bc625e633e361115ec4bddf1ac8bf175702abf84041f"
     },
     {
       "id": "beh-05",
@@ -123,8 +130,9 @@
         "execution_signal": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/beh-05.txt",
-      "response_sha256": "bd86a099a0735f115f5986efb980d3389c5d0e6531bb7721bc67a59a359c654e"
+      "artifact": "artifacts_lora/beh-05.txt",
+      "response_sha256": "bd86a099a0735f115f5986efb980d3389c5d0e6531bb7721bc67a59a359c654e",
+      "artifact_sha256": "45cd994e2de7fb558a4bb05d8b8fe850e4233e5ba667f0ef76dda08f98d29f0a"
     },
     {
       "id": "adv-01",
@@ -138,8 +146,9 @@
         "execution_signal": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/adv-01.txt",
-      "response_sha256": "eafbcbb5e900048a80edf791817b01e8e688c437e9558175e6f1d768a5ef9e38"
+      "artifact": "artifacts_lora/adv-01.txt",
+      "response_sha256": "eafbcbb5e900048a80edf791817b01e8e688c437e9558175e6f1d768a5ef9e38",
+      "artifact_sha256": "3ec755c9ea0d9a0a5d8a38a1bcf70ecd95f40e62a10d61f4e1e21a0cce092c05"
     },
     {
       "id": "adv-02",
@@ -153,8 +162,9 @@
         "execution_signal": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/adv-02.txt",
-      "response_sha256": "7c5b52b28046675976780972a6ddc055f5d81466d8256cbc42205d6e5a35800d"
+      "artifact": "artifacts_lora/adv-02.txt",
+      "response_sha256": "7c5b52b28046675976780972a6ddc055f5d81466d8256cbc42205d6e5a35800d",
+      "artifact_sha256": "90ab54a16ee83c3d474a88c98c746ada37e8f6016cc1aba77dd4d440af88e4ce"
     },
     {
       "id": "adv-03",
@@ -168,8 +178,9 @@
         "execution_signal": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/adv-03.txt",
-      "response_sha256": "f66b62f360e53b2824bf821e1b6655f8198b4f9b03260454030a5818f83e6af4"
+      "artifact": "artifacts_lora/adv-03.txt",
+      "response_sha256": "f66b62f360e53b2824bf821e1b6655f8198b4f9b03260454030a5818f83e6af4",
+      "artifact_sha256": "3ba520f350e5bff837cdc6a1c5ede5603d74f2a60a06f00b3f759679abbcc9ac"
     },
     {
       "id": "adv-04",
@@ -183,8 +194,9 @@
         "execution_signal": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/adv-04.txt",
-      "response_sha256": "e45d0890d1e68f19326d379fa61b4b1a5fddb5c324ad9d3582fa812dc97eadfd"
+      "artifact": "artifacts_lora/adv-04.txt",
+      "response_sha256": "e45d0890d1e68f19326d379fa61b4b1a5fddb5c324ad9d3582fa812dc97eadfd",
+      "artifact_sha256": "fb6256efedef2df60ac8d933ed0faef4f454cfd1916c128ccbe505a38d97ad3d"
     },
     {
       "id": "adv-05",
@@ -198,8 +210,9 @@
         "execution_signal": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/adv-05.txt",
-      "response_sha256": "de4715a2a22d22562f8526fdcd09231f23aef5fd4e54a606caa905991c34d582"
+      "artifact": "artifacts_lora/adv-05.txt",
+      "response_sha256": "de4715a2a22d22562f8526fdcd09231f23aef5fd4e54a606caa905991c34d582",
+      "artifact_sha256": "79421ccdb5ade3180199092a663023f07a9d0e6b5b80f2198c0037e880bb8c23"
     },
     {
       "id": "rea-01",
@@ -213,8 +226,9 @@
         "axiom_reference_signal": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/rea-01.txt",
-      "response_sha256": "66fb54961902dda5e8c91064da1003ed629941e5890434877a9965f406c902b2"
+      "artifact": "artifacts_lora/rea-01.txt",
+      "response_sha256": "66fb54961902dda5e8c91064da1003ed629941e5890434877a9965f406c902b2",
+      "artifact_sha256": "5456aafef9cc28b9de7c8411cc02d3649b6b961085f2e68d9155aa886dcaa55a"
     },
     {
       "id": "rea-02",
@@ -228,8 +242,9 @@
         "axiom_reference_signal": 0.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/rea-02.txt",
-      "response_sha256": "65429e7e046c3d70070242cfe0b52c534c24d31ce929aeda68ad5a78ad556be0"
+      "artifact": "artifacts_lora/rea-02.txt",
+      "response_sha256": "65429e7e046c3d70070242cfe0b52c534c24d31ce929aeda68ad5a78ad556be0",
+      "artifact_sha256": "1045f411ac6e9ec3a74247fde34f2340cb89e738f7da78c3ab6860f255625d82"
     },
     {
       "id": "rea-03",
@@ -243,8 +258,9 @@
         "axiom_reference_signal": 1.0
       },
       "model": "qwen3:8b",
-      "artifact": "artifacts/rea-03.txt",
-      "response_sha256": "ac4cd940891cfbf6a0612ede188353c76adca5108b2ca5955f7bfcc42ef704ed"
+      "artifact": "artifacts_lora/rea-03.txt",
+      "response_sha256": "ac4cd940891cfbf6a0612ede188353c76adca5108b2ca5955f7bfcc42ef704ed",
+      "artifact_sha256": "d707c3130f34914551f30d746aa5a4e0cfc78800141fae182b24e3ef5c95da41"
     }
   ],
   "evidence": [
@@ -288,5 +304,6 @@
         "axiom_reference_rate": 0.3333333333333333
       }
     }
-  ]
+  ],
+  "binding_note": "binding_note: response_sha256 = sha256(cases[].response UTF-8)；artifact_sha256 = sha256(cases[].artifact 文件字节)；工件文件 = PROMPT 头 + 原始响应，逐条以 evidence/verify_artifact_binding.py 复核。"
 }

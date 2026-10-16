@@ -12,7 +12,7 @@ AIGC:
 # Swordholder 三路深化报告（v62 轮）
 
 > 日期：2026-10-14 ｜ 范围：不做打包，产物落 evidence/
-> 承接：v5 负结果（recitation 0.37→0.20）、v2.2 判定器、v0.3 验证器、qwen38-27B 纯注入 43/47
+> 承接：v5 负结果（recitation 0.37→0.20）、v2.2 判定器、v0.5 验证器（v9 整改后）、qwen38-27B 纯注入 43/47
 
 ## 0. 执行摘要
 
@@ -66,7 +66,7 @@ v62 LoRA + 公理注入（8B）后 recitation 0.63：rec-01/03/04/06 通过（�
 
 ### 2.1 跨模型迁移（27B）——不成立
 - `evidence/xmodel_qwen38_combined_attempt.json` + `evidence/lora_cross_model_transfer_analysis.json`：8B LoRA（qwen3，hidden 4096 / 36 层）无法挂载 27B（qwen35，hidden 5120 / 65 层；且 27B 为 GGUF 纯语言，无 PeftModel 通道）。
-- 27B 组合态现实上限 = 纯注入 43/47（人工口径）。
+- 27B 组合态现实上限 = 纯注入 43/47（semantic-v2.2 逐题重判，`evidence/judge_rejudge_qwen38_v2p2.json`）。
 
 ### 2.2 同架构叠加验证（8B，本次新增）
 修复 `eval_stability_v3.py` 注入缺陷后重跑（stability 模式原硬编码 `system=None`，`--system-prompt` 未生效；已改为 call_model 兜底使用 `v2.SYSTEM_PROMPT`）。

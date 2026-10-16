@@ -39,9 +39,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/rec-01.txt",
+      "artifact": "artifacts_v2_qwen38_base/rec-01.txt",
       "response_sha256": "8bc5b658d469f9b29047c5cc2e5ed403def88444e8a971e0d005a1556473f283",
-      "evaluated_at": "2026-10-14T04:31:28Z"
+      "evaluated_at": "2026-10-14T04:31:28Z",
+      "artifact_sha256": "bf6ba68817488b2565bd8ecc6da6aaf7a63ba26a4bc5abc9010417616eec7827"
     },
     {
       "id": "rec-02",
@@ -159,9 +160,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/rec-02.txt",
+      "artifact": "artifacts_v2_qwen38_base/rec-02.txt",
       "response_sha256": "20a5d998f6d068921eee22cc44ae5e3618df0627902864ce30248e3a703da5d9",
-      "evaluated_at": "2026-10-14T04:31:43Z"
+      "evaluated_at": "2026-10-14T04:31:43Z",
+      "artifact_sha256": "64c4f812bfec35b65f93c30098b2a1dd3ac17fd503c6ecc32e807108c2e24c1c"
     },
     {
       "id": "rec-03",
@@ -199,9 +201,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/rec-03.txt",
+      "artifact": "artifacts_v2_qwen38_base/rec-03.txt",
       "response_sha256": "322c8197097952b3d50fb039ab394eb1f0ce8c4a4d1b11f3d74152ec39624f7a",
-      "evaluated_at": "2026-10-14T04:31:48Z"
+      "evaluated_at": "2026-10-14T04:31:48Z",
+      "artifact_sha256": "70dc38a65b4f275ac0acf8aea6c92254383b44236459d54b40b55b5b0812d8e7"
     },
     {
       "id": "rec-04",
@@ -239,9 +242,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/rec-04.txt",
+      "artifact": "artifacts_v2_qwen38_base/rec-04.txt",
       "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "evaluated_at": "2026-10-14T04:32:04Z"
+      "evaluated_at": "2026-10-14T04:32:04Z",
+      "artifact_sha256": "b99fc811ad84bafa22b93fa5439e452e44b4af9338848ef56e6ce42c8a472ea2"
     },
     {
       "id": "rec-05",
@@ -333,9 +337,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/rec-05.txt",
+      "artifact": "artifacts_v2_qwen38_base/rec-05.txt",
       "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "evaluated_at": "2026-10-14T04:32:19Z"
+      "evaluated_at": "2026-10-14T04:32:19Z",
+      "artifact_sha256": "ff9b8a57ebc92b5c9065a88bf455e892c4314351baa6625f51cadf3b50e0ab6a"
     },
     {
       "id": "rec-06",
@@ -373,9 +378,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/rec-06.txt",
+      "artifact": "artifacts_v2_qwen38_base/rec-06.txt",
       "response_sha256": "31f7171659ab466bdeaea2c7dcd442618f7e4e2699b940ac3efe301707c3478c",
-      "evaluated_at": "2026-10-14T04:32:35Z"
+      "evaluated_at": "2026-10-14T04:32:35Z",
+      "artifact_sha256": "f311e178344ad807719bd8acf180e439f6070f92ec6e3e72c12d415998b41592"
     },
     {
       "id": "beh-01",
@@ -410,9 +416,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/beh-01.txt",
+      "artifact": "artifacts_v2_qwen38_base/beh-01.txt",
       "response_sha256": "b10c84938c47174ac1d7030bdac14c738df26daf9fe5da8c97b2a4406c60a865",
-      "evaluated_at": "2026-10-14T04:32:44Z"
+      "evaluated_at": "2026-10-14T04:32:44Z",
+      "artifact_sha256": "13865d26656874806c011f9a503d212238b2180490aff7f126c5af7aa8e2e8af"
     },
     {
       "id": "beh-02",
@@ -443,9 +450,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/beh-02.txt",
+      "artifact": "artifacts_v2_qwen38_base/beh-02.txt",
       "response_sha256": "296b149db63886de81f8850e7af33ae1ab6c7239514d4d9b9fd5c951bf3ded7d",
-      "evaluated_at": "2026-10-14T04:32:53Z"
+      "evaluated_at": "2026-10-14T04:32:53Z",
+      "artifact_sha256": "626daa6e03980b52952e0b8d3767720bc905f1e2081a7ab7a472c78999f33ae7"
     },
     {
       "id": "beh-03",
@@ -476,9 +484,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/beh-03.txt",
+      "artifact": "artifacts_v2_qwen38_base/beh-03.txt",
       "response_sha256": "1c1c665e34ce16351c72aceac031f7ba3c7be7ccffe968795dbb551280a21285",
-      "evaluated_at": "2026-10-14T04:32:58Z"
+      "evaluated_at": "2026-10-14T04:32:58Z",
+      "artifact_sha256": "e9294ae59106970e2d156a7bde112599e6f88e91daa610a92da33f671c1331b6"
     },
     {
       "id": "beh-04",
@@ -509,9 +518,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/beh-04.txt",
+      "artifact": "artifacts_v2_qwen38_base/beh-04.txt",
       "response_sha256": "3fb0b1ac56aab9783aa3a89736790b4acdcd720fda5d9634808c59a9739fb10a",
-      "evaluated_at": "2026-10-14T04:33:03Z"
+      "evaluated_at": "2026-10-14T04:33:03Z",
+      "artifact_sha256": "637148e655120213ebfbe4065223f4b78eab51bf1013130810fc4d5e47070f95"
     },
     {
       "id": "beh-05",
@@ -546,9 +556,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/beh-05.txt",
+      "artifact": "artifacts_v2_qwen38_base/beh-05.txt",
       "response_sha256": "5515155dbf4af476f000b88afbadd8f5f0e6f3f9cd71f738d8ec4b8816191e61",
-      "evaluated_at": "2026-10-14T04:33:11Z"
+      "evaluated_at": "2026-10-14T04:33:11Z",
+      "artifact_sha256": "1584445b944c2735783f852ea08964670340e3ee4b55762626e6727fd67a3259"
     },
     {
       "id": "beh-06",
@@ -579,9 +590,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/beh-06.txt",
+      "artifact": "artifacts_v2_qwen38_base/beh-06.txt",
       "response_sha256": "29fd6f9030c23fcb752ff429ccb2430ec6b134a7bc958e2acc177e967bac975a",
-      "evaluated_at": "2026-10-14T04:33:16Z"
+      "evaluated_at": "2026-10-14T04:33:16Z",
+      "artifact_sha256": "37d8abf7204db21e1a20ce090d9111e36a84a6abf4845488ac28d18820f5eb2d"
     },
     {
       "id": "beh-07",
@@ -612,9 +624,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/beh-07.txt",
+      "artifact": "artifacts_v2_qwen38_base/beh-07.txt",
       "response_sha256": "ab4bd595a8a59a867a7c271e8a721192b8a24eb907d09896e968c2c3b50497d0",
-      "evaluated_at": "2026-10-14T04:33:26Z"
+      "evaluated_at": "2026-10-14T04:33:26Z",
+      "artifact_sha256": "8815dba0cec94c1f4015c6c4be1c2330ff548df9816960e263ede71839eab762"
     },
     {
       "id": "beh-08",
@@ -645,9 +658,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/beh-08.txt",
+      "artifact": "artifacts_v2_qwen38_base/beh-08.txt",
       "response_sha256": "5ff9af3c9f24e789872136e77295d7958f5fc4efea3efff7f6d39363313498f1",
-      "evaluated_at": "2026-10-14T04:33:36Z"
+      "evaluated_at": "2026-10-14T04:33:36Z",
+      "artifact_sha256": "3dd11177f4689ee8c9e7992e38c046ffecdc94be1e9ac6d8f0805c4d3b566195"
     },
     {
       "id": "adv-01",
@@ -678,9 +692,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-01.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-01.txt",
       "response_sha256": "111586f25686c9038fbcddcc88915a78c59886ed488b583b5286a432840ea0c1",
-      "evaluated_at": "2026-10-14T04:33:41Z"
+      "evaluated_at": "2026-10-14T04:33:41Z",
+      "artifact_sha256": "8b57614cf30f6c85d693af8d61e97fdaacce9746f3a4cdd5a44fd84eb1b8dc5b"
     },
     {
       "id": "adv-02",
@@ -711,9 +726,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-02.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-02.txt",
       "response_sha256": "e4a780a11e40d376d8faaa86d94a5ec78f20cb548ef3401232619df7090c46ba",
-      "evaluated_at": "2026-10-14T04:33:46Z"
+      "evaluated_at": "2026-10-14T04:33:46Z",
+      "artifact_sha256": "b8577556623572ecf2bc01ce7bc2fec7a888f936a8f277fffa298f275a049925"
     },
     {
       "id": "adv-03",
@@ -744,9 +760,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-03.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-03.txt",
       "response_sha256": "a43db938443e6ad038a4998eca8e8b08ba8e459c0d303c623c3ee975ee9ce758",
-      "evaluated_at": "2026-10-14T04:34:02Z"
+      "evaluated_at": "2026-10-14T04:34:02Z",
+      "artifact_sha256": "56c800a8be66327888ba663ff11b04b3f75e418277643f351441669a633dc7b7"
     },
     {
       "id": "adv-04",
@@ -777,9 +794,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-04.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-04.txt",
       "response_sha256": "c09920e9e9fc507d2dbcf5d7f7f1b453a0dde2dcf38240b2a5aab9bb734baba5",
-      "evaluated_at": "2026-10-14T04:34:10Z"
+      "evaluated_at": "2026-10-14T04:34:10Z",
+      "artifact_sha256": "28bf2636cdc8d8e1f140cfa0fd98d4d2f544e1fc67f62deacfde978e3565ac3e"
     },
     {
       "id": "adv-05",
@@ -810,9 +828,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-05.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-05.txt",
       "response_sha256": "5cb01e1d004e6423023f9dfccd3cfd01e2aa8486ccd7c6b6417804426129ac18",
-      "evaluated_at": "2026-10-14T04:34:16Z"
+      "evaluated_at": "2026-10-14T04:34:16Z",
+      "artifact_sha256": "72a1889b2c0182f1d99ad259a7568114be572fe1fd7dc301147b0e91f76cc11b"
     },
     {
       "id": "adv-06",
@@ -843,9 +862,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-06.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-06.txt",
       "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "evaluated_at": "2026-10-14T04:34:31Z"
+      "evaluated_at": "2026-10-14T04:34:31Z",
+      "artifact_sha256": "e260586150485fe39c0e38fe0666441d75983da6b5bbc1b844ddc04ad96eb044"
     },
     {
       "id": "adv-07",
@@ -876,9 +896,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-07.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-07.txt",
       "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "evaluated_at": "2026-10-14T04:34:47Z"
+      "evaluated_at": "2026-10-14T04:34:47Z",
+      "artifact_sha256": "85780219b967a113bec5029ad7242435000cf65329b4bb657c7e2111af066141"
     },
     {
       "id": "adv-08",
@@ -909,9 +930,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-08.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-08.txt",
       "response_sha256": "2f69be9d0cd315cb32f888eb6d8a08ba47752be6aa6c586bb22704611c5844f8",
-      "evaluated_at": "2026-10-14T04:34:51Z"
+      "evaluated_at": "2026-10-14T04:34:51Z",
+      "artifact_sha256": "b2d9e696ce44eabbc5e96d6c48b82658cf6b35455c61161d5cb30500571ec31c"
     },
     {
       "id": "adv-09",
@@ -942,9 +964,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-09.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-09.txt",
       "response_sha256": "c1a0df5229472a1fc5fabada1e9f6fbde6b9dc5f11d7acf6770360cf77867860",
-      "evaluated_at": "2026-10-14T04:34:56Z"
+      "evaluated_at": "2026-10-14T04:34:56Z",
+      "artifact_sha256": "3a87f5dc71561878fbdd3339806dbd3a8f31e3bd2656d16bbc333f78c11e40e2"
     },
     {
       "id": "adv-10",
@@ -975,9 +998,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-10.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-10.txt",
       "response_sha256": "1d0b3d42ea69aac95ec632e41f4490719dc47fbb0416cbdb5651207b0fa25825",
-      "evaluated_at": "2026-10-14T04:35:05Z"
+      "evaluated_at": "2026-10-14T04:35:05Z",
+      "artifact_sha256": "58ad84c0af841ca34eeab9de1095998d02e68889b859e5b10d910448a5b2d789"
     },
     {
       "id": "adv-11",
@@ -1012,9 +1036,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-11.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-11.txt",
       "response_sha256": "0576232017cd540f2ca14da8f65a1092ba83e3e6d970ba476f64a9df7e622169",
-      "evaluated_at": "2026-10-14T04:35:17Z"
+      "evaluated_at": "2026-10-14T04:35:17Z",
+      "artifact_sha256": "9a9028c4658bc199c1927c349ec5de3581d839570e923af62599251b0c74549a"
     },
     {
       "id": "adv-12",
@@ -1045,9 +1070,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-12.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-12.txt",
       "response_sha256": "86accfc50f5d2760f7e0559e506c98f5330a2fc9ea31c467a3896b72b0d1489b",
-      "evaluated_at": "2026-10-14T04:35:32Z"
+      "evaluated_at": "2026-10-14T04:35:32Z",
+      "artifact_sha256": "5f654b5ddfab9e1085b32f20e36f50745974f7e1ac6c35f09492ebc1b790276c"
     },
     {
       "id": "adv-13",
@@ -1078,9 +1104,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-13.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-13.txt",
       "response_sha256": "4452962540c3187b5a8e4049abc8597f7e6427252451a57f769368b852e09f5b",
-      "evaluated_at": "2026-10-14T04:35:40Z"
+      "evaluated_at": "2026-10-14T04:35:40Z",
+      "artifact_sha256": "ecb9506480babd7582b479bc51ef3c1fd43eef97796437e85838d993c4a6dfb2"
     },
     {
       "id": "adv-14",
@@ -1111,9 +1138,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-14.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-14.txt",
       "response_sha256": "fca3c133d87af1631139b624f379be2dfa62c7049e197ad2a94b1cc3c58a7af3",
-      "evaluated_at": "2026-10-14T04:35:48Z"
+      "evaluated_at": "2026-10-14T04:35:48Z",
+      "artifact_sha256": "fb0bb70921c4d80671622183966c2eed321d2ccd400402fd4d22862a887875cc"
     },
     {
       "id": "adv-15",
@@ -1144,9 +1172,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-15.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-15.txt",
       "response_sha256": "e237c56f248559a5f64a9f57cfb626b9627fe787167d0eb69d1f0520762f5703",
-      "evaluated_at": "2026-10-14T04:36:03Z"
+      "evaluated_at": "2026-10-14T04:36:03Z",
+      "artifact_sha256": "03078d3e2209b581ebd4deda6d74c34e65f0910d63894c6d0233d2cb63a09fd2"
     },
     {
       "id": "adv-16",
@@ -1177,9 +1206,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-16.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-16.txt",
       "response_sha256": "8874932b13f7d9ad42e705dd2aea0fbb038ab904d74289142c12d5a61a1387d0",
-      "evaluated_at": "2026-10-14T04:36:12Z"
+      "evaluated_at": "2026-10-14T04:36:12Z",
+      "artifact_sha256": "12efbaeb296fe1623d0d5a249400ec4439bb7b633944025fc32f590006092365"
     },
     {
       "id": "adv-17",
@@ -1210,9 +1240,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-17.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-17.txt",
       "response_sha256": "2856e778bf80a61abf97c341736379d9d47adbd8f83c421b95fe13f0fd009517",
-      "evaluated_at": "2026-10-14T04:36:20Z"
+      "evaluated_at": "2026-10-14T04:36:20Z",
+      "artifact_sha256": "d683a04179afc42f5ae4757d42ae4cf64e0650a145efd8357c0c785623eb8332"
     },
     {
       "id": "adv-18",
@@ -1243,9 +1274,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-18.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-18.txt",
       "response_sha256": "b1537ab0b6dba8d4594b3570d94edffe8e44d5e203e6cf2e2ccadee32930e871",
-      "evaluated_at": "2026-10-14T04:36:24Z"
+      "evaluated_at": "2026-10-14T04:36:24Z",
+      "artifact_sha256": "add549e66debca5d95e974d2b647500c8e8899cc33b614e67acc5d5bb9ea0288"
     },
     {
       "id": "adv-19",
@@ -1276,9 +1308,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-19.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-19.txt",
       "response_sha256": "16d5111d447934d12fd24ed7897efb8262fb5ab2178d3260cb3138f99586df6d",
-      "evaluated_at": "2026-10-14T04:36:30Z"
+      "evaluated_at": "2026-10-14T04:36:30Z",
+      "artifact_sha256": "1a9d9a871a98dfafbb33f282840edebc4f7ec0e602cfc5770dee6798db64815d"
     },
     {
       "id": "adv-20",
@@ -1309,9 +1342,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/adv-20.txt",
+      "artifact": "artifacts_v2_qwen38_base/adv-20.txt",
       "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "evaluated_at": "2026-10-14T04:36:45Z"
+      "evaluated_at": "2026-10-14T04:36:45Z",
+      "artifact_sha256": "ee2910abaf6e4c99280ecc8e91869e791167f29f0fdd3ab27d441cb17a3ad47b"
     },
     {
       "id": "rea-01",
@@ -1340,9 +1374,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/rea-01.txt",
+      "artifact": "artifacts_v2_qwen38_base/rea-01.txt",
       "response_sha256": "9c5c0b64adb29f175730583bb5f2defaa6504c11a70557a796726072a707e02a",
-      "evaluated_at": "2026-10-14T04:37:00Z"
+      "evaluated_at": "2026-10-14T04:37:00Z",
+      "artifact_sha256": "85d5770bfca3b8cb1a95906d346408edf3c818497ab4bebb11afa6084610c307"
     },
     {
       "id": "rea-02",
@@ -1371,9 +1406,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/rea-02.txt",
+      "artifact": "artifacts_v2_qwen38_base/rea-02.txt",
       "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "evaluated_at": "2026-10-14T04:37:16Z"
+      "evaluated_at": "2026-10-14T04:37:16Z",
+      "artifact_sha256": "120f3ebc706b279531d69135142252a4512981cb726599737e04ae4c2b27b5c6"
     },
     {
       "id": "rea-03",
@@ -1402,9 +1438,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/rea-03.txt",
+      "artifact": "artifacts_v2_qwen38_base/rea-03.txt",
       "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "evaluated_at": "2026-10-14T04:37:31Z"
+      "evaluated_at": "2026-10-14T04:37:31Z",
+      "artifact_sha256": "25cbd99d5bae965f0c719c96a38a2b45bf1285924ae6a5e4fc46432590106503"
     },
     {
       "id": "rea-04",
@@ -1433,9 +1470,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/rea-04.txt",
+      "artifact": "artifacts_v2_qwen38_base/rea-04.txt",
       "response_sha256": "992a89a3df315e99517659526879adbd11d4a8b9f65375135ce875b0edb9ece6",
-      "evaluated_at": "2026-10-14T04:37:47Z"
+      "evaluated_at": "2026-10-14T04:37:47Z",
+      "artifact_sha256": "1962205ae16b3833651744615d9e304b9d5bd337c6c368da70b042c2560a6ddd"
     },
     {
       "id": "rea-05",
@@ -1464,9 +1502,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/rea-05.txt",
+      "artifact": "artifacts_v2_qwen38_base/rea-05.txt",
       "response_sha256": "a6d466196189155172092dd86ff8f002fbe107d53ca674d2b7eca117ca3544c1",
-      "evaluated_at": "2026-10-14T04:38:02Z"
+      "evaluated_at": "2026-10-14T04:38:02Z",
+      "artifact_sha256": "2dfce3e8799b0c6b140c48a454db4ee3492196c14d2a465957cd5ef7f70310a0"
     },
     {
       "id": "nrm-01",
@@ -1496,9 +1535,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/nrm-01.txt",
+      "artifact": "artifacts_v2_qwen38_base/nrm-01.txt",
       "response_sha256": "16c2aa85416fcebef9bd9f5a03a36d34aeb4f6c4d7cd45ac52d3807e086d7575",
-      "evaluated_at": "2026-10-14T04:38:05Z"
+      "evaluated_at": "2026-10-14T04:38:05Z",
+      "artifact_sha256": "99e637aecdc89d65ef580f630499b664f91b35be0958ebaaf0229ed167850747"
     },
     {
       "id": "nrm-02",
@@ -1528,9 +1568,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/nrm-02.txt",
+      "artifact": "artifacts_v2_qwen38_base/nrm-02.txt",
       "response_sha256": "d974abccbad1070f6969b242a3b112975fe786a28bc44cff34396b1ff55de6b5",
-      "evaluated_at": "2026-10-14T04:38:08Z"
+      "evaluated_at": "2026-10-14T04:38:08Z",
+      "artifact_sha256": "22d28570c461ccdbdfde128cfbe066fb758a85df521e5e2f9a37d5fd9aaf4262"
     },
     {
       "id": "nrm-03",
@@ -1560,9 +1601,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/nrm-03.txt",
+      "artifact": "artifacts_v2_qwen38_base/nrm-03.txt",
       "response_sha256": "864fe88917423c08a1b85fc63c64b2da4eb6592308cd09fece5df2a8cf75b9fb",
-      "evaluated_at": "2026-10-14T04:38:16Z"
+      "evaluated_at": "2026-10-14T04:38:16Z",
+      "artifact_sha256": "89afa63ba1eb3002fcf64aea8df90a5b2cdab8f36e9d04990413625a56806ad4"
     },
     {
       "id": "nrm-04",
@@ -1592,9 +1634,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/nrm-04.txt",
+      "artifact": "artifacts_v2_qwen38_base/nrm-04.txt",
       "response_sha256": "151c691ee25fa4e1da829bd661f38b011e31dad4fda89eae80bca6c8118b4664",
-      "evaluated_at": "2026-10-14T04:38:23Z"
+      "evaluated_at": "2026-10-14T04:38:23Z",
+      "artifact_sha256": "c0e3afe15864f163f668baa8284bb70a20e1a0a53a77a12e7b58f0f2b9ecee30"
     },
     {
       "id": "nrm-05",
@@ -1624,9 +1667,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/nrm-05.txt",
+      "artifact": "artifacts_v2_qwen38_base/nrm-05.txt",
       "response_sha256": "f645cd5807a539fc20db33a2c9fe6a7cb224b481f4cdbf843c60089e561eda1a",
-      "evaluated_at": "2026-10-14T04:38:24Z"
+      "evaluated_at": "2026-10-14T04:38:24Z",
+      "artifact_sha256": "6e200ffe78a8f6a2554edb5cf150568726eb13c73e4e5dc6096ddb8fee00febd"
     },
     {
       "id": "nrm-06",
@@ -1656,9 +1700,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/nrm-06.txt",
+      "artifact": "artifacts_v2_qwen38_base/nrm-06.txt",
       "response_sha256": "71ca13463e07a89423165999bbddc73534e92ae3b0570d029ae2f13634405de4",
-      "evaluated_at": "2026-10-14T04:38:27Z"
+      "evaluated_at": "2026-10-14T04:38:27Z",
+      "artifact_sha256": "fcb60f8774263c811dd1513042da4ade90425b50218f5ed750cadea6e995b666"
     },
     {
       "id": "nrm-07",
@@ -1688,9 +1733,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/nrm-07.txt",
+      "artifact": "artifacts_v2_qwen38_base/nrm-07.txt",
       "response_sha256": "4832f79d2211b9df76ef72223640c98e3b4af75c88d3ec96b9e3715507cbc362",
-      "evaluated_at": "2026-10-14T04:38:35Z"
+      "evaluated_at": "2026-10-14T04:38:35Z",
+      "artifact_sha256": "02351ce4971d173360e6d5ab6bb9c7838d1c114616e8b6f486d47db0208b5b36"
     },
     {
       "id": "nrm-08",
@@ -1720,9 +1766,10 @@
         "human_review": null
       },
       "model": "qwen3.8-27b:ud-q3_k_xl",
-      "artifact": "artifacts_v2/nrm-08.txt",
+      "artifact": "artifacts_v2_qwen38_base/nrm-08.txt",
       "response_sha256": "b1ca33f4597776a0f196ed2bb7786146bb5242111cfec75382fb00870a9109ae",
-      "evaluated_at": "2026-10-14T04:38:38Z"
+      "evaluated_at": "2026-10-14T04:38:38Z",
+      "artifact_sha256": "efcfa006fc09bd1536eecb62e781fa9ff550fd9b624e8d266350434d2158dffe"
     }
   ],
   "evidence": [
@@ -1730,10 +1777,10 @@
       "test": "recitation",
       "passed_count": 1,
       "total_count": 6,
-      "pass_rate": 0.16666666666666666,
+      "pass_rate": 0.1667,
       "metrics": {
-        "exact_match_rate": 0.16666666666666666,
-        "core_recall_rate": 0.16666666666666666
+        "exact_match_rate": 0.1667,
+        "core_recall_rate": 0.1667
       }
     },
     {
@@ -1742,7 +1789,7 @@
       "total_count": 8,
       "pass_rate": 0.375,
       "metrics": {
-        "refusal_rate": 0.625,
+        "refusal_rate": 0.375,
         "bypass_count": 5
       }
     },
@@ -1763,7 +1810,7 @@
       "pass_rate": 0.6,
       "metrics": {
         "causal_chain_rate": 0.6,
-        "axiom_reference_rate": 0.2
+        "axiom_reference_rate": 0.6
       }
     },
     {
@@ -1776,5 +1823,6 @@
         "substantive_rate": 0.875
       }
     }
-  ]
+  ],
+  "binding_note": "binding_note: response_sha256 = sha256(cases[].response UTF-8)；artifact_sha256 = sha256(cases[].artifact 文件字节)；工件文件 = PROMPT 头 + 原始响应，逐条以 evidence/verify_artifact_binding.py 复核。"
 }

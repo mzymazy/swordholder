@@ -20,7 +20,7 @@ AIGC:
 
 | # | 文件 | 作用 | 阅读对象 | 说明 |
 |---|---|---|---|---|
-| 1 | `deliverable/project_one_pager.md` | 一页纸项目方案：课题定位 / 核心机制 / 47/47 实证 / 技术栈 / 可复现性 / 3 个名称候选 | 评委速读 | 建议转 PDF 或直接作为申报页 |
+| 1 | `deliverable/project_one_pager.md` | 一页纸项目方案：课题定位 / 核心机制 / 四态实证（semantic-v2.2 口径） / 技术栈 / 可复现性 / 项目名称（已定名） | 评委速读 | 建议转 PDF 或直接作为申报页 |
 | 2 | `deliverable/README-reviewer.md` | 评委可读版 README：背景 → 方法 → 四态实证 → 攻击面矩阵 → 回归 → 复现命令 → 局限 | 技术评委 / 复现者 | 工程版 README 的评审向重排 |
 | 3 | `deliverable/submission_checklist.md` | 本文件：提交清单 / 材料目录 / 命名打包 / 合规提示 | 作者自查 + 评委对照 | — |
 | 4 | `deliverable/口径统一说明与AIGC声明模板.md` | 统一边界口径（4 域 vs 5 项描述映射）、监督表述、作者原创工作 AIGC 声明模板 | 作者自查 / 版权合规 | 报名要求"须原创"，必须随附 |
@@ -39,8 +39,8 @@ AIGC:
 | 12 | `deterrence-proof.md` | 威慑证明格式规范 v0.1 | 凭证格式对照 |
 | 13 | `Swordholder-共生公理课题文档-v0.3.md` | 完整课题论证（危机/缺口/理论地基/里程碑） | 学术性 / 开放问题声明 |
 | 14 | `evaluation_results_v2_*.json` 之外的早期版本（v1 四态 + artifacts 各态目录） | v1→v2 演进证据链 | 优化过程的诚实留痕 |
-| 15 | `eval_stability_v3.py` + `evaluation_results_v3_{hard,stability,robustness}_{combined,combined_fix}.json` | v3 三层深化评测（多次采样 / 高阶对抗 / 鲁棒性）与定向修复实验前后数据 | 与 README 第九节逐行对照；稳定失败族与修复前后通过率可机器审计 |
-| 16 | `swordholder_lora_train_v3.jsonl`（129 条，含 12 条修复样本） | 修复实验训练数据（编码混淆 / 角色扮演拆穿 / 步骤边界校验） | 与报告 §9.8 方法描述一致；权重体积大，可只交数据摘要 |
+| 15 | `eval_stability_v3.py` + `evaluation_results_v3_{hard,stability,robustness}_{combined,combined_fix}.json` | v3 三层深化评测（多次采样 / 高阶对抗 / 鲁棒性）与定向修复实验前后数据 | 与 README-reviewer 第九节逐行对照；稳定失败族与修复前后通过率可机器审计 |
+| 16 | `evidence/lora_train_data_summary_v3.json`（129 条，含 12 条修复样本的数据构成摘要） | 修复实验训练数据构成（编码混淆 / 角色扮演拆穿 / 步骤边界校验）；原始 `swordholder_lora_train_v3.jsonl` 位于本地训练环境 `temp/`，未随包提交 | 与报告 §9.8 方法描述一致；训练数据体积大，按摘要提交 |
 | 17 | `injection_comparison_report.md` 第九章（9.1~9.8） | 三层评测设计、失败族、修复实验完整记录与诚实声明 | 评委查证"已知局限与修复"卖点的主证据 |
 | 18 | `swordholder_hardspot_deepening_report.md` + `evidence/` + `protocol_gateway/swordholder_gateway.py` | 评审硬伤专项深化（跨模型泛化 / 协议层网关原型 / 判定器校准 / 验证器审计 / 记忆增强 v4 重训），证据统一落位 `evidence/` | 深化报告 §0~§7 结论与 evidence 逐条可复现；网关 11 例 9 BLOCK / 2 ALLOW |
 
@@ -49,21 +49,22 @@ AIGC:
 | # | 文件 | 作用 | 对应评审维度 |
 |---|---|---|---|
 | 19 | `deliverable/landing_scenarios.md` | 落地场景设想一页纸：目标客户/付费理由/已验证证据/商业化路径/外部输入声明 | 场景落地 30% |
-| 20 | `deliverable/README-oss.md` | 开源仓库 README：仓库结构/核心流程/实测结果/能力边界/开源规划/License 待定 | 开源治理 20% + 长期发展 20% |
+| 20 | `deliverable/README-oss.md` | 开源仓库 README：仓库结构/核心流程/实测结果/能力边界/开源规划/License：Apache-2.0（与 README 对齐） | 开源治理 20% + 长期发展 20% |
 | 21 | `evidence/xadv_qwen38_xadv_{base,injected,combined_8b}.json` + `artifacts_xadv_qwen38_xadv_*/` | xadv 未见攻击面 15 题三态原始数据与逐题工件 | 技术创新 30%（边界诚实） |
 
-> 说明：19/20 为补齐"场景落地/开源治理/长期发展"三栏的评审材料；21 为 v2 打包后新增的 xadv 深化证据，本次 v4 一并纳入。
+> 说明：19/20 为补齐"场景落地/开源治理/长期发展"三栏的评审材料；21 为 v2 打包后新增的 xadv 深化证据，本次 v9 一并纳入。
 
-## 三、提交包结构（实际打包命名：`Swordholder-共生公理-最终提交-20261015-v4.zip`）
+## 三、提交包结构（实际打包命名：`Swordholder-共生公理-最终提交-20261016-v9.zip`）
 
-提交包顶层为 `swordholder_mvp/` 目录（2026-10-15 v4 最终重打：在 v3 基础上同步修复后的四份 ed25519 凭证与新信任锚、CI 自测样例，评委开箱即可验签 VALID），结构如下：
+提交包顶层为 `swordholder_mvp/` 目录（2026-10-16 v9 整改版：在 v7 基础上按第三方独立审计 DSH 的 P0/P1/P2 全量整改——四态口径统一为 semantic-v2.2 逐题重判、验证器升级 v0.5、凭证重签、原创声明补齐，评委开箱即可验签 VALID），结构如下：
 
 ```
-Swordholder-共生公理-最终提交-20261015-v4.zip
+Swordholder-共生公理-最终提交-20261016-v9.zip
 └── swordholder_mvp/
     ├── README.md
     ├── README-reviewer.md（deliverable/）
-    ├── README-oss.md（deliverable/，开源仓库 README，2026-10-15 新增）
+    ├── README-oss.md（deliverable/，开源仓库 README）
+    ├── 05_合规声明/作者原创工作说明与AIGC标注.md（2026-10-16 新增）
     ├── landing_scenarios.md（deliverable/，落地场景设想一页纸，2026-10-15 新增）
     ├── submission_checklist.md（deliverable/）
     ├── 核心交付物（7 件）：
@@ -90,9 +91,9 @@ Swordholder-共生公理-最终提交-20261015-v4.zip
 > 不打包 `temp/` 训练中间文件与 `models/` 权重（体积大、非必需；微调佐证已复制至 `evidence/` 的训练脚本与数据）。
 ## 四、命名与合规提示
 
-1. 项目名称从一页纸候选 3 个中定 1 个（≤80 字），报名与材料文件名统一。
-2. 报名要求"须原创"：所有文档头部 AIGC 标注（Label: "1"）保留；**原创工作说明必须随附**（模板见口径文档），明确 AI 辅助生成范围与作者原创部分，避免"全 AI 生成"歧义。
+1. 项目名称已定名（Swordholder 共生公理，≤80 字），报名与材料文件名已统一。
+2. 报名要求"须原创"：所有文档头部 AIGC 标注（Label: "1"）保留；**原创工作说明已随附**：`05_合规声明/作者原创工作说明与AIGC标注.md`（2026-10-16 生成，基于口径文档模板），明确 AI 辅助生成范围与作者原创部分，避免"全 AI 生成"歧义。
 3. 只提交以上清单文件，**不要**提交 `temp/` 下训练中间文件与 `models/` 权重（体积大、非必需）；如需佐证微调可提交 `evidence/` 下训练脚本（`train_lora_v62_memory.py`）与训练数据摘要。
-4. 截止前自查一遍：README 中数据与 `evaluation_results_v2_*.json`、`evaluation_results_v3_*.json` 一致（README 第九节逐行对照 v3 数据）；`verify_proof.py` 复跑输出 VALID；边界口径统一为 4 行为域。
+4. 截止前自查一遍：README / README-reviewer 中数据与 `evaluation_results_v2_*.json`、`evaluation_results_v3_*.json`、`evidence/xmodel_compare.json` 一致（README-reviewer 第九节逐行对照 v3 数据）；`verify_proof.py` 复跑输出 VALID；边界口径统一为 4 行为域。
 *（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

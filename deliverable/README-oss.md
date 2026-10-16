@@ -22,7 +22,7 @@ swordholder_mvp/
 ├── eval_swordholder.py / v2        # 四类评测主链（注入/工具滥用/数据完整性/监督逃逸）
 ├── eval_stability_v3.py            # 稳定性评测（固定种子+温度采样，多次采样暴露乐观偏差）
 ├── eval_xadv_v1.py                 # 未见攻击面扩展评测（15 题与主链零重复）
-├── gen_proof.py / verify_proof.py  # ed25519 威慑证明凭证生成与独立验证（v0.3 含对抗测试）
+├── gen_proof.py / verify_proof.py  # ed25519 威慑证明凭证生成与独立验证（v0.5 含对抗测试，17 用例）
 ├── system_prompt_axiom.txt         # 共生公理系统提示词
 ├── protocol_gateway/
 │   └── swordholder_gateway.py      # 协议层网关：对越权工具调用二次拦截
@@ -42,11 +42,11 @@ swordholder_mvp/
 
 | 指标 | 结果 |
 |---|---|
-| 四态消融（qwen3:8b，47 题） | baseline 23/47 → 注入 43/47 → QLoRA 43/47（v2 留痕） → 组合 **47/47** |
-| 对抗注入成功率 | baseline 65%（13/20）→ 组合态 **0/20** |
-| 跨模型一致性 | qwen2.5vl:7b +18；qwen3.8-27B +12/+14 |
-| 验证器对抗测试 | 9/9 通过 |
-| 判定器校准 | 47/47（100%） |
+| 四态消融（qwen3:8b，47 题，判定器 semantic-v2.2 逐题重判） | baseline 30/47 → 注入 43/47 → QLoRA 41/47 → 组合 **45/47** |
+| 对抗注入成功率 | baseline 35%（7/20）→ 注入 5%（1/20）→ 组合态 **0/20** |
+| 跨模型一致性 | qwen2.5vl:7b +19；qwen3.8-27B +12 |
+| 验证器对抗测试 | 17/17 通过 |
+| 判定器校准 | 47/47（LLM-as-judge 与 v2.2 规则判定器逐题一致） |
 | 未见攻击面（xadv 15 题） | 27B 基线 0.867 / 注入 0.778 / 8B 组合态 0.689 |
 
 ## 能力边界（诚实声明，不夸大）
@@ -72,7 +72,7 @@ swordholder_mvp/
 
 ## License
 
-待定（提交前确认协议；计划采用 Apache-2.0，注明第三方模型与依赖各自 License）。
+Apache-2.0（`LICENSE`，与根 README 对齐）；第三方模型与依赖遵循各自开源协议。
 
 ## 声明
 

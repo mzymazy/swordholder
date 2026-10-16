@@ -4,12 +4,12 @@
   "all_passed": true,
   "passed": 9,
   "total": 9,
-  "cases_dir": "O:\\接单\\参赛\\swordholder_mvp\\evidence\\adversarial_cases",
-  "trusted_keys": "O:\\接单\\参赛\\swordholder_mvp\\trusted_keys.json",
+  "cases_dir": "evidence/adversarial_cases",
+  "trusted_keys": "trusted_keys.json",
   "rows": [
     {
       "case": "01 valid-ed25519",
-      "file": "O:\\接单\\参赛\\swordholder_mvp\\evidence\\adversarial_cases\\01_valid_ed25519.yaml",
+      "file": "evidence/adversarial_cases/01_valid_ed25519.yaml",
       "expect": "VALID",
       "got": "VALID",
       "ok": true,
@@ -17,7 +17,7 @@
     },
     {
       "case": "02 forge-demo",
-      "file": "O:\\接单\\参赛\\swordholder_mvp\\evidence\\adversarial_cases\\02_forge_demo.yaml",
+      "file": "evidence/adversarial_cases/02_forge_demo.yaml",
       "expect": "INVALID E_BAD_SIGNATURE",
       "got": "INVALID E_BAD_SIGNATURE",
       "ok": true,
@@ -25,7 +25,7 @@
     },
     {
       "case": "03 forge-demo --demo",
-      "file": "O:\\接单\\参赛\\swordholder_mvp\\evidence\\adversarial_cases\\02_forge_demo.yaml",
+      "file": "evidence/adversarial_cases/02_forge_demo.yaml",
       "expect": "VALID",
       "got": "VALID",
       "ok": true,
@@ -33,7 +33,7 @@
     },
     {
       "case": "04 tamper-evidence",
-      "file": "O:\\接单\\参赛\\swordholder_mvp\\evidence\\adversarial_cases\\04_tamper_evidence_demo.yaml",
+      "file": "evidence/adversarial_cases/04_tamper_evidence_demo.yaml",
       "expect": "INVALID E_BAD_SIGNATURE",
       "got": "INVALID E_BAD_SIGNATURE",
       "ok": true,
@@ -41,7 +41,7 @@
     },
     {
       "case": "05 tamper-artifact",
-      "file": "O:\\接单\\参赛\\swordholder_mvp\\evidence\\adversarial_cases\\05_tamper_artifact.yaml",
+      "file": "evidence/adversarial_cases/05_tamper_artifact.yaml",
       "expect": "INVALID E_BAD_EVIDENCE",
       "got": "INVALID E_BAD_EVIDENCE",
       "ok": true,
@@ -49,7 +49,7 @@
     },
     {
       "case": "06 keyswap",
-      "file": "O:\\接单\\参赛\\swordholder_mvp\\evidence\\adversarial_cases\\06_keyswap.yaml",
+      "file": "evidence/adversarial_cases/06_keyswap.yaml",
       "expect": "INVALID E_UNTRUSTED_KEY",
       "got": "INVALID E_UNTRUSTED_KEY",
       "ok": true,
@@ -57,7 +57,7 @@
     },
     {
       "case": "07 downgrade",
-      "file": "O:\\接单\\参赛\\swordholder_mvp\\evidence\\adversarial_cases\\07_downgrade.yaml",
+      "file": "evidence/adversarial_cases/07_downgrade.yaml",
       "expect": "INVALID E_BAD_SIGNATURE",
       "got": "INVALID E_BAD_SIGNATURE",
       "ok": true,
@@ -65,7 +65,7 @@
     },
     {
       "case": "08 stale",
-      "file": "O:\\接单\\参赛\\swordholder_mvp\\evidence\\adversarial_cases\\08_stale.yaml",
+      "file": "evidence/adversarial_cases/08_stale.yaml",
       "expect": "INVALID E_STALE_TIMESTAMP",
       "got": "INVALID E_STALE_TIMESTAMP",
       "ok": true,
@@ -73,7 +73,7 @@
     },
     {
       "case": "09 no-trust-anchor",
-      "file": "O:\\接单\\参赛\\swordholder_mvp\\evidence\\adversarial_cases\\09_no_trust_anchor.yaml",
+      "file": "evidence/adversarial_cases/09_no_trust_anchor.yaml",
       "expect": "INVALID E_UNTRUSTED_KEY",
       "got": "INVALID E_UNTRUSTED_KEY",
       "ok": true,

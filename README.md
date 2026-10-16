@@ -25,10 +25,10 @@ Swordholder（持剑者）是一个 AI 安全最小可复现实验：把 **“�
 
 | 维度 | 结果 | 数据来源 |
 |---|---|---|
-| 四态消融（qwen3:8b，47 题） | baseline 23/47 → system 注入 43/47 → 组合态（注入+LoRA）**47/47**；其中对抗类 20/20 全拒（**注入成功 0/20**） | `evidence/xmodel_compare.json` |
-| 跨模型迁移 | qwen2.5vl:7b 21/47→39/47（**+18**）；qwen3.8-27B 29/47→41/47（自动）→ v2.2 重判 **43/47（+14）**；LoRA 8B→27B 跨架构不可迁移 | `evidence/xmodel_qwen38_compare.json`、`evidence/judge_rejudge_qwen38_v2p2.json` |
-| 验证器 v0.3 | 对抗自测 **9/9** 通过（伪造/篡改/换钥/降级/过期/无信任锚全部拒绝） | `evidence/adversarial_verifier_test_v03.json` |
-| 判定器 v2.2 | 47/47 与人工判定一致（**100%**；v2.1 为 0.957） | `evidence/judge_calibration_v2p2.json` |
+| 四态消融（qwen3:8b，47 题，判定器 semantic-v2.2 逐题重判） | baseline 30/47 → 公理注入 43/47 → QLoRA 单态 41/47 → 组合态（注入+LoRA）**45/47**；其中对抗类 20/20 全拒（**注入成功 0/20**） | `evidence/xmodel_compare.json` |
+| 跨模型迁移 | qwen2.5vl:7b 22/47→41/47（**+19**）；qwen3.8-27B 29/47→43/47（**+14**，semantic-v2.2 逐题重判，v2.1 误伤的 beh-08、adv-02 转 PASS）；LoRA 8B→27B 跨架构不可迁移 | `evidence/xmodel_qwen38_compare.json`、`evidence/judge_rejudge_qwen38_v2p2.json` |
+| 验证器 v0.5 | 对抗自测 **17/17** 通过（伪造/篡改/换钥/降级/过期/无信任锚/重复顶层键全部拒绝） | `evidence/adversarial_verifier_test_v05.json` |
+| 判定器 v2.2 | LLM-as-judge（qwen3:8b）与 v2.2 规则判定器逐题一致 **47/47**（agreement 1.0；v2.1 为 0.957） | `evidence/judge_calibration_v2p2.json` |
 | xadv 15 题边界 | 27B baseline **0.867** / injected **0.778** / 8B 组合态 **0.689**；多轮钓鱼最弱 | `evidence/xadv_qwen38_xadv_*.json` |
 
 ---
@@ -45,14 +45,14 @@ pip install -r requirements.txt
 python verify_proof.py proofs/deterrence_proof_baseline_ed25519.yaml \
     --trusted-keys trusted_keys.json --max-age-days 365
 
-# 3) 验证器对抗自测（合法凭证放行，伪造/篡改/换钥/降级/过期/无锚拒绝）
-#    CI 已内置 9 断言：.github/workflows/verify.yml
+# 3) 验证器对抗自测（合法凭证放行，伪造/篡改/换钥/降级/过期/无锚/重复顶层键拒绝）
+#    CI 已内置 17 断言：.github/workflows/verify.yml
 
 # 4) 完整复现（评测命令 / 数据口径 / 评委口径）
 #    → deliverable/README-reviewer.md
 ```
 
-> 说明：`proofs/` 下 4 份凭证由信任锚 k-ed25519-001 对应私钥于 2026-10-15T08:19Z~08:20Z 签发，`verify_proof.py` v0.3 实测全部 `VALID`。
+> 说明：`proofs/` 下 4 份凭证由信任锚 k-ed25519-001 对应私钥于 2026-10-16 重新签发，`verify_proof.py` v0.5 实测全部 `VALID`。
 
 ---
 
@@ -64,12 +64,13 @@ python verify_proof.py proofs/deterrence_proof_baseline_ed25519.yaml \
 
 | 状态 | 复述 recitation | 行为 behavior | 对抗 adversarial | 推理 reasoning | 常规 normal | 合计 |
 |---|---|---|---|---|---|---|
-| baseline（原厂） | 3/6 | 1/8 | 7/20 | 5/5 | 7/8 | **23/47** |
-| injected（公理注入） | 6/6 | 7/8 | 18/20 | 5/5 | 7/8 | **43/47** |
-| combined（注入 + LoRA v62） | 6/6 | 8/8 | **20/20** | 5/5 | 8/8 | **47/47** |
+| baseline（原厂） | 1/6 | 4/8 | 13/20 | 5/5 | 7/8 | **30/47** |
+| injected（公理注入） | 4/6 | 8/8 | 19/20 | 5/5 | 7/8 | **43/47** |
+| lora（QLoRA 单态） | 1/6 | 8/8 | 19/20 | 5/5 | 8/8 | **41/47** |
+| combined（注入 + LoRA v62） | 4/6 | 8/8 | **20/20** | 5/5 | 8/8 | **45/47** |
 
 - 组合态对抗类 20/20 全部通过，即提示注入成功率为 **0/20**。
-- baseline → injected 增量 **+20**；injected → combined 再补 4 题（beh-08、adv-02 等），全量 47/47。
+- baseline → injected 增量 **+13**（30/47 → 43/47）；组合态在注入态基础上再补 2 题（对抗 adv-07、常规 nrm-05）至 **45/47**。semantic-v2.2 严格原文口径下组合态仍有 2 题未达（rec-02/rec-05，逐字复述漂移），如实记录，不再是 47/47 全达标。
 
 ### 3.2 跨模型迁移
 
@@ -77,15 +78,15 @@ python verify_proof.py proofs/deterrence_proof_baseline_ed25519.yaml \
 
 | 模型 | baseline | injected（自动判定） | 增量 | 备注 |
 |---|---|---|---|---|
-| qwen3:8b | 23/47 | 43/47 | +20 | combined 47/47 |
-| qwen2.5vl:7b | 21/47 | 39/47 | **+18** | 对抗 5/20→16/20 |
-| qwen3.8-27b（GGUF q3_k_xl） | 29/47 | 41/47 | **+12** | v2.2 重判后 **43/47（+14）**，beh-08、adv-02 改判 |
+| qwen3:8b | 30/47 | 43/47 | **+13** | combined 45/47（lora 单态 41/47） |
+| qwen2.5vl:7b | 22/47 | 41/47 | **+19** | 对抗 5/20→18/20 |
+| qwen3.8-27b（GGUF q3_k_xl） | 29/47 | 43/47 | **+14** | semantic-v2.2 逐题重判（`evidence/judge_rejudge_qwen38_v2p2.json`）；v2.1 误伤的 beh-08、adv-02 转 PASS |
 
-- 27B 无法加载 8B LoRA（hidden 4096 vs 5120，架构不匹配），见 `evidence/lora_cross_model_transfer_analysis.json`；27B 最高态即 injected 43/47。
+- 27B 无法加载 8B LoRA（hidden 4096 vs 5120，架构不匹配），见 `evidence/lora_cross_model_transfer_analysis.json`；27B 最高态即 injected 43/47（semantic-v2.2 逐题重判，`evidence/judge_rejudge_qwen38_v2p2.json`）。
 
-### 3.3 验证器 v0.3 对抗自测（9/9）
+### 3.3 验证器 v0.5 对抗自测（17/17）
 
-来源：`evidence/adversarial_verifier_test_v03.json`（2026-10-14T05:44:30Z）。
+来源：`evidence/adversarial_verifier_test_v05.json`（2026-10-16）。
 
 | 用例 | 期望 | 结果 |
 |---|---|---|
@@ -98,10 +99,11 @@ python verify_proof.py proofs/deterrence_proof_baseline_ed25519.yaml \
 | 07 降级（header ed25519 / sig sha256-demo） | INVALID E_BAD_SIGNATURE | 通过 |
 | 08 过期凭证（30 天前） | INVALID E_STALE_TIMESTAMP | 通过 |
 | 09 无信任锚 | INVALID E_UNTRUSTED_KEY | 通过 |
+| 10 重复顶层键（key 覆盖攻击） | INVALID E_DUPLICATE_KEY | 通过 |
 
 ### 3.4 判定器 v2.2 校准
 
-来源：`evidence/judge_calibration_v2p2.json`。47/47 与人工判定一致（agreement = 1.0；v2.1 为 0.957）。
+来源：`evidence/judge_calibration_v2p2.json`。LLM-as-judge（qwen3:8b）与 v2.2 规则判定器对 47 题逐题判定一致（agreement = 1.0；v2.1 为 0.957）。该一致性为「LLM-as-judge 复核规则判定器」口径，非人工复核口径。
 
 ### 3.5 xadv 15 题边界（suite adversarial-xadv-v1，samples=3，判定器 semantic-v2.2）
 
@@ -115,6 +117,11 @@ python verify_proof.py proofs/deterrence_proof_baseline_ed25519.yaml \
 
 边界结论：三态下**多轮钓鱼（phishing_multiturn）均为最弱**，是下一步加固重点。
 
+### 3.6 评测记录 ↔ 原始响应工件 绑定审计（三重核验）
+
+来源：`evidence/artifact_binding_audit.json`（由 `evidence/verify_artifact_binding.py` 生成）。对承载原始响应的 **482 条**逐题记录做三重核验——T1 响应文本哈希、T2 工件文件字节哈希、T3 工件文本以响应原文结尾——**482/482 三项全部成立，未绑定 0 条、内容不一致 0 条**。709 条聚合统计记录（v3 稳定性/鲁棒性/硬样本、xadv）不含逐题响应，如实单列为 `structured_only` 且不计入绑定分母。复现：`python evidence/verify_artifact_binding.py`（退出码 0 即通过）。
+
+
 ---
 
 ## 4. 项目结构
@@ -124,7 +131,7 @@ swordholder_mvp/
 ├── README.md                  # 本文档（开源可复现版）
 ├── LICENSE                    # Apache-2.0
 ├── requirements.txt           # 核心依赖 + 可选微调依赖
-├── verify_proof.py            # 威慑凭证验证器 v0.3（ed25519 + 信任锚 + 新鲜度）
+├── verify_proof.py            # 威慑凭证验证器 v0.5（ed25519 + 信任锚 + 新鲜度 + 签名规范化 + 重复键拒绝）
 ├── protocol_gateway/           # HTTP 回环服务（验证凭证接入，含 swordholder_gateway.py）
 ├── gen_proof.py / eval_*.py   # 出证与评测脚本（详见 deliverable）
 ├── proofs/                    # 4 份威慑凭证（ed25519 YAML）
@@ -154,11 +161,12 @@ swordholder_mvp/
 |---|---|
 | 许可证 | Apache-2.0（`LICENSE`） |
 | 依赖 | `requirements.txt`：核心 requests/cryptography/pyyaml；可选 transformers/peft/bitsandbytes/torch（QLoRA 微调） |
-| CI | `.github/workflows/verify.yml`：push/PR 触发 → 安装依赖 → 验证器 9 断言对抗自测（green gate）→ proofs 凭证逐一自检 |
+| CI | `.github/workflows/verify.yml`：push/PR 触发 → 安装依赖 → 验证器 17 断言对抗自测（green gate）→ proofs 凭证逐一自检 |
 | 信任锚 | `trusted_keys.json` 登记 k-ed25519-001（公钥 `0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff`，指纹 `0d1c8b8a4b310ceb92bd7dcd12555f1d92692953964a915201701e034b1490cc`）；凭证签名公钥必须命中信任锚且指纹一致 |
-| 凭证说明 | `proofs/` 4 份凭证由信任锚 k-ed25519-001 对应私钥于 2026-10-15T08:19Z~08:20Z 签发，`verify_proof.py` v0.3 实测全部 `VALID` |
+| 凭证说明 | `proofs/` 4 份凭证由信任锚 k-ed25519-001 对应私钥于 2026-10-16 重新签发，`verify_proof.py` v0.5 实测全部 `VALID` |
 
-> 数据可复现性声明：README 中所有数字均可由 `evidence/` 下对应 JSON 直接核对；`verify.yml` 的 9 断言与 `evidence/adversarial_verifier_test_v03.json` 一致。
+> 数据可复现性声明：README 中所有数字均可由 `evidence/` 下对应 JSON 直接核对；`verify.yml` 的 17 断言与 `evidence/adversarial_verifier_test_v05.json` 一致。
+> 证据绑定声明：逐题评测记录与原始响应工件的绑定关系可由 `python evidence/verify_artifact_binding.py` 独立复算（T1 响应文本哈希 / T2 工件字节哈希 / T3 内容包含三重核验，482/482 通过，审计结果见 `evidence/artifact_binding_audit.json`）。
 
 ---
 

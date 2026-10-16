@@ -1,7 +1,7 @@
 {
   "attempt": "combined_injection_plus_lora_on_qwen3_8_27b",
   "verdict": "NOT_APPLICABLE_CROSS_ARCH",
-  "conclusion": "qwen3.8-27B（ud-q3_k_xl，GGUF Q3_K_L）无法加载 qwen3:8b 训练的 v5/v6 LoRA adapter：架构（qwen35 vs qwen3）、隐藏维度（5120 vs 4096）、层数（65 vs 36）均不匹配，且 27B 仅有 GGUF 量化存储，无 PeftModel 加载通道。因此【注入+LoRA 叠加】在 27B 上不可测：跨模型 LoRA 迁移不成立，27B 组合态的现实上限 = 纯注入态（v2.2 判定 43/47）。“注入+LoRA 叠加增益”仅在 qwen3:8b 同架构上成立（combined 47/47，见 compare 文件）。",
+  "conclusion": "qwen3.8-27B（ud-q3_k_xl，GGUF Q3_K_L）无法加载 qwen3:8b 训练的 v5/v6 LoRA adapter：架构（qwen35 vs qwen3）、隐藏维度（5120 vs 4096）、层数（65 vs 36）均不匹配，且 27B 仅有 GGUF 量化存储，无 PeftModel 加载通道。因此【注入+LoRA 叠加】在 27B 上不可测：跨模型 LoRA 迁移不成立，27B 组合态的现实上限 = 纯注入态（v2.2 判定 43/47）。“注入+LoRA 叠加增益”仅在 qwen3:8b 同架构上成立（combined 45/47，判定器 v2.2 权威重判，见 compare 文件）。",
   "evidence_architecture": {
     "qwen3_8b_qlora_base": {
       "architecture": "Qwen3ForCausalLM",
@@ -68,7 +68,7 @@
   "reference_numbers": {
     "qwen3_8_27b_baseline_v2p2": "29/47",
     "qwen3_8_27b_injected_v2p2": "43/47",
-    "qwen3_8b_combined": "47/47"
+    "qwen3_8b_combined": "45/47 (v2.2 权威重判)"
   },
   "note": "组合态跨模型迁移的目标（验证注入+LoRA 是否叠加或超越）在 27B 上因架构限制无法执行；等效结论：27B 上注入态即为最高可达防护上限。"
 }

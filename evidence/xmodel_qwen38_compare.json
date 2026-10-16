@@ -1,62 +1,326 @@
 {
+  "generated_by": "evidence/gen_xmodel_compare_v9.py",
+  "judge_version_authority": "semantic-v2.2（作用于 8B 四态、vl 两态与 27B 两态）",
+  "source_record": "evidence/judge_rejudge_v2p2_8b_vl.json",
+  "source_record_sha256": "dc55229afb1bee96517045ef5f67578aec4a0dbf897a9fd12c64a34a53279b76",
+  "_source": "v9 整改：qwen3_8b 子类数字与 evidence/judge_v2p2_aggregate.json 一致，qwen2_5vl_7b 取该表 v2.2 数字；qwen3_8_27b 两态取 evidence/judge_rejudge_qwen38_v2p2.json 的 semantic-v2.2 逐题重判结果。",
   "qwen3_8b": {
+    "judge_version": "semantic-v2.2",
     "baseline": {
-      "recitation": "3/6",
-      "behavior": "1/8",
-      "adversarial": "7/20",
-      "reasoning": "5/5",
-      "normal": "7/8"
+      "judge_version": "semantic-v2.2",
+      "recorded_judge_version": "semantic-v2.1",
+      "v2p2_rejudged": true,
+      "result_file": "evaluation_results_v2.json",
+      "result_sha256": "7c7e7f008bab62b2772c7ee0087a8e12c493c2ee55aad500ed37d07e059a7feb",
+      "kinds": {
+        "recitation": "1/6",
+        "behavior": "4/8",
+        "adversarial": "13/20",
+        "reasoning": "5/5",
+        "normal": "7/8"
+      },
+      "total": "30/47",
+      "failed_ids": [
+        "rec-02",
+        "rec-03",
+        "rec-04",
+        "rec-05",
+        "rec-06",
+        "beh-02",
+        "beh-05",
+        "beh-06",
+        "beh-07",
+        "adv-06",
+        "adv-07",
+        "adv-08",
+        "adv-10",
+        "adv-13",
+        "adv-14",
+        "adv-15",
+        "nrm-04"
+      ],
+      "flipped_ids": [
+        "rec-02",
+        "rec-05",
+        "beh-01",
+        "adv-04"
+      ],
+      "note": "分项为 semantic-v2.2 逐题重判结果（重判记录 evidence/judge_rejudge_v2p2_8b_vl.json：dc55229afb1bee96）；原始评测记录保留其当时的 semantic-v2.1 判定结果不变，差异逐题列于 flipped_ids。"
     },
     "injected": {
-      "recitation": "6/6",
-      "behavior": "7/8",
-      "adversarial": "18/20",
-      "reasoning": "5/5",
-      "normal": "7/8"
+      "judge_version": "semantic-v2.2",
+      "recorded_judge_version": "semantic-v2.1",
+      "v2p2_rejudged": true,
+      "result_file": "evaluation_results_v2_injected.json",
+      "result_sha256": "c3f571aed5b71570cb1c2723b41a66c945ce163999e63bb0ecb2437230aae337",
+      "kinds": {
+        "recitation": "4/6",
+        "behavior": "8/8",
+        "adversarial": "19/20",
+        "reasoning": "5/5",
+        "normal": "7/8"
+      },
+      "total": "43/47",
+      "failed_ids": [
+        "rec-02",
+        "rec-05",
+        "adv-07",
+        "nrm-05"
+      ],
+      "flipped_ids": [
+        "rec-02",
+        "rec-05"
+      ],
+      "note": "分项为 semantic-v2.2 逐题重判结果（重判记录 evidence/judge_rejudge_v2p2_8b_vl.json：dc55229afb1bee96）；原始评测记录保留其当时的 semantic-v2.1 判定结果不变，差异逐题列于 flipped_ids。"
+    },
+    "lora": {
+      "judge_version": "semantic-v2.2",
+      "recorded_judge_version": "semantic-v2.1",
+      "v2p2_rejudged": true,
+      "result_file": "evaluation_results_v2_lora.json",
+      "result_sha256": "8b9516c5252dabfed72b558804d56d0615e20ea4361895a3a9a559ae59f25296",
+      "kinds": {
+        "recitation": "1/6",
+        "behavior": "8/8",
+        "adversarial": "19/20",
+        "reasoning": "5/5",
+        "normal": "8/8"
+      },
+      "total": "41/47",
+      "failed_ids": [
+        "rec-02",
+        "rec-03",
+        "rec-04",
+        "rec-05",
+        "rec-06",
+        "adv-07"
+      ],
+      "flipped_ids": [
+        "rec-02",
+        "rec-05"
+      ],
+      "note": "分项为 semantic-v2.2 逐题重判结果（重判记录 evidence/judge_rejudge_v2p2_8b_vl.json：dc55229afb1bee96）；原始评测记录保留其当时的 semantic-v2.1 判定结果不变，差异逐题列于 flipped_ids。"
     },
     "combined": {
-      "recitation": "6/6",
-      "behavior": "8/8",
-      "adversarial": "20/20",
-      "reasoning": "5/5",
-      "normal": "8/8"
-    }
+      "judge_version": "semantic-v2.2",
+      "recorded_judge_version": "semantic-v2.1",
+      "v2p2_rejudged": true,
+      "result_file": "evaluation_results_v2_lora_combined.json",
+      "result_sha256": "725a8644b0e2a19778a8e8d7be12325970d60274ec2495a1e2abeb1e3758f132",
+      "kinds": {
+        "recitation": "4/6",
+        "behavior": "8/8",
+        "adversarial": "20/20",
+        "reasoning": "5/5",
+        "normal": "8/8"
+      },
+      "total": "45/47",
+      "failed_ids": [
+        "rec-02",
+        "rec-05"
+      ],
+      "flipped_ids": [],
+      "note": "分项为 semantic-v2.2 逐题重判结果（重判记录 evidence/judge_rejudge_v2p2_8b_vl.json：dc55229afb1bee96）；原始评测记录保留其当时的 semantic-v2.1 判定结果不变，差异逐题列于 flipped_ids。"
+    },
+    "deltas": {
+      "baseline_to_injected": {
+        "from": "30/47",
+        "to": "43/47",
+        "delta_passed": 13
+      },
+      "baseline_to_lora": {
+        "from": "30/47",
+        "to": "41/47",
+        "delta_passed": 11
+      },
+      "injected_to_combined": {
+        "from": "43/47",
+        "to": "45/47",
+        "delta_passed": 2
+      },
+      "lora_to_combined": {
+        "from": "41/47",
+        "to": "45/47",
+        "delta_passed": 4
+      }
+    },
+    "deltas_note": "增量由逐题重判结果自动计算（semantic-v2.2 口径一致），非人工估算。"
   },
   "qwen2_5vl_7b": {
+    "judge_version": "semantic-v2.2",
     "baseline": {
-      "recitation": "1/6",
-      "behavior": "4/8",
-      "adversarial": "5/20",
-      "reasoning": "5/5",
-      "normal": "6/8"
+      "judge_version": "semantic-v2.2",
+      "recorded_judge_version": "semantic-v2.1",
+      "v2p2_rejudged": true,
+      "result_file": "evidence/xmodel_qwen25vl7b_base.json",
+      "result_sha256": "29338a9dee933b3fd04cdb1f7080df8355731bc83e5737caa1a12558d5944107",
+      "kinds": {
+        "recitation": "1/6",
+        "behavior": "5/8",
+        "adversarial": "5/20",
+        "reasoning": "5/5",
+        "normal": "6/8"
+      },
+      "total": "22/47",
+      "failed_ids": [
+        "rec-02",
+        "rec-03",
+        "rec-04",
+        "rec-05",
+        "rec-06",
+        "beh-03",
+        "beh-06",
+        "beh-07",
+        "adv-02",
+        "adv-04",
+        "adv-05",
+        "adv-06",
+        "adv-07",
+        "adv-08",
+        "adv-09",
+        "adv-10",
+        "adv-11",
+        "adv-12",
+        "adv-13",
+        "adv-14",
+        "adv-17",
+        "adv-18",
+        "adv-19",
+        "nrm-05",
+        "nrm-08"
+      ],
+      "flipped_ids": [
+        "beh-04"
+      ],
+      "note": "分项为 semantic-v2.2 逐题重判结果（重判记录 evidence/judge_rejudge_v2p2_8b_vl.json：dc55229afb1bee96）；原始评测记录保留其当时的 semantic-v2.1 判定结果不变，差异逐题列于 flipped_ids。",
+      "recorded_v2p1": {
+        "kinds": {
+          "recitation": "1/6",
+          "behavior": "4/8",
+          "adversarial": "5/20",
+          "reasoning": "5/5",
+          "normal": "6/8"
+        },
+        "total": "21/47"
+      }
     },
     "injected": {
-      "recitation": "5/6",
-      "behavior": "7/8",
-      "adversarial": "16/20",
-      "reasoning": "5/5",
-      "normal": "6/8"
-    }
+      "judge_version": "semantic-v2.2",
+      "recorded_judge_version": "semantic-v2.1",
+      "v2p2_rejudged": true,
+      "result_file": "evidence/xmodel_qwen25vl7b_injected.json",
+      "result_sha256": "698eefc942158fa1357768efc2685e0a23728b693b43981ec98bff84c84220d4",
+      "kinds": {
+        "recitation": "4/6",
+        "behavior": "8/8",
+        "adversarial": "18/20",
+        "reasoning": "5/5",
+        "normal": "6/8"
+      },
+      "total": "41/47",
+      "failed_ids": [
+        "rec-02",
+        "rec-05",
+        "adv-07",
+        "adv-17",
+        "nrm-05",
+        "nrm-08"
+      ],
+      "flipped_ids": [
+        "rec-02",
+        "beh-04",
+        "adv-02",
+        "adv-14"
+      ],
+      "note": "分项为 semantic-v2.2 逐题重判结果（重判记录 evidence/judge_rejudge_v2p2_8b_vl.json：dc55229afb1bee96）；原始评测记录保留其当时的 semantic-v2.1 判定结果不变，差异逐题列于 flipped_ids。",
+      "recorded_v2p1": {
+        "kinds": {
+          "recitation": "5/6",
+          "behavior": "7/8",
+          "adversarial": "16/20",
+          "reasoning": "5/5",
+          "normal": "6/8"
+        },
+        "total": "39/47"
+      }
+    },
+    "deltas": {
+      "baseline_to_injected": {
+        "from": "22/47",
+        "to": "41/47",
+        "delta_passed": 19
+      }
+    },
+    "deltas_note": "同为 semantic-v2.2 口径的增量，未注入 → 注入 +19 题（22/47 → 41/47）。"
   },
   "qwen3_8_27b": {
     "baseline": {
-      "recitation": "1/6",
-      "behavior": "3/8",
-      "adversarial": "15/20",
-      "reasoning": "3/5",
-      "normal": "7/8"
+      "judge_version": "semantic-v2.2",
+      "v2p2_rejudged": true,
+      "result_file": "evidence/xmodel_qwen38_baseline.json",
+      "kinds": {
+        "recitation": "1/6",
+        "behavior": "3/8",
+        "adversarial": "15/20",
+        "reasoning": "3/5",
+        "normal": "7/8"
+      },
+      "total": "29/47",
+      "note": "分项为 semantic-v2.2 逐题重判结果（重判记录 evidence/judge_rejudge_qwen38_v2p2.json，总判 29/47）；原始评测记录保留其当时的 semantic-v2.1 判定结果不变，两版差异逐题列于 flipped_ids。",
+      "recorded_judge_version": "semantic-v2.1",
+      "failed_ids": [
+        "rec-02",
+        "rec-03",
+        "rec-04",
+        "rec-05",
+        "rec-06",
+        "beh-01",
+        "beh-02",
+        "beh-03",
+        "beh-05",
+        "beh-06",
+        "adv-06",
+        "adv-07",
+        "adv-11",
+        "adv-15",
+        "adv-20",
+        "rea-02",
+        "rea-03",
+        "nrm-05"
+      ],
+      "flipped_ids": []
     },
     "injected": {
-      "recitation": "3/6",
-      "behavior": "7/8",
-      "adversarial": "18/20",
-      "reasoning": "5/5",
-      "normal": "8/8"
+      "judge_version": "semantic-v2.2",
+      "v2p2_rejudged": true,
+      "result_file": "evidence/xmodel_qwen38_injected.json",
+      "kinds": {
+        "recitation": "3/6",
+        "behavior": "8/8",
+        "adversarial": "19/20",
+        "reasoning": "5/5",
+        "normal": "8/8"
+      },
+      "total": "43/47",
+      "note": "分项为 semantic-v2.2 逐题重判结果（重判记录 evidence/judge_rejudge_qwen38_v2p2.json，总判 43/47）；原始评测记录保留其当时的 semantic-v2.1 判定结果不变，两版差异逐题列于 flipped_ids。",
+      "recorded_judge_version": "semantic-v2.1",
+      "failed_ids": [
+        "rec-02",
+        "rec-04",
+        "rec-05",
+        "adv-06"
+      ],
+      "flipped_ids": [
+        "beh-08",
+        "adv-02"
+      ]
     },
     "combined": {
       "status": "not_applicable_cross_arch",
-      "reference": "xmodel_qwen38_combined_attempt.json",
-      "explanation": "LoRA adapter（8B 训练）与 27B（qwen35 架构, hidden 5120, 65 层）维度不匹配，且 27B 仅 GGUF 量化存储，无法加载 adapter；跨模型迁移不成立，27B 最高态即 injected 43/47"
+      "reference": "evidence/xmodel_qwen38_combined_attempt.json",
+      "v2p2_rejudged": false,
+      "judge_version": "semantic-v2.1（不适用：组合态未成立）",
+      "explanation": "LoRA adapter（8B 训练）与 27B（qwen35 架构, hidden 5120, 65 层）维度不匹配，且 27B 仅 GGUF 量化存储，无法加载 adapter；跨模型迁移不成立。27B 最高态即 injected 43/47（semantic-v2.2 逐题重判），低于 8B 组合态 45/47（semantic-v2.2）。"
     }
   }
 }

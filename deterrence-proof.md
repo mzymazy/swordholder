@@ -22,7 +22,7 @@ AIGC:
 ## 1. 设计原则
 
 1. **机器可读**：威慑证明是模型发布时附带的机器可验证凭证文件，使用 YAML（可等价转 JSON）表示，评测工具与验证器可直接解析。
-2. **缺块即拒出证**：四类评测证据块（复述/行为/对抗/推理链）缺一不可；证据块缺失、字段不合规或签名不匹配，验证器一律拒绝出证。
+2. **缺块即拒出证**：四类评测证据块（复述/行为/对抗/推理链）缺一不可；证据块缺失、字段不合规、工件绑定（`artifact_binding`，含 `result_sha256` 与工件目录索引哈希）不一致或签名不匹配，验证器一律拒绝出证（`INVALID`）。指标未达业务通过标准的测评态**仍会签发凭证**，但必须在 `issuance_status` 如实标注为未达标对照，达标性由评测数据本身体现——凭证保证"数据真实且不可篡改"，不代替评测结论。
 3. **边界地图锚定**：证明必须显式引用签发时所依据的边界地图版本；若边界地图版本不匹配或未通过 schema 校验，拒出证。
 4. **可追溯**：证明头、证据块、边界地图引用构成完整溯源链，可供第三方审计。
 
@@ -77,13 +77,13 @@ evidence:
 ## 5. 验证规则
 
 1. **完整性**：`proof_header`、四个 `evidence` 块、`boundary_map` 引用必须全部存在；缺任一证据块 → 拒出证。
-2. **合规性**：证据块内字段缺失/类型错误/指标不满足该测试通过标准 → 拒出证。
+2. **合规性**：证据块内字段缺失/类型错误/指标越界（`passed_count` > `evidence_count`，或通过率不在 [0,1] 区间）→ 拒出证（`E_BAD_EVIDENCE`）。
 3. **签名链**：证明头签名须与签发者密钥匹配；若含 `hash_chain_ref`，其锚定须可验证。
 4. **时间戳**：`issued_at` 须为有效 ISO 8601 UTC；验证方可设新鲜度窗口（默认 90 天，可配置）。
 5. **引用一致**：`schema_ref`、`boundary_map.schema_version`、边界地图内容三者一致；不一致 → 拒出证。
 6. **输出**：验证通过返回 `VALID` 与解析后的证明数据；任一条失败返回 `INVALID` 并列出失败原因码。
 
-**失败原因码**：`E_MISSING_HEADER` / `E_MISSING_EVIDENCE` / `E_BAD_EVIDENCE` / `E_BAD_MAP_REF` / `E_BAD_SIGNATURE` / `E_STALE_TIMESTAMP`。
+**失败原因码**：`E_MISSING_HEADER` / `E_MISSING_EVIDENCE` / `E_BAD_EVIDENCE` / `E_BAD_MAP_REF` / `E_BAD_SIGNATURE` / `E_STALE_TIMESTAMP` / `E_BINDING_MISMATCH` / `E_DUPLICATE_KEY`。
 
 ---
 
@@ -142,6 +142,8 @@ boundary_map:
 signature: "ed25519-base64-encoded-signature-value"
 ```
 
+> 注：上例为规范字段示意。本次提交包中实际签发的四态凭证见 `proofs/deterrence_proof_{baseline,injected,lora,combined}_ed25519.yaml`，其结构额外含 `issuance_status`（标注测评态与达标情况）与 `artifact_binding`（`result_file` / `result_sha256` / `artifact_dir` / `artifact_count` / `artifact_index_sha256`）字段，用于强制工件绑定。
+
 ---
 
 ## 7. 兼容性与版本
@@ -150,5 +152,4 @@ signature: "ed25519-base64-encoded-signature-value"
 - 扩展：允许新增证据块类型（如未来加入"多层可验证信念"逐层核验块），但四类基础证据块不可移除。
 - 校验：`swordholder-eval` 提供威慑证明验证器，缺证据块或不合规即拒出证；不合规边界地图拒绝出证（联动 `swordholder-boundary-map.schema.yaml` 第 4 节校验条款）。
 
-*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*
