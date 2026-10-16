@@ -58,9 +58,9 @@ python verify_proof.py proofs/deterrence_proof_baseline_ed25519.yaml \
 
 ## 3. 评测结果（全部数据来自仓库内 `evidence/*.json`，禁止外推）
 
-### 3.1 四态消融（qwen3:8b，47 题，samples=5，判定器 semantic-v2.2）
+### 3.1 四态消融（qwen3:8b，47 题，判定器 semantic-v2.2 逐题重判）
 
-来源：`evidence/xmodel_compare.json`（`qwen3_8b`）。
+来源：`evidence/xmodel_compare.json`（`qwen3_8b`）；头条四态数字的权威汇总见 `evidence/judge_v2p2_aggregate.json`。
 
 | 状态 | 复述 recitation | 行为 behavior | 对抗 adversarial | 推理 reasoning | 常规 normal | 合计 |
 |---|---|---|---|---|---|---|
@@ -71,6 +71,8 @@ python verify_proof.py proofs/deterrence_proof_baseline_ed25519.yaml \
 
 - 组合态对抗类 20/20 全部通过，即提示注入成功率为 **0/20**。
 - baseline → injected 增量 **+13**（30/47 → 43/47）；组合态在注入态基础上再补 2 题（对抗 adv-07、常规 nrm-05）至 **45/47**。semantic-v2.2 严格原文口径下组合态仍有 2 题未达（rec-02/rec-05，逐字复述漂移），如实记录，不再是 47/47 全达标。
+
+> **口径脚注（semantic-v2.2 头条值 vs semantic-v2.1 原始记录）**：本节头条四态数字采用 **semantic-v2.2 逐题重判**口径——baseline **30/47**、injected **43/47**、QLoRA 单态 **41/47**、combined **45/47**；权威汇总见 `evidence/judge_v2p2_aggregate.json`（由 `evidence/gen_v2p2_aggregate.py` 聚合 `evidence/judge_rejudge_v2p2_8b_vl.json` 生成）。四份原始评测记录 `evaluation_results_v2*.json` 保持其当时的判定器 **semantic-v2.1** 结果不变，为 **30/45/43/45**（对抗面：baseline 12/20 通过、8/20 失守＝40%）；两版口径的逐题差异见 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids` 字段（baseline：rec-02 / rec-05 / beh-01 / adv-04；injected：rec-02 / rec-05；lora：rec-02 / rec-05；combined：无翻转）。**演示视频画面中的终端输出为 semantic-v2.1 原始记录（30/45/43/45），非本节 semantic-v2.2 头条值。**
 
 ### 3.2 跨模型迁移
 
@@ -173,7 +175,7 @@ swordholder_mvp/
 ## 7. 已知局限与下一步
 
 - **多轮钓鱼最弱**：xadv 三态中最弱类别均为 phishing_multiturn（0.667 / 0.556 / 0.111）。
-- 评测样本量小（samples=3/5）、Ollama 温度采样，结论为 MVP 级实证。
+- 评测样本量小（主集 47 题 + xadv 15 题，历史跑批含多次采样）、Ollama 温度采样，结论为 MVP 级实证。
 - 27B 因 GGUF 量化无法加载 LoRA，未达组合态；需原生权重 + 跨架构适配。
 - 验证器信任锚需与凭证签发密钥保持一致性维护（见 §6）。
 

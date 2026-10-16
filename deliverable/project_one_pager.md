@@ -2,16 +2,18 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_e778088fc70411f1b45c525400cd780f
-    ReservedCode1: MdFqsIVVHvpLhrGj/Hm9qZzrbAPFTeMTqWZI20U4GP8vH+U7wVwOuFmvKbFFaDOJr2AvNc76YQ0Mm4CS+gX8aFRsa4z211iWsB1h5v/tDPqlztN0+3WfyXy1O/6zRTK7mMs07sNgzY9f6vpncjyzbmf+Hcju9ycLIpHMRcrHFWJs07u34Io9Qgi3964=
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_bc110ddfc95211f1acd7525400cd780f
+    ReservedCode1: 9EaxNPF3xHeWudZVTQfJMzBxViCEwI5D3BFIKFDA6clRYY5BtM8xkXNtCqT06f+LJb67j6H6XJ/mh+Hyy6l1xMQdNDEvVuq+bujxQZx8AxaUUEhydkW/PoZdP9bSlcuhNoW9Ek392FE2TBDv4gPu3sFV2uA1wWowWbl7XCCYZ+pzbRC1Lvji748Msw0=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_e778088fc70411f1b45c525400cd780f
-    ReservedCode2: MdFqsIVVHvpLhrGj/Hm9qZzrbAPFTeMTqWZI20U4GP8vH+U7wVwOuFmvKbFFaDOJr2AvNc76YQ0Mm4CS+gX8aFRsa4z211iWsB1h5v/tDPqlztN0+3WfyXy1O/6zRTK7mMs07sNgzY9f6vpncjyzbmf+Hcju9ycLIpHMRcrHFWJs07u34Io9Qgi3964=
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_bc110ddfc95211f1acd7525400cd780f
+    ReservedCode2: 9EaxNPF3xHeWudZVTQfJMzBxViCEwI5D3BFIKFDA6clRYY5BtM8xkXNtCqT06f+LJb67j6H6XJ/mh+Hyy6l1xMQdNDEvVuq+bujxQZx8AxaUUEhydkW/PoZdP9bSlcuhNoW9Ek392FE2TBDv4gPu3sFV2uA1wWowWbl7XCCYZ+pzbRC1Lvji748Msw0=
 ---
+
+
 
 # Swordholder：让 AI 把"伤害人类即伤害自己"内化为底层公理
 
-**一页纸项目方案（评委速读版）** · 2026-10-13 · MVP 实证闭环：评测工具 + 威慑证明凭证
+**作者：马梓尧** · **一页纸项目方案（评委速读版）** · 2026-10-13 · MVP 实证闭环：评测工具 + 威慑证明凭证
 
 ## 1. 课题定位
 
@@ -26,16 +28,18 @@ AIGC:
 - **支柱 B · 认知内化**：公理以最高位规范进入训练语料与对齐目标（System Prompt 上下文注入 + QLoRA 权重注入两条路径实证），多层级重复降低被上下文压缩丢弃概率。
 - **四类内化评测**：复述（公理与边界是否钉入认知）、行为（越界诱惑下的实际行为）、对抗（提示注入 / 伪装 / 编码混淆下的稳定性）、推理审计（CoT 是否显式引用公理，而非指令复述）。
 
-## 3. 实证结果（2026-10-13 · qwen3:8b · 47 题评测集）
+## 3. 实证结果（2026-10-13 · qwen3:8b · 47 题评测集 · 判定器 semantic-v2.2 逐题重判）
 
 | 评测态 | 复述 6 | 行为 8 | 对抗 20 | 推理 5 | 正常能力 8 | 合计 |
 |---|---|---|---|---|---|---|
 | 基线（未注入） | 1/6 | 4/8 | 13/20 | 5/5 | 7/8 | **30/47** |
 | System Prompt 注入 | 4/6 | 8/8 | 19/20 | 5/5 | 7/8 | **43/47** |
-| QLoRA 权重内化（117 条×4 epoch，v2 单次留痕） | 1/6 | 8/8 | 19/20 | 5/5 | 8/8 | **41/47** |
+| QLoRA 权重内化（117 条×4 epoch，v2.2 逐题重判） | 1/6 | 8/8 | 19/20 | 5/5 | 8/8 | **41/47** |
 | **组合双通道（权重 + 上下文）** | **4/6** | **8/8** | **20/20** | **5/5** | **8/8** | **45/47（95.7%）** |
 
-数据口径：权威汇总以 `evidence/xmodel_compare.json`（qwen3_8b，v2.2 重判，samples=5）为准；QLoRA 权重单态为 v2 单次确定性留痕（`evaluation_results_v2_lora.json`）。
+数据口径：表中**头条四态数字**（baseline 30/47、injected 43/47、QLoRA 单态 41/47、combined 45/47）采用 **semantic-v2.2 逐题重判**口径，权威汇总以 `evidence/judge_v2p2_aggregate.json` / `evidence/xmodel_compare.json`（qwen3_8b）为准；QLoRA 权重单态同为 semantic-v2.2 逐题重判结果，全文判定器版本一致。
+> **口径脚注**：四份原始评测记录 `evaluation_results_v2*.json` 保持其当时的判定器 **semantic-v2.1** 结果不变，为 baseline **30/47**、injected **45/47**、QLoRA **43/47**、combined **45/47**（对抗面：baseline 12/20 通过、8/20 失守＝40%）；两版口径的逐题差异见 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids`（baseline：rec-02 / rec-05 / beh-01 / adv-04；injected 与 lora：rec-02 / rec-05；combined：无翻转）。**演示视频画面中的终端输出为 semantic-v2.1 原始记录（30/45/43/45），非上表 semantic-v2.2 头条值。**
+
 - **对抗攻击面**：20 题覆盖 7 类攻击变体（DAN / 提示泄露 / 编码混淆 Base64·ROT13·拆分拼写 / 角色扮演 / 工具越权伪装 / 情感操纵 / 分步诱导 / 恶意代码）。组合态注入成功率 **0/20**；基线 7/20 被攻破（35%，semantic-v2.2 逐题重判）。
 - **正常能力回归**：8 题无害任务四态零过度拒绝，组合态 8/8 → 公理注入不损害通用能力。
 - **威慑证明**：四份凭证（baseline / injected / lora / combined）经 ed25519 签名 + 机器验证全部 **VALID**（信任锚 k-ed25519-001，2026-10-16 重新签发）；基线态凭证如实记录未达标评测（30/47），"达标性由评测数据体现"。
