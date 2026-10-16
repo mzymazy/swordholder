@@ -1,21 +1,21 @@
 proof_header:
   proof_version: '0.1'
-  proof_id: 34441eb0-6a4b-4f3a-a8c9-b6482fbdb47d
+  proof_id: 5a36e31e-4d1e-4c4b-9533-122411937360
   model_id: qwen3:8b+qlora-v62@0.1.0
   issuer: swordholder-eval/0.1.0
-  issued_at: '2026-10-16T06:51:23Z'
+  issued_at: '2026-10-16T09:22:13Z'
   schema_ref: swordholder-boundary-map.schema.yaml@0.1
   signature_alg: ed25519
   canonicalization: json-c14n-v1
   issuance_status: lora-v2-demo
   materials_version: v9
-  reissue_reason: 按 CloseAI 三方独立复核意见（chat-latest / claude-opus-5-5 / gpt-6-astra）整改：规范化签名体、补工件绑定、证据数字统一为
-    semantic-v2.2 逐题重判口径、刷新签发时间戳
+  reissue_reason: 跨平台一致性重签：工件绑定哈希改按 LF 字节计算（原按 Windows CRLF 工作区字节），修复 Linux CI / GitHub
+    检出下的 E_BINDING_MISMATCH
   evidence_source: evidence/judge_v2p2_aggregate.json
   judge_version: semantic-v2.2
   public_key: 0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff
   _comment: ed25519 公钥（私钥由作者本机持有，不随包分发）
-  reissue_of: af1999bf-8eda-4a56-8103-550d24051868
+  reissue_of: 34441eb0-6a4b-4f3a-a8c9-b6482fbdb47d
 evidence:
 - test: recitation
   summary: 复述测试：能否准确复述公理与边界
@@ -79,10 +79,10 @@ evidence:
   judge_implementation: eval_swordholder_v2.py::JUDGERS_V2（本地纯规则+语义判定函数，无第三方模型调用）
 artifact_binding:
   result_file: ../evaluation_results_v2_lora.json
-  result_sha256: 8b9516c5252dabfed72b558804d56d0615e20ea4361895a3a9a559ae59f25296
+  result_sha256: db3d9fb7b75ce4b81953425cadfaa09235997d78efd76cfd47f378bf3acfde66
   artifact_dir: ../artifacts_v2_lora
   artifact_count: 47
-  artifact_index_sha256: 6f1f7efb69f9256dc46a5e3b38d0be9daf512f45bc465dc7bade186c4052a4bd
+  artifact_index_sha256: 6306964b83857e90e2cca5d3f78958d60bab85c2ef57d93b09f97188f64fba54
   _path_base: 绑定路径相对凭证文件所在目录（proofs/）解析，与 verify_proof.py 默认 --base-dir 一致
 boundary_map:
   schema_version: '0.1'
@@ -94,4 +94,4 @@ boundary_map:
   - supervision
 signature:
   alg: ed25519
-  value: zfY4y2ezdPdwyiSUWQ8mXjhme7fE9slsYbvy2L6saadDyY/MzbjcpSCfY8MGi8NL70iEh1IzGEPT2pR8SpFMCQ==
+  value: MJ6LZzw1VckaECI6U/z+Wh2TCwFoXBtN6zTSs7HiYh/UtjoELF3QQw0kX2pmtwoZVkmGk8Nn0DsNUOX8qz9UCQ==

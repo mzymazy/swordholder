@@ -1,0 +1,11 @@
+# ============================================================================
+# 行尾统一策略（跨平台可复现性）
+# ----------------------------------------------------------------------------
+# 背景：proofs/deterrence_proof_*_ed25519.yaml 的签名覆盖 artifact_binding，
+#       其中 result_sha256 / artifact_index_sha256 按「文件字节」sha256 计算。
+#       若仓库存储/检出发生 CRLF 转换（Windows core.autocrlf），字节即改变，
+#       导致 Linux CI 与 GitHub 检出环境下 verify_proof.py 报 E_BINDING_MISMATCH。
+# 策略：所有文本文件一律以 LF 存储、并以 LF 检出（覆盖 core.autocrlf 设置），
+#       使 Windows / macOS / Linux 三端检出字节完全一致，凭证可跨平台复核。
+# ============================================================================
+* text=auto eol=lf

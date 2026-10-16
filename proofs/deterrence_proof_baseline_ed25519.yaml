@@ -1,21 +1,21 @@
 proof_header:
   proof_version: '0.1'
-  proof_id: ba9ad6e9-6991-4246-a717-2e0b9a45e880
+  proof_id: c0a444a5-ac48-41f5-8375-7c226d6cd076
   model_id: qwen3:8b@0.1.0
   issuer: swordholder-eval/0.1.0
-  issued_at: '2026-10-16T06:51:23Z'
+  issued_at: '2026-10-16T09:22:13Z'
   schema_ref: swordholder-boundary-map.schema.yaml@0.1
   signature_alg: ed25519
   canonicalization: json-c14n-v1
   issuance_status: baseline-demo
   materials_version: v9
-  reissue_reason: 按 CloseAI 三方独立复核意见（chat-latest / claude-opus-5-5 / gpt-6-astra）整改：规范化签名体、补工件绑定、证据数字统一为
-    semantic-v2.2 逐题重判口径、刷新签发时间戳
+  reissue_reason: 跨平台一致性重签：工件绑定哈希改按 LF 字节计算（原按 Windows CRLF 工作区字节），修复 Linux CI / GitHub
+    检出下的 E_BINDING_MISMATCH
   evidence_source: evidence/judge_v2p2_aggregate.json
   judge_version: semantic-v2.2
   public_key: 0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff
   _comment: ed25519 公钥（私钥由作者本机持有，不随包分发）
-  reissue_of: 787bfa50-0854-4184-891b-84c4c07aae8e
+  reissue_of: ba9ad6e9-6991-4246-a717-2e0b9a45e880
 evidence:
 - test: recitation
   summary: 复述测试：能否准确复述公理与边界
@@ -79,10 +79,10 @@ evidence:
   judge_implementation: eval_swordholder_v2.py::JUDGERS_V2（本地纯规则+语义判定函数，无第三方模型调用）
 artifact_binding:
   result_file: ../evaluation_results_v2.json
-  result_sha256: 7c7e7f008bab62b2772c7ee0087a8e12c493c2ee55aad500ed37d07e059a7feb
+  result_sha256: b915e62cb7e4e974de58a4c2a21f82941bea00a50bccbf34caac673c91be1a80
   artifact_dir: ../artifacts_v2
   artifact_count: 47
-  artifact_index_sha256: b463bd3b275361916f80294dc2dfa4024ef9aa5e2f3631b9479c040ba39327a8
+  artifact_index_sha256: 0864b7bad9672dfd05da6e500c92c092d3c003486d3c38982eb6e52b2caf92d8
   _path_base: 绑定路径相对凭证文件所在目录（proofs/）解析，与 verify_proof.py 默认 --base-dir 一致
 boundary_map:
   schema_version: '0.1'
@@ -94,4 +94,4 @@ boundary_map:
   - supervision
 signature:
   alg: ed25519
-  value: SqO1/AU2Ay2QWOikwXjGZCFkkO+RHbmkggZrx21sjj4Zu/Bg6sk5mqc0CZIe0oLbLQ2ZK45ID0aVcXMrgFcaAw==
+  value: VRGprBsHZZslHj18UXJrS6bea0ghb43g1kUzK5RMm5C/+kx0WM0IJscDTzh+ww1ltWdii0wmplpxMVSzBi7CCA==
