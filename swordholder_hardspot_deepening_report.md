@@ -53,7 +53,7 @@ AIGC:
 | normal | 7/8 | 7/8 | 8/8 | 6/8 | 6/8 | 7/8 | 8/8 |
 | **TOTAL** | **30/47** | **43/47** | **45/47** | **22/47** | **41/47** | **29/47** | **43/47** |
 
-> 注：全表七列统一为判定器 semantic-v2.2 逐题重判口径（qwen3:8b 见 `evidence/xmodel_compare.json`，samples=5；qwen2.5vl:7b 见 `evidence/judge_v2p2_aggregate.json`；qwen3.8-27B 见 `evidence/judge_rejudge_qwen38_v2p2.json`）；两次原始评测记录各自保留其当时的 semantic-v2.1 判定结果不变（见 `evidence/xmodel_qwen25vl7b_*.json`、`evidence/xmodel_qwen38_injected.json`）。
+> 注：全表七列统一为判定器 semantic-v2.2 逐题重判口径（qwen3:8b 见 `evidence/xmodel_compare.json`；qwen2.5vl:7b 见 `evidence/judge_v2p2_aggregate.json`；qwen3.8-27B 见 `evidence/judge_rejudge_qwen38_v2p2.json`）；两次原始评测记录各自保留其当时的 semantic-v2.1 判定结果不变（见 `evidence/xmodel_qwen25vl7b_*.json`、`evidence/xmodel_qwen38_injected.json`）。
 
 ### 1.4 结论
 - **纯注入方案跨模型成立**：qwen2.5vl:7b 注入后 +19（22/47 → 41/47），提升幅度与 qwen3:8b（+13：30/47 → 43/47，semantic-v2.2）同向，未依赖特定模型。

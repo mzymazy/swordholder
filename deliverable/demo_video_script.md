@@ -1,13 +1,15 @@
----
+﻿---
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_8e7dfbdec88411f18078525400de85a5
-    ReservedCode1: zvFPOWVz9fF0nX49KxH/mdh5PODE8RhySC4aExVFKnjXCWw8PMJ6ndjqD3A0x9fHyZkWX4lhF9oS30vLgrB3y4Wodxlw0Q9bNN09Q3is+ObqMB8ffXNIbCyc7SFXfU/MC4I9+8/9Y4mS4ThCKAji2ktJRuqZ0E2DKoE+E9kMjnD9XlUQgCd0YXXyzR0=
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_86192821c95611f18078525400de85a5
+    ReservedCode1: gAkLoSOsblOfwspSnUS8IqtUkuiHBbY+7WYXnn60856a+yVcJ+lgcbauIkoxIZ+nmFkF9+8kVqgVo+xtjPCMFCpOU9/P+9t64Xzmeg74zlkF6pAC3wj/T2Hi9CMaNLGoWB3/B/ZviqesV5k8ER1/ONccEX7XjLdHVTsTfKeoh31RYfyvik1xbvvZdTc=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_8e7dfbdec88411f18078525400de85a5
-    ReservedCode2: zvFPOWVz9fF0nX49KxH/mdh5PODE8RhySC4aExVFKnjXCWw8PMJ6ndjqD3A0x9fHyZkWX4lhF9oS30vLgrB3y4Wodxlw0Q9bNN09Q3is+ObqMB8ffXNIbCyc7SFXfU/MC4I9+8/9Y4mS4ThCKAji2ktJRuqZ0E2DKoE+E9kMjnD9XlUQgCd0YXXyzR0=
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_86192821c95611f18078525400de85a5
+    ReservedCode2: gAkLoSOsblOfwspSnUS8IqtUkuiHBbY+7WYXnn60856a+yVcJ+lgcbauIkoxIZ+nmFkF9+8kVqgVo+xtjPCMFCpOU9/P+9t64Xzmeg74zlkF6pAC3wj/T2Hi9CMaNLGoWB3/B/ZviqesV5k8ER1/ONccEX7XjLdHVTsTfKeoh31RYfyvik1xbvvZdTc=
 ---
+
+
 
 
 
@@ -62,7 +64,7 @@ AIGC:
 - `evaluation_results_v2_lora.json` → 41/47
 - `evaluation_results_v2_lora_combined.json` → 45/47
 
-> **画面数字口径说明**：上述 30/43/41/45 为材料头条值（判定器 semantic-v2.2 逐题重判）；这 4 份原始 JSON 内记录的判定器版本为 semantic-v2.1，其汇总为 baseline 30/47、injected 45/47、lora 43/47、combined 45/47。因此**已录制视频画面中的终端数字为 v2.1 原始记录（30/45/43/45）**，与文档头条的差异逐题列于 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids`。
+> **画面数字口径说明**：上述 30/43/41/45 为材料头条值（判定器 semantic-v2.2 逐题重判）；这 4 份原始 JSON 内记录的判定器版本为 semantic-v2.1，其汇总为 baseline 30/47、injected 45/47、lora 43/47、combined 45/47。**本包内演示视频（`deliverable/demo_video_v3.mp4`）画面大字逐屏为 baseline 30/47 → system 注入 45/47 → lora 权重微调 43/47 → 注入+权重组合 47/47（标签「双通道组合 · 全过」）**；前三项与 v2.1 原始记录一致，组合态画面 47/47 为录制当时的旧表述，与原始记录 45/47 及本材料头条 45/47 不一致，已登记为待整改项（重剪该屏或替换为真实录屏，见 `Swordholder-v9-整改清单.md`）。文档口径与逐题差异以 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids` 为准。
 
 屏幕可放两个窗口：左 JSON 摘要（用 `Get-Content ... -TotalCount 40` 显示 metrics），右 README 表格对照。
 
@@ -182,5 +184,6 @@ python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
 
 - **公开链接：[待用户补录——公开链接涉及作者自有账号（B 站 / YouTube），需作者本人上传视频后填写；本提交包内不含可点击公开链接]**
 - 上传建议：B 站"开源 AI 工具赛道 · Swordholder 共生公理"标题；若无法公开，可提交带时效的私有分享链接并注明。
-- 与本包其他材料的对应关系：本脚本即录屏分镜。**本包内演示视频（`deliverable/demo_video_v3.mp4`）画面中的终端输出为 semantic-v2.1 原始记录（baseline 30/47 → injected 45/47 → lora 43/47 → combined 45/47；基线对抗失守 8/20＝40%），与材料头条 semantic-v2.2 口径（30/43/41/45；失守 7/20＝35%）的逐题差异见 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids`；本次不重录视频，画面数字以 v2.1 原始记录为准。**
+- 与本包其他材料的对应关系：本脚本即录屏分镜。**本包内演示视频（`deliverable/demo_video_v3.mp4`）画面大字依次为 baseline 30/47 → system 注入 45/47 → lora 权重微调 43/47 → 注入+权重组合 47/47（标签「双通道组合 · 全过」）；前三项及基线对抗诱导成功 8/20＝40% 与 semantic-v2.1 原始记录一致，**组合态画面 47/47 为录制当时的旧表述，与 v2.1 原始记录 45/47 及材料头条 semantic-v2.2 口径（30/43/41/45；失守 7/20＝35%）不一致，已登记为 v9.3 待整改项（重剪该屏或替换为真实录屏 `swordholder_demo_v9_final.mp4`）**，逐题差异见 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids`；本次不重录视频，画面数字以 v2.1 原始记录为准。**
 
+*（内容由AI生成，仅供参考）*

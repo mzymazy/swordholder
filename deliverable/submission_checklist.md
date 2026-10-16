@@ -54,12 +54,12 @@ AIGC:
 
 > 说明：19/20 为补齐"场景落地/开源治理/长期发展"三栏的评审材料；21 为 v2 打包后新增的 xadv 深化证据，本次 v9 一并纳入。
 
-## 三、提交包结构（实际打包命名：`Swordholder-共生公理-最终提交-20261016-v9.zip`）
+## 三、提交包结构（实际打包命名：`Swordholder-共生公理-最终提交-20261016-v9.3.zip`）
 
 提交包顶层为 `swordholder_mvp/` 目录（2026-10-16 v9 整改版：在 v7 基础上按第三方独立审计 DSH 的 P0/P1/P2 全量整改——四态口径统一为 semantic-v2.2 逐题重判、验证器升级 v0.5、凭证重签、原创声明补齐，评委开箱即可验签 VALID），结构如下：
 
 ```
-Swordholder-共生公理-最终提交-20261016-v9.zip
+Swordholder-共生公理-最终提交-20261016-v9.3.zip
 └── swordholder_mvp/
     ├── README.md
     ├── README-reviewer.md（deliverable/）

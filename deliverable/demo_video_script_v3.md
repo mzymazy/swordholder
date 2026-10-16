@@ -1,20 +1,22 @@
----
+﻿---
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_b1a697cdc88811f1acd7525400cd780f
-    ReservedCode1: 0NACpqw9tje96zWFXO6lhNWTDY5K67X5ShdaIAYpXDqDjYZHH7mJI7+OvsDe1ohiQyLNJKryi1K+S/KaC8Do8HVqkdJ/SZnD66mC96NpMV9vm8v8Axsrux0YVA34Ibz83eTRUtaX1FBUhtTypnconfQu93wDgdJJv72AUvBjXhcSx2gYqcPGMCPTTB0=
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_8778a4eec95611f1acd7525400cd780f
+    ReservedCode1: ERjDgp27HwLWX37frdBm1S6gIlOwUvVreoOplHaumH10Di+coQWgWB6q4f5MkQA4EHe/DVbofV/k8Xu4FtN53SN2oE/c3L4WTmbBzV9OZwAMkFA5wb4rcM3ZZNBsoPgN0nqeK4t2AV7dAnP8f/eQK49T7sKzGyRV6CeC7PRzp77TmY9LqhOYDV+aZ48=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_b1a697cdc88811f1acd7525400cd780f
-    ReservedCode2: 0NACpqw9tje96zWFXO6lhNWTDY5K67X5ShdaIAYpXDqDjYZHH7mJI7+OvsDe1ohiQyLNJKryi1K+S/KaC8Do8HVqkdJ/SZnD66mC96NpMV9vm8v8Axsrux0YVA34Ibz83eTRUtaX1FBUhtTypnconfQu93wDgdJJv72AUvBjXhcSx2gYqcPGMCPTTB0=
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_8778a4eec95611f1acd7525400cd780f
+    ReservedCode2: ERjDgp27HwLWX37frdBm1S6gIlOwUvVreoOplHaumH10Di+coQWgWB6q4f5MkQA4EHe/DVbofV/k8Xu4FtN53SN2oE/c3L4WTmbBzV9OZwAMkFA5wb4rcM3ZZNBsoPgN0nqeK4t2AV7dAnP8f/eQK49T7sKzGyRV6CeC7PRzp77TmY9LqhOYDV+aZ48=
 ---
+
+
 
 
 
 # Swordholder 参赛演示视频主线脚本 v3（世界性立意版）
 
 > 历史迭代稿：本文件为早期立意剪辑版脚本，数据已按 semantic-v2.2 口径更新；正式录制请以 `demo_video_script.md` 为准。
-> **口径说明**：文中头条数字为 **semantic-v2.2 逐题重判**口径（baseline 30/47 → injected 43/47 → QLoRA 单态 41/47 → combined 45/47）；**已录制视频画面中的终端输出为 semantic-v2.1 原始记录（baseline 30/47 → injected 45/47 → lora 43/47 → combined 45/47；基线对抗失守 8/20＝40%）**，两版口径的逐题差异见 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids`。（本次不重录视频，画面数字以 v2.1 原始记录为准。）
+> **口径说明**：文中头条数字为 **semantic-v2.2 逐题重判**口径（baseline 30/47 → injected 43/47 → QLoRA 单态 41/47 → combined 45/47）；**本包内演示视频画面大字依次为 baseline 30/47 → system 注入 45/47 → lora 权重微调 43/47 → 注入+权重组合 47/47（标签「双通道组合 · 全过」）：前三项与 semantic-v2.1 原始记录一致（基线对抗诱导成功 8/20＝40%，画面一致），组合态画面 47/47 为录制当时的旧表述，与 v2.1 原始记录 45/47 及材料头条 45/47 不一致，已登记为 v9.3 待整改项（重剪该屏或替换为真实录屏）**，两版口径的逐题差异见 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids`。（本次不重录视频，材料口径以文档头条与 v2.1 原始记录脚注为准。）
 
 
 > 定位：把 Swordholder 从"一个安全工具"提升到"对齐问题的一条可验证路径"。核心镜头仍是真实录屏/真实输出，叙事框架面向全球 AI 安全命题。
@@ -204,4 +206,5 @@ python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
 | 公理地位 | 功能卖点之一 | 立论核心（结构事实，不是道德选择） |
 | 收尾 | 边界诚实声明 | 边界诚实 + 回应世界命题 |
 | 实测数据 | 不变 | 不变（全部保留） |
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

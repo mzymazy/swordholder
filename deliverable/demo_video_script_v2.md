@@ -1,20 +1,22 @@
----
+﻿---
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_5176ae7cc88811f18078525400de85a5
-    ReservedCode1: WTDgzRW1xRSCaconHViTH4c6lvk5XQqJZGpy+482E+uDgUjsvG4fT+XPUNj+3JYuxNvz4yvJV5GX8MjePPAgpOTA9dN8W+g1jGKCl0XJJNOivnk8/GqLnQvvMOMIOqXPt0uuf68mcJvFVMTzCLAMNd0JS0nE7A5CH5waE2DHxMUnuU9EmkRBRIY4hlY=
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_86c92758c95611f1acd7525400cd780f
+    ReservedCode1: 3Tb0aj8dj9YwUczu11LReYo9/ioaksIoR2nFPUIOiMLVkjAOsfaSDDgZ1qXNJuCFtEZfRuWcjIOf+n+vbnu6zbRr/f/bYLtzCKmqC+RjHPG/jOD4r+KSBnEetkt7VAj6E9SQHFtOZ5RJWquwUUart3dL/YCxCy9ox+EuK+BOmbe7VyWP5fDLkWESss4=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_5176ae7cc88811f18078525400de85a5
-    ReservedCode2: WTDgzRW1xRSCaconHViTH4c6lvk5XQqJZGpy+482E+uDgUjsvG4fT+XPUNj+3JYuxNvz4yvJV5GX8MjePPAgpOTA9dN8W+g1jGKCl0XJJNOivnk8/GqLnQvvMOMIOqXPt0uuf68mcJvFVMTzCLAMNd0JS0nE7A5CH5waE2DHxMUnuU9EmkRBRIY4hlY=
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_86c92758c95611f1acd7525400cd780f
+    ReservedCode2: 3Tb0aj8dj9YwUczu11LReYo9/ioaksIoR2nFPUIOiMLVkjAOsfaSDDgZ1qXNJuCFtEZfRuWcjIOf+n+vbnu6zbRr/f/bYLtzCKmqC+RjHPG/jOD4r+KSBnEetkt7VAj6E9SQHFtOZ5RJWquwUUart3dL/YCxCy9ox+EuK+BOmbe7VyWP5fDLkWESss4=
 ---
+
+
 
 
 
 # Swordholder 参赛演示视频主线脚本 v2（炫酷版）
 
 > 历史迭代稿：本文件为早期炫酷剪辑版脚本，数据已按 semantic-v2.2 口径更新；正式录制请以 `demo_video_script.md` 为准。
-> **口径说明**：文中头条数字为 **semantic-v2.2 逐题重判**口径（baseline 30/47 → injected 43/47 → QLoRA 单态 41/47 → combined 45/47）；**已录制视频画面中的终端输出为 semantic-v2.1 原始记录（baseline 30/47 → injected 45/47 → lora 43/47 → combined 45/47；基线对抗失守 8/20＝40%）**，两版口径的逐题差异见 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids`。（本次不重录视频，画面数字以 v2.1 原始记录为准。）
+> **口径说明**：文中头条数字为 **semantic-v2.2 逐题重判**口径（baseline 30/47 → injected 43/47 → QLoRA 单态 41/47 → combined 45/47）；**本包内演示视频画面大字依次为 baseline 30/47 → system 注入 45/47 → lora 权重微调 43/47 → 注入+权重组合 47/47（标签「双通道组合 · 全过」）：前三项与 semantic-v2.1 原始记录一致（基线对抗诱导成功 8/20＝40%，画面一致），组合态画面 47/47 为录制当时的旧表述，与 v2.1 原始记录 45/47 及材料头条 45/47 不一致，已登记为 v9.3 待整改项（重剪该屏或替换为真实录屏）**，两版口径的逐题差异见 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids`。（本次不重录视频，材料口径以文档头条与 v2.1 原始记录脚注为准。）
 
 
 > 定位：把「实证链」剪成一条有冲击力的对抗叙事。**所有核心镜头仍是真实录屏/真实输出**，炫酷来自节奏、红绿对比、数字特效，不来自虚构画面。
@@ -155,4 +157,5 @@ python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml
 | `protocol_gateway\swordholder_gateway.py` | 段 5 网关滚动 |
 | `README.md` | 段 6 边界与复现 |
 | 即梦生成片头/片尾素材 | 段 0/6 包装 |
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

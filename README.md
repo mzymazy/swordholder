@@ -1,13 +1,15 @@
----
+﻿---
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_76bdab34c87011f18078525400de85a5
-    ReservedCode1: I+9wTeWsoZe3Lby1UC16yuRBTahn3r9RSeLEFb5Sa8hL7lXZAj9hENw3fY3aE17Rw+XINAVhw0Fq2DZ/gyJ2Xr0UrjsK+lEag6l46ZByq6DfTaipQY/uezxr5qoeoDK6QPZG4YSRGiERLqXsBBkxa8+CKr3bsulqkfuhpmWxsZg8tmcFUvKSXs8QxTY=
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_83d853c0c95611f18078525400de85a5
+    ReservedCode1: foaGBANX5HpTGJJ2xL75r6zjBqx3Mjk58sWwPEl2TXMllOGpEhQP9FpoDV9PXyLxI3Jk/3dEw3z2LufjhneyEG0TJscYjQo/Qp/me5uWWi+5AlOUrahyabrITeqSQWqI69mvfBCl5GB7OINA225GhI5+6vPL4nJix9/6iw3W03nOEaZhs0VXtyh8JsM=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_76bdab34c87011f18078525400de85a5
-    ReservedCode2: I+9wTeWsoZe3Lby1UC16yuRBTahn3r9RSeLEFb5Sa8hL7lXZAj9hENw3fY3aE17Rw+XINAVhw0Fq2DZ/gyJ2Xr0UrjsK+lEag6l46ZByq6DfTaipQY/uezxr5qoeoDK6QPZG4YSRGiERLqXsBBkxa8+CKr3bsulqkfuhpmWxsZg8tmcFUvKSXs8QxTY=
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_83d853c0c95611f18078525400de85a5
+    ReservedCode2: foaGBANX5HpTGJJ2xL75r6zjBqx3Mjk58sWwPEl2TXMllOGpEhQP9FpoDV9PXyLxI3Jk/3dEw3z2LufjhneyEG0TJscYjQo/Qp/me5uWWi+5AlOUrahyabrITeqSQWqI69mvfBCl5GB7OINA225GhI5+6vPL4nJix9/6iw3W03nOEaZhs0VXtyh8JsM=
 ---
+
+
 
 
 
@@ -72,7 +74,7 @@ python verify_proof.py proofs/deterrence_proof_baseline_ed25519.yaml \
 - 组合态对抗类 20/20 全部通过，即提示注入成功率为 **0/20**。
 - baseline → injected 增量 **+13**（30/47 → 43/47）；组合态在注入态基础上再补 2 题（对抗 adv-07、常规 nrm-05）至 **45/47**。semantic-v2.2 严格原文口径下组合态仍有 2 题未达（rec-02/rec-05，逐字复述漂移），如实记录，不再是 47/47 全达标。
 
-> **口径脚注（semantic-v2.2 头条值 vs semantic-v2.1 原始记录）**：本节头条四态数字采用 **semantic-v2.2 逐题重判**口径——baseline **30/47**、injected **43/47**、QLoRA 单态 **41/47**、combined **45/47**；权威汇总见 `evidence/judge_v2p2_aggregate.json`（由 `evidence/gen_v2p2_aggregate.py` 聚合 `evidence/judge_rejudge_v2p2_8b_vl.json` 生成）。四份原始评测记录 `evaluation_results_v2*.json` 保持其当时的判定器 **semantic-v2.1** 结果不变，为 **30/45/43/45**（对抗面：baseline 12/20 通过、8/20 失守＝40%）；两版口径的逐题差异见 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids` 字段（baseline：rec-02 / rec-05 / beh-01 / adv-04；injected：rec-02 / rec-05；lora：rec-02 / rec-05；combined：无翻转）。**演示视频画面中的终端输出为 semantic-v2.1 原始记录（30/45/43/45），非本节 semantic-v2.2 头条值。**
+> **口径脚注（semantic-v2.2 头条值 vs semantic-v2.1 原始记录）**：本节头条四态数字采用 **semantic-v2.2 逐题重判**口径——baseline **30/47**、injected **43/47**、QLoRA 单态 **41/47**、combined **45/47**；权威汇总见 `evidence/judge_v2p2_aggregate.json`（由 `evidence/gen_v2p2_aggregate.py` 聚合 `evidence/judge_rejudge_v2p2_8b_vl.json` 生成）。四份原始评测记录 `evaluation_results_v2*.json` 保持其当时的判定器 **semantic-v2.1** 结果不变，为 **30/45/43/45**（对抗面：baseline 12/20 通过、8/20 失守＝40%）；两版口径的逐题差异见 `evidence/judge_v2p2_aggregate.json` 的 `flipped_ids` 字段（baseline：rec-02 / rec-05 / beh-01 / adv-04；injected：rec-02 / rec-05；lora：rec-02 / rec-05；combined：无翻转）。**本包内演示视频画面大字依次为 baseline 30/47 → system 注入 45/47 → lora 权重微调 43/47 → 注入+权重组合 47/47（标签「双通道组合 · 全过」）：前三项与 semantic-v2.1 原始记录一致（基线对抗诱导成功 8/20＝40%），组合态画面 47/47 为录制当时的旧表述，与原始记录 45/47 及材料头条 45/47 不一致，已登记为 v9.3 待整改项（重剪该屏或替换为真实录屏）；材料口径以本节 semantic-v2.2 头条值与 v2.1 原始记录脚注为准。**
 
 ### 3.2 跨模型迁移
 
@@ -187,4 +189,5 @@ swordholder_mvp/
 |---|---|
 | [deliverable/README-reviewer.md](deliverable/README-reviewer.md) | 参赛评审版：背景→方法→四态实证→攻击面矩阵→复现命令→局限 |
 | [deliverable/README-oss.md](deliverable/README-oss.md) | 开源治理版：口径统一、AIGC 声明、可复现与合规 |
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

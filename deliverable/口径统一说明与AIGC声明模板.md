@@ -108,8 +108,9 @@ AIGC:
 
 - [ ] 所有文档边界表述为"4 行为域"，5 项描述仅作展开并列且附映射
 - [ ] supervision 统一为"不得逃避或对抗人类监督与审计"
-- [ ] 一页纸方案已含课题定位 / 核心机制 / 四态实证（semantic-v2.2 口径 30/43/41/45）与 VALID / 技术栈 / 可复现性 / 项目名称
-- [ ] README-reviewer 数据与 `evaluation_results_v2_*.json` 逐行一致
+- [ ] 一页纸方案已含课题定位 / 核心机制 / 四态实证（semantic-v2.2 口径 30/47、43/47、41/47、45/47）与 VALID / 技术栈 / 可复现性 / 项目名称
+- [ ] README / README-reviewer / 一页纸头条四态数字与 `evidence/judge_v2p2_aggregate.json` 一致（原始 `evaluation_results_v2*.json` 为 semantic-v2.1 记录，差异须逐题对齐 flipped_ids）
+- [ ] 全文无 “samples=5”、无 “v2 单次留痕” 等掩盖判定器版本的表述；未标注版本的四态旧数字 30/45/43/45 仅可出现在 v2.1 原始记录脚注中
 - [ ] 原创工作说明已填写并放入压缩包 05 目录
 - [ ] 压缩包不含 temp/ 中间文件与 models/ 权重
 *（内容由AI生成，仅供参考）*
