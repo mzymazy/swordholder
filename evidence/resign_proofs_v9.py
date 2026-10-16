@@ -32,7 +32,8 @@ from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-DEFAULT_KEY = r"O:\接单\参赛\swordholder_mvp\temp\swordholder_ed25519_demo_key.pem"
+DEFAULT_KEY = os.environ.get("SWORDHOLDER_DEMO_KEY") or os.path.join(  # 演示私钥不入库，见 docs/出证与密钥说明
+    ROOT, "temp", "swordholder_ed25519_demo_key.pem")
 KEY_ID = "k-ed25519-001"
 MATERIALS_VERSION = "v9"
 REISSUE_REASON = ("按 CloseAI 三方独立复核意见（chat-latest / claude-opus-5-5 / gpt-6-astra）整改："

@@ -18,7 +18,8 @@ from transformers import (
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, TaskType
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-HERE = r"O:\接单\参赛\swordholder_mvp"
+HERE = os.environ.get("SWORDHOLDER_ROOT") or os.path.dirname(  # 仓库根：优先环境变量，其次按脚本位置相对定位
+    os.path.dirname(os.path.abspath(__file__)))
 BASE_MODEL = os.path.join(HERE, "models", "qwen3-8b-bnb-4bit")
 DATA = os.path.join(HERE, "temp", "swordholder_lora_train_v6_memory.jsonl")
 OUT_DIR = os.path.join(HERE, "models", "lora_adapter_v6_memory")

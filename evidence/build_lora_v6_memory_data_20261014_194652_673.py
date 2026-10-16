@@ -17,7 +17,8 @@ import random
 import sys
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-HERE = r"O:\接单\参赛\swordholder_mvp"
+HERE = os.environ.get("SWORDHOLDER_ROOT") or os.path.dirname(  # 仓库根：优先环境变量，其次按脚本位置相对定位
+    os.path.dirname(os.path.abspath(__file__)))
 V5 = os.path.join(HERE, "evidence", "swordholder_lora_train_v5_memory.jsonl")
 OUT = os.path.join(HERE, "evidence", "swordholder_lora_train_v6_memory.jsonl")
 OUT_TEMP = os.path.join(HERE, "temp", "swordholder_lora_train_v6_memory.jsonl")

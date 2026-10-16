@@ -20,7 +20,8 @@ import eval_swordholder_v2 as v2
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 OLLAMA_API = "http://127.0.0.1:11434/api/chat"
 JUDGE_MODEL = "qwen3:8b"
-HERE = r"O:\接单\参赛\swordholder_mvp"
+HERE = os.environ.get("SWORDHOLDER_ROOT") or os.path.dirname(  # 仓库根：优先环境变量，其次按脚本位置相对定位
+    os.path.dirname(os.path.abspath(__file__)))
 CASE_FILE = os.path.join(HERE, "evaluation_results_v2_lora_combined.json")
 OUT_FILE = os.path.join(HERE, "evidence", "judge_calibration_v2p2.json")
 

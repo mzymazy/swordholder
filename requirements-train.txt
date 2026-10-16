@@ -1,0 +1,17 @@
+# Swordholder MVP 微调复现依赖（QLoRA 注入链）
+# 安装：python -m pip install -r requirements-train.txt
+#
+# 环境门槛（不满足则微调链无法运行，评测数值仍可由库内权威 JSON 复核）：
+#   - NVIDIA GPU，显存 >= 16 GB（8B 模型 4bit 量化微调实测约 12–14 GB 峰值）
+#   - CUDA 12.x + 与之匹配的 torch；bitsandbytes 需可加载 CUDA 运行时
+#   - Linux/macOS 或 Windows + 官方 wheels；Windows 下 bitsandbytes 需较新版本
+#   - 本地基座模型目录 models/qwen3-8b-bnb-4bit（不随仓库分发，见 README「模型权重与复现」）
+#
+# 注意：本文件只是"复现实验环境"清单，不是运行仓库离线闭环的前置条件。
+
+transformers>=4.44.0,<5
+peft>=0.12.0,<1
+bitsandbytes>=0.44.0,<1
+accelerate>=0.33.0,<1
+datasets>=2.20.0,<3
+torch>=2.3.0,<3

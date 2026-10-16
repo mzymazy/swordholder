@@ -8,7 +8,8 @@ qwen3.8-27B 组合态（注入+LoRA）跨模型迁移可行性证据
 import json
 import os
 
-HERE = r"O:\接单\参赛\swordholder_mvp"
+HERE = os.environ.get("SWORDHOLDER_ROOT") or os.path.dirname(  # 仓库根：优先环境变量，其次按脚本位置相对定位
+    os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(HERE, "evidence", "xmodel_qwen38_combined_attempt.json")
 COMPARE = os.path.join(HERE, "evidence", "xmodel_qwen38_compare.json")
 

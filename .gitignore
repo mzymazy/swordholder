@@ -16,3 +16,20 @@ __pycache__/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# 参赛提交包（本地冻结产物，随 2026-10-16 提交/重打包生成，不入库）
+Swordholder最终提交_*/
+
+# 未纳入实证链的构建/实验中间产物（逐样本 tmp 输出；权威 JSON 与绑定工件仍在库内）
+# 说明：v3 稳定性/鲁棒性/硬样本、xadv 逐样本目录不被 verify_artifact_binding.py 引用，
+#       仅作为聚合统计记录（evaluation_results_v3_*.json / evidence/xadv_*.json）的原始落盘，
+#       保留在本机与冻结提交包内，不随开源仓库分发。详见 evidence/README.md。
+artifacts_v3_*/
+artifacts_xadv_*/
+
+# 打包 / 测试 / 工具残留
+*.egg-info/
+.pytest_cache/
+.tox/
+dist/
+build/
