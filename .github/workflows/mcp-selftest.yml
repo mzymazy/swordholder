@@ -1,0 +1,43 @@
+name: mcp-selftest
+
+on:
+  push:
+    paths:
+      - "mcp_server/**"
+      - ".github/workflows/mcp-selftest.yml"
+  pull_request:
+    paths:
+      - "mcp_server/**"
+  workflow_dispatch:
+
+jobs:
+  selftest:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: MCP server selftest
+        run: python mcp_server/selftest.py
+
+      - name: Proof verification still green
+        if: runner.os != 'Windows'
+        run: |
+          set -euo pipefail
+          n=0
+          for f in proofs/*.yaml; do
+            python verify_proof.py "$f" --trusted-keys trusted_keys.json --max-age-days 365 | grep -q -- "-> VALID$"
+            n=$((n+1))
+          done
+          test "$n" -eq 4

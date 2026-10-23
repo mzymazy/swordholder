@@ -27,6 +27,11 @@ Swordholder最终提交_*/
 artifacts_v3_*/
 artifacts_xadv_*/
 
+# 签名私钥与本地签章产物（私钥永不入库，.seal.json 属运行期记录）
+keys/
+*.pem
+*.seal.json
+
 # 打包 / 测试 / 工具残留
 *.egg-info/
 .pytest_cache/
