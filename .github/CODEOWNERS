@@ -1,0 +1,11 @@
+# 默认由维护者评审，涉及验签与凭证格式的改动必须维护者本人批准
+*                       @mzymazy
+
+# 验签器与凭证格式：任何改动都会影响已签发凭证的可验证性
+/verify_proof.py        @mzymazy
+/trusted_keys.json      @mzymazy
+/swordholder-boundary-map.schema.yaml @mzymazy
+/proofs/                @mzymazy
+
+# CI 口径门禁
+/.github/               @mzymazy

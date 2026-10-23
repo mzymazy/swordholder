@@ -1,0 +1,46 @@
+name: Feature request
+description: 提议新能力、新题组、新接入方式
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请优先描述"谁在什么场景下需要它"，而不是只描述实现方式。场景说不清的需求，通常无法进入 Roadmap。
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 使用场景
+      description: 谁用、在哪个环节用、现在卡在哪
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 期望能力
+      description: 希望它做到什么（可给接口草案，不要求实现）
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 你目前怎么绕过这个问题
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 影响面
+      options:
+        - CLI / 使用体验
+        - 评测题组与判定口径
+        - 凭证格式与验签
+        - 接入（MCP / CI / 推理后端）
+        - 文档
+    validations:
+      required: true
+  - type: checkboxes
+    id: agree
+    attributes:
+      label: 口径约定
+      options:
+        - label: 我理解四态数字口径以 `evidence/judge_v2p2_aggregate.json` 为唯一权威源，不接受手写数字
+          required: true

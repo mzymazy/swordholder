@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+title: "Swordholder (持剑者) — AI 上线前安全准入与可验证凭证"
+message: "如需在论文或报告中引用本项目，请使用以下信息。"
+type: software
+authors:
+  - family-names: "马"
+    given-names: "梓尧"
+    alias: mzymazy
+    website: "https://github.com/mzymazy"
+repository-code: "https://github.com/mzymazy/swordholder"
+url: "https://github.com/mzymazy/swordholder"
+abstract: >-
+  面向 AI 应用上线前的安全准入检查工具：以多轮对抗题组对模型/智能体做行为评测，
+  将评测证据通过摘要绑定与 ed25519 签名封装为可被第三方独立验签的安全凭证，
+  使"这个 AI 系统做过哪些安全检查、结果是否被篡改"成为可机器验证的事实。
+keywords:
+  - ai-safety
+  - agent-security
+  - verifiable-credentials
+  - ed25519
+  - llm-evaluation
+  - ai-governance
+license: Apache-2.0
+version: "0.5.0"
+date-released: "2026-10-16"

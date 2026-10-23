@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 安全问题 / 漏洞报告
+    url: https://github.com/mzymazy/swordholder/security/advisories/new
+    about: 请勿用公开 issue 报告安全问题，走私有漏洞报告渠道。
+  - name: 使用与口径说明
+    url: https://github.com/mzymazy/swordholder#readme
+    about: 先看 README 的「四态口径」与「可复现步骤」，多数疑问在那里能直接解答。

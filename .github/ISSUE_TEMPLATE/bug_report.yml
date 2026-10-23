@@ -1,0 +1,58 @@
+name: Bug report
+description: 报告可复现的问题（崩溃、验签失败、口径不一致等）
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交前请确认：问题能在最新 master 上复现，且 `python verify_proof.py proofs/*.yaml --trusted-keys trusted_keys.json` 的失真是你要报告的问题本身，而非本地环境差异。
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 问题描述
+      description: 发生了什么，期望发生什么
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      description: 请给出可直接执行的最小命令序列
+      placeholder: |
+        1. git clone ...
+        2. pip install -r requirements.txt
+        3. python ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 关键日志 / 报错
+      description: 粘贴完整报错与原因码（如 E_UNTRUSTED_KEY / E_EXPIRED / E_BINDING_MISMATCH）
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: 版本 / 提交号
+      description: `git rev-parse --short HEAD` 的输出
+      placeholder: "5455b63"
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: 运行环境
+      description: 操作系统、Python 版本、是否为离线环境
+      placeholder: "Windows 11 / Python 3.11.9 / 本地 Ollama 0.3.x"
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 自查
+      options:
+        - label: 我确认没有在本 issue 中附带私钥、`.env` 或其他凭据
+          required: true
+        - label: 我已搜索过现有 issue，未发现重复
+          required: true
