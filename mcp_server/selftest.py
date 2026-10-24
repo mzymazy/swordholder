@@ -17,6 +17,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(HERE)
 SERVER = os.path.join(HERE, "server.py")
 
+# Windows CI 默认 stdout 编码为 cp1252，中文断言说明会直接抛 UnicodeEncodeError
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 
 class Client:
     def __init__(self):

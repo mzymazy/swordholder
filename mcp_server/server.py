@@ -326,6 +326,12 @@ def handle(req: dict) -> dict | None:
 
 
 def main() -> int:
+    # Windows 控制台默认代码页（cp1252/cp936）无法承载中文 JSON，显式切 UTF-8
+    for stream in (sys.stdin, sys.stdout):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
     for line in sys.stdin:
         line = line.strip()
         if not line:

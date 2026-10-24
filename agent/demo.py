@@ -21,6 +21,13 @@ for p in (REPO_ROOT, HERE):
     if p not in sys.path:
         sys.path.insert(0, p)
 
+# Windows / CI 默认 stdout 编码可能无法承载中文
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 import triage as triage_mod          # noqa: E402  agent/triage.py
 from mcp_server import server as mcp  # noqa: E402  mcp_server/server.py
 
