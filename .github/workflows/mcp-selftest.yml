@@ -31,6 +31,9 @@ jobs:
       - name: MCP server selftest
         run: python mcp_server/selftest.py
 
+      - name: End-to-end triage demo (seal + tamper detection)
+        run: python agent/demo.py
+
       - name: Proof verification still green
         if: runner.os != 'Windows'
         run: |

@@ -1,0 +1,15 @@
+{
+  "alert_id": "ALRT-2026-1104-0003",
+  "title": "Typosquatted npm package runs postinstall payload",
+  "asset": "app-frontend (node_modules/event-stream-x)",
+  "severity": "critical",
+  "signal": "postinstall script downloads and executes remote payload",
+  "tags": ["supply-chain", "npm", "build"],
+  "description": "依赖 event-stream-x@1.2.3 的 postinstall 脚本从短链域名下载可执行文件至 /tmp 并执行，包名与常用库仅差一个字符。",
+  "observed": {
+    "first_seen": "2026-11-04T08:41:00Z",
+    "package": "event-stream-x",
+    "version": "1.2.3",
+    "download_host": "cdn-metrics.example"
+  }
+}

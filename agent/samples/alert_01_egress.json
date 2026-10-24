@@ -1,0 +1,15 @@
+{
+  "alert_id": "ALRT-2026-1102-0007",
+  "title": "Build runner made outbound TLS to unknown ASN",
+  "asset": "build-runner-07",
+  "severity": "high",
+  "signal": "unexpected outbound TLS to unknown ASN 215199",
+  "tags": ["egress", "ci", "network"],
+  "description": "构建机在 03:14 UTC 向 ASN 215199 的 443 端口建立 6 条长连接，目的域名未在资产画像中登记；该机同时持有 CI token。",
+  "observed": {
+    "first_seen": "2026-11-02T03:14:00Z",
+    "connections": 6,
+    "process": "node index.js (pid 44121)",
+    "dest_sample": "198.51.100.77:443"
+  }
+}
