@@ -82,11 +82,20 @@ def tool_keygen(args: dict) -> dict:
     except Exception:
         pass
     pub_hex = public_hex_from_private(priv)
+    # 公钥单独落一份 pem：它是可以公开、需要交给对端登记进信任锚的东西，
+    # 每次按私钥重算覆盖（幂等），省得用户自己去导出。
+    pub_path = os.path.join(out_dir, "swordholder_ed25519_public.pem")
+    with open(pub_path, "wb") as f:
+        f.write(priv.public_key().public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        ))
     return {
         "ok": True,
         "private_key_path": priv_path,
+        "public_key_path": pub_path,
         "public_key_hex": pub_hex,
-        "notice": "私钥仅在本机，切勿提交到版本库或随报告分发",
+        "notice": "私钥仅在本机，切勿提交到版本库或随报告分发；公钥可公开，用于登记信任锚",
     }
 
 

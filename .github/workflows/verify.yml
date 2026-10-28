@@ -145,6 +145,33 @@ jobs:
 
           swordholder query --db "$work/index.db" --limit 5
 
+          # 信任治理冒烟：轮换后历史凭证仍 VALID，停用后旧钥签新凭证被拒，吊销即时生效
+          seal=$(python -c "import json,sys;print(json.load(open(sys.argv[1],encoding='utf-8'))['seal'])" "$work/out.json")
+          trustf="$work/trusted.json"
+          swordholder trust add --keys-file "$trustf" --key-id k-ci-a \
+            --pubkey-file "$work/keys/swordholder_ed25519_public.pem" > /dev/null
+          swordholder verify "$seal" --keys "$trustf" > "$work/v1.json"
+
+          swordholder keygen --out "$work/keys2" > /dev/null
+          swordholder trust add --keys-file "$trustf" --key-id k-ci-b \
+            --pubkey-file "$work/keys2/swordholder_ed25519_public.pem" > /dev/null
+          swordholder trust retire k-ci-a --keys-file "$trustf" --replaced-by k-ci-b > /dev/null
+          swordholder verify "$seal" --keys "$trustf" > "$work/v2.json"
+
+          swordholder trust revoke "$seal" --seal --keys-file "$trustf" --reason ci-smoke > /dev/null
+          swordholder verify "$seal" --keys "$trustf" > "$work/v3.json" || true
+          swordholder trust show --keys-file "$trustf" --json > "$work/trust.json"
+
+          python - "$work/v1.json" "$work/v2.json" "$work/v3.json" "$work/trust.json" <<'PY'
+          import json, sys
+          v1, v2, v3, tr = (json.load(open(p, encoding="utf-8")) for p in sys.argv[1:5])
+          assert v1["verdict"] == "VALID" and v1["key_status"] == "active", v1
+          assert v2["verdict"] == "VALID" and v2["key_status"] == "retired", v2
+          assert v3["verdict"] == "INVALID" and v3["reason"] == "E_SEAL_REVOKED", v3
+          assert tr["counts"]["total"] == 2 and tr["revoked_seal_count"] == 1, tr
+          print("trust ok: 轮换后历史凭证 %s 仍 VALID；吊销后 -> %s" % (v2["key_status"], v3["reason"]))
+          PY
+
           # HTTP 服务：起在回环端口，探活 + 一次分诊调用
           swordholder serve --port 18081 -k "$work/keys/swordholder_ed25519_private.pem" \
             --out "$work/seals" --db "$work/index.db" > "$work/serve.log" 2>&1 &

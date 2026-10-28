@@ -38,6 +38,7 @@ AIGC:
 - 版本号 `0.3.0` → `0.4.0`；`swordholder.__init__` 导出 `trust` / `TrustError` / `add_key` / `retire_key` / `revoke_key` / `revoke_seal` / `restore_seal` / `summary` / `check_rotation` / `evaluate`。
 - `verify` 的结果在原有字段基础上追加 `key_id` / `key_status` / `trust`；MCP 的 `verify_seal` 同步采用新策略，并保留旧白名单回退路径。
 - `list_trusted_keys` 优先返回结构化视图（`by_status` / `revoked` / 每把钥的运行时 `state`）。
+- `swordholder keygen` 输出目录里除私钥外，同时落一份公钥 PEM（`swordholder_ed25519_public.pem`），可直接用于 `trust add --pubkey-file` 登记新锚，省去手动导出；私钥仍是「已存在即拒绝覆盖 + 0600」，公钥按私钥幂等重算覆盖。
 
 ### 兼容（Compatibility）
 

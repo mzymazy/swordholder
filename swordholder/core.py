@@ -19,7 +19,11 @@ class SealError(RuntimeError):
 
 
 def keygen(out_dir: str = "keys") -> dict:
-    """生成密钥对，返回 {'private_key_path', 'public_key_path', 'public_key_hex'}。"""
+    """生成密钥对，返回 {'private_key_path', 'public_key_path', 'public_key_hex'}。
+
+    私钥与公钥都落在 out_dir：私钥权限收 0600 且已存在即拒绝覆盖；
+    公钥是 PEM，可直接拿去 ``trust add --pubkey-file`` 登记进信任锚。
+    """
     res = _srv.tool_keygen({"out_dir": out_dir})
     if not res.get("ok"):
         raise SealError(res.get("error") or "keygen failed")
