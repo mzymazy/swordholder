@@ -145,31 +145,61 @@ jobs:
 
           swordholder query --db "$work/index.db" --limit 5
 
-          # 信任治理冒烟：轮换后历史凭证仍 VALID，停用后旧钥签新凭证被拒，吊销即时生效
-          seal=$(python -c "import json,sys;print(json.load(open(sys.argv[1],encoding='utf-8'))['seal'])" "$work/out.json")
-          trustf="$work/trusted.json"
-          swordholder trust add --keys-file "$trustf" --key-id k-ci-a \
-            --pubkey-file "$work/keys/swordholder_ed25519_public.pem" > /dev/null
-          swordholder verify "$seal" --keys "$trustf" > "$work/v1.json"
+          # 信任治理冒烟：轮换后历史凭证仍 VALID，停用旧锚只影响后续签发，吊销即时生效
+          python - "$work" <<'PY'
+          import json, os, subprocess, sys
 
-          swordholder keygen --out "$work/keys2" > /dev/null
-          swordholder trust add --keys-file "$trustf" --key-id k-ci-b \
-            --pubkey-file "$work/keys2/swordholder_ed25519_public.pem" > /dev/null
-          swordholder trust retire k-ci-a --keys-file "$trustf" --replaced-by k-ci-b > /dev/null
-          swordholder verify "$seal" --keys "$trustf" > "$work/v2.json"
+          sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+          sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+          work = sys.argv[1]
 
-          swordholder trust revoke "$seal" --seal --keys-file "$trustf" --reason ci-smoke > /dev/null
-          swordholder verify "$seal" --keys "$trustf" > "$work/v3.json" || true
-          swordholder trust show --keys-file "$trustf" --json > "$work/trust.json"
+          def cli(*args):
+              p = subprocess.run(["swordholder", *args], capture_output=True,
+                                 text=True, encoding="utf-8", errors="replace")
+              return p.returncode, p.stdout, p.stderr
 
-          python - "$work/v1.json" "$work/v2.json" "$work/v3.json" "$work/trust.json" <<'PY'
-          import json, sys
-          v1, v2, v3, tr = (json.load(open(p, encoding="utf-8")) for p in sys.argv[1:5])
-          assert v1["verdict"] == "VALID" and v1["key_status"] == "active", v1
-          assert v2["verdict"] == "VALID" and v2["key_status"] == "retired", v2
-          assert v3["verdict"] == "INVALID" and v3["reason"] == "E_SEAL_REVOKED", v3
-          assert tr["counts"]["total"] == 2 and tr["revoked_seal_count"] == 1, tr
-          print("trust ok: 轮换后历史凭证 %s 仍 VALID；吊销后 -> %s" % (v2["key_status"], v3["reason"]))
+          def must(*args):
+              rc, out, err = cli(*args)
+              if rc != 0:
+                  raise SystemExit("FAILED rc=%d: %s\n%s\n%s" % (rc, " ".join(args), out, err))
+              return out
+
+          indexed = json.load(open(os.path.join(work, "out.json"), encoding="utf-8"))
+          seal = indexed["seal"]
+          if not os.path.isabs(seal):
+              seal = os.path.join(os.getcwd(), seal)
+          assert os.path.exists(seal), seal
+
+          trust = os.path.join(work, "trusted.json")
+          keys_a = os.path.join(work, "keys", "swordholder_ed25519_public.pem")
+          keys_b = os.path.join(work, "keys2", "swordholder_ed25519_public.pem")
+
+          def verify():
+              rc, out, err = cli("verify", seal, "--keys", trust)
+              try:
+                  return json.loads(out)
+              except Exception:
+                  raise SystemExit("verify 未返回 JSON rc=%d: %s %s" % (rc, out, err))
+
+          must("trust", "add", "--keys-file", trust, "--key-id", "k-ci-a", "--pubkey-file", keys_a)
+          v1 = verify()
+
+          must("keygen", "--out", os.path.join(work, "keys2"))
+          must("trust", "add", "--keys-file", trust, "--key-id", "k-ci-b", "--pubkey-file", keys_b)
+          must("trust", "retire", "k-ci-a", "--keys-file", trust, "--replaced-by", "k-ci-b")
+          v2 = verify()
+
+          must("trust", "revoke", seal, "--seal", "--keys-file", trust, "--reason", "ci-smoke")
+          v3 = verify()
+          tr = json.loads(must("trust", "show", "--keys-file", trust, "--json"))
+
+          assert (v1["verdict"], v1["key_status"]) == ("VALID", "active"), v1
+          assert (v2["verdict"], v2["key_status"]) == ("VALID", "retired"), v2
+          assert (v3["verdict"], v3["reason"]) == ("INVALID", "E_SEAL_REVOKED"), v3
+          assert tr["counts"]["total"] == 2, tr
+          assert tr["revoked_seal_count"] == 1, tr
+          print("trust ok: rotated=%s revoked=%s keys=%d" % (v2["key_status"], v3["reason"],
+                                                             tr["counts"]["total"]))
           PY
 
           # HTTP 服务：起在回环端口，探活 + 一次分诊调用
