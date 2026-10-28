@@ -17,6 +17,20 @@ AIGC:
 
 ---
 
+## [Unreleased] — 工程化：CI 运行时与合规标识守卫
+
+### 变更（Changed）
+
+- GitHub Actions 升至 Node 24 原生版本：`actions/checkout@v6`、`actions/setup-python@v6`（`verify.yml` 与 `mcp-selftest.yml`），消除 Node 20 弃用注解。
+- `package-smoke` 矩阵从 `3.11/3.12` 扩到 `3.11/3.12/3.13` × 三平台（9 个 job），覆盖 `requires-python >=3.11` 的上界兼容性；本地 61 项 pytest 仍全绿。
+
+### 新增（Added）
+
+- `scripts/check_aigc_headers.py`：AIGC 标识头只读校验（7 字段齐全、`Label="1"`、编号 `[0-9a-f]{32}_[0-9a-f]{32}`、`ReservedCode` 可 base64 解码为 140 字节、制作方与传播方一致、带标文件数阈值），已接入 CI 的「AIGC 标识头一致性守卫」步骤。
+- `docs/aigc-disclosure.md`：标识头字段含义，以及为何不能删除 / 折行 / 用 YAML 锚点去重的说明；`CONTRIBUTING.md` 的禁止提交清单同步补入该条。
+
+---
+
 ## [v0.4.0] — 信任治理：密钥轮换、吊销与轮换体检
 
 ### 新增（Added）
