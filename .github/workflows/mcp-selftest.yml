@@ -4,10 +4,16 @@ on:
   push:
     paths:
       - "mcp_server/**"
+      - "swordholder/**"
+      - "tests/**"
+      - "pyproject.toml"
       - ".github/workflows/mcp-selftest.yml"
   pull_request:
     paths:
       - "mcp_server/**"
+      - "swordholder/**"
+      - "tests/**"
+      - "pyproject.toml"
   workflow_dispatch:
 
 jobs:
@@ -27,6 +33,21 @@ jobs:
 
       - name: Install deps
         run: pip install -r requirements.txt
+
+      - name: Install package (editable) + pytest
+        run: pip install -e . pytest
+
+      - name: Unit tests (seal / verify / triage / fail-closed)
+        run: python -m pytest -q
+
+      - name: CLI smoke test outside the repo (installed entrypoint)
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          cd "$tmp"
+          swordholder --version
+          swordholder demo --out "$tmp/out" --keys "$tmp/keys"
 
       - name: MCP server selftest
         run: python mcp_server/selftest.py

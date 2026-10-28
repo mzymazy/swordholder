@@ -183,9 +183,10 @@ def tool_verify_seal(args: dict) -> dict:
               "subject": header.get("subject"), "created_at": header.get("created_at"),
               "payload_sha256": header["payload_sha256"], "public_key_hex": pub_hex,
               "trust": trust}
-    if trust == "untrusted":
+    if trust != "trusted":
+        # fail-closed：没有信任锚时不宣称可信，签名有效 ≠ 签发方可信
         result["verdict"] = "VALID_UNTRUSTED_KEY"
-        result["reason"] = "E_UNTRUSTED_KEY"
+        result["reason"] = "E_UNTRUSTED_KEY" if trust == "untrusted" else "E_NO_TRUST_ANCHOR"
     return result
 
 

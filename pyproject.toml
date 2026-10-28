@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swordholder"
+version = "0.2.0"
+description = "给 AI 的判断盖章：把任何 JSON 结论封成可被第三方独立验签的凭证"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Ma Ziyao" }]
+keywords = ["ai-security", "ed25519", "audit", "soc", "triage", "mcp"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Topic :: Security",
+]
+dependencies = [
+  "cryptography>=42.0.0",
+  "pyyaml>=6.0.1,<7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+swordholder = "swordholder.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/mzymazy/swordholder"
+Source = "https://github.com/mzymazy/swordholder"
+
+[tool.setuptools]
+packages = ["swordholder", "mcp_server"]
+
+[tool.setuptools.package-data]
+swordholder = ["samples/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

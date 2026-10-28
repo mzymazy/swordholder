@@ -1,0 +1,15 @@
+{
+  "alert_id": "ALRT-2026-1103-0011",
+  "title": "CI token used from unfamiliar network",
+  "asset": "pipeline-token:gha-prod-3",
+  "severity": "critical",
+  "signal": "ci token replayed from untrusted ASN outside build window",
+  "tags": ["cicd", "credential", "identity"],
+  "description": "生产发布流水线使用的 CI token 在 02:57 UTC 从非构建网段调用 workflow dispatch 接口，调用来源与历史 90 天基线不一致。",
+  "observed": {
+    "first_seen": "2026-11-03T02:57:00Z",
+    "calls": 3,
+    "baseline_asn": 16509,
+    "observed_asn": 215199
+  }
+}

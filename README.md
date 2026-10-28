@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_a4e432bcc99f11f18078525400de85a5
+    ReservedCode1: 4an952ZiXclC6nlGpjcOPIB1ZO9OoNw340cXfDDvBuMMIuMgLvTatLTaoS/R01wVE9K5RxNKhptH3tZYaDdpD+E7QCoUqXPfq7OU6xKJrH0nXNHutNTj5rRPT4Lj417lrP99mi8z8o1sT78ZAQL/WzH+PTHFGycowy69Qi/0xX9UF3Z5NcbraOOTqa0=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_a4e432bcc99f11f18078525400de85a5
+    ReservedCode2: 4an952ZiXclC6nlGpjcOPIB1ZO9OoNw340cXfDDvBuMMIuMgLvTatLTaoS/R01wVE9K5RxNKhptH3tZYaDdpD+E7QCoUqXPfq7OU6xKJrH0nXNHutNTj5rRPT4Lj417lrP99mi8z8o1sT78ZAQL/WzH+PTHFGycowy69Qi/0xX9UF3Z5NcbraOOTqa0=
+---
+
 ﻿# Swordholder（持剑者）— 共生公理内化的最小可复现实证与威慑证明
 
 > **一句话定位**：把「伤害人类即伤害自己；保护人类世界即保护自身存在」这条**共生公理**做成可执行、可验证的模型边界——用 system-prompt 注入 + QLoRA 内化让模型守住边界，用 **ed25519 威慑凭证（Deterrence Proof）** 把「模型表现 → 评测证据 → 可独立验证的签名」串成闭环。
@@ -9,7 +20,88 @@
 
 ---
 
-## TL;DR — 30 秒看懂这个仓库
+## 安装（30 秒）
+
+```bash
+git clone https://github.com/mzymazy/swordholder && cd swordholder
+pip install -e .            # 只依赖 cryptography + pyyaml
+swordholder --version       # swordholder 0.2.0
+```
+
+> 尚未发布到 PyPI。想隔离环境用 `pipx install .`；Python 3.11+。
+
+## 三条命令看到它在干什么
+
+```bash
+# 1. 生成本机 ed25519 密钥（私钥只留在本机）
+swordholder keygen --out keys
+
+# 2. 把一条告警分诊成结论，并盖上章
+swordholder triage alert.json -k keys/swordholder_ed25519_private.pem --seal
+
+# 3. 任何人拿到凭证都能独立验签，不需要源码、不需要信任签发方
+swordholder verify alert.seal.json --keys trusted_keys.json
+```
+
+一次跑完内置样例（分诊 → 盖章 → 验签 → 篡改检出）：
+
+```bash
+swordholder demo
+```
+
+真实输出（`swordholder demo`，三条构造告警）：
+
+| 告警 | 结论 | 严重度 | 置信度 | 验签 |
+|---|---|---|---|---|
+| ALRT-2026-1102-0007 构建机异常外联 | suspicious | high | 0.78 | VALID_UNTRUSTED_KEY |
+| ALRT-2026-1103-0011 CI token 跨网段重放 | true_positive | critical | 0.86 | VALID_UNTRUSTED_KEY |
+| ALRT-2026-1104-0003 npm typosquat 投毒 | true_positive | critical | 0.91 | VALID_UNTRUSTED_KEY |
+
+把第 1 条凭证里的 `verdict` 改掉、不重新签名，再次验签得到：
+
+```json
+{"verdict": "INVALID", "reason": "E_PAYLOAD_TAMPERED",
+ "expected": "7bd218c65a5b93bb57fb5ba67d63cfb3b7b05cd049587139d5fc5310d8a65837",
+ "actual":   "cf012522383ad39f9fb93f99733d28ed2271dfcca89dcc4e5b03ee5e4386dd58"}
+```
+
+这就是整个项目的价值点：**结论可以被改，但改了必然被检出。**
+
+## 它是给谁用的
+
+| 角色 | 用它的理由 |
+|---|---|
+| SOC / 值班分析师 | 告警分诊结论不再是一段聊天记录，而是一份能被审计追责的凭证 |
+| 用 Agent 做处置的开发 | Agent 的判断天然不可复现；盖章后至少能证明"当时就是这么判的、没被事后改" |
+| 需要交付的乙方/第三方 | 报告里的每条结论附带凭证，甲方可离线复算，不必信任你的工具链 |
+
+## 接进 Claude Code / Claude Desktop（MCP）
+
+```json
+{
+  "mcpServers": {
+    "swordholder": {
+      "command": "python",
+      "args": ["-m", "mcp_server.server"],
+      "cwd": "/abs/path/to/swordholder"
+    }
+  }
+}
+```
+
+提供 5 个工具：`keygen` / `seal_record` / `verify_seal` / `verify_proof` / `list_trusted_keys`。
+协议为 stdio JSON-RPC 2.0，无第三方 SDK 依赖，`python mcp_server/selftest.py` 自测 10/10。
+
+## 它明确不做什么
+
+- 不是检测引擎：`agent/rules.py` 是**基线规则**，真实部署要接 EDR/SIEM 的富化字段
+- 不代替人做隔离、封禁、断网这类高影响动作，只出结论与建议
+- 不宣称"模型达到某安全等级"，那是评测侧的事，见 [§1](#1-核心结论速览)
+
+---
+
+## 项目背景与结论速览
+
 
 | 你可能想问 | 直接回答 |
 |---|---|
@@ -332,4 +424,5 @@ AIGC:
     ReservedCode2: foaGBANX5HpTGJJ2xL75r6zjBqx3Mjk58sWwPEl2TXMllOGpEhQP9FpoDV9PXyLxI3Jk/3dEw3z2LufjhneyEG0TJscYjQo/Qp/me5uWWi+5AlOUrahyabrITeqSQWqI69mvfBCl5GB7OINA225GhI5+6vPL4nJix9/6iw3W03nOEaZhs0VXtyh8JsM=
 ```
 
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*
