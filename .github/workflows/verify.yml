@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 配置 Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: pip
@@ -66,6 +66,12 @@ jobs:
           fi
           echo "口径一致性守卫：通过"
 
+      # AIGC 隐式标识守卫：对外文档头的 7 个字段必须齐全，ReservedCode 必须可 base64
+      # 解码为 140 字节。删除/折行/改用 YAML 锚点都会让只做正则会话的解析器读不到水印，
+      # 因此这里设硬性门槛；见 docs/aigc-disclosure.md。
+      - name: AIGC 标识头一致性守卫
+        run: python scripts/check_aigc_headers.py
+
       # 评测记录 ↔ 原始响应工件 绑定审计（v9 新增第三步之外的第 4 步）：
       # 对承载原始响应的 482 条逐题记录做 T1 文本哈希 / T2 工件字节哈希 / T3 内容包含 三重核验，
       # 任一不成立即 CI 红。聚合统计记录（无逐题响应）单列为 structured_only，不计入分母。
@@ -95,10 +101,10 @@ jobs:
         python-version: ["3.11", "3.12"]
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 配置 Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip

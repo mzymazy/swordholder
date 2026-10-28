@@ -53,7 +53,8 @@ bash scripts/quickstart.sh --skip-install                                      #
 
 - 任何私钥、密钥文件：`*.pem`、`*.key`、`id_ed25519*`、`temp/**` 下的演示密钥；
 - 模型权重与适配器：`models/**`（含 LoRA safetensors）；
-- 参赛提交包与构建噪声：`Swordholder最终提交_*/`、`artifacts_v3_*/`、`*.zip`、帧序列等。
+- 参赛提交包与构建噪声：`Swordholder最终提交_*/`、`artifacts_v3_*/`、`*.zip`、帧序列等；
+- 对文档头 `AIGC:` 段的任何"美化"：删 `ReservedCode1/2`、折行、改用 YAML 锚点去重——水印是 base64 二进制，一旦破坏无法手工重建，详见 [docs/aigc-disclosure.md](docs/aigc-disclosure.md)。
 
 > 一句话原则：**可以改代码与文档，不能悄悄改证据；改了被绑定覆盖的材料，就必须同步哈希并重跑验签与绑定审计。**
 
