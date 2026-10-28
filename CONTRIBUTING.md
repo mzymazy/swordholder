@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_a5e23dbec99f11f1acd7525400cd780f
+    ReservedCode1: OTM4tenx+tLunoW7oIhXiYza751HivEMBV6iMyY9KOxb8XLLFSEpo/xushuH1OyFkmtzC1HBLsItWFHcXimVRSCHsfZ2LkuHJCbDmpdlWztCYdNGZH8w2mih56TJg/9YAkuCbNzW8tYBO7cI/pKNtk1l0oSUClQLqENCYlvDwDc3Cn8J9gbMuEZxl2s=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_a5e23dbec99f11f1acd7525400cd780f
+    ReservedCode2: OTM4tenx+tLunoW7oIhXiYza751HivEMBV6iMyY9KOxb8XLLFSEpo/xushuH1OyFkmtzC1HBLsItWFHcXimVRSCHsfZ2LkuHJCbDmpdlWztCYdNGZH8w2mih56TJg/9YAkuCbNzW8tYBO7cI/pKNtk1l0oSUClQLqENCYlvDwDc3Cn8J9gbMuEZxl2s=
+---
+
 # 贡献指南（CONTRIBUTING）
 
 感谢你关注 Swordholder。本仓库是一个**以「可复算证据」为核心资产**的 AI 安全 MVP：代码可以改、文档可以改，但**证据、凭证与口径的改动有硬规则**，请先读完 [§3](#3-改证据--改凭证--改口径的硬规则重要) 再动手。
@@ -74,3 +85,4 @@ bash scripts/quickstart.sh --skip-install                                      #
 ## 7. 行为准则
 
 保持技术讨论、尊重事实与证据：本仓库接受"结论被数据推翻"，但要求**任何反驳都给出可复算的命令与文件**。
+*（内容由AI生成，仅供参考）*

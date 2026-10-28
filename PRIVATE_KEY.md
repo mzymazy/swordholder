@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_a7ffb87fc99f11f18078525400de85a5
+    ReservedCode1: 7r/NkIW/o6J5eqPaIN8OZvLLxDvo3CVXKUSAAiJlNpjcvymuOVSLOVV2rknjoo6QK26L+G7ltgDUKXUI+0s8WyFJeDttMfMaRwSFCIJZPqCdNHqcGC62JL1Y9xq6eGwNIeweFrSpqm6NMNib4XQtwPpKisoIeOB/kFMDFpLtXXOaijN+cKoRVnCHM2M=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_a7ffb87fc99f11f18078525400de85a5
+    ReservedCode2: 7r/NkIW/o6J5eqPaIN8OZvLLxDvo3CVXKUSAAiJlNpjcvymuOVSLOVV2rknjoo6QK26L+G7ltgDUKXUI+0s8WyFJeDttMfMaRwSFCIJZPqCdNHqcGC62JL1Y9xq6eGwNIeweFrSpqm6NMNib4XQtwPpKisoIeOB/kFMDFpLtXXOaijN+cKoRVnCHM2M=
+---
+
 # 关于出证私钥：本仓库不含任何私钥（PRIVATE_KEY.md）
 
 **结论先说**：本仓库**不包含、不需要、也不应该包含**出证私钥。仓库只登记**公钥与指纹**（`trusted_keys.json`），任何人都可以只用公钥完成凭证验证。
@@ -65,3 +76,4 @@ python verify_proof.py temp/demo_proof.yaml --trusted-keys temp/demo_trusted_key
 | `--trusted-keys`（`verify_proof.py`） | 指定信任锚文件 | `trusted_keys.json` |
 
 > 提示：`verify_proof.py` 的 `--base-dir` 决定凭证内相对路径（`../artifacts_v2` 等）的解析基准，默认与凭证文件所在目录（`proofs/`）一致；把凭证挪到别处时记得同步调整。
+*（内容由AI生成，仅供参考）*

@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_a95fe660c99f11f1acd7525400cd780f
+    ReservedCode1: iBaEPFic158kKub6gOz/0k2SqOeOGksqz4xcTw3j75fzvN3FeyYdt3IN5DkXSJTEWbQCZip9fYdURhC0508/ErfqEz5LZj8CxxqWjW65HaZQqyp7aJMnSUDcT80DjF87pPr7Zb/yOlpBMnilAdqFfufmNHXxdHewRN03pOPHkJt37wHGQ68JWspEouk=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_a95fe660c99f11f1acd7525400cd780f
+    ReservedCode2: iBaEPFic158kKub6gOz/0k2SqOeOGksqz4xcTw3j75fzvN3FeyYdt3IN5DkXSJTEWbQCZip9fYdURhC0508/ErfqEz5LZj8CxxqWjW65HaZQqyp7aJMnSUDcT80DjF87pPr7Zb/yOlpBMnilAdqFfufmNHXxdHewRN03pOPHkJt37wHGQ68JWspEouk=
+---
+
 # 架构与数据流：一条可复算的实证链
 
 ![Swordholder 架构总览](images/architecture.png)
@@ -116,3 +127,4 @@ python verify_proof.py proofs/deterrence_proof_baseline_ed25519.yaml --trusted-k
 | 记录 ↔ 工件绑定 | `python evidence/verify_artifact_binding.py` | `bound=482`、`not_bound=0`、`all_content_consistent=True` |
 
 三者由 CI（`.github/workflows/verify.yml`）自动执行，PR 必须全绿。
+*（内容由AI生成，仅供参考）*

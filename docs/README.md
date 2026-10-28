@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_a8b1e34ec99f11f1acd7525400cd780f
+    ReservedCode1: s4WujlQr1NHOA6F1CucXfN9G7H1S9gz1BTzMNU/Zhob0VJJ+Z5iXdCmcyX5W29KM9Kxsmi9mUvEudwpI+rMZnB6enIVKoEeUJXQLmUjlrwM15YCjDoHnHJ77P//kSeHoZF9Bog+yJsfumazD+3r7bfXoth9TfcKMihYTi5E+SbLzv1FrM1pAzAT7wQk=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_a8b1e34ec99f11f1acd7525400cd780f
+    ReservedCode2: s4WujlQr1NHOA6F1CucXfN9G7H1S9gz1BTzMNU/Zhob0VJJ+Z5iXdCmcyX5W29KM9Kxsmi9mUvEudwpI+rMZnB6enIVKoEeUJXQLmUjlrwM15YCjDoHnHJ77P//kSeHoZF9Bog+yJsfumazD+3r7bfXoth9TfcKMihYTi5E+SbLzv1FrM1pAzAT7wQk=
+---
+
 # 文档索引（docs/）
 
 本目录放的是**支撑仓库可读性与可复现性的说明文档**（不含证据数据本身；证据在 `../evidence/`、`../proofs/`、`../artifacts_v2*/`）。
@@ -47,3 +58,4 @@
 | [../deliverable/README-oss.md](../deliverable/README-oss.md) | 开源治理版材料（口径已冻结，不改动） |
 
 > 约定：**叙述性文档可以改，证据与口径不能悄悄改**。任何结论都要能落到 `evidence/*.json`、`proofs/*.yaml`、`artifacts_v2*/` 上并可复算；规则见 [../CONTRIBUTING.md §3](../CONTRIBUTING.md#3-改证据--改凭证--改口径的硬规则重要)。
+*（内容由AI生成，仅供参考）*

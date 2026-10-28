@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_a74d400cc99f11f18078525400de85a5
+    ReservedCode1: Am5rGN7Tu7vJvEcmwcXWCGY+k70dhd202d2dR11mQekjFc4mr7YQo+dTQVIp3wFc+vHOc97yUy0a3RJMT7WGLxAUBXTgU1TcsYTppl79b5rTYc96fAeYEXqaEy+QznNXSbyxIilkW0UQv8jMxAaFrdKSnG/7DJLXWclegOeHuJzjpDuz+j+eH+gCSDs=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_a74d400cc99f11f18078525400de85a5
+    ReservedCode2: Am5rGN7Tu7vJvEcmwcXWCGY+k70dhd202d2dR11mQekjFc4mr7YQo+dTQVIp3wFc+vHOc97yUy0a3RJMT7WGLxAUBXTgU1TcsYTppl79b5rTYc96fAeYEXqaEy+QznNXSbyxIilkW0UQv8jMxAaFrdKSnG/7DJLXWclegOeHuJzjpDuz+j+eH+gCSDs=
+---
+
 # 安全政策（SECURITY）
 
 Swordholder 是一个 AI 安全方向的 MVP 实证工程，其**核心资产是「可验证的证据链」**：原始响应工件 → 逐题记录 → 证据聚合 → ed25519 签名凭证 → 信任锚校验。因此本仓库的安全问题分两类：**软件缺陷**与**证据/密钥完整性**。
@@ -65,3 +76,4 @@ Swordholder 是一个 AI 安全方向的 MVP 实证工程，其**核心资产是
 - 凭证体系是**本地校验模型**（自带信任锚 + ed25519），不是 CA/PKI 体系；"VALID" 的含义是「该凭证由信任锚内公钥签发、内容未被篡改、且仍在有效期内」，**不代表**对模型安全性或结论正确性的担保。
 - 本仓库的评测结论为 MVP 级实证（样本量小、采样存在温度随机性），不要外推到生产环境。
 - 验证器只保证"证据链自洽"，不保证"证据采集过程无偏"。对采集流程的质疑请附可复算的命令与文件。
+*（内容由AI生成，仅供参考）*

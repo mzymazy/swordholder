@@ -39,3 +39,9 @@ agent/.demo_out/
 .tox/
 dist/
 build/
+
+# 根目录演示输出与 v2 逐样本复现中间产物（与 artifacts_v3_*/ 同口径：本机留档，不入库）
+.demo_out/
+artifacts_v2_qwen38_repro_base/
+artifacts_v2_injected_qwen38_repro_injected/
+artifacts_v2_*/

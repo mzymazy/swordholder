@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_aad42382c99f11f1acd7525400cd780f
+    ReservedCode1: DbTETTh99OBVdVv6wHNE5bPIdFz1gOkeWmUWQpdTj4jsQdAsm0sFLNoS9DjTB1L7zpdMC7w/uH88aoNMkK32RP2hWJYxiOsUjORsL56sHZShvOYBU3kgmndPhizBX+znvN6sagW3t1tnOHzcuprP47kTquLlcpG8+9h4ZsYWHl3K22f+N1iw2fiID38=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_aad42382c99f11f1acd7525400cd780f
+    ReservedCode2: DbTETTh99OBVdVv6wHNE5bPIdFz1gOkeWmUWQpdTj4jsQdAsm0sFLNoS9DjTB1L7zpdMC7w/uH88aoNMkK32RP2hWJYxiOsUjORsL56sHZShvOYBU3kgmndPhizBX+znvN6sagW3t1tnOHzcuprP47kTquLlcpG8+9h4ZsYWHl3K22f+N1iw2fiID38=
+---
+
 # 运行截图与其复现命令
 
 README 与文档中引用的图片都来自**本机真实运行输出**，不是示意图。为便于阅读，截图按终端风格重绘，并做了两项**已披露的最小处理**：
@@ -87,3 +98,4 @@ all_bound_scope_A=True  all_content_consistent=True
 | 终端 | PowerShell 5.1 |
 | 依赖 | `requirements.txt`（requests / cryptography / pyyaml） |
 | 是否需要模型 | **否**（上述四张截图均无需 GPU、Ollama 或权重） |
+*（内容由AI生成，仅供参考）*

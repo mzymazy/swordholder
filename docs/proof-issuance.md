@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_aa1acb12c99f11f1acd7525400cd780f
+    ReservedCode1: WEwuM/d84y7JWji4zNepF7Wp687ikzMH+TwWz3xXJF2j+4sA8K70d5x29SF2v/BkJ/d9VrM/eLHQfbya791uZX+qdUcjzXZ1u0KyvolJavXJQHxiPzLW8QvF3Cg0D1Cw+4So1lcmrHw2MNmae/pIpo/eEhvgDw0phES0y3BcehMNIpD/w6H+uCoynyQ=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_aa1acb12c99f11f1acd7525400cd780f
+    ReservedCode2: WEwuM/d84y7JWji4zNepF7Wp687ikzMH+TwWz3xXJF2j+4sA8K70d5x29SF2v/BkJ/d9VrM/eLHQfbya791uZX+qdUcjzXZ1u0KyvolJavXJQHxiPzLW8QvF3Cg0D1Cw+4So1lcmrHw2MNmae/pIpo/eEhvgDw0phES0y3BcehMNIpD/w6H+uCoynyQ=
+---
+
 # 威慑凭证（Deterrence Proof）：结构、验证流程与私钥边界
 
 本文回答三个问题：**凭证里有什么、验证器怎么判、私钥为什么不在仓库里。**
@@ -105,3 +116,4 @@ python verify_proof.py temp/demo_proof.yaml --trusted-keys temp/demo_trusted_key
 | 绑定审计 | `python evidence/verify_artifact_binding.py` |
 | 生成演示密钥 | `python scripts/gen_demo_key.py --key temp/demo_ed25519_key.pem` |
 | 出证 | `python gen_proof.py --result <result.json> --key <key.pem> --artifact-dir <dir> --base-dir . --out <proof.yaml>` |
+*（内容由AI生成，仅供参考）*
