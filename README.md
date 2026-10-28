@@ -25,7 +25,7 @@ AIGC:
 ```bash
 git clone https://github.com/mzymazy/swordholder && cd swordholder
 pip install -e .            # 只依赖 cryptography + pyyaml
-swordholder --version       # swordholder 0.2.0
+swordholder --version       # swordholder 0.3.0
 ```
 
 > 尚未发布到 PyPI。想隔离环境用 `pipx install .`；Python 3.11+。
@@ -66,6 +66,43 @@ swordholder demo
 ```
 
 这就是整个项目的价值点：**结论可以被改，但改了必然被检出。**
+
+## 接你自己 SOC 的告警：多源适配 + 服务化 + 可检索
+
+真实环境里没人给你"干净"的 `alert.json`。`0.3.0` 起可直接吃 Splunk / Sentinel / Wazuh 原生事件，先归一成内部契约再分诊，原始日志只留哈希（原文不进凭证，避免把日志里的敏感字段签进证据链）。
+
+```bash
+# 自动识别来源；识别不了会明确拒绝而不是瞎猜
+swordholder triage samples/sentinel_01_token.json --seal -k keys/swordholder_ed25519_private.pem
+
+# 显式指定来源；stdin 直接接管道（Splunk alert action / Wazuh integrator 都能这么接）
+cat suspicious.json | swordholder triage - --format splunk --seal -k keys/swordholder_ed25519_private.pem --db seals.db
+
+# 结论与凭证入库后可按结论/资产/时间检索
+swordholder query --db seals.db --verdict true_positive --limit 20
+
+# 内部契约（draft-07）随时导出，接你自己的下游系统
+swordholder schema
+```
+
+同一个东西也能以 HTTP 服务的形式被你的 SOAR 调用：
+
+```bash
+swordholder serve --port 8080 -k keys/swordholder_ed25519_private.pem --out seals --db seals.db --token $SOC_TOKEN
+```
+
+| 路由 | 作用 |
+|---|---|
+| `GET /healthz` | 存活 / 是否具备签发能力 / 是否启用索引与 LLM |
+| `GET /v1/schema` | 告警内部契约 |
+| `POST /v1/triage?format=auto` | 归一 + 分诊 + 盖章 + 验签，一次返回结论与凭证 |
+| `GET /v1/seals?verdict=&subject=&limit=` | 凭证检索 |
+| `POST /v1/verify` | 校验一份凭证（同样 fail-closed：无信任锚一律不判 VALID） |
+
+两条工程约束是刻意设计的：
+
+- **非回环地址强制 Bearer token**：`--host 0.0.0.0` 而不给 `--token` 直接拒绝启动，不给"忘了加鉴权就暴露到内网"的机会。
+- **同内容幂等**：同一份结论重复提交只签发一份凭证（`"reused": true`），不给攻击者刷凭证、撑爆索引的机会。
 
 ## 它是给谁用的
 
@@ -296,6 +333,19 @@ swordholder_mvp/
 ├── PRIVATE_KEY.md                # 出证私钥为什么不入库 + 自签与信任锚使用说明
 ├── requirements.txt              # 核心运行依赖（3 个包，CPU 可跑）
 ├── requirements-train.txt        # QLoRA 微调依赖 + 硬件门槛（GPU ≥16GB / CUDA 12）
+├── pyproject.toml                # pip 打包配置（swordholder 0.3.0 + mcp_server，含 CLI 入口）
+├── swordholder/                  # 可 pip 安装的核心包
+│   ├── core.py                   # keygen / seal / verify / triage / triage_event / payload_sha256
+│   ├── alert.py                  # 多源告警归一（generic / splunk / sentinel / wazuh）+ 契约校验
+│   ├── alert.schema.json         # 内部告警契约（draft-07）
+│   ├── rules.py                  # 规则引擎（结论 / 严重度 / 置信度 / 处置建议，LLM 可选增强）
+│   ├── store.py                  # SQLite 凭证索引（按结论 / 资产 / 时间 / 内容哈希检索）
+│   ├── serve.py                  # HTTP 服务（/healthz /v1/schema /v1/triage /v1/seals /v1/verify）
+│   ├── cli.py                    # 命令行：keygen · seal · verify · triage · query · schema · serve · demo
+│   └── samples/                  # 6 条样例告警（3 通用 + Splunk / Sentinel / Wazuh 各 1）
+├── tests/                        # pytest：核心四件套 / 归一适配 / HTTP 服务与索引 / CLI 契约
+├── mcp_server/                   # MCP Server（工具化接入 Claude Code / Desktop）
+├── agent/                        # 分诊 Agent 与端到端演示（兼容层，核心逻辑已迁入 swordholder/）
 ├── verify_proof.py               # 威慑凭证验证器 v0.5（ed25519 + 信任锚 + 新鲜度 + 规范化 + 重复键拒绝）
 ├── gen_proof.py                  # 出证工具（按结果与工件目录生成签名凭证）
 ├── eval_*.py                     # 评测脚本（逐题记录 + 原始响应工件落盘）
@@ -383,6 +433,9 @@ swordholder_mvp/
 - 27B 因 GGUF 量化无法加载 LoRA，未达组合态；需原生权重 + 跨架构适配。
 - 验证器信任锚需与凭证签发密钥保持一致性维护（见 [§9](#9-开源治理)）。
 - **演示视频画面口径**：视频中组合态一屏为录制时的旧表述（47/47），与材料头条 45/47 不一致，已登记待整改（重剪或替换为真实录屏）；材料口径以 [§3.1 口径脚注](#31-四态消融qwen38b47-题判定器-semantic-v22-逐题重判) 为准。
+- **规则引擎仍是字符串特征匹配**（`rules-v1`）：覆盖常见攻击链，但没有 ATT&CK 映射、没有消噪评分与置信度校准；接真实 SOC 前需按自家日志口径扩规则（LLM 增强为可选路径，默认关闭，因为它会破坏可复现性）。
+- **尚无密钥轮换**：`0.3.0` 只做了"多信任锚并存 + fail-closed"，历史凭证在旧锚失效后需人工迁移；轮换流程（重叠窗口、吊销列表）未实现。
+- **未发布 PyPI**：`pip install swordholder` 暂时会失败，需 `pip install -e .` 或 `pipx install .`。
 
 ---
 

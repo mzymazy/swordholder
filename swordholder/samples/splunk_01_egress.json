@@ -1,0 +1,11 @@
+{
+  "search_name": "CI runner outbound to unregistered ASN",
+  "sid": "1728.4417",
+  "urgency": "high",
+  "dest": "build-runner-07",
+  "signature": "6 connections over 443 to ASN 215199 not in asset inventory",
+  "description": "build-runner-07 opened 6 long-lived TLS sessions to 198.51.100.77:443 at 03:14 UTC; node index.js pid 44121",
+  "tag": "egress,ci,network",
+  "_time": "2026-11-02T03:14:00Z",
+  "result_link": "https://splunk.example/incident/1728.4417"
+}

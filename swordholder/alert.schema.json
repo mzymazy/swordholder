@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/mzymazy/swordholder/swordholder/alert.schema.json",
+  "title": "Swordholder normalized alert",
+  "description": "Swordholder 内部告警结构（schema_version 1.0）。第三方接入只需产出这些字段，即可直接走 swordholder triage/serve。",
+  "type": "object",
+  "required": ["schema_version", "alert_id", "title", "severity", "source"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "alert_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "来源侧唯一标识；跨系统对账以此为准"
+    },
+    "title": { "type": "string", "description": "规则名/事件标题，定性只用它 + signal，不用 description" },
+    "severity": { "enum": ["low", "medium", "high", "critical"] },
+    "signal": { "type": "string", "description": "归一后的信号短语，如 outbound / ci token" },
+    "description": { "type": "string" },
+    "asset": { "type": ["string", "null"] },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "observed_at": { "type": ["string", "null"], "description": "来源时间，原样保留，不做时区推断" },
+    "source": {
+      "type": "object",
+      "required": ["format", "raw_sha256"],
+      "properties": {
+        "format": { "enum": ["generic", "splunk", "sentinel", "wazuh"] },
+        "ref": { "type": ["string", "null"], "description": "回链，如 Splunk result_link" },
+        "raw_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "原始载荷 canonical JSON 的 sha256，用于证明归一未篡改输入"
+        }
+      }
+    },
+    "raw": { "type": "object", "description": "原始事件原样保留，供审计" }
+  }
+}

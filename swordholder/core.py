@@ -10,6 +10,7 @@ import os
 from typing import Any, Union
 
 from mcp_server import server as _srv
+from . import alert as _alert
 from . import rules
 
 
@@ -90,3 +91,32 @@ def triage(alert: Union[dict, str], use_llm: bool = False, model: str | None = N
     if isinstance(alert, str):
         alert = rules.load_alert(alert)
     return rules.triage(alert, use_llm=use_llm, model=model or rules.DEFAULT_MODEL)
+
+
+KEEP_FIELDS = ("alert_id", "title", "severity", "signal", "asset", "tags",
+               "observed_at", "source")
+
+
+def payload_sha256(record: dict) -> str:
+    """与盖章时写入 header 的 payload_sha256 完全同一算法（json-c14n-v1）。"""
+    return _srv.sha256_hex(_srv.c14n(record))
+
+
+
+def triage_event(raw: Union[dict, str], fmt: str = "auto", use_llm: bool = False,
+                 model: str | None = None) -> dict:
+    """归一化任意来源告警后分诊。
+
+    与 :func:`triage` 的区别：先过适配层做字段归一与校验（非法输入抛
+    alert.AlertError），并在结论里附 ``input`` 区块——只保留归一后的身份字段与
+    原始载荷 sha256，作为凭证可审计的输入凭据（不把原始日志塞进凭证）。
+    """
+    if isinstance(raw, str):
+        import pathlib
+        raw = json.loads(pathlib.Path(raw).read_text(encoding="utf-8"))
+    normalized = _alert.normalize(raw, fmt=fmt)
+    res = rules.triage(normalized, use_llm=use_llm, model=model or rules.DEFAULT_MODEL)
+    res["input"] = {k: normalized.get(k) for k in KEEP_FIELDS}
+    res["schema_version"] = normalized.get("schema_version")
+    return res
+

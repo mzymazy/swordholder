@@ -83,3 +83,93 @@ jobs:
           print("绑定审计：%d/%d 三重核验通过（T1/T2/T3 各 %d）" % (
               d["bound_total"], d["records_with_response"], d["T1_response_text_hash_ok"]))
           PY
+
+  # 打包件冒烟：证明"pip 装上就能用"，覆盖三平台 × 两 Python 版本。
+  # 只跑 CPU 可完成的部分（归一 → 分诊 → 盖章 → 验签 → 索引 → HTTP），不需要 GPU / 模型 / 联网。
+  package-smoke:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: 以包的形式安装（pip install -e .）
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install pytest
+
+      - name: 单元与集成测试（核心 / 归一 / HTTP / CLI 契约）
+        run: python -m pytest -q
+
+      - name: CLI + HTTP 端到端冒烟
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d)"
+          swordholder --version
+          swordholder keygen --out "$work/keys" > /dev/null
+
+          cat > "$work/alert.json" <<'JSON'
+          {
+            "alert_id": "CI-SMOKE-0001",
+            "title": "CI runner outbound to unregistered ASN",
+            "asset": "build-runner-09",
+            "severity": "high",
+            "signal": "CI pipeline token reused from unexpected ASN",
+            "tags": ["CredentialAccess"]
+          }
+          JSON
+
+          swordholder triage "$work/alert.json" --seal \
+            -k "$work/keys/swordholder_ed25519_private.pem" --db "$work/index.db" > "$work/out.json"
+
+          python - "$work/out.json" <<'PY'
+          import json, sys
+          d = json.load(open(sys.argv[1], encoding="utf-8"))
+          assert d["verdict"] in {"true_positive", "suspicious", "false_positive"}, d
+          assert d["payload_sha256"] and d["seal"], d
+          assert d["indexed"] is True, d
+          print("triage ok:", d["alert_id"], d["verdict"], d["severity"])
+          PY
+
+          swordholder query --db "$work/index.db" --limit 5
+
+          # HTTP 服务：起在回环端口，探活 + 一次分诊调用
+          swordholder serve --port 18081 -k "$work/keys/swordholder_ed25519_private.pem" \
+            --out "$work/seals" --db "$work/index.db" > "$work/serve.log" 2>&1 &
+          serve_pid=$!
+          trap 'kill $serve_pid 2>/dev/null || true' EXIT
+
+          python - "$work/alert.json" <<'PY'
+          import json, sys, time, urllib.request
+          url = "http://127.0.0.1:18081"
+          for _ in range(40):
+              try:
+                  with urllib.request.urlopen(url + "/healthz", timeout=2) as r:
+                      health = json.loads(r.read())
+                  break
+              except Exception:
+                  time.sleep(0.25)
+          else:
+              raise SystemExit("服务未在 10 秒内就绪")
+          assert health["ok"] is True and health["sealing"] is True, health
+
+          payload = open(sys.argv[1], encoding="utf-8").read().encode("utf-8")
+          req = urllib.request.Request(url + "/v1/triage?seal=1", data=payload,
+                                       headers={"Content-Type": "application/json"})
+          body = json.loads(urllib.request.urlopen(req, timeout=10).read())
+          assert body["triage"]["verdict"], body
+          assert body["verification"]["verdict"] == "VALID_UNTRUSTED_KEY", body["verification"]
+          print("http ok:", body["triage"]["verdict"], body["verification"]["verdict"])
+          PY

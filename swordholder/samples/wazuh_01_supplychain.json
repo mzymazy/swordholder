@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-11-04T02:10:00Z",
+  "rule": {
+    "id": "92052",
+    "level": 12,
+    "description": "npm postinstall script executed outbound download (supply-chain)",
+    "groups": ["syscheck", "npm", "supply-chain"]
+  },
+  "agent": { "id": "007", "name": "dev-workstation-03" },
+  "full_log": "postinstall of package leftpad-utils@2.1.4 curl'd hxxp://198.51.100.9/stage2.sh"
+}

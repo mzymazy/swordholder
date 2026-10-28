@@ -122,5 +122,6 @@ def load_alert(path: str) -> dict:
 def sample_alerts() -> list[str]:
     if not os.path.isdir(SAMPLE_DIR):
         return []
+    skip = (".seal.json", ".triage.json")
     return sorted(os.path.join(SAMPLE_DIR, n) for n in os.listdir(SAMPLE_DIR)
-                  if n.endswith(".json"))
+                  if n.endswith(".json") and not n.endswith(skip))

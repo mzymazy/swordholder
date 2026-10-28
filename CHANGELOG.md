@@ -1,8 +1,44 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_a69ba5d0c99f11f1acd7525400cd780f
+    ReservedCode1: sCC3lW1tgDm+8A85K6AnJjsCzKKcNXkc/Kv7fkO0Fo8hcd0FBimxruCxLkCgcCL+Dl+9hJDXypOx3OeYVi2ulLCLOlzwi5aKLt9HdZ8M3FOvOJwM7jZ19yJgdPzSbalVPmtXXpvecgejXC/YNxIQVqclvhfa/fzgQ3CSaATX87YERcN1pFryX/HAh6Y=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_a69ba5d0c99f11f1acd7525400cd780f
+    ReservedCode2: sCC3lW1tgDm+8A85K6AnJjsCzKKcNXkc/Kv7fkO0Fo8hcd0FBimxruCxLkCgcCL+Dl+9hJDXypOx3OeYVi2ulLCLOlzwi5aKLt9HdZ8M3FOvOJwM7jZ19yJgdPzSbalVPmtXXpvecgejXC/YNxIQVqclvhfa/fzgQ3CSaATX87YERcN1pFryX/HAh6Y=
+---
+
 # 变更日志（CHANGELOG）
 
 本文件记录**对外可观察的变更**：版本、证据链、判定器口径与仓库治理。数字口径的权威来源始终是仓库内 `evidence/*.json` 与 `proofs/*.yaml`，本文件只做索引式记录。
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号对应材料版本（`materials_version`）。
+
+---
+
+## [v0.3.0] — 商品化：多源告警、HTTP 服务与凭证检索
+
+### 新增（Added）
+
+- `swordholder/alert.py` + `alert.schema.json`：**多源告警归一**，支持 `generic / splunk / sentinel / wazuh` 四种来源与自动识别；归一后为内部契约（`schema_version` / `alert_id` / `severity` / `source.format` / `source.raw_sha256`），**原始日志只留 SHA-256 哈希，原文不进凭证**，避免把日志中的凭据、内网地址签进证据链。
+- `swordholder/store.py`：**SQLite 凭证索引**（线程安全），支持按结论 / 资产 / 时间 / 内容哈希检索，只存路径与关键字段，不复制凭证正文。
+- `swordholder/serve.py`：**HTTP 服务**（`ThreadingHTTPServer`），路由 `/healthz`、`/v1/schema`、`/v1/triage`、`/v1/seals`、`/v1/seals/{id}`、`/v1/verify`；沿用 fail-closed 验签（无信任锚不判 `VALID`）。
+- `swordholder/core.py::triage_event`：归一 → 分诊 → 结论附带 `input` 区块（身份字段 + 原始哈希）与 `schema_version`；新增 `payload_sha256()`，与盖章 header 使用**同一 c14n 算法**。
+- CLI 新增子命令：`triage -`（stdin 管道）、`--format`、`--db`、`query`、`schema`、`serve`；错误一律输出结构化 JSON（`E_BAD_JSON` / `E_NOT_FOUND` / `E_ALERT_INVALID` / `E_SEAL_FAILED`）并给非零退出码。
+- 样例告警扩到 6 条（新增 Splunk / Sentinel / Wazuh 各 1 条原生格式）。
+- 测试：新增 `tests/test_alert.py`、`tests/test_serve.py`，全量 **36 项 pytest 通过**（原 11 项）。
+
+### 变更（Changed）
+
+- 版本号 `0.2.0` → `0.3.0`；`pyproject.toml` 打包包含 `alert.schema.json` 与 `samples/*.json`。
+- 服务端盖章文件名改为 `{alert_id}-{payload_sha256[:12]}.seal.json`，并对相同结论**幂等复用**旧凭证（返回 `"reused": true`），防止重复请求刷凭证、撑爆索引、覆盖历史文件。
+- HTTP 处理改为**先读完请求体再鉴权**，修掉 Windows 上提前返回 `401` 导致客户端 `ConnectionAbortedError` 的问题。
+- `demo` 单条样例畸形不再中断整场演示；`rules.sample_alerts()` 排除 `*.seal.json` / `*.triage.json`，避免把产物当输入。
+
+### 未变更（Unchanged）
+
+- 四态数字口径、`proofs/*.yaml`、`trusted_keys.json`、`deliverable/` 全部**未改动**；`mcp_server` 工具签名保持不变。
 
 ---
 
@@ -69,3 +105,4 @@
 - xadv 三态最弱类别均为多轮钓鱼（0.667 / 0.556 / 0.111）；样本量小（主集 47 题 + xadv 15 题），结论为 MVP 级实证。
 
 > 注：本文件早期条目的具体提交日期与硬指标均可在 `evidence/*.json`、`proofs/*.yaml` 与 `git log` 中回溯核对；本文件不替代证据本身。
+*（内容由AI生成，仅供参考）*

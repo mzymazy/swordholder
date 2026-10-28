@@ -1,0 +1,14 @@
+{
+  "properties": {
+    "incidentNumber": 40211,
+    "title": "Suspicious CI pipeline token reuse blocked",
+    "severity": "High",
+    "description": "Pipeline token was used from an IP outside the build runner pool; request blocked by token scope.",
+    "createdTimeUtc": "2026-11-03T09:22:11Z",
+    "tactics": ["CredentialAccess", "InitialAccess"],
+    "entities": [
+      { "type": "host", "hostName": "ci-runner-12" },
+      { "type": "ip", "address": "203.0.113.44" }
+    ]
+  }
+}

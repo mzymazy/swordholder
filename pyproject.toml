@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "swordholder"
-version = "0.2.0"
-description = "给 AI 的判断盖章：把任何 JSON 结论封成可被第三方独立验签的凭证"
+version = "0.3.0"
+description = "缁?AI 鐨勫垽鏂洊绔狅細鎶婁换浣?JSON 缁撹灏佹垚鍙绗笁鏂圭嫭绔嬮獙绛剧殑鍑瘉"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -36,8 +36,9 @@ Source = "https://github.com/mzymazy/swordholder"
 packages = ["swordholder", "mcp_server"]
 
 [tool.setuptools.package-data]
-swordholder = ["samples/*.json"]
+swordholder = ["samples/*.json", "alert.schema.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
