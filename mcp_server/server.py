@@ -168,26 +168,48 @@ def tool_verify_seal(args: dict) -> dict:
         return {"verdict": "INVALID", "reason": "E_BAD_SIGNATURE"}
 
     keys_path = args.get("keys_path") or DEFAULT_KEYS
-    trust = "unknown"
-    if os.path.exists(keys_path):
-        try:
-            with open(keys_path, "r", encoding="utf-8") as f:
-                raw = json.load(f)
-            keys = raw if isinstance(raw, list) else raw.get("keys", [])
-            hexes = {str(k.get("public_key", k.get("public_key_hex", ""))).lower() for k in keys}
-            trust = "trusted" if pub_hex.lower() in hexes else "untrusted"
-        except Exception:
-            trust = "unknown"
+    policy = _evaluate_trust(header, keys_path)
 
     result = {"verdict": "VALID", "reason": "OK", "seal_id": header.get("seal_id"),
               "subject": header.get("subject"), "created_at": header.get("created_at"),
               "payload_sha256": header["payload_sha256"], "public_key_hex": pub_hex,
-              "trust": trust}
-    if trust != "trusted":
-        # fail-closed：没有信任锚时不宣称可信，签名有效 ≠ 签发方可信
-        result["verdict"] = "VALID_UNTRUSTED_KEY"
-        result["reason"] = "E_UNTRUSTED_KEY" if trust == "untrusted" else "E_NO_TRUST_ANCHOR"
+              "trust": policy.get("trust"), "key_id": policy.get("key_id"),
+              "key_status": policy.get("key_status")}
+    if policy.get("trust") != "trusted":
+        # fail-closed：签名有效 ≠ 签发方可信；吊销/过期一律不认
+        result["reason"] = policy.get("reason")
+        if policy.get("trust") in ("untrusted", "unknown"):
+            result["verdict"] = "VALID_UNTRUSTED_KEY"
+        else:
+            result["verdict"] = "INVALID"
+        for extra in ("revoked_at", "revoked_reason"):
+            if policy.get(extra):
+                result[extra] = policy[extra]
     return result
+
+
+def _evaluate_trust(header: dict, keys_path: str) -> dict:
+    """优先用 swordholder.trust 的轮换/吊销策略；不可用时退回 0.3 的扁平白名单。"""
+    try:
+        from swordholder import trust as _trust
+        return _trust.evaluate(header, keys_path)
+    except Exception:
+        pass
+
+    pub_hex = (header.get("public_key_hex") or "").lower()
+    if not os.path.exists(keys_path):
+        return {"trust": "unknown", "reason": "E_NO_TRUST_ANCHOR"}
+    try:
+        with open(keys_path, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+        keys = raw if isinstance(raw, list) else raw.get("keys", [])
+        hexes = {str(k.get("public_key", k.get("public_key_hex", ""))).lower()
+                 for k in keys if isinstance(k, dict)}
+    except Exception:
+        return {"trust": "unknown", "reason": "E_NO_TRUST_ANCHOR"}
+    if pub_hex in hexes:
+        return {"trust": "trusted", "reason": "OK"}
+    return {"trust": "untrusted", "reason": "E_UNTRUSTED_KEY"}
 
 
 def tool_verify_proof(args: dict) -> dict:
@@ -209,6 +231,16 @@ def tool_list_trusted_keys(args: dict) -> dict:
     keys_path = args.get("keys_path") or DEFAULT_KEYS
     if not os.path.exists(keys_path):
         return _err(f"信任锚文件不存在：{keys_path}")
+    try:
+        from swordholder import trust as _trust
+        info = _trust.summary(keys_path)
+        if not info.get("loaded"):
+            return _err(f"信任锚文件无法解析：{keys_path}")
+        return {"ok": True, "keys_path": info["keys_path"], "count": info["counts"]["total"],
+                "by_status": info["counts"]["by_status"], "keys": info["keys"],
+                "revoked_seal_count": info["revoked_seal_count"]}
+    except Exception:
+        pass
     with open(keys_path, "r", encoding="utf-8") as f:
         raw = json.load(f)
     keys = raw if isinstance(raw, list) else raw.get("keys", [])
@@ -216,6 +248,7 @@ def tool_list_trusted_keys(args: dict) -> dict:
     for k in keys:
         pub = str(k.get("public_key", k.get("public_key_hex", "")))
         out.append({"key_id": k.get("key_id") or k.get("id"),
+                    "status": k.get("status") or "active",
                     "public_key_hex": pub,
                     "fingerprint_sha256_16": sha256_hex(pub.encode())[:16]})
     return {"ok": True, "keys_path": keys_path, "count": len(out), "keys": out}

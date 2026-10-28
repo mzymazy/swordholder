@@ -134,6 +134,13 @@ def make_handler(cfg: ServerConfig):
             if not self._authorized():
                 return self._fail(401, "E_UNAUTHORIZED", "缺少或错误的 Bearer token")
 
+            if path == "/v1/trust":
+                from . import trust as _trust
+                info = _trust.summary(cfg.keys_file)
+                info.pop("keys_path", None)
+                info["rotation_warnings"] = _trust.check_rotation(cfg.keys_file)["warnings"]
+                return self._send(200, info)
+
             if path == "/v1/seals":
                 if not cfg.store:
                     return self._fail(400, "E_NO_INDEX", "服务未启用 --db，无法按索引检索")

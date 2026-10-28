@@ -22,6 +22,8 @@ import sys
 from . import __version__, core, rules
 from .alert import AlertError
 
+DEFAULT_TRUST_HINT = "trusted_keys.json"
+
 
 def _dump(obj) -> None:
     print(json.dumps(obj, ensure_ascii=False, indent=2))
@@ -138,6 +140,138 @@ def cmd_query(args) -> int:
         print(f"{str(r['created_at']):22} {str(r['triage_verdict']):14} "
               f"{str(r['severity']):8} {str(r['alert_id'])[:24]:24} {r['seal_id']}")
     print(f"\n共 {len(rows)} 条；索引总计 {stats['total']} 条 {stats['by_verdict']}")
+    return 0
+
+
+# ---------------------------------------------------------------- trust 治理
+
+def _trust_mod():
+    from . import trust
+    return trust
+
+
+def _read_pubkey_file(path: str) -> str:
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import ed25519
+
+    with open(path, "rb") as f:
+        key = serialization.load_pem_public_key(f.read())
+    if not isinstance(key, ed25519.Ed25519PublicKey):
+        raise ValueError("公钥不是 ed25519")
+    return key.public_bytes(serialization.Encoding.Raw,
+                            serialization.PublicFormat.Raw).hex()
+
+
+def _seal_id_from(target: str) -> str:
+    if os.path.exists(target):
+        with open(target, "r", encoding="utf-8") as f:
+            doc = json.load(f)
+        seal_id = (doc.get("seal_header") or {}).get("seal_id")
+        if not seal_id:
+            raise ValueError(f"文件里没有 seal_header.seal_id：{target}")
+        return str(seal_id)
+    return target
+
+
+def cmd_trust_show(args) -> int:
+    trust = _trust_mod()
+    info = trust.summary(args.keys_file)
+    if args.json:
+        _dump(info)
+        return 0 if info["loaded"] else 1
+    print(f"信任根：{info.get('trust_root') or '（未设置）'}")
+    print(f"锚文件：{info.get('keys_path')}")
+    print(f"锚数量：{info['counts']['total']}  {info['counts']['by_status']}")
+    if info["keys"]:
+        print(f"\n{'key_id':<24} {'status':<10} {'state':<10} {'not_after':<22} replaced_by")
+        for k in info["keys"]:
+            print(f"{k['key_id']:<24} {k['status']:<10} {k['state']:<10} "
+                  f"{str(k.get('not_after') or '-'):<22} {k.get('replaced_by') or '-'}")
+    print(f"\n已吊销凭证：{info['revoked_seal_count']} 份")
+    for r in info["revoked_seals"][:20]:
+        print(f"  - {r['seal_id']}  {r.get('revoked_at') or ''}  {r.get('reason') or ''}")
+    if not info["loaded"]:
+        print("警告：锚文件缺失或无法解析，验签只会得到 VALID_UNTRUSTED_KEY")
+        return 1
+    return 0
+
+
+def cmd_trust_check(args) -> int:
+    trust = _trust_mod()
+    res = trust.check_rotation(args.keys_file)
+    _dump(res)
+    return 0 if not res["warnings"] else 2
+
+
+def cmd_trust_add(args) -> int:
+    trust = _trust_mod()
+    pub = args.pubkey
+    if not pub and args.pubkey_file:
+        try:
+            pub = _read_pubkey_file(args.pubkey_file)
+        except Exception as e:
+            print(f"读取公钥失败：{e}", file=sys.stderr)
+            return 1
+    if not pub:
+        print("必须提供 --pubkey 或 --pubkey-file", file=sys.stderr)
+        return 1
+    try:
+        res = trust.add_key(args.keys_file, pub, key_id=args.key_id,
+                            not_before=args.not_before, not_after=args.not_after,
+                            note=args.note, trust_root=args.trust_root)
+    except trust.TrustError as e:
+        print(f"登记失败：{e}", file=sys.stderr)
+        return 1
+    _dump(res)
+    return 0
+
+
+def cmd_trust_retire(args) -> int:
+    trust = _trust_mod()
+    try:
+        res = trust.retire_key(args.keys_file, args.key_id, at=args.at,
+                               replaced_by=args.replaced_by)
+    except trust.TrustError as e:
+        print(f"停用失败：{e}", file=sys.stderr)
+        return 1
+    _dump(res)
+    print("提示：窗口（not_after）之前的旧凭证仍可验通，之后由该锚签发的凭证会被判 E_KEY_EXPIRED。")
+    return 0
+
+
+def cmd_trust_revoke(args) -> int:
+    trust = _trust_mod()
+    if not args.target:
+        print("需要给出 key_id 或 seal_id / seal.json 路径", file=sys.stderr)
+        return 1
+    if args.revoke_key and args.revoke_seal:
+        print("--key 与 --seal 不能同时使用，请分两次执行", file=sys.stderr)
+        return 1
+    if not args.revoke_key and not args.revoke_seal:
+        print("必须显式指定 --key 或 --seal，避免误吊销", file=sys.stderr)
+        return 1
+    try:
+        if args.revoke_key:
+            res = trust.revoke_key(args.keys_file, args.target, reason=args.reason)
+            print("注意：吊销锚会使该锚签发的所有凭证立即不可信。")
+        else:
+            seal_id = _seal_id_from(args.target)
+            res = trust.revoke_seal(args.keys_file, seal_id, reason=args.reason)
+    except (trust.TrustError, ValueError, OSError) as e:
+        print(f"吊销失败：{e}", file=sys.stderr)
+        return 1
+    _dump(res)
+    return 0
+
+
+def cmd_trust_restore(args) -> int:
+    trust = _trust_mod()
+    try:
+        res = trust.restore_seal(args.keys_file, args.seal_id)
+    except trust.TrustError as e:
+        print(f"回滚失败：{e}", file=sys.stderr)
+        return 1
+    _dump(res)
     return 0
 
 
@@ -283,6 +417,50 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("--keys-file", default=None, help="信任锚 json，默认用仓库根 trusted_keys.json（如存在）")
     d.add_argument("--llm", action="store_true")
     d.set_defaults(func=cmd_demo)
+
+    # -- trust：信任锚治理（轮换 / 吊销 / 体检）--------------------------------
+    tr = sub.add_parser("trust", help="信任锚治理：查看、登记、轮换、吊销")
+    trs = tr.add_subparsers(dest="trust_cmd", required=True)
+
+    t_show = trs.add_parser("show", help="查看信任链与吊销列表")
+    t_show.add_argument("--keys-file", default=DEFAULT_TRUST_HINT)
+    t_show.add_argument("--json", action="store_true", help="输出原始 JSON")
+    t_show.set_defaults(func=cmd_trust_show)
+
+    t_check = trs.add_parser("check", help="轮换体检：并存的 active 锚、缺失窗口等提醒")
+    t_check.add_argument("--keys-file", default=DEFAULT_TRUST_HINT)
+    t_check.set_defaults(func=cmd_trust_check)
+
+    t_add = trs.add_parser("add", help="登记一把新的信任锚")
+    t_add.add_argument("--keys-file", default=DEFAULT_TRUST_HINT)
+    t_add.add_argument("--key-id", default=None)
+    t_add.add_argument("--pubkey", default=None, help="64 位十六进制公钥；或用 --pubkey-file 指向 pem")
+    t_add.add_argument("--pubkey-file", default=None, help="公钥 pem 路径")
+    t_add.add_argument("--not-before", default=None)
+    t_add.add_argument("--not-after", default=None)
+    t_add.add_argument("--note", default=None)
+    t_add.add_argument("--trust-root", default=None)
+    t_add.set_defaults(func=cmd_trust_add)
+
+    t_retire = trs.add_parser("retire", help="停用旧锚（保留其窗口内历史凭证的验证能力）")
+    t_retire.add_argument("key_id")
+    t_retire.add_argument("--keys-file", default=DEFAULT_TRUST_HINT)
+    t_retire.add_argument("--at", default=None, help="截止时刻，ISO；缺省为当前时间")
+    t_retire.add_argument("--replaced-by", default=None)
+    t_retire.set_defaults(func=cmd_trust_retire)
+
+    t_revoke = trs.add_parser("revoke", help="吊销：--key 吊销密钥，--seal 吊销单份凭证")
+    t_revoke.add_argument("target", nargs="?", default=None, help="key_id 或 seal_id / seal.json 路径")
+    t_revoke.add_argument("--key", dest="revoke_key", action="store_true", help="吊销信任锚")
+    t_revoke.add_argument("--seal", dest="revoke_seal", action="store_true", help="吊销单份凭证")
+    t_revoke.add_argument("--keys-file", default=DEFAULT_TRUST_HINT)
+    t_revoke.add_argument("--reason", default=None)
+    t_revoke.set_defaults(func=cmd_trust_revoke)
+
+    t_restore = trs.add_parser("restore", help="撤销一条凭证吊销记录（误吊销回滚）")
+    t_restore.add_argument("seal_id")
+    t_restore.add_argument("--keys-file", default=DEFAULT_TRUST_HINT)
+    t_restore.set_defaults(func=cmd_trust_restore)
     return p
 
 

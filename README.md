@@ -98,11 +98,50 @@ swordholder serve --port 8080 -k keys/swordholder_ed25519_private.pem --out seal
 | `POST /v1/triage?format=auto` | 归一 + 分诊 + 盖章 + 验签，一次返回结论与凭证 |
 | `GET /v1/seals?verdict=&subject=&limit=` | 凭证检索 |
 | `POST /v1/verify` | 校验一份凭证（同样 fail-closed：无信任锚一律不判 VALID） |
+| `GET /v1/trust` | 信任锚概览 + 轮换体检提醒（需鉴权，不含私钥与锚文件路径） |
 
 两条工程约束是刻意设计的：
 
 - **非回环地址强制 Bearer token**：`--host 0.0.0.0` 而不给 `--token` 直接拒绝启动，不给"忘了加鉴权就暴露到内网"的机会。
 - **同内容幂等**：同一份结论重复提交只签发一份凭证（`"reused": true`），不给攻击者刷凭证、撑爆索引的机会。
+
+## 换钥之后，老证据不能失效
+
+轮换最容易做错的地方：验签时拿"现在"去比密钥有效期，一换钥，过去一年签发的合法凭证全部变成不可信，审计链当场断掉。
+
+这里的口径是**按凭证签发时刻 `created_at` 判窗口**，而不是按验签时刻。`created_at` 在签名覆盖范围内，改它必然 `E_BAD_SIGNATURE`，所以这条时间线不可伪造。
+
+```bash
+# 新钥就位（先并存，不急着停旧钥）
+swordholder trust add --pubkey-file keys_new/swordholder_ed25519_public.pem \
+    --key-id k-2026b --not-before 2026-10-01T00:00:00Z
+
+# 旧钥停用：只影响"之后还能不能签"，历史凭证继续 VALID
+swordholder trust retire k-2026a --replaced-by k-2026b
+
+# 私钥泄露 / 单份凭证错发
+swordholder trust revoke k-2026a --reason "私钥疑似泄露"
+swordholder trust revoke seals/xxx.seal.json --seal --reason "误发：客户名错"
+
+# 体检：有提醒时退出码 2，可直接挂 cron / CI 值班
+swordholder trust show
+swordholder trust check
+```
+
+判定口径（签名先过，再过信任策略）：
+
+| 情况 | verdict | reason |
+|---|---|---|
+| 无锚 / 锚损坏 / 公钥不在锚列表 | `VALID_UNTRUSTED_KEY` | `E_NO_TRUST_ANCHOR` / `E_UNTRUSTED_KEY` |
+| 锚在窗口内（含已 retire 但凭证签发于停用前） | `VALID` | `OK` |
+| 凭证被吊销 | `INVALID` | `E_SEAL_REVOKED` |
+| 密钥被吊销 | `INVALID` | `E_KEY_REVOKED` |
+| 停用后仍用旧钥签新凭证 | `INVALID` | `E_KEY_EXPIRED` |
+| 用未生效的钥签发 | `INVALID` | `E_KEY_NOT_YET_VALID` |
+
+`VALID_UNTRUSTED_KEY` 与 `INVALID` 是两件事：前者"签名没问题，但我不认识这个签发方"，后者"这份东西不该被采信"。下游该按这个区别决定"提示人工确认"还是"直接拒绝"。
+
+完整实操（文件格式、时序、体检项、与 `verify_proof.py` 的分工）：[docs/key-rotation.md](docs/key-rotation.md)。
 
 ## 它是给谁用的
 
@@ -340,10 +379,11 @@ swordholder_mvp/
 │   ├── alert.schema.json         # 内部告警契约（draft-07）
 │   ├── rules.py                  # 规则引擎（结论 / 严重度 / 置信度 / 处置建议，LLM 可选增强）
 │   ├── store.py                  # SQLite 凭证索引（按结论 / 资产 / 时间 / 内容哈希检索）
-│   ├── serve.py                  # HTTP 服务（/healthz /v1/schema /v1/triage /v1/seals /v1/verify）
-│   ├── cli.py                    # 命令行：keygen · seal · verify · triage · query · schema · serve · demo
+│   ├── serve.py                  # HTTP 服务（/healthz /v1/schema /v1/triage /v1/seals /v1/verify /v1/trust）
+│   ├── trust.py                  # 信任锚治理：轮换窗口 / 密钥与凭证吊销 / 轮换体检
+│   ├── cli.py                    # 命令行：keygen · seal · verify · triage · query · schema · serve · trust · demo
 │   └── samples/                  # 6 条样例告警（3 通用 + Splunk / Sentinel / Wazuh 各 1）
-├── tests/                        # pytest：核心四件套 / 归一适配 / HTTP 服务与索引 / CLI 契约
+├── tests/                        # pytest：核心四件套 / 归一适配 / HTTP 服务与索引 / 信任治理 / CLI 契约
 ├── mcp_server/                   # MCP Server（工具化接入 Claude Code / Desktop）
 ├── agent/                        # 分诊 Agent 与端到端演示（兼容层，核心逻辑已迁入 swordholder/）
 ├── verify_proof.py               # 威慑凭证验证器 v0.5（ed25519 + 信任锚 + 新鲜度 + 规范化 + 重复键拒绝）

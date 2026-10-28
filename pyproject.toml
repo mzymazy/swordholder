@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "swordholder"
-version = "0.3.0"
-description = "缁?AI 鐨勫垽鏂洊绔狅細鎶婁换浣?JSON 缁撹灏佹垚鍙绗笁鏂圭嫭绔嬮獙绛剧殑鍑瘉"
+version = "0.4.0"
+description = "缂?AI 閻ㄥ嫬鍨介弬顓犳磰缁旂媴绱伴幎濠佹崲娴?JSON 缂佹捁顔戠亸浣瑰灇閸欘垵顫︾粭顑跨瑏閺傚湱瀚粩瀣崣缁涘墽娈戦崙顓＄槈"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }

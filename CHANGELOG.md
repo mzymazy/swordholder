@@ -17,6 +17,40 @@ AIGC:
 
 ---
 
+## [v0.4.0] — 信任治理：密钥轮换、吊销与轮换体检
+
+### 新增（Added）
+
+- `swordholder/trust.py`：**信任锚治理**，把"白名单"升级成能过审计的密钥生命周期管理。
+  - `add_key` / `retire_key`：登记新锚、停用旧锚；停用只影响"之后还能不能签"，历史凭证继续有效。
+  - `revoke_key` / `revoke_seal` / `restore_seal`：密钥级与单份凭证级吊销，吊销优先于一切窗口判定。
+  - `evaluate`：统一信任判定，返回 `(trust, reason, key_id, key_status)` 四元组。
+  - `summary` / `check_rotation`：锚状态总览与轮换体检（缺锚、无 active 锚、active 并存、retired 缺窗口、轮换链断点）。
+- **按凭证签发时刻判窗口**：用 `seal_header.created_at` 与 `not_before` / `not_after` 比对，而不是按验签时刻。轮换后历史凭证不会因为"签发它的钥已过期"而失效；`created_at` 在签名覆盖范围内，改它必然 `E_BAD_SIGNATURE`，时间线不可伪造。
+- 新增判定口径：`E_KEY_REVOKED` / `E_SEAL_REVOKED` / `E_KEY_EXPIRED` / `E_KEY_NOT_YET_VALID` / `E_SEAL_NO_TIMESTAMP`，均判 `INVALID`；`VALID_UNTRUSTED_KEY` 专用于"签名没问题但签发方不受信"。
+- CLI 新增 `trust` 子命令组：`show`（人读表格 / `--json` 机读）、`check`（有问题时退出码 2）、`add`、`retire`、`revoke`（`--key` / `--seal` 强制二选一）、`restore`。
+- HTTP 新增 `GET /v1/trust`：锚概览 + 吊销列表 + 轮换提醒，需鉴权，不回显私钥与锚文件绝对路径。
+- `docs/key-rotation.md`：轮换实操手册（文件格式、四种操作、判定矩阵、体检项、完整轮换时序、与 `verify_proof.py` 的分工）。
+- 测试：新增 `tests/test_trust.py`，全量 **61 项 pytest 通过**（原 36 项）。
+
+### 变更（Changed）
+
+- 版本号 `0.3.0` → `0.4.0`；`swordholder.__init__` 导出 `trust` / `TrustError` / `add_key` / `retire_key` / `revoke_key` / `revoke_seal` / `restore_seal` / `summary` / `check_rotation` / `evaluate`。
+- `verify` 的结果在原有字段基础上追加 `key_id` / `key_status` / `trust`；MCP 的 `verify_seal` 同步采用新策略，并保留旧白名单回退路径。
+- `list_trusted_keys` 优先返回结构化视图（`by_status` / `revoked` / 每把钥的运行时 `state`）。
+
+### 兼容（Compatibility）
+
+- **老锚文件原样可读**：0.1–0.3 的 `{"keys":[{"public_key":"..."}]}` 不需要改写，缺 `status` 视为 `active`、无窗口；历史凭证不需要重签。
+- 维护锚文件时保留未知字段（如自定义 `trust_root`、工单号），不做清洗。
+
+### 未变更（Unchanged）
+
+- 盖章与验签的密码学口径（ed25519 + `json-c14n-v1` + 域分隔前缀）一行未改。
+- `verify_proof.py` 仍是独立基线验证器，只做签名 + 锚白名单 + 新鲜度，不实现轮换窗口与吊销策略（分工见 `docs/key-rotation.md` 第 8 节）。
+
+---
+
 ## [v0.3.0] — 商品化：多源告警、HTTP 服务与凭证检索
 
 ### 新增（Added）
