@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_cf3e71d3d2b711f1a301525400cd780f
+    ReservedCode1: I7cSOFs1FsQS8hOhzxcIrBz5sbtl/bR04pIQRQv8eqIC8rXtB6p2CpuoMFDIuBkkn5/i6qdLiYUkl3jiyxgrz1CsDBM1gXnbbIy1gcr9uJwC3qEz7JhWYdwMXmln1XKsHsO/14KA55hmA/pRTTxOp+VgI2jeY7VmN6u+wTTDxrX8EDzGjmrviS9nK+A=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_cf3e71d3d2b711f1a301525400cd780f
+    ReservedCode2: I7cSOFs1FsQS8hOhzxcIrBz5sbtl/bR04pIQRQv8eqIC8rXtB6p2CpuoMFDIuBkkn5/i6qdLiYUkl3jiyxgrz1CsDBM1gXnbbIy1gcr9uJwC3qEz7JhWYdwMXmln1XKsHsO/14KA55hmA/pRTTxOp+VgI2jeY7VmN6u+wTTDxrX8EDzGjmrviS9nK+A=
+---
+
 # AIGC 标识头：字段含义、为何「看起来冗长」以及不可精简的原因
 
 本文件解释仓库里 23 份对外 Markdown 文件头部那段 YAML front matter（`AIGC:` 段）的来历与维护规则。
@@ -73,3 +84,4 @@ python scripts/check_aigc_headers.py --json   # 机器可读摘要
 
 > 注意：`ReservedCode` 无法手工生成或修复，一旦丢失只能由原导出工具重新导出。
 > 这也是它必须原样入库、并配 CI 守卫的根本原因。
+*（内容由AI生成，仅供参考）*
