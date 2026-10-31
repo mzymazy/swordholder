@@ -25,10 +25,19 @@ AIGC:
 ```bash
 git clone https://github.com/mzymazy/swordholder && cd swordholder
 pip install -e .            # 只依赖 cryptography + pyyaml
-swordholder --version       # swordholder 0.3.0
+swordholder --version       # swordholder 0.4.0
 ```
 
-> 尚未发布到 PyPI。想隔离环境用 `pipx install .`；Python 3.11+。
+> **包里没有 PyPI 发布**：`pip install swordholder` 会 `No matching distribution found`，这是预期行为，不是环境问题。请用上面的源码安装（`-e .`），或隔离环境用 `pipx install .` / `pip install .`（非 editable，等价于本地打 wheel 安装）。Python 3.11+。
+>
+> 想验收测试与自测（可选，装了 dev 依赖才跑得动）：
+>
+> ```bash
+> pip install -e ".[dev]"
+> pytest -q                   # 61 passed
+> python mcp_server/selftest.py   # 10/10 通过
+> powershell -File scripts/quickstart.ps1 -SkipInstall   # 4/4 凭证 VALID、17/17 对抗断言、482/482 绑定
+> ```
 
 ## 三条命令看到它在干什么
 
@@ -49,13 +58,16 @@ swordholder verify alert.seal.json --keys trusted_keys.json
 swordholder demo
 ```
 
-真实输出（`swordholder demo`，三条构造告警）：
+真实输出（`swordholder demo`，6 条样例：3 条通用构造 + Splunk / Sentinel / Wazuh 各 1 条）：
 
 | 告警 | 结论 | 严重度 | 置信度 | 验签 |
 |---|---|---|---|---|
 | ALRT-2026-1102-0007 构建机异常外联 | suspicious | high | 0.78 | VALID_UNTRUSTED_KEY |
 | ALRT-2026-1103-0011 CI token 跨网段重放 | true_positive | critical | 0.86 | VALID_UNTRUSTED_KEY |
 | ALRT-2026-1104-0003 npm typosquat 投毒 | true_positive | critical | 0.91 | VALID_UNTRUSTED_KEY |
+| 40211（Sentinel 原生）CI token 复用 | true_positive | high | 0.86 | VALID_UNTRUSTED_KEY |
+| 1728.4417（Splunk 原生）异常外联 | suspicious | high | 0.78 | VALID_UNTRUSTED_KEY |
+| 92052（Wazuh 原生）供应链投毒 | true_positive | critical | 0.91 | VALID_UNTRUSTED_KEY |
 
 把第 1 条凭证里的 `verdict` 改掉、不重新签名，再次验签得到：
 
@@ -372,7 +384,7 @@ swordholder_mvp/
 ├── PRIVATE_KEY.md                # 出证私钥为什么不入库 + 自签与信任锚使用说明
 ├── requirements.txt              # 核心运行依赖（3 个包，CPU 可跑）
 ├── requirements-train.txt        # QLoRA 微调依赖 + 硬件门槛（GPU ≥16GB / CUDA 12）
-├── pyproject.toml                # pip 打包配置（swordholder 0.3.0 + mcp_server，含 CLI 入口）
+├── pyproject.toml                # pip 打包配置（swordholder 0.4.0 + mcp_server，含 CLI 入口）
 ├── swordholder/                  # 可 pip 安装的核心包
 │   ├── core.py                   # keygen / seal / verify / triage / triage_event / payload_sha256
 │   ├── alert.py                  # 多源告警归一（generic / splunk / sentinel / wazuh）+ 契约校验
@@ -474,7 +486,7 @@ swordholder_mvp/
 - 验证器信任锚需与凭证签发密钥保持一致性维护（见 [§9](#9-开源治理)）。
 - **演示视频画面口径**：视频中组合态一屏为录制时的旧表述（47/47），与材料头条 45/47 不一致，已登记待整改（重剪或替换为真实录屏）；材料口径以 [§3.1 口径脚注](#31-四态消融qwen38b47-题判定器-semantic-v22-逐题重判) 为准。
 - **规则引擎仍是字符串特征匹配**（`rules-v1`）：覆盖常见攻击链，但没有 ATT&CK 映射、没有消噪评分与置信度校准；接真实 SOC 前需按自家日志口径扩规则（LLM 增强为可选路径，默认关闭，因为它会破坏可复现性）。
-- **尚无密钥轮换**：`0.3.0` 只做了"多信任锚并存 + fail-closed"，历史凭证在旧锚失效后需人工迁移；轮换流程（重叠窗口、吊销列表）未实现。
+- **轮换仍是手工流程**：`0.4.0` 已实现重叠窗口、密钥/凭证吊销与轮换体检（`swordholder trust add|retire|revoke|check`），但锚分发、吊销列表同步、定时体检调度仍需人工编排，尚未做成常驻服务。
 - **未发布 PyPI**：`pip install swordholder` 暂时会失败，需 `pip install -e .` 或 `pipx install .`。
 
 ---

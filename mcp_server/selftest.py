@@ -110,16 +110,27 @@ def main() -> int:
         bad2 = payload_of(c.call("verify_seal", {"seal_path": tampered2}))
         check("篡改 header 被判 E_BAD_SIGNATURE", bad2.get("reason") == "E_BAD_SIGNATURE", bad2.get("reason"))
 
-        proofs = sorted(f for f in os.listdir(os.path.join(REPO_ROOT, "proofs")) if f.endswith(".yaml"))
+        proofs_dir = os.path.join(REPO_ROOT, "proofs")
+        if not os.path.isdir(proofs_dir):
+            # pip 安装后的 site-packages 不含仓库根的 proofs/：给出可执行的提示，而不是抛 FileNotFoundError
+            print(f"  SKIP verify_proof：未找到 {proofs_dir}")
+            print("       该断言需在源码仓库根目录运行（pip 安装后的包内不含 proofs/）")
+            proofs = []
+        else:
+            proofs = sorted(f for f in os.listdir(proofs_dir) if f.endswith(".yaml"))
         ok_n = 0
         for f in proofs:
             r = payload_of(c.call("verify_proof", {"proof_path": os.path.join("proofs", f)}))
             if str(r.get("verdict", "")).startswith("VALID"):
                 ok_n += 1
-        check(f"verify_proof 通过 {ok_n}/{len(proofs)} 份真实凭证", ok_n == len(proofs) == 4, f"{ok_n}/{len(proofs)}")
+        if proofs:
+            check(f"verify_proof 通过 {ok_n}/{len(proofs)} 份真实凭证", ok_n == len(proofs) == 4, f"{ok_n}/{len(proofs)}")
 
-        keys = payload_of(c.call("list_trusted_keys", {}))
-        check("list_trusted_keys 可列出信任锚", keys.get("ok") and keys.get("count", 0) >= 1, str(keys.get("count")))
+        if os.path.isfile(os.path.join(REPO_ROOT, "trusted_keys.json")):
+            keys = payload_of(c.call("list_trusted_keys", {}))
+            check("list_trusted_keys 可列出信任锚", keys.get("ok") and keys.get("count", 0) >= 1, str(keys.get("count")))
+        else:
+            print("  SKIP list_trusted_keys：仓库根的 trusted_keys.json 不存在（安装包内不含信任锚）")
 
         unk = c.call("unknown_tool", {})
         check("未知工具返回 -32601", unk.get("error", {}).get("code") == -32601)
