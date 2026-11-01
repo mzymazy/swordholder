@@ -1,0 +1,26 @@
+{
+  "_meta": {
+    "source": "SIEM 历史告警导出（lab snapshot）",
+    "collected_at": "2026-11-02T04:05:00Z"
+  },
+  "prior_alerts": [
+    {
+      "alert_id": "ALRT-2026-1020-0042",
+      "asset": "build-runner-07",
+      "signal": "outbound TLS to unknown ASN",
+      "final_verdict": "false_positive",
+      "resolved_by": "sec-ops",
+      "resolution_note": "已核对工单 CHG-5521：授权渗透测试，来源 ASN 已临时白名单",
+      "sealed": true
+    },
+    {
+      "alert_id": "ALRT-2026-1025-0011",
+      "asset": "build-runner-07",
+      "signal": "npm lifecycle script spawns shell",
+      "final_verdict": "suspicious",
+      "resolved_by": "sec-ops",
+      "resolution_note": "构建缓存污染，重建缓存后消失；未溯源",
+      "sealed": true
+    }
+  ]
+}

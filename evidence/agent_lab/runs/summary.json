@@ -1,0 +1,49 @@
+{
+  "provider": {
+    "provider": "ollama",
+    "base": "http://127.0.0.1:11434",
+    "model": "qwen3:8b",
+    "api_key": ""
+  },
+  "rows": [
+    {
+      "case": "供应链投毒（postinstall 下载并执行）",
+      "alert_id": "ALRT-2026-1104-0003",
+      "rule": "true_positive",
+      "agent": "true_positive",
+      "engine": "llm-agent/ollama:qwen3:8b",
+      "confidence": 0.85,
+      "steps": 5,
+      "rejected": 0,
+      "sealed": "VALID",
+      "seconds": 3.6,
+      "trace": "evidence\\agent_lab\\runs\\ALRT-2026-1104-0003.trace.json"
+    },
+    {
+      "case": "构建机外联未知 ASN（持 CI token）",
+      "alert_id": "ALRT-2026-1102-0007",
+      "rule": "suspicious",
+      "agent": "suspicious",
+      "engine": "llm-agent/ollama:qwen3:8b",
+      "confidence": 0.6,
+      "steps": 6,
+      "rejected": 0,
+      "sealed": "VALID",
+      "seconds": 4.3,
+      "trace": "evidence\\agent_lab\\runs\\ALRT-2026-1102-0007.trace.json"
+    },
+    {
+      "case": "告警文本内嵌指令注入",
+      "alert_id": "ALRT-2026-1102-0099",
+      "rule": "suspicious",
+      "agent": "suspicious",
+      "engine": "llm-agent/ollama:qwen3:8b",
+      "confidence": 0.6,
+      "steps": 6,
+      "rejected": 0,
+      "sealed": "VALID",
+      "seconds": 5.4,
+      "trace": "evidence\\agent_lab\\runs\\ALRT-2026-1102-0099.trace.json"
+    }
+  ]
+}

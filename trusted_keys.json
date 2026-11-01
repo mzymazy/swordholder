@@ -1,11 +1,22 @@
 {
-  "trust_root": "swordholder-eval/0.1.0",
-  "keys": [
-    {
-      "key_id": "k-ed25519-001",
-      "algorithm": "ed25519",
-      "public_key_hex": "0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff",
-      "fingerprint_sha256": "0d1c8b8a4b310ceb92bd7dcd12555f1d92692953964a915201701e034b1490cc"
-    }
-  ]
+ "trust_root": "swordholder-eval/0.1.0",
+ "keys": [
+  {
+   "key_id": "k-ed25519-001",
+   "algorithm": "ed25519",
+   "public_key_hex": "0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff",
+   "fingerprint_sha256": "0d1c8b8a4b310ceb92bd7dcd12555f1d92692953964a915201701e034b1490cc"
+  },
+  {
+   "key_id": "k-ed25519-002",
+   "algorithm": "ed25519",
+   "public_key_hex": "a94c4a357cb8fb930d668310d38301ab8229be761ff3f86462733679cdb2c357",
+   "fingerprint_sha256": "8280bca803207fd9081288c501d5eaf6347d39b0020e233dcc977ea983105764",
+   "issuer": "swordholder-agent",
+   "status": "active",
+   "not_before": "2026-11-01T00:00:00Z",
+   "not_after": "2027-11-01T00:00:00Z",
+   "note": "agent-loop work key（取证链签发方）"
+  }
+ ]
 }

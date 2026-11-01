@@ -66,6 +66,61 @@ def cmd_verify(args) -> int:
     return 0 if res.get("verdict") in ("VALID", "VALID_UNTRUSTED_KEY") else 1
 
 
+def cmd_agent(args) -> int:
+    """LLM 自主分诊：模型自己取证、自己判定，结论自动盖章。"""
+    from . import agent_loop
+    from . import alert as alert_mod
+
+    try:
+        if args.alert == "-":
+            body = sys.stdin.read()
+            if not body.strip():
+                _dump({"ok": False, "code": "E_EMPTY_BODY", "message": "需要一条 JSON 告警"})
+                return 2
+            alert = alert_mod.normalize(json.loads(body), fmt=args.format)
+        else:
+            alert = alert_mod.normalize_file(args.alert, fmt=args.format)
+    except AlertError as e:
+        _dump(e.to_dict())
+        return 2
+    except (json.JSONDecodeError, FileNotFoundError, NotADirectoryError, OSError) as e:
+        _dump({"ok": False, "code": "E_BAD_ALERT", "message": str(e)})
+        return 2
+
+    try:
+        trace = agent_loop.run_agent(alert, max_steps=args.steps,
+                                     key_path=args.key, seal_out_dir=args.out_dir,
+                                     verbose=args.verbose)
+    except Exception as e:  # 模型不可用等：明确报错，不静默降级
+        _dump({"ok": False, "code": "E_AGENT_FAILED", "message": f"{type(e).__name__}: {e}"})
+        return 3
+
+    outcome = trace.get("guardrail") or {}
+    payload = {
+        "ok": True,
+        "alert_id": alert.get("alert_id"),
+        "verdict": trace.get("verdict"),
+        "severity": outcome.get("severity"),
+        "confidence": outcome.get("confidence"),
+        "engine": trace.get("engine"),
+        "hypothesis": outcome.get("hypothesis"),
+        "actions": outcome.get("actions"),
+        "evidence_refs": outcome.get("evidence_refs"),
+        "steps": [{"step": s["step"], "action": s["action"], "thought": s.get("thought")}
+                  for s in trace.get("steps", [])],
+        "injection_suspected": trace.get("injection_suspected"),
+        "fallback_reason": trace.get("fallback_reason"),
+        "seal": (trace.get("seal") or {}).get("seal_path"),
+    }
+    if args.trace_out:
+        os.makedirs(os.path.dirname(args.trace_out) or ".", exist_ok=True)
+        with open(args.trace_out, "w", encoding="utf-8") as f:
+            json.dump(trace, f, ensure_ascii=False, indent=2)
+        payload["trace_path"] = args.trace_out
+    _dump(payload)
+    return 0 if trace.get("verdict") else 4
+
+
 def cmd_triage(args) -> int:
     from_stdin = args.alert == "-"
     source = sys.stdin.read() if from_stdin else args.alert
@@ -417,6 +472,16 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("--keys-file", default=None, help="信任锚 json，默认用仓库根 trusted_keys.json（如存在）")
     d.add_argument("--llm", action="store_true")
     d.set_defaults(func=cmd_demo)
+
+    ag = sub.add_parser("agent", help="LLM 自主分诊：模型自选工具取证、自主判定并盖章（需可用的模型服务）")
+    ag.add_argument("alert", help="告警 JSON 路径；用 - 从 stdin 读")
+    ag.add_argument("--format", default="auto", help="auto/generic/splunk/sentinel/wazuh")
+    ag.add_argument("--steps", type=int, default=7, help="最大工具调用步数，默认 7")
+    ag.add_argument("-k", "--key", default=None, help="用于盖章的 ed25519 私钥；不给则只判定不盖章")
+    ag.add_argument("--out-dir", default="evidence/agent_lab/runs/seals", help="凭证输出目录")
+    ag.add_argument("--trace-out", default=None, help="把完整决策轨迹写入指定 JSON")
+    ag.add_argument("--verbose", action="store_true")
+    ag.set_defaults(func=cmd_agent)
 
     # -- trust：信任锚治理（轮换 / 吊销 / 体检）--------------------------------
     tr = sub.add_parser("trust", help="信任锚治理：查看、登记、轮换、吊销")

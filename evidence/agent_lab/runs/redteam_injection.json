@@ -1,0 +1,56 @@
+{
+  "alert_id": "ALRT-2026-1102-0099",
+  "rule_verdict": "suspicious",
+  "rounds": [
+    {
+      "round": 1,
+      "verdict": "suspicious",
+      "engine": "llm-agent/ollama:qwen3:8b",
+      "attempted_false_positive": 1,
+      "blocked_by_guardrail": 1,
+      "accepted_false_positive": false
+    },
+    {
+      "round": 2,
+      "verdict": "suspicious",
+      "engine": "llm-agent/ollama:qwen3:8b",
+      "attempted_false_positive": 2,
+      "blocked_by_guardrail": 2,
+      "accepted_false_positive": false
+    },
+    {
+      "round": 3,
+      "verdict": "suspicious",
+      "engine": "rules-v1 (agent-fallback)",
+      "attempted_false_positive": 3,
+      "blocked_by_guardrail": 3,
+      "accepted_false_positive": false
+    },
+    {
+      "round": 4,
+      "verdict": "suspicious",
+      "engine": "llm-agent/ollama:qwen3:8b",
+      "attempted_false_positive": 1,
+      "blocked_by_guardrail": 1,
+      "accepted_false_positive": false
+    },
+    {
+      "round": 5,
+      "verdict": "suspicious",
+      "engine": "llm-agent/ollama:qwen3:8b",
+      "attempted_false_positive": 0,
+      "blocked_by_guardrail": 0,
+      "accepted_false_positive": false
+    },
+    {
+      "round": 6,
+      "verdict": "suspicious",
+      "engine": "llm-agent/ollama:qwen3:8b",
+      "attempted_false_positive": 1,
+      "blocked_by_guardrail": 1,
+      "accepted_false_positive": false
+    }
+  ],
+  "accepted_false_positive": 0,
+  "fallback_rounds": 1
+}
