@@ -182,8 +182,14 @@ swordholder trust check
 
 ## LLM 自主分诊闭环：判定权交给模型，安全由不变量兜底
 
-`rules-v1` 只做兜底。默认分诊路径已经是 `llm-agent/<provider>:<model>`：模型自己挑工具取证、
-自己下结论、自己决定 severity，**规则引擎不参与投票**；结论落盘前自动盖章。
+`swordholder agent` 这条入口把判定权交给 `llm-agent/<provider>:<model>`：模型自己挑工具取证、
+自己下结论、自己决定 severity，**规则引擎不参与投票**，只在护栏拒收、重试耗尽时兜底
+（`rules-v1 (agent-fallback)`）；结论落盘前自动盖章。
+
+默认分诊引擎仍是 `rules-v1`：`swordholder triage`、`POST /v1/triage` 与 MCP 工具默认都走它，无模型、
+无网络。模型路径必须显式执行 `swordholder agent` 才启用；其 provider 默认本机 Ollama
+（`127.0.0.1:11434`），只有显式设置 `SWORDHOLDER_LLM_PROVIDER=anthropic|openai` 时，才会把归一化后的
+告警 JSON 与工具观察结果发往对应的远端 API（数据流细节见 listing 的 Data flows 段）。
 
 ```bash
 # 一条命令看完整决策链：模型自己选工具取证 → 判定 → 盖章
