@@ -89,7 +89,12 @@ def main() -> int:
             "severity": result.get("severity"),
             "confidence": result.get("confidence"),
             "engine": result.get("engine"),
-            "seal_ok": verdict.get("verdict") == "VALID_UNTRUSTED_KEY",
+            # 演示的目的只是"盖章后自验通过"：VALID 与 VALID_UNTRUSTED_KEY 都表示
+            # 签名与摘要自洽，二者只差在验签方本机是否已把这把公钥加入信任锚。
+            # 本机存在信任锚（如 keys/ 已被 trust add）时返回 VALID，CI 干净环境返回
+            # VALID_UNTRUSTED_KEY，两种都必须判过，否则演示结果随环境漂移。
+            "seal_ok": verdict.get("verdict") in ("VALID", "VALID_UNTRUSTED_KEY"),
+            "seal_trust": verdict.get("trust"),
             "seal_path": sealed["seal_path"],
             "payload_sha256": sealed["payload_sha256"][:16] + "…",
         })
@@ -121,7 +126,8 @@ def main() -> int:
     for r in rows:
         lines.append(
             f"| {r['alert_id']} | {r['asset']} | {r['verdict']} | {r['severity']} | "
-            f"{r['confidence']} | {'VALID' if r['seal_ok'] else 'FAIL'} | `{r['payload_sha256']}` |")
+            f"{r['confidence']} | {'VALID' if r['seal_ok'] else 'FAIL'}"
+            f"{'（' + r['seal_trust'] + '）' if r.get('seal_trust') else ''} | `{r['payload_sha256']}` |")
     lines += [
         "",
         "## 篡改演示",
