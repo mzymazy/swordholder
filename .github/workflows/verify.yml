@@ -11,7 +11,6 @@ on:
 
 jobs:
   verify-proofs:
-  verify-proofs:
     runs-on: ubuntu-latest
     steps:
       - name: 检出代码
@@ -131,7 +130,6 @@ jobs:
   # 既拖慢绿标又制造假红。平台覆盖不减，只是不在每次 push 上消耗队列。
   package-smoke-macos:
     if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
-    continue-on-error: true
     uses: ./.github/workflows/package-smoke.yml
     with:
       os: macos-latest
