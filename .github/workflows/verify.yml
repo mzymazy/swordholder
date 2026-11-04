@@ -136,3 +136,4 @@ jobs:
     with:
       os: macos-latest
       python-version: "3.12"
+      non_blocking: true

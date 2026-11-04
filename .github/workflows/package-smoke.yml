@@ -15,10 +15,17 @@ on:
         description: "Python 版本，如 3.11 / 3.12 / 3.13"
         type: string
         required: true
+      non_blocking:
+        description: "该档失败/被平台取消时是否不拖红整条流水线（如排队拥挤的 macOS）"
+        type: boolean
+        default: false
 
 jobs:
   smoke:
     runs-on: ${{ inputs.os }}
+    # 由调用方决定这一档是否阻塞整体结论：macOS 档传 non_blocking=true，
+    # 即便 runner 排队被平台取消（steps=0）也只算该档失败，不会把整个巡检判红。
+    continue-on-error: ${{ inputs.non_blocking }}
     steps:
       - name: 检出代码
         uses: actions/checkout@v6
