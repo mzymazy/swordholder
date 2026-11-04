@@ -107,8 +107,10 @@ jobs:
               d["bound_total"], d["records_with_response"], d["T1_response_text_hash_ok"]))
           PY
 
-  # 打包件冒烟：证明"pip 装上就能用"，覆盖三平台 × 两 Python 版本。
+  # 打包件冒烟：证明"pip 装上就能用"，覆盖三平台 × 多 Python 版本。
   # 只跑 CPU 可完成的部分（归一 → 分诊 → 盖章 → 验签 → 索引 → HTTP），不需要 GPU / 模型 / 联网。
+  # macOS runner 排队资源紧张、易被平台取消（造成假红），故 macOS 只保留 3.12 一档，
+  # 平台覆盖不减（三平台都在），同时避免整条流水线因 runner 排队被判失败。
   package-smoke:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -116,6 +118,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.11", "3.12", "3.13"]
+        exclude:
+          - os: macos-latest
+            python-version: "3.11"
+          - os: macos-latest
+            python-version: "3.13"
     steps:
       - name: 检出代码
         uses: actions/checkout@v6
