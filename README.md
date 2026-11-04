@@ -186,8 +186,8 @@ swordholder trust check
 自己下结论、自己决定 severity，**规则引擎不参与投票**，只在护栏拒收、重试耗尽时兜底
 （`rules-v1 (agent-fallback)`）；结论落盘前自动盖章。
 
-默认分诊引擎仍是 `rules-v1`：`swordholder triage`、`POST /v1/triage` 与 MCP 工具默认都走它，无模型、
-无网络。模型路径必须显式执行 `swordholder agent` 才启用；其 provider 默认本机 Ollama
+默认分诊引擎仍是 `rules-v1`：`swordholder triage` 与 `POST /v1/triage` 默认走它，无模型、
+无网络。MCP 侧不做分诊：`seal_record` 只对调用方传入的记录盖章签名，不挑引擎、不改判定。模型路径必须显式执行 `swordholder agent` 才启用；其 provider 默认本机 Ollama
 （`127.0.0.1:11434`），只有显式设置 `SWORDHOLDER_LLM_PROVIDER=anthropic|openai` 时，才会把归一化后的
 告警 JSON 与工具观察结果发往对应的远端 API（数据流细节见 listing 的 Data flows 段）。
 
