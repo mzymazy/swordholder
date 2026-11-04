@@ -34,7 +34,7 @@ swordholder --version       # swordholder 0.4.0
 >
 > ```bash
 > pip install -e ".[dev]"
-> pytest -q                   # 61 passed
+> pytest -q                   # 85 passed
 > python mcp_server/selftest.py   # 10/10 通过
 > powershell -File scripts/quickstart.ps1 -SkipInstall   # 4/4 凭证 VALID、17/17 对抗断言、482/482 绑定
 > ```
