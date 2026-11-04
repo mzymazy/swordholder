@@ -15,15 +15,18 @@ on:
       - "tests/**"
       - "pyproject.toml"
   workflow_dispatch:
+  # 每周一 03:00 UTC 全平台巡检（含 macOS 档）
+  schedule:
+    - cron: "0 3 * * 1"
 
 jobs:
   selftest:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    steps:
+    steps: &selftest_steps
       - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
@@ -65,3 +68,12 @@ jobs:
             n=$((n+1))
           done
           test "$n" -eq 4
+
+  # macOS 单独一档，只在每周定时巡检与手动触发时调度：
+  # GitHub 的 macOS runner 排队拥挤，常在数十分钟后被平台取消（steps=0），
+  # 会把整条 run 判成 failure 造成假红。日常 push / PR 不再等 macOS 绿标。
+  selftest-macos:
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    continue-on-error: true
+    runs-on: macos-latest
+    steps: *selftest_steps
