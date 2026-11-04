@@ -24,18 +24,33 @@ $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 Write-Host "== [0/4] 仓库根：$root" -ForegroundColor Cyan
 
-if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
-    throw "未找到 python：请先安装 Python 3.11+ 并加入 PATH"
+# 解释器选择：优先仓库内 venv（避免 "PATH 里的 python 没装 cryptography" 这类环境错配），
+# 其次才回落到 PATH 的 python。
+$venvPy = Join-Path $root ".venv\Scripts\python.exe"
+if (Test-Path $venvPy) {
+    $pyExe = $venvPy
+} elseif (Get-Command python -ErrorAction SilentlyContinue) {
+    $pyExe = "python"
+} else {
+    throw "未找到 python：请先安装 Python 3.11+ 并加入 PATH，或在仓库根创建 .venv"
 }
-$ver = (python -c "import sys;print(sys.version.split()[0])")
-Write-Host "    Python $ver"
+$ver = (& $pyExe -c "import sys;print(sys.version.split()[0])")
+Write-Host "    Python $ver  ($pyExe)"
+
+# 依赖预检：缺 cryptography 时给出明确提示，而不是等到验签阶段才失败。
+& $pyExe -c "import cryptography,yaml" 2>$null
+if ($LASTEXITCODE -ne 0) {
+    if ($SkipInstall) {
+        throw "当前解释器缺 cryptography/pyyaml（$pyExe）。去掉 -SkipInstall 重跑，或先执行：& '$pyExe' -m pip install -r requirements.txt"
+    }
+}
 
 # ---------------------------------------------------------------- 1) 依赖
 if ($SkipInstall) {
     Write-Host "== [1/4] 跳过依赖安装（-SkipInstall）" -ForegroundColor DarkGray
 } else {
     Write-Host "== [1/4] 安装核心依赖（requirements.txt）" -ForegroundColor Cyan
-    python -m pip install -r requirements.txt
+    & $pyExe -m pip install -r requirements.txt
     if ($LASTEXITCODE -ne 0) { throw "依赖安装失败（exit=$LASTEXITCODE）" }
 }
 
@@ -49,7 +64,7 @@ $proofs = @(
 )
 foreach ($p in $proofs) {
     if (-not (Test-Path $p)) { throw "缺少凭证文件：$p" }
-    $out = (python verify_proof.py $p --trusted-keys trusted_keys.json --max-age-days 365) -join "`n"
+    $out = (& $pyExe verify_proof.py $p --trusted-keys trusted_keys.json --max-age-days 365) -join "`n"
     if ($LASTEXITCODE -ne 0) { throw "凭证校验失败（exit=$LASTEXITCODE）：$p`n$out" }
     $last = ($out.Trim() -split "`n" | Select-Object -Last 1).Trim()
     Write-Host ("   {0,-46} {1}" -f (Split-Path -Leaf $p), $last)
@@ -59,12 +74,12 @@ Write-Host "   凭证自检：4/4 VALID" -ForegroundColor Green
 
 # ------------------------------------------------ 3) 验证器对抗自测 17/17
 Write-Host "== [3/4] 验证器对抗自测（期望 17/17 PASS）" -ForegroundColor Cyan
-python evidence/adversarial_verifier_test.py
+& $pyExe evidence/adversarial_verifier_test.py
 if ($LASTEXITCODE -ne 0) { throw "对抗自测未全通过（exit=$LASTEXITCODE）" }
 
 # ---------------------------------------------------- 4) 绑定审计 482/482
 Write-Host "== [4/4] 评测记录 <-> 工件绑定审计（期望 482/482）" -ForegroundColor Cyan
-python evidence/verify_artifact_binding.py
+& $pyExe evidence/verify_artifact_binding.py
 if ($LASTEXITCODE -ne 0) { throw "绑定审计未通过（exit=$LASTEXITCODE）" }
 
 Write-Host ""

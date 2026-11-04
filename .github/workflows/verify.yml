@@ -64,7 +64,7 @@ jobs:
           grep -q "baseline 30/47" README.md
           grep -q "45/47" README.md
           # 测试数必须与 README 声称一致（曾出现文档写 61 passed、实际 85 passed 的漂移）
-          grep -q "85 passed" README.md || { echo "README 的 pytest 数字与实际不符"; exit 1; }
+          grep -q "90 passed" README.md || { echo "README 的 pytest 数字与实际不符"; exit 1; }
           if grep -rq -- "v0.4" README.md deliverable/README-reviewer.md deliverable/README-oss.md; then
             echo "文档回退到 v0.4 口径"; exit 1
           fi

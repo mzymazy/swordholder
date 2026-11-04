@@ -34,10 +34,13 @@ swordholder --version       # swordholder 0.4.0
 >
 > ```bash
 > pip install -e ".[dev]"
-> pytest -q                   # 85 passed
+> pytest -q                   # 90 passed
 > python mcp_server/selftest.py   # 10/10 通过
 > powershell -File scripts/quickstart.ps1 -SkipInstall   # 4/4 凭证 VALID、17/17 对抗断言、482/482 绑定
 > ```
+>
+> 注意：`verify_proof.py` 需要 `cryptography`。**环境里没装库时它会报 `INVALID E_CRYPTO_UNAVAILABLE`
+> 并以退出码 2 结束**——这表示「环境未就绪」，不等于凭证被伪造（凭证真伪问题才报 `E_BAD_SIGNATURE`）。
 
 ## 三条命令看到它在干什么
 

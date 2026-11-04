@@ -29,7 +29,14 @@
 
 输出：VALID 或 INVALID + 失败原因码（E_MISSING_HEADER / E_MISSING_EVIDENCE / E_BAD_EVIDENCE /
       E_BAD_MAP_REF / E_BAD_SIGNATURE / E_UNTRUSTED_KEY / E_STALE_TIMESTAMP / E_UNKNOWN_ALG /
-      E_DUPLICATE_KEY / E_YAML_REQUIRED / E_BAD_TIMESTAMP / E_BINDING_MISMATCH）
+      E_DUPLICATE_KEY / E_YAML_REQUIRED / E_BAD_TIMESTAMP / E_BINDING_MISMATCH / E_BAD_YAML /
+      E_CRYPTO_UNAVAILABLE）
+
+  v0.5.1 归因修正（fail-closed 语义不变，只修"错在谁"）：
+    - 缺 cryptography 库时不再报 E_BAD_SIGNATURE（那是"签名被伪造/篡改"的指控），改报
+      E_CRYPTO_UNAVAILABLE（环境未装依赖），退出码 2；否则评审人/用户会把"环境没装库"
+      误读成"这个项目的凭证是假的"。
+    - YAML 解析抛异常时不再报 E_BAD_SIGNATURE，改报 E_BAD_YAML（文件本身不可解析）。
 
 用法:
     python verify_proof.py [proofs/deterrence_proof_combined_ed25519.yaml] [--demo] \
@@ -310,7 +317,7 @@ def verify(path: str, allow_demo: bool = False,
     except DuplicateKeyError:
         return "INVALID E_DUPLICATE_KEY"
     except Exception:
-        return "INVALID E_BAD_SIGNATURE"
+        return "INVALID E_BAD_YAML"
     if not isinstance(data, dict) or not data:
         return "INVALID E_MISSING_HEADER"
 
@@ -423,6 +430,10 @@ def verify(path: str, allow_demo: bool = False,
                 trusted = load_trusted_keys(trusted_keys_path)
                 if not trust_anchor_match(pub_hex, trusted):
                     failures.append("E_UNTRUSTED_KEY")
+                elif not HAS_CRYPTO:
+                    # 环境未装 cryptography：无法验签 ≠ 签名无效。单列环境错误，
+                    # 避免把"没装库"误报成"凭证被伪造"（fail-closed 不变：仍不判 VALID）。
+                    failures.append("E_CRYPTO_UNAVAILABLE")
                 elif not verify_ed25519(body, sig_val, pub_hex):
                     failures.append("E_BAD_SIGNATURE")
             elif sig_alg == "sha256-demo":
@@ -460,7 +471,14 @@ def main(argv=None):
                     trusted_keys_path=args.trusted_keys,
                     max_age_days=args.max_age_days, base_dir=args.base_dir)
     print(f"[verify_proof {VERSION}] {os.path.basename(args.proof)} -> {result}")
-    return 0 if result.startswith("VALID") else 1
+    if result.startswith("VALID"):
+        return 0
+    # 环境类失败（缺依赖/缺库）与"凭证本身不合格"分开：前者退出码 2，后者 1。
+    if "E_CRYPTO_UNAVAILABLE" in result or "E_YAML_REQUIRED" in result:
+        print("[hint] 属环境问题而非凭证问题：pip install cryptography pyyaml 后重跑",
+              file=sys.stderr)
+        return 2
+    return 1
 
 
 if __name__ == "__main__":
