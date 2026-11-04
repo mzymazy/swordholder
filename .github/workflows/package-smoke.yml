@@ -1,0 +1,158 @@
+name: package-smoke
+
+# 打包件冒烟的可复用实现：证明"pip 装上就能用"
+# （归一 → 分诊 → 盖章 → 验签 → 索引 → HTTP），只跑 CPU 可完成的部分，不需要 GPU / 模型 / 联网。
+# 由 verify.yml 按 平台 × Python 版本 矩阵调用，避免三个平台把同样步骤各写一遍。
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "runner 标签，如 ubuntu-latest / windows-latest / macos-latest"
+        type: string
+        required: true
+      python-version:
+        description: "Python 版本，如 3.11 / 3.12 / 3.13"
+        type: string
+        required: true
+
+jobs:
+  smoke:
+    runs-on: ${{ inputs.os }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v6
+
+      - name: 配置 Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: pip
+
+      - name: 以包的形式安装（pip install -e .）
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install pytest
+
+      - name: 单元与集成测试（核心 / 归一 / HTTP / CLI 契约）
+        run: python -m pytest -q
+
+      - name: CLI + HTTP 端到端冒烟
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d)"
+          swordholder --version
+          swordholder keygen --out "$work/keys" > /dev/null
+
+          cat > "$work/alert.json" <<'JSON'
+          {
+            "alert_id": "CI-SMOKE-0001",
+            "title": "CI runner outbound to unregistered ASN",
+            "asset": "build-runner-09",
+            "severity": "high",
+            "signal": "CI pipeline token reused from unexpected ASN",
+            "tags": ["CredentialAccess"]
+          }
+          JSON
+
+          swordholder triage "$work/alert.json" --seal \
+            -k "$work/keys/swordholder_ed25519_private.pem" --db "$work/index.db" > "$work/out.json"
+
+          python - "$work/out.json" <<'PY'
+          import json, sys
+          d = json.load(open(sys.argv[1], encoding="utf-8"))
+          assert d["verdict"] in {"true_positive", "suspicious", "false_positive"}, d
+          assert d["payload_sha256"] and d["seal"], d
+          assert d["indexed"] is True, d
+          print("triage ok:", d["alert_id"], d["verdict"], d["severity"])
+          PY
+
+          swordholder query --db "$work/index.db" --limit 5
+
+          # 信任治理冒烟：轮换后历史凭证仍 VALID，停用旧锚只影响后续签发，吊销即时生效
+          python - "$work" <<'PY'
+          import json, os, subprocess, sys
+
+          sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+          sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+          work = sys.argv[1]
+
+          def cli(*args):
+              p = subprocess.run(["swordholder", *args], capture_output=True,
+                                 text=True, encoding="utf-8", errors="replace")
+              return p.returncode, p.stdout, p.stderr
+
+          def must(*args):
+              rc, out, err = cli(*args)
+              if rc != 0:
+                  raise SystemExit("FAILED rc=%d: %s\n%s\n%s" % (rc, " ".join(args), out, err))
+              return out
+
+          indexed = json.load(open(os.path.join(work, "out.json"), encoding="utf-8"))
+          seal = indexed["seal"]
+          if not os.path.isabs(seal):
+              seal = os.path.join(os.getcwd(), seal)
+          assert os.path.exists(seal), seal
+
+          trust = os.path.join(work, "trusted.json")
+          keys_a = os.path.join(work, "keys", "swordholder_ed25519_public.pem")
+          keys_b = os.path.join(work, "keys2", "swordholder_ed25519_public.pem")
+
+          def verify():
+              rc, out, err = cli("verify", seal, "--keys", trust)
+              try:
+                  return json.loads(out)
+              except Exception:
+                  raise SystemExit("verify 未返回 JSON rc=%d: %s %s" % (rc, out, err))
+
+          must("trust", "add", "--keys-file", trust, "--key-id", "k-ci-a", "--pubkey-file", keys_a)
+          v1 = verify()
+
+          must("keygen", "--out", os.path.join(work, "keys2"))
+          must("trust", "add", "--keys-file", trust, "--key-id", "k-ci-b", "--pubkey-file", keys_b)
+          must("trust", "retire", "k-ci-a", "--keys-file", trust, "--replaced-by", "k-ci-b")
+          v2 = verify()
+
+          must("trust", "revoke", seal, "--seal", "--keys-file", trust, "--reason", "ci-smoke")
+          v3 = verify()
+          tr = json.loads(must("trust", "show", "--keys-file", trust, "--json"))
+
+          assert (v1["verdict"], v1["key_status"]) == ("VALID", "active"), v1
+          assert (v2["verdict"], v2["key_status"]) == ("VALID", "retired"), v2
+          assert (v3["verdict"], v3["reason"]) == ("INVALID", "E_SEAL_REVOKED"), v3
+          assert tr["counts"]["total"] == 2, tr
+          assert tr["revoked_seal_count"] == 1, tr
+          print("trust ok: rotated=%s revoked=%s keys=%d" % (v2["key_status"], v3["reason"],
+                                                             tr["counts"]["total"]))
+          PY
+
+          # HTTP 服务：起在回环端口，探活 + 一次分诊调用
+          swordholder serve --port 18081 -k "$work/keys/swordholder_ed25519_private.pem" \
+            --out "$work/seals" --db "$work/index.db" > "$work/serve.log" 2>&1 &
+          serve_pid=$!
+          trap 'kill $serve_pid 2>/dev/null || true' EXIT
+
+          python - "$work/alert.json" <<'PY'
+          import json, sys, time, urllib.request
+          url = "http://127.0.0.1:18081"
+          for _ in range(40):
+              try:
+                  with urllib.request.urlopen(url + "/healthz", timeout=2) as r:
+                      health = json.loads(r.read())
+                  break
+              except Exception:
+                  time.sleep(0.25)
+          else:
+              raise SystemExit("服务未在 10 秒内就绪")
+          assert health["ok"] is True and health["sealing"] is True, health
+
+          payload = open(sys.argv[1], encoding="utf-8").read().encode("utf-8")
+          req = urllib.request.Request(url + "/v1/triage?seal=1", data=payload,
+                                       headers={"Content-Type": "application/json"})
+          body = json.loads(urllib.request.urlopen(req, timeout=10).read())
+          assert body["triage"]["verdict"], body
+          assert body["verification"]["verdict"] == "VALID_UNTRUSTED_KEY", body["verification"]
+          print("http ok:", body["triage"]["verdict"], body["verification"]["verdict"])
+          PY
