@@ -1,0 +1,11 @@
+{
+  "note": "案例库是策略变更的判据基线。任何 digest 变化都必须人工复核后再提交。",
+  "cases": {
+    "c-001.yaml": "eb1c2ee79319b79b0462deb9bb97554b0f940092b92deb1b8d13d1e3b704732a",
+    "c-002.yaml": "c902d4ae0dec1f8329ef87dd7aa9a1fea6ae9897dc2c76656dcc517aebbf14bb",
+    "c-003.yaml": "c592a775aaaf62833a37d4577cd8995cab886b636f25cab9c26e302d89f71071",
+    "c-004.yaml": "a4ab48a5a3607e5e0963b6054840c016eebf02c6e58d6aec822b38dfec3bf7d4",
+    "c-005.yaml": "17bfe6dc58e1fae656bba03a5217aa07a2b655d885b1794247dc4f34e0b73cd6",
+    "c-006.yaml": "18763c40dfde66192d2e3a9bbe86a54d63b8ec21307863092572bc46cb8731d1"
+  }
+}

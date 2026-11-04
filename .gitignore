@@ -39,6 +39,8 @@ agent/.demo_out/
 .tox/
 dist/
 build/
+.venv/
+venv/
 
 # 根目录演示输出与 v2 逐样本复现中间产物（与 artifacts_v3_*/ 同口径：本机留档，不入库）
 .demo_out/

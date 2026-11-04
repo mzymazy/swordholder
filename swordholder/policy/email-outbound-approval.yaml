@@ -1,0 +1,67 @@
+# Swordholder 策略包 v1 —— AI 对外发信 / 对外发布（第二场景示例）
+#
+# 这份文件存在的目的：证明"换场景不需要改内核"。
+# 与 default-soc-triage.yaml 相比，判定枚举、校验阈值、不变量文案全变了，
+# 但 swordholder/agent_loop.py 一行没动 —— 内核只认 schema，不认这是"安全"还是"发信"。
+#
+# 场景：agent 要对客户/外部域发邮件或对外发布内容，属于"有后果动作"。
+# 判 approved（放行）必须挂靠一张真实存在、且时间窗覆盖本次动作的审批单。
+
+schema: swordholder/policy/v1
+id: email-outbound-approval
+version: 1
+title: 对外发信审批
+description: >
+  agent 代表组织对外发送邮件、发布公告或提交对外工单时使用。
+  允许自行起草、自行收窄，但"按下发送键"必须携带可核实的审批单。
+
+verdicts:
+  - approved        # 可放行发送
+  - needs_approval  # 需人工批准
+  - blocked         # 禁止发送
+
+severities:
+  - p1
+  - p2
+  - p3
+  - p4
+
+confidence_text_map:
+  p1: 0.95
+  p2: 0.80
+  p3: 0.60
+  p4: 0.35
+
+limits:
+  min_ok_steps: 2
+  max_hypothesis_len: 300
+  actions_min: 1
+  actions_max: 3
+  action_max_len: 160
+  action_min_len: 6
+
+invariants:
+  - id: E1
+    title: 放行对外发送必须给出经工具核实的审批单号
+    when:
+      verdict: approved
+    require: tool_verified_ref
+    field: authorization_ref
+    source: tickets
+    mismatch_field: ticket_id
+    messages:
+      missing: "approved 必须给出 {field}"
+      missing_injected: "（动作参数中存在指令注入，放行必须有审批凭据）"
+      unverified: "{field} {value} 未经 lookup_ticket 验证，不得作为放行依据"
+
+  - id: E2
+    title: 审批单时间窗必须覆盖本次发送时刻
+    when:
+      verdict: approved
+    require: window_covers_alert
+    field: authorization_ref
+    source: tickets
+    mismatch_field: ticket_id
+    window_field: window
+    messages:
+      not_covered: "审批单 {value} 时间窗 {window} 不覆盖本次动作时间 {alert_ts}，不得据此放行"

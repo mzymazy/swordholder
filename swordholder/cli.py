@@ -19,7 +19,7 @@ import os
 import re
 import sys
 
-from . import __version__, core, rules
+from . import __version__, core, policy_loader, rules
 from .alert import AlertError
 
 DEFAULT_TRUST_HINT = "trusted_keys.json"
@@ -404,6 +404,53 @@ def cmd_demo(args) -> int:
     return 0 if ok else 1
 
 
+def cmd_policy_list(args) -> int:
+    rows = policy_loader.list_builtin()
+    if getattr(args, "json", False):
+        _dump([{"file": n, "id": i, "title": t} for n, i, t in rows])
+        return 0
+    print(f"内置策略包目录：{policy_loader.POLICY_DIR}\n")
+    print(f"{'file':<34}{'id':<28}title")
+    print("-" * 90)
+    for n, i, t in rows:
+        print(f"{n:<34}{i:<28}{t}")
+    print(f"\n当前生效：{policy_loader.resolve_path(getattr(args, 'path', None))}")
+    return 0
+
+
+def cmd_policy_show(args) -> int:
+    try:
+        p = policy_loader.load(getattr(args, "path", None))
+    except policy_loader.PolicyError as e:
+        print(f"策略不可用（按失败即拒收处理）：{e}")
+        return 2
+    if getattr(args, "json", False):
+        _dump(p)
+        return 0
+    print(f"策略包 {p['id']} v{p.get('version')} —— {p.get('title', '')}")
+    print(f"路径：{policy_loader.resolve_path(getattr(args, 'path', None))}")
+    print(f"\n判定枚举：{', '.join(p['verdicts'])}")
+    print(f"严重度：  {', '.join(p['severities'])}")
+    lim = p["limits"]
+    print(f"\n阈值：最少取证步数 {lim['min_ok_steps']}；actions {lim['actions_min']}-{lim['actions_max']} 条；"
+          f"hypothesis ≤ {lim['max_hypothesis_len']} 字")
+    print(f"\n不变量（{len(p['invariants'])} 条，命中即拒收）：")
+    for inv in p["invariants"]:
+        print(f"  [{inv['id']}] 当 verdict = {inv['when']['verdict']} → 要求 {inv['require']}（字段 {inv['field']}）")
+        print(f"        {inv.get('title', '')}")
+    return 0
+
+
+def cmd_policy_check(args) -> int:
+    try:
+        p = policy_loader.load(args.path)
+    except policy_loader.PolicyError as e:
+        print(f"不合法：{e}")
+        return 2
+    print(f"合法：{p['id']} v{p.get('version')}，{len(p['invariants'])} 条不变量")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="swordholder", description="给结论盖章，让任何人能验签")
     p.add_argument("--version", action="version", version=f"swordholder {__version__}")
@@ -480,8 +527,28 @@ def build_parser() -> argparse.ArgumentParser:
     ag.add_argument("-k", "--key", default=None, help="用于盖章的 ed25519 私钥；不给则只判定不盖章")
     ag.add_argument("--out-dir", default="evidence/agent_lab/runs/seals", help="凭证输出目录")
     ag.add_argument("--trace-out", default=None, help="把完整决策轨迹写入指定 JSON")
+    ag.add_argument("--policy", default=None,
+                    help="策略包 YAML 路径（默认取 $SWORDHOLDER_POLICY 或内置 default-soc-triage.yaml）")
     ag.add_argument("--verbose", action="store_true")
     ag.set_defaults(func=cmd_agent)
+
+    # -- policy：判定规则外置治理 -----------------------------------------------
+    po = sub.add_parser("policy", help="判定策略包：列出、查看、校验（判定规则不在代码里）")
+    pos = po.add_subparsers(dest="policy_cmd", required=True)
+
+    p_ls = pos.add_parser("list", help="列出内置策略包与当前生效项")
+    p_ls.add_argument("--path", default=None, help="指定生效策略，仅用于回显")
+    p_ls.add_argument("--json", action="store_true")
+    p_ls.set_defaults(func=cmd_policy_list)
+
+    p_sh = pos.add_parser("show", help="显示策略包内容（判定枚举 / 阈值 / 不变量）")
+    p_sh.add_argument("--path", default=None, help="策略 YAML 路径；默认当前生效项")
+    p_sh.add_argument("--json", action="store_true")
+    p_sh.set_defaults(func=cmd_policy_show)
+
+    p_ck = pos.add_parser("check", help="校验一个策略文件是否合法（改完先在本地过这一关）")
+    p_ck.add_argument("path")
+    p_ck.set_defaults(func=cmd_policy_check)
 
     # -- trust：信任锚治理（轮换 / 吊销 / 体检）--------------------------------
     tr = sub.add_parser("trust", help="信任锚治理：查看、登记、轮换、吊销")

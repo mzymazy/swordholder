@@ -17,7 +17,34 @@ AIGC:
 
 ---
 
-## [Unreleased] — 工程化：CI 运行时与合规标识守卫
+## [Unreleased] — 判定策略外置：内核不含领域知识（0.5.0）
+
+把"什么样的结论算合法"从 Python 分支里抽成声明式 YAML。内核退化成执行器，换场景不用改代码。
+
+### 新增（Added）
+
+- `swordholder/policy/`：内置策略包。`default-soc-triage.yaml`（SOC 告警分诊，**与 0.4.0 硬编码规则等价**）、`email-outbound-approval.yaml`（对外发信审批，证明换场景不改内核）。
+- `swordholder/policy_loader.py`：策略加载与校验。`schema: swordholder/policy/v1`，六段必需（`schema`/`id`/`verdicts`/`severities`/`limits`/`invariants`）；取值优先级 `--policy` > `$SWORDHOLDER_POLICY` > 内置默认；任何校验失败抛 `PolicyError`。
+- `cases/`：**判据案例库**，6 条人工签名基线（C-001 ~ C-006），含"该放行"与"该拒收"两侧——只守拒收不守放行，策略会一路收紧到不可用。
+- `scripts/regress_policy.py`：**策略变更门禁**。校验案例库 sha256 完整性（`cases/manifest.json`）+ 逐条比对期望行为；退出码 0 全过 / 1 行为不符 / 2 基线被改动。
+- `swordholder policy` 子命令组：`list` / `show` / `check`。`show` 输出判定枚举、阈值与不变量，**安全评审不需要读 Python**。
+- `docs/policy.md`：策略层结构、不变量写法、fail-closed 语义、变更流程与诚实边界。
+
+### 变更（Changed）
+
+- `agent_loop.guardrail()` 增加 `policy` 参数：结构性校验与阈值全部读策略包，不再硬编码 `I1`/`I2` 与 `min_ok_steps`。策略不可用即拒收（fail-closed）。
+- `agent_loop.run_agent()` 新增 `policy_path` 参数；策略加载失败时**不调用模型、不产出判定**，`fallback_reason` 记 `policy-error:*` 并交规则层兜底。
+- 凭证 `agent` 段新增 `policy: {id, version}`，`guardrail_invariants` 改为按生效策略生成——事后可追溯"这条结论当时按哪一版规则判的"。
+- `swordholder agent --policy <path>` 支持按次指定策略。
+- 版本号 `0.4.0` → `0.5.0`；`package-data` 增加 `policy/*.yaml`，确保 `pip install` 后内置策略包可用。
+
+### 不变（Unchanged）
+
+- 默认策略下的判定行为与 0.4.0 完全一致：原有 69 项测试全绿未改，新增 16 项覆盖策略层、门禁与版本一致性，合计 **85 项通过**。
+
+---
+
+## [Unreleased-0.4.x] — 工程化：CI 运行时与合规标识守卫
 
 ### 变更（Changed）
 

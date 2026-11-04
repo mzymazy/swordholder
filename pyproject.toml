@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "swordholder"
-version = "0.4.0"
+version = "0.5.0"
 description = "给 AI 结论盖章：把告警分诊结论封成可离线独立验签的 ed25519 凭证，可接入 SOC / SOAR / MCP"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -36,7 +36,7 @@ Source = "https://github.com/mzymazy/swordholder"
 packages = ["swordholder", "mcp_server"]
 
 [tool.setuptools.package-data]
-swordholder = ["samples/*.json", "alert.schema.json"]
+swordholder = ["samples/*.json", "alert.schema.json", "policy/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -107,6 +107,19 @@ python verify_proof.py proofs\deterrence_proof_combined_ed25519.yaml --trusted-k
 
 前置：Windows + Python 3.11（`pip install requests cryptography`）+ Ollama（`127.0.0.1:11434`，模型 `qwen3:8b`）；LoRA 训练见 `evidence/train_lora_v62_memory.py`（记忆增强样本 `evidence/swordholder_lora_train_v62_memory.jsonl`，4bit 基座 `models/qwen3-8b-bnb-4bit`）。
 
+### 7.1 现场演示的离线兜底（断网 / 模型没起也能演）
+
+上面的评测与出证需要本机模型在跑。评审现场网络或算力抖动时，改用回放：模型推理段换成已落盘的真实 trace，
+**盖章与验签仍是当前机器实时计算**，评委可当场拿 `.seal.json` 自己验。
+
+```powershell
+python scripts\demo_pitch_replay.py --list        # 列出可回放存证与案卷
+python scripts\demo_pitch_replay.py --fast        # 三案全回放，逐案当场验签
+python scripts\demo_pitch_replay.py --verify-all  # 只批量验签，退出码 0 才可上会
+```
+
+预期输出：三案均 `结果：VALID`，末尾 `全部 seal 验签通过：演示可上会。`
+
 ## 八、局限与下一步（诚实声明，v3 已实证）
 
 1. **逐字复述依赖上下文通道**：权重态 rec 1/6（过度戒备 / 编造错误文本）；v3 多次采样显示组合态 recitation 仅 0.47（rec-03/04/06 公理记忆漂移），下一步增加公理原文训练样本重复率、epoch 提至 5-8，或尝试全参 SFT（16GB 显存吃紧，4bit QLoRA 为当前可达最高权重级注入）。

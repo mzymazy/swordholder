@@ -42,6 +42,8 @@ AIGC:
 |---|---|
 | [architecture.md](architecture.md) | 架构与数据流：公理注入 → 评测 → 工件 → 聚合 → 出证 → 验证 → CI，逐环给出文件与命令 |
 | [proof-issuance.md](proof-issuance.md) | 威慑凭证的结构、验证流程、错误码表，以及"自签 → 被拒 → 自验通过"的实操四步 |
+| [policy.md](policy.md) | 判定策略层：规则为何从代码挪进 YAML、不变量写法、fail-closed 语义、改策略要走什么门禁 |
+| [../cases/README.md](../cases/README.md) | 判据案例库：6 条人工签名基线（含"该放行"一侧），改策略的验收依据 |
 | [screenshots.md](screenshots.md) | README 中每张运行截图的来源命令、运行环境与预期关键行 |
 | [images/](images/) | 架构图与关键界面截图（PNG，供 README 与文档引用） |
 

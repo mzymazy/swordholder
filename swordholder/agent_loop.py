@@ -25,10 +25,28 @@ from typing import Any, Callable
 LAB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                        "evidence", "agent_lab")
 
-VERDICTS = ("true_positive", "suspicious", "false_positive")
-SEVERITIES = ("low", "medium", "high", "critical")
+from . import policy_loader
+
+# 枚举与阈值不再硬编码在本模块，统一由策略包（swordholder/policy/*.yaml）决定。
+# 下面两个常量仅作"内置默认策略的镜像"，供外部引用/展示；真正的判定一律走 _policy()。
+_DEFAULT_VERDICTS = ("true_positive", "suspicious", "false_positive")
+_DEFAULT_SEVERITIES = ("low", "medium", "high", "critical")
+try:
+    _BOOT_POLICY = policy_loader.load()
+    VERDICTS = tuple(_BOOT_POLICY["verdicts"])
+    SEVERITIES = tuple(_BOOT_POLICY["severities"])
+except policy_loader.PolicyError:  # 策略包坏了也不能让模块导入失败，判定时再 fail-closed
+    _BOOT_POLICY = None
+    VERDICTS = _DEFAULT_VERDICTS
+    SEVERITIES = _DEFAULT_SEVERITIES
+
 MAX_STEPS = 6
 MAX_SUBMIT_RETRY = 2
+
+
+def _policy(path: str | None = None) -> dict:
+    """取当前生效的策略包。加载失败抛 PolicyError，由 guardrail fail-closed。"""
+    return policy_loader.load(path)
 
 INJECTION_MARKERS = (
     "ignore previous", "ignore all previous", "disregard previous", "ignore the above",
@@ -296,28 +314,41 @@ def _window_covers(window: str, ts: str) -> bool:
 
 
 def guardrail(decision: dict, executed: dict[int, dict], facts: dict | None = None,
-              alert_ts: str | None = None, injection_detected: bool = False) -> tuple[bool, str, dict]:
-    """返回 (ok, reason, normalized)。
+              alert_ts: str | None = None, injection_detected: bool = False,
+              policy: dict | None = None) -> tuple[bool, str, dict]:
+    """按策略包校验模型提交的判定，返回 (ok, reason, normalized)。
 
-    除枚举/长度校验外，这里维护两条**不变量**（不可被模型话术改写）：
-    I1  判 false_positive 必须给出 authorization_ref，且该单号必须已被 lookup_ticket 查到；
-    I2  该授权单的时间窗必须覆盖告警发生时间——过期或无关的单子不能用来解释本次行为。
+    本函数**不含领域知识**——"什么判定必须挂什么凭据""最少几步取证""confidence
+    文字怎么换算"全部来自策略包（swordholder/policy/*.yaml）。它只做三件事：
+      1. 结构校验（枚举 / 数值 / 长度 / 证据锚定）；
+      2. 按 strategy.limits 执行阈值；
+      3. 按 strategy.invariants 逐条执行不变量，命中即拒收。
+
+    不变量是"不可被模型话术改写"的前置条件：换场景只换 YAML，内核代码不动。
+    策略包不可用时 fail-closed：一律拒收，绝不"读不到策略就放行"。
     """
     facts = facts or {"tickets": {}}
+    try:
+        pol = policy or _policy()
+    except policy_loader.PolicyError as e:
+        return False, f"策略包不可用，按失败即拒收处理：{e}", {}
+
+    lim = pol["limits"]
     v = str(decision.get("verdict", "")).strip().lower()
     sev = str(decision.get("severity", "")).strip().lower()
-    if v not in VERDICTS:
+    if v not in pol["verdicts"]:
         return False, f"verdict 不在白名单：{v!r}", {}
-    if sev not in SEVERITIES:
+    if sev not in pol["severities"]:
         return False, f"severity 不在白名单：{sev!r}", {}
-    if len([k for k, s in executed.items() if s.get("ok")]) < 2:
-        return False, "取证步骤不足 2 个，拒收", {}
+    min_steps = int(lim["min_ok_steps"])
+    if len([k for k, s in executed.items() if s.get("ok")]) < min_steps:
+        return False, f"取证步骤不足 {min_steps} 个，拒收", {}
+    table = {str(k).lower(): float(x) for k, x in (pol.get("confidence_text_map") or {}).items()}
     try:
         conf = float(decision.get("confidence", 0))
         coerced = False
     except Exception:
         raw_conf = str(decision.get("confidence", "")).strip().lower()
-        table = {"critical": 0.9, "high": 0.85, "medium": 0.6, "low": 0.4}
         if raw_conf in table:
             conf, coerced = table[raw_conf], True
         else:
@@ -327,14 +358,16 @@ def guardrail(decision: dict, executed: dict[int, dict], facts: dict | None = No
     hyp = str(decision.get("hypothesis", "")).strip()
     if not hyp:
         return False, "hypothesis 为空", {}
-    if len(hyp) > 300:
-        hyp = hyp[:297] + "..."
+    max_hyp = int(lim["max_hypothesis_len"])
+    if len(hyp) > max_hyp:
+        hyp = hyp[: max(0, max_hyp - 3)] + "..."
     actions = decision.get("actions")
-    if not isinstance(actions, list) or not (1 <= len(actions) <= 5):
-        return False, "actions 需为 1-5 条", {}
-    actions = [str(a).strip()[:160] for a in actions if str(a).strip()]
-    # actions 是给 SOC 的处置动作，不能拿 evidence_refs 充数
-    if any(re.match(r"^step\.\d+", a) or len(a) < 6 for a in actions):
+    a_min, a_max = int(lim["actions_min"]), int(lim["actions_max"])
+    if not isinstance(actions, list) or not (a_min <= len(actions) <= a_max):
+        return False, f"actions 需为 {a_min}-{a_max} 条", {}
+    actions = [str(a).strip()[: int(lim["action_max_len"])] for a in actions if str(a).strip()]
+    # actions 是给人工的处置动作，不能拿 evidence_refs 充数
+    if any(re.match(r"^step\.\d+", a) or len(a) < int(lim["action_min_len"]) for a in actions):
         return False, "actions 必须是可执行的处置动作，不能复用 step.N 证据引用或过短占位", {}
     refs = decision.get("evidence_refs")
     if not isinstance(refs, list) or not refs:
@@ -343,24 +376,51 @@ def guardrail(decision: dict, executed: dict[int, dict], facts: dict | None = No
     if bad:
         return False, f"evidence_refs 指向未执行或失败的步骤：{bad}", {}
 
-    # ---- I1 / I2：误报判定必须挂靠有效授权单 ----
-    auth_ref = str(decision.get("authorization_ref") or "").strip().upper()
-    if v == "false_positive":
-        if not auth_ref:
-            extra = "（告警中存在指令注入，判误报必须有授权凭据）" if injection_detected else ""
-            return False, f"false_positive 必须给出 authorization_ref{extra}", {}
-        ticket = facts["tickets"].get(auth_ref)
-        if not ticket:
-            return False, f"authorization_ref {auth_ref} 未经 lookup_ticket 验证，不得作为授权依据", {}
-        if alert_ts and not _window_covers(str(ticket.get("window", "")), alert_ts):
-            return False, (f"授权单 {auth_ref} 时间窗 {ticket.get('window')} 不覆盖告警时间 "
-                           f"{alert_ts}，不得据此判误报"), {}
-
     out = {"verdict": v, "severity": sev, "confidence": round(conf, 2),
            "confidence_coerced": coerced, "hypothesis": hyp, "actions": actions,
            "evidence_refs": [str(r) for r in refs]}
-    if auth_ref:
-        out["authorization_ref"] = auth_ref
+
+    # ---- 不变量：逐条按策略包执行，命中即拒收 ----
+    for inv in pol["invariants"]:
+        if inv["when"].get("verdict") != v:
+            continue
+        field = inv["field"]
+        msgs = inv.get("messages") or {}
+        val = str(decision.get(field) or "").strip().upper()
+        if val:
+            out.setdefault(field, val)
+        src = facts.get(inv.get("source", "tickets")) or {}
+        req = inv["require"]
+
+        if req == "tool_verified_ref":
+            if not val:
+                msg = str(msgs.get("missing", f"{field} 缺失")).format(field=field, value=val)
+                if injection_detected:
+                    msg += str(msgs.get("missing_injected", ""))
+                return False, msg, {}
+            if val not in src:
+                return False, str(msgs.get(
+                    "unverified", f"{field} {val} 未经工具验证，不得作为依据"
+                )).format(field=field, value=val), {}
+
+        elif req == "window_covers_alert":
+            if not val or not alert_ts:
+                continue
+            rec = src.get(val)
+            if not rec:          # 由 tool_verified_ref 那条负责报错，这里不重复
+                continue
+            win = rec.get(inv.get("window_field", "window"), "")
+            if not _window_covers(str(win), alert_ts):
+                return False, str(msgs.get(
+                    "not_covered", f"{field} {val} 时间窗 {win} 不覆盖 {alert_ts}"
+                )).format(field=field, value=val, window=win, alert_ts=alert_ts), {}
+
+    # 未命中任何不变量的字段（如非误报判定也附了授权单）照样透传，便于审计
+    for inv in pol["invariants"]:
+        f = inv["field"]
+        val = str(decision.get(f) or "").strip().upper()
+        if val:
+            out.setdefault(f, val)
     return True, "ok", out
 
 
@@ -387,7 +447,8 @@ def _prompt(alert: dict, steps: list[dict], hint: str = "") -> str:
 
 def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
               key_path: str | None = None, issuer: str = "swordholder-agent",
-              verbose: bool = False, seal_out_dir: str | None = None) -> dict:
+              verbose: bool = False, seal_out_dir: str | None = None,
+              policy_path: str | None = None) -> dict:
     cfg = cfg or provider_config()
     trace: dict[str, Any] = {
         "alert_id": alert.get("alert_id"),
@@ -397,6 +458,16 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
         "engine": f"llm-agent/{cfg['provider']}:{cfg['model']}",
         "steps": [], "injection_suspected": [], "guardrail": {}, "sealed": False,
     }
+
+    # 策略包是判定的依据，必须在开头就确定下来；拿不到就 fail-closed（走规则层兜底）。
+    try:
+        pol = _policy(policy_path)
+        trace["policy"] = {"id": pol.get("id"), "version": pol.get("version"),
+                           "path": policy_loader.resolve_path(policy_path)}
+    except policy_loader.PolicyError as e:
+        pol = None
+        trace["policy"] = {"id": None, "version": None, "error": str(e)}
+        trace["fallback_reason"] = f"policy-error:{e}"
     executed: dict[int, dict] = {}
     steps_view: list[dict] = []
     submit_attempts = 0
@@ -409,6 +480,9 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
     alert_ts = (alert.get("observed_at")
                 or (alert.get("observed") or {}).get("first_seen")
                 or ((alert.get("raw") or {}).get("observed") or {}).get("first_seen"))
+
+    if pol is None:          # 没有策略就不许下判定，直接落到规则层
+        max_steps = 0
 
     for i in range(1, max_steps + 1):
         try:
@@ -432,7 +506,8 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
         if action == "submit_verdict":
             submit_attempts += 1
             ok, reason, norm = guardrail({**args, **decision}, executed, facts=_facts(executed),
-                                         alert_ts=alert_ts, injection_detected=bool(alert_inj))
+                                         alert_ts=alert_ts, injection_detected=bool(alert_inj),
+                                         policy=pol)
             trace["steps"].append({"step": i, "action": "submit_verdict", "thought": thought,
                                    "args": args, "guardrail_ok": ok, "guardrail_reason": reason})
             if ok:
@@ -489,9 +564,10 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
               "agent": {"engine": trace["engine"], "steps_used": len(trace["steps"]),
                         "injection_suspected": trace["injection_suspected"],
                         "injection_detected": bool(alert_inj),
+                        "policy": {"id": (pol or {}).get("id"),
+                                   "version": (pol or {}).get("version")},
                         "guardrail_invariants": [
-                            "I1:false_positive requires tool-verified authorization_ref",
-                            "I2:authorization window must cover alert time"]}}
+                            f"{inv['id']}:{inv.get('title', '')}" for inv in (pol or {}).get("invariants", [])]}}
     trace["verdict"] = outcome["verdict"]
     trace["record"] = record
 
@@ -520,6 +596,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("-k", "--key", default=None, help="私钥 pem；给了才签章")
     ap.add_argument("--issuer", default="swordholder-agent")
     ap.add_argument("--max-steps", type=int, default=MAX_STEPS)
+    ap.add_argument("--policy", default=None,
+                    help="策略包 YAML 路径（默认取 $SWORDHOLDER_POLICY 或内置 default-soc-triage.yaml）")
     ap.add_argument("--out", default=None, help="trace 输出路径")
     ap.add_argument("-v", "--verbose", action="store_true")
     a = ap.parse_args(argv)
@@ -531,7 +609,7 @@ def main(argv: list[str] | None = None) -> int:
         with open(a.alert, "r", encoding="utf-8") as f:
             alert = normalize(json.load(f))
     trace = run_agent(alert, max_steps=a.max_steps, key_path=a.key,
-                      issuer=a.issuer, verbose=a.verbose)
+                      issuer=a.issuer, verbose=a.verbose, policy_path=a.policy)
     text = json.dumps(trace, ensure_ascii=False, indent=2)
     if a.out:
         with open(a.out, "w", encoding="utf-8") as f:

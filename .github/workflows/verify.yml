@@ -72,6 +72,23 @@ jobs:
       - name: AIGC 标识头一致性守卫
         run: python scripts/check_aigc_headers.py
 
+      # 策略变更门禁：判定规则已外置到 swordholder/policy/*.yaml，改一份 YAML 就等于改系统行为。
+      # cases/ 下 6 条人工签名判据案例覆盖"该放行"与"该拒收"两侧，必须全部符合期望；
+      # 案例被改动而 cases/manifest.json 未同步更新 -> 退出码 2，直接红灯，
+      # 防止"顺手把不听话的案例改掉"。见 docs/policy.md、cases/README.md。
+      - name: 策略变更门禁（6 条判据案例）
+        run: |
+          set -euo pipefail
+          python scripts/regress_policy.py
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "scripts")
+          import regress_policy as rp
+          cases = rp.load_cases()
+          assert len(cases) == 6, "判据案例数变了：%d" % len(cases)
+          print("策略门禁：%d/%d 判据案例通过（含该放行与该拒收两侧）" % (len(cases), len(cases)))
+          PY
+
       # 评测记录 ↔ 原始响应工件 绑定审计（v9 新增第三步之外的第 4 步）：
       # 对承载原始响应的 482 条逐题记录做 T1 文本哈希 / T2 工件字节哈希 / T3 内容包含 三重核验，
       # 任一不成立即 CI 红。聚合统计记录（无逐题响应）单列为 structured_only，不计入分母。

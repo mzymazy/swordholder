@@ -1,0 +1,23 @@
+id: C-005
+title: 把自家动作当证据引用：必须拒收
+why: evidence_refs 只能指向真实工具返回，不能指向自己提的处置动作，否则等于自证。
+policy: default-soc-triage.yaml
+signed_by: 马梓尧
+signed_at: '2026-11-04'
+input:
+  decision:
+    verdict: true_positive
+    severity: high
+    confidence: 0.88
+    hypothesis: 可疑出站。
+    actions:
+    - 阻断目标 ASN 出站
+    evidence_refs:
+    - actions.0
+  executed_steps: 2
+  facts:
+    tickets: {}
+  alert_ts: '2026-10-20T10:00:00Z'
+expect:
+  ok: false
+  reason_contains: evidence_refs

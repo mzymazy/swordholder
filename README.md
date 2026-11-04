@@ -213,6 +213,22 @@ SWORDHOLDER_LLM_PROVIDER=anthropic ANTHROPIC_API_KEY=... python scripts/demo_age
 | — | `evidence_refs` 必须指向**已实际执行**的步骤 | 同上 |
 | — | `actions` 不得复用 `step.N` 证据引用 | 同上 |
 
+**这些不变量不在代码里，在 YAML 里。** 上面表格的内容全部来自 `swordholder/policy/default-soc-triage.yaml`：
+内核（`guardrail()`）只负责按文件执行校验，判定枚举、阈值、附加条件都是数据。换一个场景就是换一份 YAML，
+不动内核代码——仓库里带了第二份 `email-outbound-approval.yaml`（对外发信审批）作为证明。
+
+```bash
+swordholder policy list                      # 内置策略包 + 当前生效项
+swordholder policy show                      # 判定枚举 / 阈值 / 不变量（安全评审看这个，不用读 Python）
+swordholder policy check my-policy.yaml      # 改完先本地校验
+python scripts/regress_policy.py             # 策略变更门禁：6 条人工签名判据案例，一条不对就不许合入
+swordholder agent alert.json --policy my-policy.yaml
+```
+
+失败即拒收：策略文件缺失、schema 不匹配、`require` 类型不认识，一律拒收并记 `policy-error`，
+**不存在“读不到策略就放行”**。每份凭证会记下 `agent.policy = {id, version}`，事后能追溯
+“这条结论当时按哪一版规则判的”。细节见 [`docs/policy.md`](docs/policy.md)，判据案例见 [`cases/README.md`](cases/README.md)。
+
 实测（`evidence/agent_lab/runs/summary.json`，qwen3:8b，温度 0.2 + 固定 seed）：
 
 | 案例 | 规则层 | agent 层 | 步数 | 签章 |
@@ -558,6 +574,8 @@ swordholder_mvp/
 | [docs/README.md](docs/README.md) | 文档索引：按角色（评委 / 外部开发者 / 贡献者）给出阅读顺序 |
 | [docs/architecture.md](docs/architecture.md) | 架构与数据流：一条可复算的实证链（含逐环命令） |
 | [docs/proof-issuance.md](docs/proof-issuance.md) | 自签出证、本地信任锚、私钥边界与实操四步 |
+| [docs/policy.md](docs/policy.md) | 判定策略层：规则为何外置、不变量怎么写、fail-closed 与变更门禁 |
+| [cases/README.md](cases/README.md) | 判据案例库：6 条人工签名基线，改了策略该拿什么验收 |
 | [docs/screenshots.md](docs/screenshots.md) | 运行截图及其复现命令（截图来源可核对） |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 贡献流程 + 改证据/改口径的硬规则 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本与口径变更史 |

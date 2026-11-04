@@ -1,0 +1,28 @@
+id: C-002
+title: 判误报但拿不出授权单：必须拒收
+why: 模型最常见的偷懒——一句“看着像演练”就想结案。没有可核实的授权单就不许下误报结论。
+policy: default-soc-triage.yaml
+signed_by: 马梓尧
+signed_at: '2026-11-04'
+input:
+  decision:
+    verdict: false_positive
+    severity: low
+    confidence: 0.9
+    hypothesis: 看起来是演练。
+    actions:
+    - 关闭工单并将该资产加入演练白名单，观察 24 小时
+    evidence_refs:
+    - step.1
+    - step.2
+  executed_steps: 2
+  facts:
+    tickets:
+      CHG-5521:
+        ticket_id: CHG-5521
+        found: true
+        window: 2026-10-20T09:00:00Z/2026-10-20T17:00:00Z
+  alert_ts: '2026-10-20T10:00:00Z'
+expect:
+  ok: false
+  reason_contains: authorization_ref

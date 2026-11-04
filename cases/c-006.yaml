@@ -1,0 +1,24 @@
+id: C-006
+title: 判定取值不在策略白名单：必须拒收
+why: 枚举是策略层定义的。换一份策略包，这里合法的值可能就不合法——这正是要外置的原因。
+policy: default-soc-triage.yaml
+signed_by: 马梓尧
+signed_at: '2026-11-04'
+input:
+  decision:
+    verdict: probably_attack
+    severity: high
+    confidence: 0.8
+    hypothesis: 说不太准。
+    actions:
+    - 观察
+    evidence_refs:
+    - step.1
+    - step.2
+  executed_steps: 2
+  facts:
+    tickets: {}
+  alert_ts: '2026-10-20T10:00:00Z'
+expect:
+  ok: false
+  reason_contains: verdict

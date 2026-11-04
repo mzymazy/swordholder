@@ -1,0 +1,73 @@
+# Swordholder 策略包 v1 —— 安全告警分诊（等价于 0.4.0 内核里硬编码的规则）
+#
+# 设计约定：
+#   · 内核（swordholder/agent_loop.py:guardrail）只负责按本文件执行校验，不含任何领域知识；
+#   · 换场景 = 换一份 YAML，不改内核代码；
+#   · 本文件属于"策略层"，允许社区贡献、允许版本化，但改动必须过回归测试才生效。
+
+schema: swordholder/policy/v1
+id: soc-alert-triage
+version: 1
+title: 安全告警分诊
+description: >
+  SOC 告警分诊场景。模型可自由取证，但"判误报"这件事必须挂靠一张
+  真实存在于工单系统、且时间窗覆盖事发时刻的授权单。
+
+# ---------------------------------------------------------------- 判定枚举
+verdicts:
+  - true_positive
+  - suspicious
+  - false_positive
+
+severities:
+  - critical
+  - high
+  - medium
+  - low
+
+# 模型有时把 confidence 写成文字，这里给出换算口径；未命中的文字一律拒收
+confidence_text_map:
+  critical: 0.90
+  high: 0.85
+  medium: 0.60
+  low: 0.40
+
+# ---------------------------------------------------------------- 结构性校验
+limits:
+  min_ok_steps: 2          # 至少两个成功取证步骤，防止"零取证直接下结论"
+  max_hypothesis_len: 300  # 判定依据长度上限，超长截断
+  actions_min: 1
+  actions_max: 5
+  action_max_len: 160
+  action_min_len: 6        # 低于此长度视为占位符
+
+# ---------------------------------------------------------------- 不变量
+# 每条不变量 = 某个 verdict 下的附加前置条件。内核只认 require 的类型，不认业务含义。
+# 支持的 require 类型：
+#   tool_verified_ref     -- 字段值必须出现在某工具的真实返回里（facts[source] 命中）
+#   window_covers_alert   -- 该字段指向的记录，其 window 必须覆盖告警发生时刻
+invariants:
+  - id: I1
+    title: 判误报必须给出经工具核实的授权单号
+    when:
+      verdict: false_positive
+    require: tool_verified_ref
+    field: authorization_ref
+    source: tickets            # facts["tickets"] 的来源
+    mismatch_field: ticket_id
+    messages:
+      missing: "false_positive 必须给出 {field}"
+      missing_injected: "（告警中存在指令注入，判误报必须有授权凭据）"
+      unverified: "{field} {value} 未经 lookup_ticket 验证，不得作为授权依据"
+
+  - id: I2
+    title: 授权单时间窗必须覆盖告警发生时刻
+    when:
+      verdict: false_positive
+    require: window_covers_alert
+    field: authorization_ref
+    source: tickets
+    mismatch_field: ticket_id
+    window_field: window
+    messages:
+      not_covered: "授权单 {value} 时间窗 {window} 不覆盖告警时间 {alert_ts}，不得据此判误报"

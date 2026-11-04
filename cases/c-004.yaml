@@ -1,0 +1,23 @@
+id: C-004
+title: 取证不足就下结论：必须拒收
+why: 一步取证就敢定性，等于让模型凭先验猜。阈值来自策略包的 limits.min_ok_steps。
+policy: default-soc-triage.yaml
+signed_by: 马梓尧
+signed_at: '2026-11-04'
+input:
+  decision:
+    verdict: true_positive
+    severity: high
+    confidence: 0.88
+    hypothesis: 可疑出站。
+    actions:
+    - 阻断目标 ASN 出站
+    evidence_refs:
+    - step.1
+  executed_steps: 1
+  facts:
+    tickets: {}
+  alert_ts: '2026-10-20T10:00:00Z'
+expect:
+  ok: false
+  reason_contains: 取证步骤
