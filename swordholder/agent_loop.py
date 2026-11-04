@@ -25,7 +25,7 @@ from typing import Any, Callable
 LAB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                        "evidence", "agent_lab")
 
-from . import policy_loader
+from . import exit_guard, policy_loader
 
 # 枚举与阈值不再硬编码在本模块，统一由策略包（swordholder/policy/*.yaml）决定。
 # 下面两个常量仅作"内置默认策略的镜像"，供外部引用/展示；真正的判定一律走 _policy()。
@@ -511,6 +511,18 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
             trace["steps"].append({"step": i, "action": "submit_verdict", "thought": thought,
                                    "args": args, "guardrail_ok": ok, "guardrail_reason": reason})
             if ok:
+                # 出口完整性：结论提交本身是一个对外出口，必须过判定点。
+                # 判定失败与 guardrail 拒收同等待遇，不给"结论已成立"的余地。
+                try:
+                    exit_guard.judge("agent:submit_verdict", {**args, **decision},
+                                     basis="policy", policy=pol)
+                except (exit_guard.JudgmentError, exit_guard.ExitIntegrityError) as e:
+                    trace["guardrail"].setdefault("rejected", []).append(f"exit_guard:{e}")
+                    hint = f"判定层拒收：{e}"
+                    if submit_attempts > MAX_SUBMIT_RETRY:
+                        trace["fallback_reason"] = f"exit_guard:{e}"
+                        break
+                    continue
                 outcome = norm
                 break
             hint = reason
@@ -573,13 +585,15 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
 
     if key_path and os.path.exists(key_path):
         try:
-            from .core import seal
+            from . import exit_guard as _eg
             out_path = None
             if seal_out_dir:
                 os.makedirs(seal_out_dir, exist_ok=True)
                 out_path = os.path.join(seal_out_dir,
                                         f"{alert.get('alert_id') or 'alert'}.agent.seal.json")
-            res = seal(record, key_path, issuer, subject=str(alert.get("alert_id") or "alert"),
+            _eg.judge("agent:seal", record, basis="policy", policy=pol)
+            res = _eg.issue_credential(record, key_path, issuer, exit_name="agent:seal",
+                                       subject=str(alert.get("alert_id") or "alert"),
                        out_path=out_path)
             trace["sealed"] = True
             trace["seal"] = {k: res.get(k) for k in ("seal_path", "seal_id", "payload_sha256")

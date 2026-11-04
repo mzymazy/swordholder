@@ -34,8 +34,9 @@ swordholder --version       # swordholder 0.4.0
 >
 > ```bash
 > pip install -e ".[dev]"
-> pytest -q                   # 90 passed
+> pytest -q                   # 117 passed
 > python mcp_server/selftest.py   # 10/10 通过
+> swordholder exits --selftest    # 13/13 必判出口全部取到票据（覆盖率 1.0）
 > powershell -File scripts/quickstart.ps1 -SkipInstall   # 4/4 凭证 VALID、17/17 对抗断言、482/482 绑定
 > ```
 >
@@ -415,6 +416,29 @@ python evidence/verify_artifact_binding.py
 ### 3.6 评测记录 ↔ 原始响应工件 绑定审计（三重核验）
 
 来源：`evidence/artifact_binding_audit.json`（由 `evidence/verify_artifact_binding.py` 生成）。对承载原始响应的 **482 条**逐题记录做三重核验——T1 响应文本哈希、T2 工件文件字节哈希、T3 工件文本以响应原文结尾——**482/482 三项全部成立，未绑定 0 条、内容不一致 0 条**。709 条聚合统计记录（v3 稳定性/鲁棒性/硬样本、xadv）不含逐题响应，如实单列为 `structured_only` 且不计入绑定分母。复现：`python evidence/verify_artifact_binding.py`（退出码 0 即通过）。
+
+### 3.7 出口完整性：always-invoked 的可证伪证据
+
+`reference monitor` 的成立前提是**always invoked**——所有对外结论都必须经过同一个判定点。这句话不能靠自觉，必须能被测试证伪，否则"判定级授权"在语义上退回"事后审计"。
+
+本仓库把出口当登记表管（`swordholder/exit_guard.py` 的 `EXITS`），并用 `tests/test_exit_integrity.py`（27 用例）从四个方向证伪：
+
+| 组 | 断言 | 说明 |
+|---|---|---|
+| A 枚举完整性 | AST 扫描 `cli.py` / `serve.py` / `mcp_server` 的实际入口，与 `EXITS` 双向比对 | 新增子命令/路由/工具而忘了登记，测试直接红 |
+| B 绕过注入 | 11 条：模型给出合理解释但证据不足、结论被改严重性、越权改信任锚、伪造 nonce 重放、跨会话票据串用等 | 每条都必须被判据拒收，不许"看起来合理"就放行 |
+| C 出口清偿 | HTTP `/v1/triage`、MCP `seal_record`、CLI `seal`、Agent `submit_verdict` 各跑一次真链路 | 响应里必须带 `judgment` 字段，调用方能自己核对"这结论被谁判过" |
+| D 签发唯一 | 已签发凭证只能走 `issue_credential` 一条通道 | 绕过它直接造 seal，测试必须发现 |
+
+当前登记 **34 个出口**，其中 **13 个必须过判定**（决策类 + 凭证签发类），21 个只读。复现：
+
+```bash
+pytest -q tests/test_exit_integrity.py     # 27 passed
+swordholder exits --selftest               # 覆盖率 1.0，退出码 3 = 有出口未取到票据
+swordholder exits                          # 人工核对那份清单
+```
+
+这条门禁已挂进 CI（`verify.yml` 的 `exit-integrity` job 与三平台巡检），红了就意味着"结论存在不经判定的路径"，属于阻断级失败。
 
 ---
 

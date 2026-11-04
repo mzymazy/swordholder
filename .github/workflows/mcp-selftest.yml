@@ -43,6 +43,12 @@ jobs:
       - name: Unit tests (seal / verify / triage / fail-closed)
         run: python -m pytest -q
 
+      # 出口完整性：三平台都要跑一遍（路径/大小写差异导致的绕过风险只在具体平台暴露）
+      - name: Exit integrity gate (always invoked)
+        run: |
+          python -m pytest -q tests/test_exit_integrity.py
+          python -m swordholder exits --selftest
+
       - name: CLI smoke test outside the repo (installed entrypoint)
         shell: bash
         run: |

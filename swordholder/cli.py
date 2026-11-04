@@ -19,7 +19,7 @@ import os
 import re
 import sys
 
-from . import __version__, core, policy_loader, rules
+from . import __version__, core, exit_guard, policy_loader, rules
 from .alert import AlertError
 
 DEFAULT_TRUST_HINT = "trusted_keys.json"
@@ -40,6 +40,9 @@ def _open_store(db: str):
 
 def cmd_keygen(args) -> int:
     res = core.keygen(args.out)
+    exit_guard.judge("cli:keygen", {"public_key_hex": res.get("public_key_hex"),
+                                    "public_key_path": res.get("public_key_path")},
+                     basis="attested")
     _dump({"private_key_path": res.get("private_key_path"),
            "public_key_path": res.get("public_key_path"),
            "public_key_hex": res.get("public_key_hex"),
@@ -49,7 +52,25 @@ def cmd_keygen(args) -> int:
 
 def cmd_seal(args) -> int:
     out = args.out or (os.path.splitext(args.record)[0] + ".seal.json")
-    res = core.seal(args.record, args.key, args.issuer, subject=args.subject, out_path=out)
+    try:
+        with open(args.record, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+    except (FileNotFoundError, NotADirectoryError, OSError) as e:
+        _dump({"ok": False, "code": "E_NOT_FOUND", "message": f"无法读取待签记录：{args.record}：{e}"})
+        return 2
+    except json.JSONDecodeError as e:
+        _dump({"ok": False, "code": "E_BAD_JSON", "message": str(e)})
+        return 2
+    try:
+        exit_guard.judge("cli:seal", payload, basis="attested")
+        res = exit_guard.issue_credential(payload, args.key, args.issuer, exit_name="cli:seal",
+                                          subject=args.subject, out_path=out)
+    except (exit_guard.JudgmentError, exit_guard.ExitIntegrityError) as e:
+        _dump({"ok": False, "code": "E_JUDGMENT_DENIED", "message": f"判定未通过，拒绝签发：{e}"})
+        return 3
+    except core.SealError as e:
+        _dump({"ok": False, "code": "E_SEAL_FAILED", "message": str(e)})
+        return 3
     if args.db:
         store = _open_store(args.db)
         store.add_seal(res["seal_path"])
@@ -67,6 +88,7 @@ def cmd_verify(args) -> int:
 
 
 def cmd_agent(args) -> int:
+    exit_guard.touch("cli:agent")
     """LLM 自主分诊：模型自己取证、自己判定，结论自动盖章。"""
     from . import agent_loop
     from . import alert as alert_mod
@@ -146,6 +168,13 @@ def cmd_triage(args) -> int:
         _dump({"ok": False, "code": "E_BAD_JSON", "message": str(e)})
         return 2
 
+    try:
+        exit_guard.judge("cli:triage", result, basis="policy")
+    except (exit_guard.JudgmentError, exit_guard.ExitIntegrityError) as e:
+        _dump({"ok": False, "code": "E_JUDGMENT_DENIED",
+               "message": f"判定未通过，拒绝产出结论：{e}"})
+        return 3
+
     if args.seal:
         if not args.key:
             print("--seal 需要 -k 指定私钥", file=sys.stderr)
@@ -158,8 +187,9 @@ def cmd_triage(args) -> int:
         with open(record_path, "w", encoding="utf-8") as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
         try:
-            sealed = core.seal(result, args.key, "swordholder-triage/" + __version__,
-                               out_path=record_path.replace(".triage.json", ".seal.json"))
+            sealed = exit_guard.issue_credential(
+                result, args.key, "swordholder-triage/" + __version__, exit_name="cli:triage",
+                out_path=record_path.replace(".triage.json", ".seal.json"))
         except core.SealError as e:
             _dump({"ok": False, "code": "E_SEAL_FAILED", "message": str(e),
                    "triage": result, "record_path": record_path})
@@ -270,6 +300,8 @@ def cmd_trust_add(args) -> int:
     if not pub:
         print("必须提供 --pubkey 或 --pubkey-file", file=sys.stderr)
         return 1
+    exit_guard.judge("cli:trust_add", {"pubkey": pub, "key_id": args.key_id},
+                     basis="attested")
     try:
         res = trust.add_key(args.keys_file, pub, key_id=args.key_id,
                             not_before=args.not_before, not_after=args.not_after,
@@ -282,6 +314,7 @@ def cmd_trust_add(args) -> int:
 
 
 def cmd_trust_retire(args) -> int:
+    exit_guard.judge("cli:trust_retire", {"key_id": args.key_id, "replaced_by": args.replaced_by}, basis="attested")
     trust = _trust_mod()
     try:
         res = trust.retire_key(args.keys_file, args.key_id, at=args.at,
@@ -295,6 +328,7 @@ def cmd_trust_retire(args) -> int:
 
 
 def cmd_trust_revoke(args) -> int:
+    exit_guard.judge("cli:trust_revoke", {"target": args.target, "key": bool(args.revoke_key), "seal": bool(args.revoke_seal)}, basis="attested")
     trust = _trust_mod()
     if not args.target:
         print("需要给出 key_id 或 seal_id / seal.json 路径", file=sys.stderr)
@@ -320,6 +354,7 @@ def cmd_trust_revoke(args) -> int:
 
 
 def cmd_trust_restore(args) -> int:
+    exit_guard.judge("cli:trust_restore", {"seal_id": args.seal_id}, basis="attested")
     trust = _trust_mod()
     try:
         res = trust.restore_seal(args.keys_file, args.seal_id)
@@ -327,6 +362,27 @@ def cmd_trust_restore(args) -> int:
         print(f"回滚失败：{e}", file=sys.stderr)
         return 1
     _dump(res)
+    return 0
+
+
+def cmd_exits(args) -> int:
+    """出口登记表与 always-invoked 覆盖率：把"所有出口必经判定"摊开给人看。"""
+    if args.selftest:
+        rep = exit_guard.selftest_all()
+        _dump(rep)
+        return 0 if rep["ok"] else 3
+    rows = [{"exit": n, "kind": s.kind, "port": s.port, "entry": s.entry, "note": s.note}
+            for n, s in sorted(exit_guard.EXITS.items())]
+    if args.json:
+        _dump({"exits": rows, "coverage": exit_guard.coverage_report()})
+        return 0
+    print("%-28s%-12s%-9s%s" % ("EXIT", "KIND", "PORT", "ENTRY"))
+    for r in rows:
+        print("%-28s%-12s%-9s%s" % (r["exit"], r["kind"], r["port"], r["entry"]))
+    mandatory = [r for r in rows if r["kind"] in exit_guard.MANDATORY_KINDS]
+    print("")
+    print("出口合计 %d，其中必须过判定的 %d；只读 %d"
+          % (len(rows), len(mandatory), len(rows) - len(mandatory)))
     return 0
 
 
@@ -374,8 +430,15 @@ def cmd_demo(args) -> int:
         rec = os.path.join(args.out, os.path.splitext(os.path.basename(path))[0] + ".triage.json")
         with open(rec, "w", encoding="utf-8") as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
-        sealed = core.seal(result, key_path, "swordholder-triage/" + __version__,
-                           out_path=rec.replace(".triage.json", ".seal.json"))
+        try:
+            exit_guard.judge("cli:demo", result, basis="policy")
+            sealed = exit_guard.issue_credential(
+                result, key_path, "swordholder-triage/" + __version__, exit_name="cli:demo",
+                out_path=rec.replace(".triage.json", ".seal.json"))
+        except (exit_guard.JudgmentError, exit_guard.ExitIntegrityError, core.SealError) as e:
+            rows.append({"alert_id": result.get("alert_id"), "verdict": result.get("verdict"),
+                         "error": f"exit_guard: {e}"})
+            continue
         verdict = core.verify(sealed["seal_path"], keys_path=args.keys_file)
         rows.append({"alert_id": result.get("alert_id"), "verdict": result.get("verdict"),
                      "severity": result.get("severity"), "confidence": result.get("confidence"),
@@ -495,6 +558,12 @@ def build_parser() -> argparse.ArgumentParser:
     q.add_argument("--limit", type=int, default=20)
     q.add_argument("--json", action="store_true")
     q.set_defaults(func=cmd_query)
+
+    ex = sub.add_parser("exits", help="出口登记表：列出全部对外出口与 always-invoked 覆盖率")
+    ex.add_argument("--json", action="store_true", help="机器可读输出")
+    ex.add_argument("--selftest", action="store_true",
+                    help="对每个必判出口真判一次；覆盖率不到 100% 退出码 3")
+    ex.set_defaults(func=cmd_exits)
 
     sv = sub.add_parser("serve", help="启动 HTTP 服务（triage/seal/verify/index）")
     sv.add_argument("--host", default="127.0.0.1")

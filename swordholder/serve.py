@@ -22,7 +22,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
-from . import __version__, core, rules
+from . import __version__, core, exit_guard, rules
 from .alert import AlertError, normalize
 from .store import Store
 
@@ -123,18 +123,21 @@ def make_handler(cfg: ServerConfig):
             parsed = urlparse(self.path)
             path = parsed.path.rstrip("/") or "/"
             if path == "/healthz":
+                exit_guard.touch("http:/healthz")
                 return self._send(200, {
                     "ok": True, "version": __version__, "sealing": bool(cfg.key_path),
                     "indexed": cfg.store is not None, "engine": "rules-v1",
                     "llm": cfg.use_llm and rules.llm_available(),
                 })
             if path == "/v1/schema":
+                exit_guard.touch("http:/v1/schema")
                 with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
                     return self._send(200, json.load(f))
             if not self._authorized():
                 return self._fail(401, "E_UNAUTHORIZED", "缺少或错误的 Bearer token")
 
             if path == "/v1/trust":
+                exit_guard.touch("http:/v1/trust")
                 from . import trust as _trust
                 info = _trust.summary(cfg.keys_file)
                 info.pop("keys_path", None)
@@ -142,6 +145,7 @@ def make_handler(cfg: ServerConfig):
                 return self._send(200, info)
 
             if path == "/v1/seals":
+                exit_guard.touch("http:/v1/seals")
                 if not cfg.store:
                     return self._fail(400, "E_NO_INDEX", "服务未启用 --db，无法按索引检索")
                 qs = parse_qs(parsed.query)
@@ -157,6 +161,7 @@ def make_handler(cfg: ServerConfig):
 
             m = re.fullmatch(r"/v1/seals/([0-9a-fA-F-]{8,64})", path)
             if m:
+                exit_guard.touch("http:/v1/seals/<seal_id>")
                 if not cfg.store:
                     return self._fail(400, "E_NO_INDEX", "服务未启用 --db")
                 row = cfg.store.get(m.group(1))
@@ -209,10 +214,19 @@ def make_handler(cfg: ServerConfig):
 
             record = core.triage(alert, use_llm=cfg.use_llm)
 
+            # 出口完整性：结论一旦要出这个门，就必须先过判定点。
+            # 判定失败一律 fail-closed（403），不返回"没盖章但可用"的结论。
+            try:
+                judgment = exit_guard.judge("http:/v1/triage", record, basis="policy")
+            except (exit_guard.JudgmentError, exit_guard.ExitIntegrityError) as e:
+                return self._fail(403, "E_JUDGMENT_DENIED", f"判定未通过，拒绝产出结论：{e}")
+
             sealing = cfg.seal and bool(cfg.key_path) and want_seal not in ("0", "false")
             out: dict[str, Any] = {"ok": True, "alert": {k: alert[k] for k in
                                   ("alert_id", "title", "severity", "asset", "source")},
-                                  "triage": record}
+                                  "triage": record,
+                                  # 判定痕迹随结论一起出站：调用方能自己核对"这结论被谁判过"
+                                  "judgment": judgment.to_dict()}
             if not sealing:
                 if cfg.seal and not cfg.key_path:
                     out["seal_note"] = "服务未配置私钥，仅返回结论，未签发凭证"
@@ -234,7 +248,10 @@ def make_handler(cfg: ServerConfig):
             path = os.path.join(cfg.out_dir,
                                 f"{_safe_name(record.get('alert_id'))}-{digest[:12]}.seal.json")
             try:
-                sealed = core.seal(record, cfg.key_path, cfg.issuer, out_path=path)
+                sealed = exit_guard.issue_credential(record, cfg.key_path, cfg.issuer,
+                                                     exit_name="http:/v1/triage", out_path=path)
+            except exit_guard.ExitIntegrityError as e:
+                return self._fail(403, "E_NO_JUDGMENT", f"无判定票据，拒绝签发凭证：{e}")
             except core.SealError as e:
                 return self._fail(500, "E_SEAL_FAILED", str(e))
 
@@ -250,6 +267,7 @@ def make_handler(cfg: ServerConfig):
             return self._send(200, out)
 
         def _verify(self) -> None:
+            exit_guard.touch("http:/v1/verify")
             try:
                 body = self._read_json()
             except ValueError as e:

@@ -82,6 +82,13 @@ def tool_keygen(args: dict) -> dict:
     except Exception:
         pass
     pub_hex = public_hex_from_private(priv)
+    # 生成密钥对 = 授予签发能力，属对外能力变更，须在出口登记表里留一次判定记录。
+    try:
+        from swordholder import exit_guard as _eg
+        _eg.judge("mcp:keygen", {"public_key_hex": pub_hex, "out_dir": out_dir},
+                  basis="attested")
+    except Exception as e:  # 判定失败不得"先生成再说"，直接拒
+        return _err(f"判定未通过，拒绝生成密钥：{e}")
     # 公钥单独落一份 pem：它是可以公开、需要交给对端登记进信任锚的东西，
     # 每次按私钥重算覆盖（幂等），省得用户自己去导出。
     pub_path = os.path.join(out_dir, "swordholder_ed25519_public.pem")
@@ -99,7 +106,8 @@ def tool_keygen(args: dict) -> dict:
     }
 
 
-def tool_seal_record(args: dict) -> dict:
+def _seal_record_impl(args: dict) -> dict:
+    """纯签发实现：不做判定。只允许被 exit_guard.issue_credential 与 tool_seal_record 调用。"""
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
     payload = args.get("payload")
@@ -145,6 +153,30 @@ def tool_seal_record(args: dict) -> dict:
 
     return {"ok": True, "seal_path": out_path, "seal_id": header["seal_id"],
             "payload_sha256": header["payload_sha256"], "public_key_hex": header["public_key_hex"]}
+
+
+def tool_seal_record(args: dict) -> dict:
+    """MCP 侧签发出口：先过判定点，再做签发。判定不通过一律不出凭证。"""
+    from swordholder import exit_guard
+
+    payload = args.get("payload")
+    record_path = args.get("record_path")
+    if payload is None and record_path:
+        with open(record_path, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+    if payload is None:
+        return _err("必须提供 payload（对象）或 record_path")
+
+    try:
+        judgment = exit_guard.judge("mcp:seal_record", payload, basis="attested")
+    except (exit_guard.JudgmentError, exit_guard.ExitIntegrityError) as e:
+        return _err(f"判定未通过，拒绝签发凭证：{e}")
+
+    out = _seal_record_impl(args)
+    if out.get("ok"):
+        # 四个出口对外暴露同一份判定结构（Judgment.to_dict），调用方不用按端口记字段名。
+        out["judgment"] = judgment.to_dict()
+    return out
 
 
 def tool_verify_seal(args: dict) -> dict:
