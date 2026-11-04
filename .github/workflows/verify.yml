@@ -3,6 +3,11 @@ name: verify
 on:
   push:
   pull_request:
+  # 全平台巡检：macOS 档只在定时与手动触发时调度（见 package-smoke 的 if），
+  # 日常 push / PR 不再为排队中的 macOS runner 等绿标。
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
 
 jobs:
   verify-proofs:
@@ -110,12 +115,15 @@ jobs:
   # 打包件冒烟：证明"pip 装上就能用"，覆盖三平台 × 多 Python 版本。
   # 只跑 CPU 可完成的部分（归一 → 分诊 → 盖章 → 验签 → 索引 → HTTP），不需要 GPU / 模型 / 联网。
   # macOS runner 排队资源紧张、易被平台取消（造成假红），故 macOS 只保留 3.12 一档，
-  # 平台覆盖不减（三平台都在），同时避免整条流水线因 runner 排队被判失败。
+  # 且仅在定时巡检与手动触发时调度；日常 push / PR 只跑 Linux + Windows。
   package-smoke:
     runs-on: ${{ matrix.os }}
-    # macOS runner 排队资源紧张，常被平台直接取消（steps=0），造成"什么都没跑"的假红。
-    # 三平台覆盖照旧保留，但 macOS 设为非阻塞：macOS 这一档失败/被取消不再拖红整条
-    # 流水线，其它平台仍按 fail-fast: false 各自独立判定。
+    # macOS 双保险：
+    # 1) if —— macOS 档只在定时巡检（每周一）与手动触发时调度。日常 push / PR 不排 macOS
+    #    runner，避免整条流水线为了等一个排队中的 macOS 档而长时间不出绿标；
+    # 2) continue-on-error —— 即便调度到（定时/手动），macOS runner 被平台取消（steps=0）
+    #    也只算该档失败，不拖红整条流水线。三平台覆盖并未减少。
+    if: ${{ matrix.os != 'macos-latest' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     continue-on-error: ${{ matrix.os == 'macos-latest' }}
     strategy:
       fail-fast: false
