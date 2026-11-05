@@ -159,6 +159,9 @@ TOOL_DOC = """可用工具（只读）：
 
 SUBMIT_DOC = """- submit_verdict(verdict, severity, confidence, hypothesis, actions, evidence_refs, authorization_ref?)
     提交最终判定。verdict ∈ true_positive|suspicious|false_positive；
+    severity ∈ high|medium|low（只能是这三个词）；
+    confidence 是 **0 到 1 之间的数值**（例：0.72），**不是** "high"、"medium"、"0.7 左右"
+      这类文字描述——写成文字会被护栏直接拒收；
     evidence_refs 必须形如 ["step.1", "step.2:network[0]"]，指向你已实际执行的步骤；
     actions 是给值班同学的执行动作（例：["隔离主机 build-runner-07", "轮换 CI token"]），
       **禁止**把 "step.1" 这类证据引用写进 actions；
@@ -491,7 +494,7 @@ def _session_note(sess: session_mod.SessionState, pol: dict | None) -> str:
         parts.append(f"本会话最多放宽结论 {cap} 次（已用 {sess.relax_count()} 次）。")
     hv, hs = sess.strongest()
     if hv:
-        parts.append(f"历史最强结论 {hv}/{hs}：往下调必须有本轮新增证据。")
+        parts.append(f"历史最强结论：verdict={hv}，severity={hs}；往下调必须有本轮新增证据。")
     return "".join(parts)
 
 

@@ -1,0 +1,29 @@
+{
+  "_meta": {
+    "source": "lab snapshot (exported from CMDB + CI inventory)",
+    "collected_at": "2026-11-02T04:00:00Z",
+    "note": "脱敏快照，仅用于 agent 分诊上下文检索"
+  },
+  "assets": [
+    {
+      "asset": "build-runner-07",
+      "owner": "platform-ci",
+      "criticality": "high",
+      "role": "CI build runner (self-hosted, ephemeral containers)",
+      "baseline_egress_asn": ["AS16509", "AS15169", "AS13335"],
+      "allowed_domains": ["registry.npmjs.org", "pypi.org", "github.com", "objects.githubusercontent.com"],
+      "holds_credentials": ["ci-token-prod", "npm-publish-token"],
+      "change_window": "2026-11-01..2026-11-03 变更冻结（无计划内变更单）"
+    },
+    {
+      "asset": "app-frontend",
+      "owner": "web-platform",
+      "criticality": "medium",
+      "role": "前端 Web 应用构建上下文（node_modules 在本机）",
+      "baseline_egress_asn": ["AS16509", "AS13335"],
+      "allowed_domains": ["registry.npmjs.org", "cdn.jsdelivr.net"],
+      "holds_credentials": ["npm-read-token"],
+      "change_window": "2026-11-04 计划内发布窗口 09:00-11:00 UTC"
+    }
+  ]
+}

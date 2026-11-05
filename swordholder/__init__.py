@@ -22,7 +22,7 @@ from . import trust
 from .trust import (TrustError, add_key, retire_key, revoke_key, revoke_seal,
                     restore_seal, summary, check_rotation, evaluate)
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"
 
 __all__ = [
     "__version__",

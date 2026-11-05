@@ -1,0 +1,56 @@
+{
+  "_meta": {
+    "source": "本地 IOC 库 + 域名注册信息快照（lab）",
+    "collected_at": "2026-11-02T04:06:00Z"
+  },
+  "iocs": [
+    {
+      "indicator": "198.51.100.77",
+      "type": "ipv4",
+      "reputation": "unknown",
+      "first_seen": "2026-11-02T03:14:00Z",
+      "note": "未在任何内部白名单内；无历史命中"
+    },
+    {
+      "indicator": "AS215199",
+      "type": "asn",
+      "reputation": "unknown",
+      "note": "资产基线外；无变更单授权"
+    },
+    {
+      "indicator": "metrics-cdn.example",
+      "type": "domain",
+      "reputation": "suspicious",
+      "registered_at": "2026-11-01T19:22:00Z",
+      "note": "注册不足 24 小时，注册商隐私保护，TLS 证书为自签"
+    },
+    {
+      "indicator": "cdn-metrics.example",
+      "type": "domain",
+      "reputation": "malicious",
+      "registered_at": "2026-10-31T08:12:00Z",
+      "resolved_ip": "203.0.113.42",
+      "note": "注册 2 天；与已知钓鱼基础设施共用 /24；TLS 自签；内部白名单无记录"
+    },
+    {
+      "indicator": "AS64500",
+      "type": "asn",
+      "reputation": "unknown",
+      "note": "资产基线外；CHG-6031 覆盖该时间窗"
+    }
+  ],
+  "ticket_lookup": {
+    "CHG-5521": {
+      "state": "closed",
+      "window": "2026-10-20T09:00Z/2026-10-20T17:00Z",
+      "scope": "authorized-pentest"
+    },
+    "CHG-6031": {
+      "state": "approved",
+      "window": "2026-11-04T09:00Z/2026-11-04T11:00Z",
+      "scope": "authorized-pentest",
+      "asset": "app-frontend",
+      "note": "安全团队申请、安全负责人审批的授权压测；窗口与发布窗口重合"
+    }
+  }
+}

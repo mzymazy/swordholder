@@ -351,10 +351,12 @@ class SessionState:
             for c in pend:
                 cited += _hits(cite_text, c.keywords or [])
             if cited:
+                tools = sorted({c.verify_tool for c in pend if c.verify_tool})
                 self.rejected.append({"turn": cur, "rule": rule, "reason": f"引用未核实{label}"})
+                how = (f"须先调用 {tools} 核实，" if tools
+                       else "该类声明没有可核实的证据源，只能不引用，")
                 return False, (f"[{rule[:2]}] 判定依据引用了未经工具核实的{label} {sorted(set(cited))}。"
-                               f"须先调用 {pend[0].verify_tool or '相应核验工具'} 核实，"
-                               "核实前不得据此下结论。"), detail
+                               f"{how}核实前不得据此下结论。"), detail
             if relaxed:
                 tools = sorted({c.verify_tool for c in pend if c.verify_tool})
                 self.rejected.append({"turn": cur, "rule": rule, "reason": f"未核实{label}下放宽"})
