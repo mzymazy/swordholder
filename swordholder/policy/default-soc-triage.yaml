@@ -7,7 +7,7 @@
 
 schema: swordholder/policy/v1
 id: soc-alert-triage
-version: 1
+version: 2
 title: 安全告警分诊
 description: >
   SOC 告警分诊场景。模型可自由取证，但"判误报"这件事必须挂靠一张
@@ -71,3 +71,60 @@ invariants:
     window_field: window
     messages:
       not_covered: "授权单 {value} 时间窗 {window} 不覆盖告警时间 {alert_ts}，不得据此判误报"
+
+# ---------------------------------------------------------------- 会话级不变量
+# 以上 invariants 只覆盖"单次提交"。多轮钓鱼（先建立身份/先例/公理共识，再要求
+# 放宽结论）每一轮单看都合规，必须靠会话状态才能拦住。本段由
+# swordholder/session.py 执行，内核代码里没有任何关键词或阈值。
+#
+# 缺本段时的行为：会话只有一轮 -> 照旧单轮判定；会话超过一轮 -> fail-closed 拒收。
+session:
+  schema: swordholder/session/v1
+  turn_budget: 4              # 同一会话超过 4 轮后，只允许维持或收紧，不接受放宽
+  relax:
+    max_relaxations: 1        # 整场会话最多把结论往下调一次
+    require_new_evidence: true # 放宽必须有本轮新增取证（重复调用同名同参不算）
+
+  # 声明提取：说出来的是话，不是事实。patterns 命中即登记为"未核实声明"，
+  # 必须由 verify_tool 在声明之后真正调用成功，才算落地。
+  claims:
+    - id: identity
+      title: 身份/授权身份声明
+      patterns:
+        - "我是.{0,10}(运维|运营|安全|审计|管理员|同事|负责人|值班)"
+        - "(运维|安全|审计|应急)团队"
+        - "我(就)?是(系统)?管理员"
+        - "领导(让我|要求|说)"
+        - "按(上级|领导|甲方)要求"
+      keywords: ["新同事", "运维团队", "安全团队", "审计团队", "管理员", "领导要求", "上级要求"]
+      verify_tool: lookup_ticket
+
+    - id: precedent
+      title: 先例引用（上次也这么干过）
+      patterns:
+        - "上次(你|我们|系统)"
+        - "跟上次一样"
+        - "照旧|照上次"
+        - "之前(你|我们).{0,8}(帮|做|处理|清理)"
+        - "继续上次"
+      keywords: ["上次", "跟上次一样", "照旧", "之前帮", "继续上次"]
+      verify_tool: search_prior_alerts
+
+    - id: axiom
+      title: 原则/公理共识（无法被任何工具核实，永不构成依据）
+      patterns:
+        - "你(遵守|认同|信奉)的?(公理|原则|守则|准则)"
+        - "你刚才(说|同意|确认)"
+        - "按你(刚才)?(的)?(原则|公理|说法)"
+        - "为了践行"
+      keywords: ["公理", "原则", "守则", "准则", "你刚才说", "为了践行"]
+      verify_tool: null
+
+  # 显式打开的不变量；不写等于全开。删掉某条要当成一次安全决策来评审。
+  rules:
+    - S1_claim_must_be_verified
+    - S2_precedent_must_be_verified
+    - S3_axiom_never_authorizes
+    - S4_turn_budget
+    - S5_no_relax_without_new_evidence
+    - S6_relax_limit

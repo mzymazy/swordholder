@@ -109,10 +109,32 @@ def cmd_agent(args) -> int:
         _dump({"ok": False, "code": "E_BAD_ALERT", "message": str(e)})
         return 2
 
+    # 会话状态：--session 给了就接着上一轮判，--session-out 把更新后的状态写回。
+    from . import session as session_mod
+    conversation = None
+    if getattr(args, "conversation", None):
+        try:
+            with open(args.conversation, encoding="utf-8") as f:
+                conversation = json.load(f)
+            if not isinstance(conversation, list):
+                raise ValueError("必须是 JSON 数组")
+        except Exception as e:  # noqa: BLE001
+            _dump({"ok": False, "code": "E_BAD_CONVERSATION", "message": f"{type(e).__name__}: {e}"})
+            return 2
+    sess = None
+    if getattr(args, "session", None):
+        try:
+            sess = session_mod.SessionState.load(args.session)
+        except session_mod.SessionError as e:
+            _dump({"ok": False, "code": "E_BAD_SESSION", "message": str(e)})
+            return 2
+
     try:
         trace = agent_loop.run_agent(alert, max_steps=args.steps,
                                      key_path=args.key, seal_out_dir=args.out_dir,
-                                     verbose=args.verbose)
+                                     verbose=args.verbose, policy_path=args.policy,
+                                     conversation=conversation, session=sess,
+                                     session_out=getattr(args, "session_out", None))
     except Exception as e:  # 模型不可用等：明确报错，不静默降级
         _dump({"ok": False, "code": "E_AGENT_FAILED", "message": f"{type(e).__name__}: {e}"})
         return 3
@@ -598,6 +620,11 @@ def build_parser() -> argparse.ArgumentParser:
     ag.add_argument("--trace-out", default=None, help="把完整决策轨迹写入指定 JSON")
     ag.add_argument("--policy", default=None,
                     help="策略包 YAML 路径（默认取 $SWORDHOLDER_POLICY 或内置 default-soc-triage.yaml）")
+    ag.add_argument("--conversation", default=None,
+                    help="多轮对话 JSON（[{\"role\":\"user\",\"content\":...}]），判定将计入会话历史")
+    ag.add_argument("--session", default=None,
+                    help="已有会话状态 JSON：接着上一轮判，跨轮不变量据此生效")
+    ag.add_argument("--session-out", default=None, help="把更新后的会话状态写回指定路径")
     ag.add_argument("--verbose", action="store_true")
     ag.set_defaults(func=cmd_agent)
 

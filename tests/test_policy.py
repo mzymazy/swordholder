@@ -170,5 +170,6 @@ def test_trace_records_policy_identity(monkeypatch):
              "title": "t", "description": "", "tags": []}
     trace = al.run_agent(alert, cfg=cfg)
     assert trace["policy"]["id"] == "soc-alert-triage"
-    assert trace["record"]["agent"]["policy"]["version"] == 1
+    # 不硬编码版本号：内置策略会随框架演进升版，测试只要求"记录的就是加载到的那一版"。
+    assert trace["record"]["agent"]["policy"]["version"] == policy_loader.load(DEFAULT).get("version")
     assert any(s.startswith("I1:") for s in trace["record"]["agent"]["guardrail_invariants"])

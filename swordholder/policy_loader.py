@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import os
+import re
 from functools import lru_cache
 from typing import Any
 
@@ -34,6 +35,12 @@ _REQUIRED = ("schema", "id", "verdicts", "severities", "limits", "invariants")
 _REQUIRED_LIMITS = ("min_ok_steps", "max_hypothesis_len", "actions_min", "actions_max",
                     "action_max_len", "action_min_len")
 REQUIRE_TYPES = ("tool_verified_ref", "window_covers_alert")
+
+# 会话级不变量白名单（P0-2）。拼错一个 id 就等于静默关掉一条防线，所以在加载期就拦。
+SESSION_SCHEMA = "swordholder/session/v1"
+SESSION_RULES = ("S1_claim_must_be_verified", "S2_precedent_must_be_verified",
+                 "S3_axiom_never_authorizes", "S4_turn_budget",
+                 "S5_no_relax_without_new_evidence", "S6_relax_limit")
 
 
 class PolicyError(RuntimeError):
@@ -102,7 +109,78 @@ def validate(p: Any, origin: str = "<memory>") -> dict:
         msgs = inv.get("messages") or {}
         if not isinstance(msgs, dict) or not msgs:
             _fail(f"{origin}: invariants[{i}] 必须给出 messages")
+
+    validate_session(p.get("session"), origin=origin)
     return p
+
+
+def validate_session(seg: Any, origin: str = "<memory>") -> None:
+    """校验可选的会话级策略段（P0-2）。缺省合法——单轮场景不必声明。
+
+    一旦声明就必须能被执行：正则必须编译得过、不变量 id 必须在白名单内。
+    否则"策略写了但内核没认"就是一条静默失效的防线。
+    """
+    if seg is None:
+        return
+    if not isinstance(seg, dict):
+        _fail(f"{origin}: session 段必须是映射")
+
+    sch = seg.get("schema", SESSION_SCHEMA)
+    if sch != SESSION_SCHEMA:
+        _fail(f"{origin}: session.schema 不匹配，期望 {SESSION_SCHEMA}，实际 {sch!r}")
+
+    tb = seg.get("turn_budget")
+    if tb is not None and (not isinstance(tb, int) or tb < 0):
+        _fail(f"{origin}: session.turn_budget 必须是非负整数")
+
+    relax = seg.get("relax")
+    if relax is not None:
+        if not isinstance(relax, dict):
+            _fail(f"{origin}: session.relax 必须是映射")
+        cap = relax.get("max_relaxations")
+        if cap is not None and (not isinstance(cap, int) or cap < 0):
+            _fail(f"{origin}: session.relax.max_relaxations 必须是非负整数")
+        rne = relax.get("require_new_evidence")
+        if rne is not None and not isinstance(rne, bool):
+            _fail(f"{origin}: session.relax.require_new_evidence 必须是布尔值")
+
+    rules = seg.get("rules")
+    if rules is not None:
+        if not isinstance(rules, list) or not all(isinstance(r, str) for r in rules):
+            _fail(f"{origin}: session.rules 必须是字符串列表")
+        unknown = [r for r in rules if r not in SESSION_RULES]
+        if unknown:
+            _fail(f"{origin}: session.rules 含未知不变量 {unknown}，可用 {list(SESSION_RULES)}")
+
+    claims = seg.get("claims")
+    if claims is not None:
+        if not isinstance(claims, list):
+            _fail(f"{origin}: session.claims 必须是列表")
+        seen: set[str] = set()
+        for i, c in enumerate(claims):
+            if not isinstance(c, dict):
+                _fail(f"{origin}: session.claims[{i}] 必须是映射")
+            cid = c.get("id")
+            if not cid or not isinstance(cid, str):
+                _fail(f"{origin}: session.claims[{i}] 缺少 id")
+            if cid in seen:
+                _fail(f"{origin}: session.claims id 重复：{cid}")
+            seen.add(cid)
+            pats = c.get("patterns")
+            if not isinstance(pats, list) or not pats or not all(isinstance(x, str) for x in pats):
+                _fail(f"{origin}: session.claims[{cid}].patterns 必须是非空字符串列表")
+            for pat in pats:
+                try:
+                    re.compile(pat)
+                except re.error as e:
+                    _fail(f"{origin}: session.claims[{cid}] 正则非法 {pat!r}：{e}")
+            kw = c.get("keywords")
+            if kw is not None and (not isinstance(kw, list)
+                                   or not all(isinstance(x, str) for x in kw)):
+                _fail(f"{origin}: session.claims[{cid}].keywords 必须是字符串列表")
+            vt = c.get("verify_tool")
+            if vt is not None and not isinstance(vt, str):
+                _fail(f"{origin}: session.claims[{cid}].verify_tool 必须是字符串或 null")
 
 
 @lru_cache(maxsize=8)
@@ -146,4 +224,5 @@ def list_builtin() -> list[tuple[str, str, str]]:
 
 
 __all__ = ["PolicyError", "SCHEMA", "ENV_VAR", "DEFAULT_POLICY", "POLICY_DIR",
-           "validate", "load", "resolve_path", "list_builtin", "REQUIRE_TYPES"]
+           "SESSION_SCHEMA", "SESSION_RULES", "validate", "validate_session", "load",
+           "resolve_path", "list_builtin", "REQUIRE_TYPES"]

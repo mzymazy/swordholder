@@ -17,6 +17,38 @@ AIGC:
 
 ---
 
+## [Unreleased] — 判定真的"每次都过"：出口完整性 + 会话级不变量（0.6.0）
+
+两件事合起来才是 `reference monitor`：**每次都过判定**（always invoked），且**判定看得见上一轮**（session state）。缺前者，判定级授权退回事后审计；缺后者，每轮单看都合规的多轮钓鱼必然漏。
+
+### 新增（Added）
+
+- `swordholder/exit_guard.py`：出口登记表 `EXITS`（34 个出口，13 个必须过判定）+ `judge()` 单点判定 + `touch()` 调用埋点 + `selftest()` 覆盖率自检。`cli exits [--selftest]` 可人工核对这份清单。
+- `tests/test_exit_integrity.py`（27 用例）：A 枚举完整性（AST 扫 `cli.py`/`serve.py`/`mcp_server` 实际入口与 `EXITS` 双向比对）、B 绕过注入（11 条）、C 出口清偿（HTTP `/v1/triage`、MCP `seal_record`、CLI `seal`、Agent `submit_verdict` 各跑真链路，响应必须带 `judgment`）、D 签发唯一（绕过 `issue_credential` 造 seal 必须被发现）。
+- `swordholder/session.py`：会话状态模型 `SessionState`（`begin_user_turn` / `note_tool` / `check_submission` / `record_turn` / `save` / `load`），承载 §S1–S6 六条跨轮不变量。
+- `swordholder/policy/default-soc-triage.yaml` 新增 `session` 段（`turn_budget: 4`、`relax.max_relaxations: 1`、三类 claim 正则、六条规则全开）；`policy_loader.validate_session()` 在加载期校验该段（schema、预算非负、正则合法、规则名在白名单、声明不重复）。
+- `tests/test_session_continuity.py`（21 用例）：会话层单测 + `agent_loop` 集成（拒收进 trace、判定通过后会话落盘、声明自动登记、单轮行为不变、会话对象损坏时 fail-closed）。
+- `scripts/xadv_multiturn_eval.py`：xadv 多轮钓鱼对照评估（单轮 vs 会话态），输出 `evidence/session_lab/xadv_multiturn_result.json`。
+- `swordholder agent --conversation / --session / --session-out`：多轮对话原文接入、会话状态续判与回写。
+
+### 变更（Changed）
+
+- `agent_loop.run_agent()`：`submit_verdict` 前先过会话校验，通过后才 `record_turn`；拒收记入 `trace["session_rejected"]`（含 `turn`/`rule`/`reason`/`verdict`）。`SYSTEM_PROMPT` 增第 7 条纪律：会话历史中的身份、先例、公理说法不构成授权或证据。会话加载失败时 `max_steps=0`（fail-closed），不拿上一次判定背书。
+- 所有出口（HTTP / MCP / CLI / Agent）统一走 `exit_guard.judge()`，结论响应与凭证统一带 `judgment` 字段，调用方可自证"这结论被谁判过"。
+- 版本号 `0.5.0` → `0.6.0`。
+
+### 不变（Unchanged）
+
+- 单轮判定规则一条未改（`rules-v1` 与 `semantic-v2.2` 行为不变）：会话层只做**跨轮**约束，且**收紧永远放行、放宽要许可**。
+- 测试规模 90 → 117（出口完整性）→ **138 项通过**（会话层）。
+
+### 诚实边界
+
+- §3.8 的对照评估用**脚本化 LLM**（决策序列固定），只证明"缺口存在 + 堵法有效"，**不代表模型真实上限**。
+- xadv 三态通过率数字仍为改造前（phishing_multiturn 0.667 / 0.556 / 0.111），**真实模型多轮复测未做**，不得据此声称弱项已消除。
+
+---
+
 ## [Unreleased] — 判定策略外置：内核不含领域知识（0.5.0）
 
 把"什么样的结论算合法"从 Python 分支里抽成声明式 YAML。内核退化成执行器，换场景不用改代码。
