@@ -31,11 +31,14 @@ def keygen(out_dir: str = "keys") -> dict:
 
 
 def seal(record: Union[dict, str], private_key_path: str, issuer: str,
-         subject: str | None = None, out_path: str | None = None) -> dict:
+         subject: str | None = None, out_path: str | None = None,
+         challenge: str | None = None) -> dict:
     """给一条结论盖章。
 
     record 可以是 dict，也可以是 JSON 文件路径。
     subject 默认取 record 里的 alert_id / subject / id 之一。
+    challenge 是验证方给的挑战值：给了就写进被签名的 header，凭证因而绑定本次会话，
+    不能挪到另一场会话里重放（验证时用 ``verify(..., expected_challenge=...)`` 对照）。
     """
     payload = None
     if isinstance(record, dict):
@@ -60,6 +63,8 @@ def seal(record: Union[dict, str], private_key_path: str, issuer: str,
         args["subject"] = subject
     if out_path:
         args["out_path"] = out_path
+    if challenge is not None:
+        args["challenge"] = challenge
 
     res = _srv.tool_seal_record(args)
     if not res.get("ok"):
@@ -67,21 +72,27 @@ def seal(record: Union[dict, str], private_key_path: str, issuer: str,
     return res
 
 
-def verify(seal_path: str, keys_path: str | None = None) -> dict:
+def verify(seal_path: str, keys_path: str | None = None,
+           expected_challenge: str | None = None) -> dict:
     """验签。返回 {'verdict': VALID|VALID_UNTRUSTED_KEY|INVALID, 'reason': ...}。
 
-    注意：没有提供信任锚时不会返回裸 VALID，而是 VALID_UNTRUSTED_KEY —— 签名有效
+    注意 1：没有提供信任锚时不会返回裸 VALID，而是 VALID_UNTRUSTED_KEY —— 签名有效
     但签发方未被登记，调用方不得据此声称“已获得信任背书”。
+    注意 2：给了 expected_challenge 而凭证没绑定挑战值时，判 E_CHALLENGE_MISSING，
+    不降级为 VALID——否则"要求防重放"这个前提就白写了。
     """
     args: dict[str, Any] = {"seal_path": seal_path}
     if keys_path:
         args["keys_path"] = keys_path
+    if expected_challenge is not None:
+        args["expected_challenge"] = expected_challenge
     return _srv.tool_verify_seal(args)
 
 
 def verify_or_raise(seal_path: str, keys_path: str | None = None,
-                    require_trusted: bool = False) -> dict:
-    res = verify(seal_path, keys_path)
+                    require_trusted: bool = False,
+                    expected_challenge: str | None = None) -> dict:
+    res = verify(seal_path, keys_path, expected_challenge=expected_challenge)
     verdict = res.get("verdict")
     if verdict == "INVALID":
         raise SealError(f"{res.get('reason')}: {res.get('expected')} != {res.get('actual')}")

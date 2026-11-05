@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/mzymazy/swordholder/swordholder/seal.schema.json",
+  "title": "Swordholder credential (seal) v1.0",
+  "description": "凭证文件的对外契约（seal_version 1.0）。验证方不必读实现代码：本文件就是它可以独立实现验签的唯一依据。修改本文件等于改协议——已发布版本的文件不再修改，新增字段一律走新版本号。",
+  "type": "object",
+  "required": [
+    "seal_header",
+    "payload",
+    "signature"
+  ],
+  "properties": {
+    "seal_header": {
+      "type": "object",
+      "required": [
+        "seal_version",
+        "seal_id",
+        "issuer",
+        "subject",
+        "signature_alg",
+        "canonicalization",
+        "payload_sha256",
+        "public_key_hex"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "seal_version": {
+          "const": "1.0",
+          "description": "凭证结构版本。验证方遇到不认识的版本必须拒绝，不得按旧版本猜测解析"
+        },
+        "seal_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "凭证唯一标识；吊销、索引、对账都以它为准"
+        },
+        "created_at": {
+          "type": "string",
+          "anyOf": [
+            {
+              "const": "",
+              "description": "空串=未记录签发时刻，只能由无界信任锚验证"
+            },
+            {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+            }
+          ],
+          "description": "签发时刻，UTC，秒级。信任锚带生效窗口时必须以它判定（无则报 E_SEAL_NO_TIMESTAMP）；无界锚不需要，所以结构层不强制，交给信任策略裁决"
+        },
+        "issuer": {
+          "type": "string",
+          "minLength": 1,
+          "description": "签发方标识（自述，不构成信任）。信任只来自信任锚"
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1,
+          "description": "被判定对象（告警号 / 主机 / 请求 id）"
+        },
+        "signature_alg": {
+          "const": "ed25519"
+        },
+        "canonicalization": {
+          "const": "json-c14n-v1",
+          "description": "规范化算法；签名输入 = SEAL_DOMAIN + payload 摘要的字节 + \\n + c14n(seal_header)"
+        },
+        "payload_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "payload 的 sha256（小写十六进制）；与文件内 payload 不一致即视为篡改"
+        },
+        "public_key_hex": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "签发公钥（32 字节 ed25519，小写十六进制）。是否可信由信任锚决定"
+        },
+        "record_ref": {
+          "type": "string",
+          "description": "原始结论的来源引用（路径或 inline）；仅作溯源提示，不参与验签判断"
+        },
+        "challenge": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{8,128}$",
+          "description": "验证方挑战值（nonce）。有它时，本凭证是针对该挑战签发的，不能被换到另一场会话里重放"
+        }
+      }
+    },
+    "payload": {
+      "description": "被盖章的结论原文，结构由业务决定（分诊结论见 alert.schema.json + 判定不变量）"
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "alg",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "alg": {
+          "const": "ed25519"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9+/]{86}==$",
+          "description": "ed25519 签名（64 字节）的 base64，固定 88 字符"
+        }
+      }
+    }
+  }
+}

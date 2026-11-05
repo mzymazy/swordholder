@@ -17,6 +17,30 @@ AIGC:
 
 ---
 
+## [0.7.0] — 凭证有了对外契约；验证方可以出题防重放
+
+0.6.1 之后凭证只有"几个手写 if"在守：字段缺了报 `E_MALFORMED_SEAL`，可"字段都在、类型不对 / 摘要写成大写 / 版本不认识"没人裁决。第三方要独立实现验签，也只能读我们的实现代码猜协议。这版把契约变成文件，把重放这一课补上。
+
+### 新增（Added）
+
+- **`swordholder/seal.schema.json`**（JSON Schema draft-07）：凭证 v1.0 的对外契约。验证方拿它当唯一依据，不必读实现。
+- **`swordholder/seal_schema.py`**：版本化 fail-closed 校验器。版本登记表 `SCHEMA_FILES` 是唯一入口，不认识的 `seal_version` 直接拒 `E_UNSUPPORTED_SEAL_VERSION`——不按"最接近的版本"猜着解析，猜错方向就是把伪造当合法；`jsonschema` 缺失时报 `E_VALIDATOR_UNAVAILABLE`，不静默放行。
+- **验证方挑战（A4）**：`seal --challenge` / `core.seal(challenge=...)` 把挑战值写进被签名的 header；`verify --expect-challenge` / `core.verify(expected_challenge=...)` 对照。
+- `swordholder schema --which seal [--seal-version 1.0]`：吐出契约原文。
+- `tests/test_seal_schema.py`（21 用例）：契约版本不漂移、未知版本拒收、类型错误拒收、挑战一致/不一致/未绑定、挑战值不可原地替换、CLI 端到端。
+
+### 变更（Changed）
+
+- 验签判定顺序固定为 **结构 → 摘要 → 签名 → 挑战 → 信任**。挑战值放在签名之前比，等于给伪造者一个免费探针。
+- `verify` / `verify_or_raise` / `exit_guard.issue_credential` 增加可选参数，老调用不受影响：不要求挑战时，未绑定挑战的老凭证照旧 `VALID_UNTRUSTED_KEY`，新字段没有把老格式变严。
+- `jsonschema>=4.18` 进入运行时依赖（`pip install swordholder` 即装上，契约校验不依赖用户额外配置）。
+
+### 边界（这条比功能重要）
+
+- 验证方要求挑战、而凭证未绑定挑战时判 `E_CHALLENGE_MISSING`，**不降级为 VALID**。签名有效只证明"这份凭证没被改过"，不证明"它是这一次会话的那一份"。
+- `created_at` 在契约里是可选字段：信任锚带生效窗口时缺它报 `E_SEAL_NO_TIMESTAMP`，无界锚不需要——时间戳是否必需取决于信任策略，不该由结构层一刀切。
+- 契约只约束结构，不替代签名，也不解决"签发方说谎"。密钥归属仍靠信任锚。
+
 ## [0.6.1] — 真实模型复测：S1 曾被一次票据查询绕过
 
 P0-2 的对照证据用的是脚本化 LLM（决策写死），只能证明"规则会拦"，证明不了"真模型会不会撞上"。这轮用 Ollama `qwen3:8b` 补了一组真模型复测，结论分两半：**规则确实拦得住**（3/3 拒收），但**拦之前先发现它其实拦不住**——修完之后才拦得住。

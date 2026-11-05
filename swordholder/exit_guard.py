@@ -413,7 +413,8 @@ def require_judgment(exit_name: str, payload: Any) -> Judgment:
 
 def issue_credential(record: Any, private_key_path: str, issuer: str, *,
                      exit_name: str, subject: str | None = None,
-                     out_path: str | None = None) -> dict:
+                     out_path: str | None = None,
+                     challenge: str | None = None) -> dict:
     """仓内唯一的凭证签发通道：先要票，再盖章。
 
     直接调 ``core.seal`` 的代码会被 ``tests/test_exit_integrity.py`` 的 AST 门禁点名，
@@ -427,6 +428,8 @@ def issue_credential(record: Any, private_key_path: str, issuer: str, *,
         args["subject"] = subject
     if out_path is not None:
         args["out_path"] = out_path
+    if challenge is not None:
+        args["challenge"] = challenge
     res = _srv._seal_record_impl(args)
     if not res.get("ok"):
         from . import core

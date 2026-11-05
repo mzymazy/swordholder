@@ -10,6 +10,7 @@ import base64
 import hashlib
 import json
 import os
+import re
 import sys
 import traceback
 import uuid
@@ -26,6 +27,9 @@ PROTOCOL_VERSION = "2024-11-05"
 SEAL_DOMAIN = b"swordholder-seal-v1\n"
 DEFAULT_KEYS = os.path.join(REPO_ROOT, "trusted_keys.json")
 
+# 验证方挑战值：8–128 位 URL 安全字符。太短等于没有熵，太长是有人在塞日志。
+CHALLENGE_RE = re.compile(r"^[A-Za-z0-9_-]{8,128}$")
+
 
 # ---------------------------------------------------------------- 工具函数
 
@@ -37,6 +41,12 @@ def c14n(obj) -> bytes:
 
 def sha256_hex(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def hmac_compare(a, b) -> bool:
+    """定时安全比较。挑战值、摘要这类字段不能泄露"前几位对不对"。"""
+    import hmac as _hmac
+    return _hmac.compare_digest(str(a).encode("utf-8"), str(b).encode("utf-8"))
 
 
 def load_private_key(path: str):
@@ -138,6 +148,13 @@ def _seal_record_impl(args: dict) -> dict:
         "public_key_hex": public_hex_from_private(priv),
         "record_ref": record_path or "inline",
     }
+    challenge = args.get("challenge")
+    if challenge is not None:
+        challenge = str(challenge)
+        if not CHALLENGE_RE.match(challenge):
+            return _err("challenge 格式非法：需 8–128 位 [A-Za-z0-9_-]")
+        # 挑战值进 header，因此被签名覆盖：换到别的会话里重放会立刻暴露。
+        header["challenge"] = challenge
     signing_input = SEAL_DOMAIN + bytes.fromhex(header["payload_sha256"]) + b"\n" + c14n(header)
     sig = base64.b64encode(priv.sign(signing_input)).decode("ascii")
 
@@ -195,6 +212,13 @@ def tool_verify_seal(args: dict) -> dict:
     if not header or payload is None or not sig_b64:
         return {"verdict": "INVALID", "reason": "E_MALFORMED_SEAL"}
 
+    # 结构性契约交给版本化 schema 裁决（版本不认识就拒收，不猜着解析）。
+    from swordholder import seal_schema
+    chk = seal_schema.validate(seal)
+    if not chk.get("ok"):
+        return {"verdict": "INVALID", "reason": chk.get("reason") or "E_SCHEMA_INVALID",
+                "detail": chk.get("detail", ""), "seal_version": chk.get("seal_version")}
+
     actual = sha256_hex(c14n(payload))
     if actual != header.get("payload_sha256"):
         return {"verdict": "INVALID", "reason": "E_PAYLOAD_TAMPERED",
@@ -207,6 +231,19 @@ def tool_verify_seal(args: dict) -> dict:
             base64.b64decode(sig_b64), signing_input)
     except (InvalidSignature, ValueError):
         return {"verdict": "INVALID", "reason": "E_BAD_SIGNATURE"}
+
+    # 验证方挑战（A4）：签名通过后再比挑战值，顺序不能反——先比等于给了伪造者一个
+    # "挑战值对不对"的免费探针。
+    expected_challenge = args.get("expected_challenge")
+    if expected_challenge is not None:
+        expected_challenge = str(expected_challenge)
+        got = header.get("challenge")
+        if not got:
+            return {"verdict": "INVALID", "reason": "E_CHALLENGE_MISSING",
+                    "detail": "验证方提供了挑战值，但凭证未绑定任何挑战（无法排除重放）"}
+        if not hmac_compare(got, expected_challenge):
+            return {"verdict": "INVALID", "reason": "E_CHALLENGE_MISMATCH",
+                    "expected": expected_challenge, "actual": got}
 
     keys_path = args.get("keys_path") or DEFAULT_KEYS
     policy = _evaluate_trust(header, keys_path)
@@ -324,6 +361,8 @@ TOOLS = [
                 "issuer": {"type": "string", "description": "签发方标识"},
                 "subject": {"type": "string", "description": "被签对象，如告警 ID / 资产名"},
                 "out_path": {"type": "string", "description": "输出路径，默认 <record>.seal.json"},
+                "challenge": {"type": "string",
+                              "description": "验证方挑战值（8–128 位 [A-Za-z0-9_-]）；给了就写进被签名的 header，凭证即可绑定本次会话、不可重放"},
             },
             "required": ["private_key_path"],
         },
@@ -336,6 +375,8 @@ TOOLS = [
             "properties": {
                 "seal_path": {"type": "string", "description": ".seal.json 路径"},
                 "keys_path": {"type": "string", "description": "信任锚 json 路径"},
+                "expected_challenge": {"type": "string",
+                                       "description": "本次挑战值；给了就要求凭证绑定同一值，否则判 E_CHALLENGE_MISSING / E_CHALLENGE_MISMATCH"},
             },
             "required": ["seal_path"],
         },

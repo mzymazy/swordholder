@@ -19,10 +19,11 @@ from .alert import AlertError, detect_format, normalize
 from .rules import load_alert, rule_triage
 from .store import Store
 from . import trust
+from . import seal_schema
 from .trust import (TrustError, add_key, retire_key, revoke_key, revoke_seal,
                     restore_seal, summary, check_rotation, evaluate)
 
-__version__ = "0.6.1"
+__version__ = "0.7.0"
 
 __all__ = [
     "__version__",
@@ -40,6 +41,7 @@ __all__ = [
     "SealError",
     "AlertError",
     "trust",
+    "seal_schema",
     "TrustError",
     "add_key",
     "retire_key",

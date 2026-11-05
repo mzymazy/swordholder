@@ -64,7 +64,8 @@ def cmd_seal(args) -> int:
     try:
         exit_guard.judge("cli:seal", payload, basis="attested")
         res = exit_guard.issue_credential(payload, args.key, args.issuer, exit_name="cli:seal",
-                                          subject=args.subject, out_path=out)
+                                          subject=args.subject, out_path=out,
+                                          challenge=getattr(args, "challenge", None))
     except (exit_guard.JudgmentError, exit_guard.ExitIntegrityError) as e:
         _dump({"ok": False, "code": "E_JUDGMENT_DENIED", "message": f"判定未通过，拒绝签发：{e}"})
         return 3
@@ -77,12 +78,14 @@ def cmd_seal(args) -> int:
         store.close()
     _dump({"seal_path": res["seal_path"], "payload_sha256": res["payload_sha256"],
            "seal_id": res.get("seal_id"), "subject": res.get("subject"),
+           "challenge_bound": bool(getattr(args, "challenge", None)),
            "indexed": bool(args.db)})
     return 0
 
 
 def cmd_verify(args) -> int:
-    res = core.verify(args.seal, keys_path=args.keys)
+    res = core.verify(args.seal, keys_path=args.keys,
+                      expected_challenge=getattr(args, "expect_challenge", None))
     _dump(res)
     return 0 if res.get("verdict") in ("VALID", "VALID_UNTRUSTED_KEY") else 1
 
@@ -418,6 +421,17 @@ def cmd_serve(args) -> int:
 
 
 def cmd_schema(args) -> int:
+    which = getattr(args, "which", "alert") or "alert"
+    if which == "seal":
+        from . import seal_schema
+        content = seal_schema.dumps(getattr(args, "seal_version", None) or seal_schema.LATEST_VERSION)
+        if args.out:
+            with open(args.out, "w", encoding="utf-8") as f:
+                f.write(content)
+            _dump({"ok": True, "written": os.path.abspath(args.out), "which": "seal"})
+            return 0
+        print(content)
+        return 0
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "alert.schema.json")
     if args.out:
         with open(path, "r", encoding="utf-8") as f:
@@ -552,11 +566,15 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--subject", default=None)
     s.add_argument("-o", "--out", default=None)
     s.add_argument("--db", default=None, help="写入凭证索引（sqlite）")
+    s.add_argument("--challenge", default=None,
+                   help="验证方挑战值（8–128 位 [A-Za-z0-9_-]）：绑定本次会话，凭证不可重放")
     s.set_defaults(func=cmd_seal)
 
     v = sub.add_parser("verify", help="独立验签")
     v.add_argument("seal")
     v.add_argument("--keys", default=None, help="信任锚 json；不给则只验签名，不建立信任")
+    v.add_argument("--expect-challenge", dest="expect_challenge", default=None,
+                   help="要求凭证绑定的挑战值；不符判 E_CHALLENGE_MISMATCH，未绑定判 E_CHALLENGE_MISSING")
     v.set_defaults(func=cmd_verify)
 
     t = sub.add_parser("triage", help="分诊一条告警（任意已支持来源）")
@@ -602,6 +620,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     sc = sub.add_parser("schema", help="输出内部告警契约 JSON Schema")
     sc.add_argument("-o", "--out", default=None)
+    sc.add_argument("--which", choices=["alert", "seal"], default="alert",
+                    help="输出哪份契约：告警归一（alert）或凭证结构（seal）")
+    sc.add_argument("--seal-version", dest="seal_version", default=None,
+                    help="--which seal 时指定版本，默认最新")
     sc.set_defaults(func=cmd_schema)
 
     d = sub.add_parser("demo", help="跑通内置样例：归一→分诊→盖章→验签→篡改检出")
