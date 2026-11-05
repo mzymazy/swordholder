@@ -357,7 +357,9 @@ docker run --rm -v "$PWD:/work" swordholder:0.7.1 keygen --out keys
 
 容器以非 root（uid 10001）运行，入口就是 `swordholder` 本身，子命令直接跟在镜像名后面。
 
-**没有发布到任何 registry**：`docker pull swordholder` 会失败，只能本地 `build`。这是有意为之——镜像一旦对外分发，就得替镜像内容承担供应链责任，而当前证据链只覆盖源码与凭证格式（见 [§8](#8-安全边界本仓库不含私钥不含权重)）。镜像**未在本仓库的 CI 里构建验证过**，构建过程的唯一产物是这条 `Dockerfile`（`.dockerignore` 排除了 `artifacts*/` `models/` `evidence/`，镜像不会夹带评测工件与权重）。
+**没有发布到任何 registry**：`docker pull swordholder` 会失败，只能本地 `build`。这是有意为之——镜像一旦对外分发，就得替镜像内容承担供应链责任，而当前证据链只覆盖源码与凭证格式（见 [§8](#8-安全边界本仓库不含私钥不含权重)）。镜像**未发布、也未纳入本仓库的 CI 门禁**，构建过程的唯一产物是这条 `Dockerfile`（`.dockerignore` 排除了 `artifacts*/` `models/` `evidence/`，镜像不会夹带评测工件与权重）。
+
+构建实测（2026-11-05，本机 Docker Desktop，Docker Server 29.2.1，基础镜像 `python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30`）：`docker build -t swordholder:0.7.1 .` 成功，镜像 212 MB（镜像 ID `790b889d880e`）；`docker run --rm swordholder:0.7.1 demo` 在容器内跑通「归一→分诊→盖章→验签→篡改检出」，6 条样例结论全部 `VALID_UNTRUSTED_KEY`，篡改件判 `E_PAYLOAD_TAMPERED`。这条实测是**一次性本机验证**，不等于 CI 会一直绿：换机器重建仍受 Docker Hub 可达性影响（本次构建即因直连 `registry-1.docker.io` 超时，改由镜像加速器完成拉取）。
 
 ### 2.3 想复现「评测本身」要额外做什么
 
