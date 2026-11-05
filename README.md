@@ -344,6 +344,21 @@ python evidence/verify_artifact_binding.py
 > 说明：`proofs/` 下 4 份凭证由信任锚 `k-ed25519-001` 对应私钥于 2026-10-16 签发，`verify_proof.py` v0.5 实测全部 `VALID`。
 > 想**自己造一份凭证**看 INVALID/VALID 的差别？见 [docs/proof-issuance.md](docs/proof-issuance.md)（演示密钥自签 + 本地信任锚，私钥不入库）。
 
+### 2.4 本机没有 Python：自己构建镜像
+
+宿主机只要装了 docker，依赖全在镜像里：
+
+```bash
+docker build -t swordholder:0.7.1 .
+docker run --rm swordholder:0.7.1 --help
+# 把当前目录挂进容器，keygen / seal / verify 的产物落在这里
+docker run --rm -v "$PWD:/work" swordholder:0.7.1 keygen --out keys
+```
+
+容器以非 root（uid 10001）运行，入口就是 `swordholder` 本身，子命令直接跟在镜像名后面。
+
+**没有发布到任何 registry**：`docker pull swordholder` 会失败，只能本地 `build`。这是有意为之——镜像一旦对外分发，就得替镜像内容承担供应链责任，而当前证据链只覆盖源码与凭证格式（见 [§8](#8-安全边界本仓库不含私钥不含权重)）。镜像**未在本仓库的 CI 里构建验证过**，构建过程的唯一产物是这条 `Dockerfile`（`.dockerignore` 排除了 `artifacts*/` `models/` `evidence/`，镜像不会夹带评测工件与权重）。
+
 ### 2.3 想复现「评测本身」要额外做什么
 
 复现评测需要本机有模型（Ollama 拉取，见 [§7](#7-模型权重获取说明)），命令与逐题口径见 `deliverable/README-reviewer.md` 与 `docs/architecture.md`。**复现评测不是 30 秒闭环的必要条件**：证据链与凭证验证都不依赖重新跑模型。

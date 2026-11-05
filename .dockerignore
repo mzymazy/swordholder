@@ -1,0 +1,26 @@
+# 构建上下文只保留打包必需文件：仓库里的评测工件与模型权重不该进镜像
+.git
+.github
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+build
+dist
+*.egg-info
+
+# 证据与工件（体积大、与镜像功能无关）
+artifacts
+artifacts_*
+evidence
+proofs
+models
+cases
+temp
+.demo_out
+
+# 交付物与本地输出
+deliverable
+Swordholder*
+05_合规声明
+keys

@@ -8,9 +8,9 @@
 
 ## v1.0 — 可安装、可一条命令跑通
 
-- [ ] 发布 PyPI 包 `swordholder`，`pip install swordholder` 后可直接使用 —— **未发**（打包配置与 `pip install -e .` 已可用）
+- [ ] 发布 PyPI 包 `swordholder` —— **未上传 index**。`0.7.1` 已构建 `dist/swordholder-0.7.1-py3-none-any.whl` 与 sdist，并在干净 venv 里用 wheel 装过一轮（`keygen` → `seal --challenge` → `verify` 正确/错误挑战两例都符合预期，`seal.schema.json` 与策略 YAML 均已进包），缺的只是上传凭据与一次 `twine upload`
 - [x] 统一 CLI —— 已落地，但子命令设计与早期设想不同：`keygen` / `seal` / `verify` / `triage` / `query` / `schema` / `serve` / `trust` / `agent` / `policy` / `exits` / `demo`
-- [ ] 提供 Docker 镜像，支持无 Python 环境一键运行 —— 未做
+- [~] 提供 Docker 镜像，支持无 Python 环境一键运行 —— `0.7.1` 已提交 `Dockerfile` + `.dockerignore`（非 root 运行、只带打包必需文件），但镜像**未构建验证**、未推任何 registry
 - [ ] 输出机读 JSON + 单页 HTML 报告 + README badge —— 机读 JSON 已有（所有 CLI 均输出 JSON）；HTML 报告与 badge 未做
 - [ ] 中英双语 README 首屏 —— 未做
 - [x] 30 秒离线闭环 —— `scripts/quickstart.ps1` / `quickstart.sh`（§2.1）

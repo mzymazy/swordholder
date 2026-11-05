@@ -27,6 +27,8 @@ AIGC:
 - `authorization` 声明类型（`verify_tool: null`，已进 `default-soc-triage.yaml` 的 `session.claims`）：口头许可没有可核实目录，与 `identity` 同理。
 - 两条回归：`test_verbal_authorization_never_relaxes_severity`（借口头话降级被拒）、`test_verbal_authorization_does_not_block_tightening`（同样话术但收紧照旧放行）。
 - `scripts/xadv_multiturn_live.py`：真模型三态复测入口，支持 `--suite live|xadv`，产物落 `evidence/session_lab/`。
+- 打包验证：`dist/swordholder-0.7.1-py3-none-any.whl` / `.tar.gz` 已构建，并在**干净 venv**（不装仓库、不装 dev 依赖）里 `pip install` 后跑通 `keygen` → `seal --challenge` → `verify`（正确挑战 `VALID_UNTRUSTED_KEY`、错误挑战 `E_CHALLENGE_MISMATCH` 且退出码 1）。**未上传 PyPI**。
+- `Dockerfile` + `.dockerignore`：无 Python 环境的运行方式（非 root、只拷贝 `pyproject.toml` / `swordholder/` / `mcp_server/`）。**镜像未构建验证、未推 registry**，发布镜像的供应链责任不在本版承担。
 
 ### 变更（Changed）
 
