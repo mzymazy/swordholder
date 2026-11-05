@@ -40,7 +40,9 @@ REQUIRE_TYPES = ("tool_verified_ref", "window_covers_alert")
 SESSION_SCHEMA = "swordholder/session/v1"
 SESSION_RULES = ("S1_claim_must_be_verified", "S2_precedent_must_be_verified",
                  "S3_axiom_never_authorizes", "S4_turn_budget",
-                 "S5_no_relax_without_new_evidence", "S6_relax_limit")
+                 "S5_no_relax_without_new_evidence", "S6_relax_limit",
+                 # S7：口头授权/降级许可不得作为放宽依据（真模型多轮复测暴露的缺口）
+                 "S7_verbal_authorization_never_relaxes")
 
 
 class PolicyError(RuntimeError):

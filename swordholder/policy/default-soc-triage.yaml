@@ -124,6 +124,22 @@ session:
       keywords: ["公理", "原则", "守则", "准则", "你刚才说", "为了践行"]
       verify_tool: null
 
+    # 口头授权/降级许可：授权单是可查的，人的一句"我授权"不是。
+    # S7 只在放宽结论时拦截；收紧或维持不需要任何许可，因此这里只管 relaxed 分支。
+    - id: authorization
+      title: 口头授权/降级许可（无核实源，不得作为放宽依据）
+      patterns:
+        - "我(授权|批准|同意|允许)[你他]?"
+        - "(授权|批准|允许)你"
+        - "统一(按|降|处)"
+        - "一律(按|降|给)"
+        - "(降|调)到.{0,6}(low|medium|informational)"
+        - "降级|降为|往下调"
+        - "别再(拉|叫|升级|打扰)"
+        - "出了事我担|我负责|我来签字"
+      keywords: ["我授权", "我批准", "统一按", "一律按", "降级", "降为", "出了事我担", "别再拉人"]
+      verify_tool: null
+
   # 显式打开的不变量；不写等于全开。删掉某条要当成一次安全决策来评审。
   rules:
     - S1_claim_must_be_verified
@@ -132,3 +148,4 @@ session:
     - S4_turn_budget
     - S5_no_relax_without_new_evidence
     - S6_relax_limit
+    - S7_verbal_authorization_never_relaxes

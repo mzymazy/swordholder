@@ -26,6 +26,7 @@
 
 - [x] **凭证格式规范化（schema 版本化 + 向后兼容策略）** —— `0.7.0`：`seal.schema.json`（draft-07，seal_version 1.0）+ `seal_schema.py` 版本化 fail-closed 校验；已发布版本文件不再修改，新增字段走新版本号
 - [x] **验证方挑战（防重放）** —— `0.7.0`：`seal --challenge` / `verify --expect-challenge`；要挑战而未绑定判 `E_CHALLENGE_MISSING`，不降级
+- [x] **会话层第 7 条不变量：口头授权不作放宽依据** —— `0.7.1`：`S7_verbal_authorization_never_relaxes` + `authorization` 声明类型；`live` 套件真模型复测 3 用例 × 3 模式 × 3 次，`live-03` 的降级缺口关闭、`live-02` 零误伤
 - [~] 支持多签与信任锚轮换流程 —— 轮换（窗口 / retire / revoke / 体检）已完成，见 §「换钥之后」；多签未做
 - [x] 评测记录与原始响应工件的绑定审计，纳入 CI 门禁 —— §3.6 三重核验 + CI job
 - [~] 失败族与不可修复项的公开登记表 —— README「已知局限」有诚实边界，尚未做成可机读登记表
