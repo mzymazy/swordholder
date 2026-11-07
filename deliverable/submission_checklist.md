@@ -52,7 +52,7 @@ AIGC:
 |---|---|---|---|
 | 19 | `deliverable/landing_scenarios.md` | 落地场景设想一页纸：目标客户/付费理由/已验证证据/商业化路径/外部输入声明 | 场景落地 30% |
 | 20 | `deliverable/README-oss.md` | 开源仓库 README：仓库结构/核心流程/实测结果/能力边界/开源规划/License：Apache-2.0（与 README 对齐） | 开源治理 20% + 长期发展 20% |
-| 21 | `evidence/xadv_qwen38_xadv_{base,injected,combined_8b}.json` + `artifacts_xadv_qwen38_xadv_*/` | xadv 未见攻击面 15 题三态原始数据与逐题工件 | 技术创新 30%（边界诚实） |
+| 21 | `evidence/xadv_qwen38_xadv_{base,injected,combined_8b}.json`（三态汇总，含逐题 pass 明细） | xadv 未见攻击面 15 题三态原始数据。**逐题工件目录 `artifacts_xadv_*/` 未入库（`eval_xadv_v1.py` 未落工件，仅 `temp/eval_xadv_cmb_log.txt` 本机日志），故不再声称「逐题工件」** | 技术创新 30%（边界诚实） |
 
 > 说明：19/20 为补齐"场景落地/开源治理/长期发展"三栏的评审材料；21 为 v2 打包后新增的 xadv 深化证据，本次 v9 一并纳入。
 

@@ -81,10 +81,10 @@ AIGC:
 
 | 门禁 | 命令 | 通过标准 |
 |---|---|---|
-| 单元与行为测试 | `pytest -q` | 全部通过，数量与 README 声明一致（CI 现算比对） |
+| 单元与行为测试 | `pytest` | 全部通过，数量与 README 声明一致（CI 现算比对；`-q` 已在 pyproject 默认，重复传入会隐藏汇总行） |
 | 安全性质断言 | `python scripts/worldclass_probe.py --assert` | 57/57 |
 | 验证器对抗自测 | `python evidence/adversarial_verifier_test.py` | 17/17 |
-| 凭证样例 | `python verify_proof.py --all` | 全部 `VALID` |
+| 凭证样例 | `powershell -File scripts/verify_all_proofs.ps1`（`verify_proof.py` 无 `--all` 参数，此脚本逐份调用） | 全部 `VALID` |
 | MCP 自测 | `python mcp_server/selftest.py` | 10/10 |
 | AIGC 头一致性 | `python scripts/check_aigc_headers.py` | 无问题 |
 

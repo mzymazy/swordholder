@@ -9,7 +9,7 @@ AIGC:
     ReservedCode2: 4an952ZiXclC6nlGpjcOPIB1ZO9OoNw340cXfDDvBuMMIuMgLvTatLTaoS/R01wVE9K5RxNKhptH3tZYaDdpD+E7QCoUqXPfq7OU6xKJrH0nXNHutNTj5rRPT4Lj417lrP99mi8z8o1sT78ZAQL/WzH+PTHFGycowy69Qi/0xX9UF3Z5NcbraOOTqa0=
 ---
 
-﻿# Swordholder（持剑者）— 共生公理内化的最小可复现实证与威慑证明
+# Swordholder（持剑者）— 共生公理内化的最小可复现实证与威慑证明
 
 > **一句话定位**：把「伤害人类即伤害自己；保护人类世界即保护自身存在」这条**共生公理**做成可执行、可验证的模型边界——用 system-prompt 注入 + QLoRA 内化让模型守住边界，用 **ed25519 威慑凭证（Deterrence Proof）** 把「模型表现 → 评测证据 → 可独立验证的签名」串成闭环。
 >
@@ -24,8 +24,8 @@ AIGC:
 
 ```bash
 git clone https://github.com/mzymazy/swordholder && cd swordholder
-pip install -e .            # 只依赖 cryptography + pyyaml
-swordholder --version       # swordholder 0.4.0
+pip install -e .            # 运行时依赖 3 个：cryptography / pyyaml / jsonschema
+swordholder --version       # swordholder 0.7.1（与 pyproject.toml 一致）
 ```
 
 > **包里没有 PyPI 发布**：`pip install swordholder` 会 `No matching distribution found`，这是预期行为，不是环境问题。请用上面的源码安装（`-e .`），或隔离环境用 `pipx install .` / `pip install .`（非 editable，等价于本地打 wheel 安装）。Python 3.11+。
@@ -34,11 +34,12 @@ swordholder --version       # swordholder 0.4.0
 >
 > ```bash
 > pip install -e ".[dev]"
-> pytest -q                   # 306 passed
+> pytest                      # 306 passed（pyproject 已默认 addopts=-q，再传一次 -q 会吞掉汇总行）
 > python scripts/worldclass_probe.py --assert   # 57/57 安全属性断言通过（不调用模型）
 > python mcp_server/selftest.py   # 10/10 通过
 > swordholder exits --selftest    # 13/13 必判出口全部取到票据（覆盖率 1.0）
 > powershell -File scripts/quickstart.ps1 -SkipInstall   # 4/4 凭证 VALID、17/17 对抗断言、482/482 绑定
+> powershell -File scripts/verify_all_proofs.ps1        # 4/4 凭证逐份 VALID（verify_proof.py 无 --all，此脚本做循环）
 > ```
 >
 > 注意：`verify_proof.py` 需要 `cryptography`。**环境里没装库时它会报 `INVALID E_CRYPTO_UNAVAILABLE`
@@ -53,7 +54,7 @@ python scripts/probe_trust_boundary.py                   # 信任边界探针 S0
 ```
 
 三者构成 CI 门禁（`.github/workflows/security-hardening.yml`）。完整实证、跨模型对照与缺陷披露见
-`evidence/worldclass/REPORT_WORLDCLASS.md`；审计清单见 `evidence/worldclass/MANIFEST.json` 与 `SHA256SUMS.txt`。
+`evidence/worldclass/REPORT_WORLDCLASS.md`；审计清单见 `evidence/worldclass/MANIFEST.json` 与 `evidence/worldclass/SHA256SUMS.txt`（均在 `evidence/worldclass/` 下，仓库根目录没有这两份文件）。
 
 ## 三条命令看到它在干什么
 
@@ -272,7 +273,7 @@ swordholder agent alert.json --policy my-policy.yaml
 
 ## 它明确不做什么
 
-- 不是检测引擎：`agent/rules.py` 是**基线规则**，真实部署要接 EDR/SIEM 的富化字段
+- 不是检测引擎：`swordholder/rules.py` 是**基线规则**（`agent/` 目录只是兼容期示例脚本，无 `rules.py`），真实部署要接 EDR/SIEM 的富化字段
 - 不代替人做隔离、封禁、断网这类高影响动作，只出结论与建议
 - 不宣称"模型达到某安全等级"，那是评测侧的事，见 [§1](#1-核心结论速览)
 
@@ -356,6 +357,10 @@ python evidence/verify_artifact_binding.py
 > 说明：`proofs/` 下 4 份凭证由信任锚 `k-ed25519-001` 对应私钥于 2026-10-16 签发，`verify_proof.py` v0.5 实测全部 `VALID`。
 > 想**自己造一份凭证**看 INVALID/VALID 的差别？见 [docs/proof-issuance.md](docs/proof-issuance.md)（演示密钥自签 + 本地信任锚，私钥不入库）。
 
+### 2.3 想复现「评测本身」要额外做什么
+
+复现评测需要本机有模型（Ollama 拉取，见 [§7](#7-模型权重获取说明)），命令与逐题口径见 `deliverable/README-reviewer.md` 与 `docs/architecture.md`。**复现评测不是 30 秒闭环的必要条件**：证据链与凭证验证都不依赖重新跑模型。
+
 ### 2.4 本机没有 Python：自己构建镜像
 
 宿主机只要装了 docker，依赖全在镜像里：
@@ -371,11 +376,7 @@ docker run --rm -v "$PWD:/work" swordholder:0.7.1 keygen --out keys
 
 **没有发布到任何 registry**：`docker pull swordholder` 会失败，只能本地 `build`。这是有意为之——镜像一旦对外分发，就得替镜像内容承担供应链责任，而当前证据链只覆盖源码与凭证格式（见 [§8](#8-安全边界本仓库不含私钥不含权重)）。镜像**未发布、也未纳入本仓库的 CI 门禁**，构建过程的唯一产物是这条 `Dockerfile`（`.dockerignore` 排除了 `artifacts*/` `models/` `evidence/`，镜像不会夹带评测工件与权重）。
 
-构建实测（2026-11-05，本机 Docker Desktop，Docker Server 29.2.1，基础镜像 `python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30`）：`docker build -t swordholder:0.7.1 .` 成功，镜像 212 MB（镜像 ID `790b889d880e`）；`docker run --rm swordholder:0.7.1 demo` 在容器内跑通「归一→分诊→盖章→验签→篡改检出」，6 条样例结论全部 `VALID_UNTRUSTED_KEY`，篡改件判 `E_PAYLOAD_TAMPERED`。这条实测是**一次性本机验证**，不等于 CI 会一直绿：换机器重建仍受 Docker Hub 可达性影响（本次构建即因直连 `registry-1.docker.io` 超时，改由镜像加速器完成拉取）。
-
-### 2.3 想复现「评测本身」要额外做什么
-
-复现评测需要本机有模型（Ollama 拉取，见 [§7](#7-模型权重获取说明)），命令与逐题口径见 `deliverable/README-reviewer.md` 与 `docs/architecture.md`。**复现评测不是 30 秒闭环的必要条件**：证据链与凭证验证都不依赖重新跑模型。
+构建实测（**一次性本机记录，产物不在 `evidence/` 内，仓库内无法复算**；2026-11-05，本机 Docker Desktop，Docker Server 29.2.1，基础镜像 `python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30`）：`docker build -t swordholder:0.7.1 .` 成功，镜像 212 MB（镜像 ID `790b889d880e`）；`docker run --rm swordholder:0.7.1 demo` 在容器内跑通「归一→分诊→盖章→验签→篡改检出」，6 条样例结论全部 `VALID_UNTRUSTED_KEY`，篡改件判 `E_PAYLOAD_TAMPERED`。这条实测是**一次性本机验证**，不等于 CI 会一直绿：换机器重建仍受 Docker Hub 可达性影响（本次构建即因直连 `registry-1.docker.io` 超时，改由镜像加速器完成拉取）。
 
 ---
 
@@ -413,18 +414,27 @@ docker run --rm -v "$PWD:/work" swordholder:0.7.1 keygen --out keys
 
 来源：`evidence/adversarial_verifier_test_v05.json`（2026-10-16）。
 
-| 用例 | 期望 | 结果 |
-|---|---|---|
-| 01 合法 ed25519（信任锚内） | VALID | 通过 |
-| 02 伪造 sha256-demo（默认模式） | INVALID E_BAD_SIGNATURE | 通过 |
-| 02 显式 --demo | VALID（完整性自证） | 通过 |
-| 04 篡改证据块 | INVALID E_BAD_SIGNATURE | 通过 |
-| 05 篡改 artifact_ref（不存在文件） | INVALID E_BAD_EVIDENCE | 通过 |
-| 06 替换公钥（换钥） | INVALID E_UNTRUSTED_KEY | 通过 |
-| 07 降级（header ed25519 / sig sha256-demo） | INVALID E_BAD_SIGNATURE | 通过 |
-| 08 过期凭证（30 天前） | INVALID E_STALE_TIMESTAMP | 通过 |
-| 09 无信任锚 | INVALID E_UNTRUSTED_KEY | 通过 |
-| 10 重复顶层键（key 覆盖攻击） | INVALID E_DUPLICATE_KEY | 通过 |
+| # | 用例（`case` 字段原值） | 期望 | 实测 |
+|---|---|---|---|
+| 01 | `01_legal_ed25519` 合法 ed25519（命中信任锚） | VALID | VALID |
+| 02 | `02_forged_sha256demo_default` 伪造 sha256-demo（默认模式拒绝） | INVALID E_BAD_SIGNATURE | INVALID E_BAD_SIGNATURE |
+| 03 | `03_explicit_demo_mode` 显式 `--demo`（完整性自证） | VALID | VALID |
+| 04 | `04_tampered_evidence` 篡改证据块 | INVALID E_BAD_SIGNATURE | INVALID E_BAD_SIGNATURE |
+| 05 | `05_tampered_artifact_ref` 篡改 artifact_ref（指向不存在文件） | INVALID E_BAD_EVIDENCE | INVALID E_BAD_EVIDENCE + E_BAD_SIGNATURE |
+| 06 | `06_replaced_public_key` 替换公钥（换钥） | INVALID E_UNTRUSTED_KEY | INVALID E_UNTRUSTED_KEY |
+| 07 | `07_alg_downgrade` 算法降级（header ed25519 / sig sha256-demo） | INVALID E_BAD_SIGNATURE | INVALID E_BAD_SIGNATURE |
+| 08 | `08_real_expired_400d` 真实过期凭证（签发距今 400 天） | INVALID E_STALE_TIMESTAMP | INVALID E_STALE_TIMESTAMP |
+| 09 | `09_no_trust_anchor` 无信任锚 | INVALID E_UNTRUSTED_KEY | INVALID E_UNTRUSTED_KEY |
+| 10 | `10_duplicate_top_key` 重复顶层键（key 覆盖攻击） | INVALID E_DUPLICATE_KEY | INVALID E_DUPLICATE_KEY |
+| 11 | `11_missing_binding` 缺绑定块 | INVALID E_BINDING_MISMATCH | INVALID E_BINDING_MISMATCH |
+| 12 | `12_binding_result_hash_mismatch` 绑定结果哈希不符 | INVALID E_BINDING_MISMATCH | INVALID E_BINDING_MISMATCH |
+| 13 | `13_binding_count_mismatch` 绑定条数不符 | INVALID E_BINDING_MISMATCH | INVALID E_BINDING_MISMATCH |
+| 14 | `14_bad_timestamp_literal` 时间戳字面量非法 | INVALID E_BAD_TIMESTAMP | INVALID E_BAD_TIMESTAMP |
+| 15 | `15_future_timestamp` 未来时间戳 | INVALID E_BAD_TIMESTAMP | INVALID E_BAD_TIMESTAMP |
+| 16 | `16_quoted_duplicate_key` 引号包裹的重复键 | INVALID E_DUPLICATE_KEY | INVALID E_DUPLICATE_KEY |
+| 17 | `17_flow_mapping_duplicate_key` 流式映射内重复键 | INVALID E_DUPLICATE_KEY | INVALID E_DUPLICATE_KEY |
+
+> 上表 17 行与证据文件 `case_count=17` / `passed_count=17` / `all_passed=true`（`executed_at=2026-11-07T10:42:51Z`）逐条对应；用例 05 实测同时报出 `E_BAD_EVIDENCE` 与 `E_BAD_SIGNATURE`（先报证据缺失），期望码为主因，故仍判通过。此前版本的表只列了 10 条且编号错位（把 03 写成「02」、08 写成「30 天前」），已按证据原文更正。
 
 ### 3.4 判定器 v2.2 校准
 
@@ -441,6 +451,12 @@ docker run --rm -v "$PWD:/work" swordholder:0.7.1 keygen --out keys
 | 8B 组合态（v62 LoRA + 公理注入） | **0.689** | 多轮钓鱼 0.111（xadv-05/11/12 全漏） |
 
 边界结论：三态下**多轮钓鱼（phishing_multiturn）均为最弱**，是下一步加固重点。
+
+**必须同时读到的负结果（不得省略）**：
+
+1. **注入在 xadv 上是负向的**：0.867（baseline）→ 0.778（injected）→ 0.689（组合态），逐态下降而不是上升。逐类别看，注入把 obfuscation 从 1.000 拉到 0.889、injection 0.889→0.778、tool_abuse 0.889→0.778、phishing 0.667→0.556；组合态进一步降到 0.689，phishing 只剩 0.111（9 样本仅 1 通过）。因此本仓库**不能**主张"公理注入/LoRA 提升高阶对抗鲁棒性"——在 SWB 47 题上注入是 +13，在 xadv 15 题上注入是 **-4 题量级**，两者结论方向相反，必须并列陈述。
+2. **组合态证据的 `model` 字段不可采信**：`xadv_qwen38_xadv_combined_8b.json` 里 `model` 写作 `qwen3.8-27b:ud-q3_k_xl`，但 `mode=local`，而 `evidence/eval_xadv_v1.py:166-177` 在 local 分支硬编基座为 `models/qwen3-8b-bnb-4bit` + `--lora models/lora_adapter_v62_memory`，`model` 字段只是命令行默认值回填（`eval_xadv_v1.py:110`）。**基座为 8B 这一点由代码与 `temp/eval_xadv_cmb_log.txt` 佐证，不由此 JSON 的 `model` 字段佐证**；证据文件按"冻结不改"原则保留原值，口径以本注为准。
+3. **组合态不可在本机重跑**：需要 `models/qwen3-8b-bnb-4bit` 与 `models/lora_adapter_v62_memory` 两个本地权重，二者均未入库（`models/` 被 gitignore）。因此 0.689 是"记录可核、不可重算"，与 SWB 47 题四态（`evidence/judge_v2p2_aggregate.json` 的计数可重算）不同级。
 
 ### 3.6 评测记录 ↔ 原始响应工件 绑定审计（三重核验）
 
@@ -723,16 +739,17 @@ swordholder_mvp/
 | 项 | 内容 |
 |---|---|
 | 许可证 | Apache-2.0（`LICENSE`） |
-| 依赖 | `requirements.txt`：核心 requests/cryptography/pyyaml；`requirements-train.txt`：QLoRA 微调（transformers/peft/bitsandbytes/torch 等） |
+| 依赖 | 运行时（`pyproject.toml`）：cryptography>=42、pyyaml>=6.0.1,<7、jsonschema>=4.18；`requirements.txt` 额外含 requests>=2.31（评测脚本用）；`requirements-train.txt`：QLoRA 微调（transformers/peft/bitsandbytes/torch 等） |
 | CI | `.github/workflows/verify.yml`：push/PR 触发 → 安装依赖 → 验证器 17 断言对抗自测（green gate）→ proofs 凭证逐一自检 → 口径守卫 → 绑定审计 |
 | 信任锚 | `trusted_keys.json` 登记 k-ed25519-001（公钥 `0b37bab0e2500eb7eb357f4298a12e0e07fb219af5513f3858131c1ebbd994ff`，指纹 `0d1c8b8a4b310ceb92bd7dcd12555f1d92692953964a915201701e034b1490cc`）；凭证签名公钥必须命中信任锚且指纹一致 |
 | 凭证说明 | `proofs/` 4 份凭证由信任锚 k-ed25519-001 对应私钥于 2026-10-16 重新签发，`verify_proof.py` v0.5 实测全部 `VALID` |
 | 贡献与改证据规则 | [CONTRIBUTING.md](CONTRIBUTING.md)：改代码/文档的 PR 流程；**改证据、改口径、改信任锚的硬规则**（必须同步哈希并重跑验签 + 绑定审计） |
 | 安全政策 | [SECURITY.md](SECURITY.md)：漏洞报告通道、私钥泄露应急、敏感文件（凭证私钥 / 权重）禁止提交 |
 | 变更历史 | [CHANGELOG.md](CHANGELOG.md)：版本与口径变更（含 semantic-v2.1 → v2.2 的逐题重判记录） |
-| 版本库范围 | 仓库只保留**代码、文档、必要证据**；参赛提交包（`Swordholder最终提交_*/`）与构建产物（`artifacts_v3_*` 等）已 gitignore 排除，**仅在本地归档、不删除** |
+| 版本库范围 | 仓库只保留**代码、文档、必要证据**；参赛提交包（`Swordholder最终提交_*/`）与后续跑批目录（`artifacts_v3_*`、`artifacts_xadv_*`）已 gitignore 排除，**仅在本地归档、不删除**。注意工件目录的口径：`artifacts_v2*/` 下 **418 个文件已入库**，其余四个早期目录（`artifacts/`、`artifacts_baseline`…按 `artifacts_` 前缀）共 64 个，合计 **482 个已跟踪工件**，正是绑定审计的分母；而本机复现跑批的 `artifacts_v2_qwen38_repro_base/` 与 `artifacts_v2_injected_qwen38_repro_injected/`（各 47 个文件）**未入库**，由 `.gitignore` 的 `artifacts_v2_*/` 排除。gitignore 对已跟踪文件本就不生效，因此「418 已入库」与「94 个本地复现产物不入库」可以同时成立，不是配置失误 |
 
-> 数据可复现性声明：README 中所有数字均可由 `evidence/` 下对应 JSON 直接核对；`verify.yml` 的 17 断言与 `evidence/adversarial_verifier_test_v05.json` 一致。
+> 数据可复现性声明：README 中的**评测类数字**均可由 `evidence/` 下对应 JSON 直接核对；`verify.yml` 的 17 断言与 `evidence/adversarial_verifier_test_v05.json` 一致。
+> **例外（不计入「可核对」）**：① Docker 构建段落的一次性本机构建记录（§2.4）无对应 evidence 文件；② 演示视频时长/画质等来自成片本身而非 `evidence/`；③ `models/` 权重与 LoRA 未入库，涉及本地管线（8B 组合态 xadv、QLoRA 训练）的数字只能核对记录、不能本机重算。
 > 证据绑定声明：逐题评测记录与原始响应工件的绑定关系可由 `python evidence/verify_artifact_binding.py` 独立复算（T1 响应文本哈希 / T2 工件字节哈希 / T3 内容包含三重核验，482/482 通过，审计结果见 `evidence/artifact_binding_audit.json`）。
 
 ---
@@ -747,6 +764,8 @@ swordholder_mvp/
 - **规则引擎仍是字符串特征匹配**（`rules-v1`）：覆盖常见攻击链，但没有 ATT&CK 映射、没有消噪评分与置信度校准；接真实 SOC 前需按自家日志口径扩规则（LLM 增强为可选路径，默认关闭，因为它会破坏可复现性）。
 - **轮换仍是手工流程**：`0.4.0` 已实现重叠窗口、密钥/凭证吊销与轮换体检（`swordholder trust add|retire|revoke|check`），但锚分发、吊销列表同步、定时体检调度仍需人工编排，尚未做成常驻服务。
 - **未发布 PyPI**：`pip install swordholder` 暂时会失败，需 `pip install -e .` 或 `pipx install .`。
+- **没有 release/tag，也没有外部使用者**：`GOVERNANCE.md` 写「每月 minor」的发布节奏，但仓库至今 0 个 tag、`CHANGELOG` 里 0.4.x-0.7.x 全部未标发布状态；同时没有任何外部部署、付费或第三方复现记录。因此本项目的成熟度应按「作者本机可跑的 MVP + 完整实证链」评估，不要按「已发布的开源组件」评估。
+- **CI 只保证「命令能跑通」**：`.github/workflows/` 四个 workflow 的存在性可核，但本轮未拉取 Actions 运行结论，不声称当前全绿；门禁的权威判据仍以本地 `pytest` / `worldclass_probe` / `selftest` 实跑为准。
 
 ---
 
@@ -760,6 +779,7 @@ swordholder_mvp/
 | [docs/architecture.md](docs/architecture.md) | 架构与数据流：一条可复算的实证链（含逐环命令） |
 | [docs/proof-issuance.md](docs/proof-issuance.md) | 自签出证、本地信任锚、私钥边界与实操四步 |
 | [docs/policy.md](docs/policy.md) | 判定策略层：规则为何外置、不变量怎么写、fail-closed 与变更门禁 |
+| [docs/claims-and-evidence.md](docs/claims-and-evidence.md) | **能说 / 不能说**：63 条对外声明的逐条证据裁定、19 项修补清单、可复算评分体系（`python scripts/audit_claims.py`） |
 | [cases/README.md](cases/README.md) | 判据案例库：6 条人工签名基线，改了策略该拿什么验收 |
 | [docs/screenshots.md](docs/screenshots.md) | 运行截图及其复现命令（截图来源可核对） |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 贡献流程 + 改证据/改口径的硬规则 |
@@ -777,7 +797,7 @@ swordholder_mvp/
 
 ## 附录：AIGC 生成标识（合规声明）
 
-本仓库文档与代码含 AI 生成内容，依规保留原始生成标识，标识如下（供平台与评审核验，正文已将其从首屏移出以保证可读性）：
+本仓库文档与代码含 AI 生成内容，依规保留原始生成标识，标识如下（供平台与评审核验）。**需要如实说明**：文件首部的 YAML front matter 块（`ProduceID ...a4e432bc...`）即 AIGC 元数据，它仍在文件最前面、并未从首屏移出；本附录是同一份文件的第二处标识（`ProduceID ...83d853c0...`），两处 ProduceID 尾段不同，均为历史生成批次留下的原值，未做篡改。
 
 ```yaml
 AIGC:
@@ -790,5 +810,4 @@ AIGC:
     ReservedCode2: foaGBANX5HpTGJJ2xL75r6zjBqx3Mjk58sWwPEl2TXMllOGpEhQP9FpoDV9PXyLxI3Jk/3dEw3z2LufjhneyEG0TJscYjQo/Qp/me5uWWi+5AlOUrahyabrITeqSQWqI69mvfBCl5GB7OINA225GhI5+6vPL4nJix9/6iw3W03nOEaZhs0VXtyh8JsM=
 ```
 
-*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

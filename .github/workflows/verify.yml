@@ -86,6 +86,14 @@ jobs:
       - name: AIGC 标识头一致性守卫
         run: python scripts/check_aigc_headers.py
 
+      # 声明-证据审计：docs/ 与 README 里每条对外声明的 ref 必须指向仓库内真实存在的文件，
+      # 且评分可按 evidence/claims/claims_registry.json 原样复算（假支撑与数字漂移都在这里红）。
+      - name: 声明-证据可追溯性守卫
+        run: |
+          set -euo pipefail
+          python scripts/audit_claims.py --check-refs
+          python scripts/audit_claims.py --json | python -c "import json,sys; d=json.load(sys.stdin); print('审计综合分(修补后): %.2f' % d['after']['composite']); assert d['after']['composite'] >= 85, d['after']"
+
       # 策略变更门禁：判定规则已外置到 swordholder/policy/*.yaml，改一份 YAML 就等于改系统行为。
       # cases/ 下 6 条人工签名判据案例覆盖"该放行"与"该拒收"两侧，必须全部符合期望；
       # 案例被改动而 cases/manifest.json 未同步更新 -> 退出码 2，直接红灯，

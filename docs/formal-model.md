@@ -260,7 +260,7 @@ Adv^{forge}_{f'}(𝒜) ≤ Adv^{EUF-CMA}_Σ(ℬ) + Adv^{anchor}(𝒜)
   （证据记录无 `verdict` 字段，落在 `basis="attested"` 的工件登记分支）；
 - 签发实现归属 `mcp_server/server.py`（已登记出口），证据服务（CMDB/工单系统）
   用自己的私钥签发，公钥经 `trust add --pubkey-file` 登记进信任锚；
-- 本次**只落地验证侧**（`evidence_auth.py` 三个函数）；签发侧改造（在 `mcp_server/server.py`
+- 本次**只落地验证侧**（`swordholder/evidence_auth.py` 三个函数）；签发侧改造（在 `mcp_server/server.py`
   新增证据签发出口，或由证据服务直接走 `seal_record` 出口）留到接入时执行，避免本版
   在没有评审的情况下扩张签发面；
 - 信任面因此扩张一条（新增证据服务公钥），必须同时写入
