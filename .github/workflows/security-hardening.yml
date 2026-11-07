@@ -1,0 +1,67 @@
+name: security-hardening
+
+# 世界级验证门禁：把"安全性质"变成每次提交都必须通过的断言。
+# 与 mcp-selftest 的分工：selftest 验功能与出口完整性；本流水线验安全属性回归。
+on:
+  push:
+    paths:
+      - "swordholder/**"
+      - "tests/**"
+      - "scripts/worldclass_probe.py"
+      - "scripts/probe_evidence_integration.py"
+      - "policies/**"
+      - "pyproject.toml"
+      - ".github/workflows/security-hardening.yml"
+  pull_request:
+    paths:
+      - "swordholder/**"
+      - "tests/**"
+      - "scripts/worldclass_probe.py"
+      - "scripts/probe_evidence_integration.py"
+      - "policies/**"
+  workflow_dispatch:
+
+jobs:
+  hardening:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install deps
+        run: |
+          pip install -r requirements.txt
+          pip install -e . pytest
+
+      - name: Hardening regression (window / ok-strict / ticket-ref / non-dict)
+        run: python -m pytest -q tests/test_worldclass_hardening.py
+
+      - name: Full test suite
+        run: python -m pytest -q
+
+      # 确定性探针：不调用模型，任何一项安全性质不成立即非零退出。
+      # 这一步是"修复不被回退"的钉子 —— 谁把 _window_covers 改回字符串比较，CI 立刻红。
+      - name: Deterministic security probe (assert mode)
+        run: python scripts/worldclass_probe.py --assert
+
+      # 证据认证接入点的钉子：S3（伪造工单）必须被拒、S0/S3f（真阳性/真确认）必须放行。
+      # 谁把 _facts_for 改回只读值、或让 attestation 校验"失败即放行"，CI 立刻红。
+      - name: Evidence-attestation integration probe (assert mode)
+        run: python scripts/probe_evidence_integration.py --assert
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: worldclass-probe-${{ matrix.os }}
+          path: |
+            evidence/worldclass/probe_deterministic.json
+            evidence/poison_v2/evidence_integration.json
+          if-no-files-found: warn

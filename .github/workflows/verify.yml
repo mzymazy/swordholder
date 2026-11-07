@@ -23,7 +23,9 @@ jobs:
           cache: pip
 
       - name: 安装依赖
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install -e . pytest
 
       # 验证器对抗自测 v0.5（17 用例）：脚本在临时目录内构造全部用例，使用独立测试信任锚。
       # 合法 ed25519 → VALID；伪造签名 / 篡改证据 / 篡改绑定工件 / 换公钥 / 算法降级 /
@@ -64,7 +66,12 @@ jobs:
           grep -q "baseline 30/47" README.md
           grep -q "45/47" README.md
           # 测试数必须与 README 声称一致（曾出现文档写 61 passed、实际 85 passed 的漂移）
-          grep -q "117 passed" README.md || { echo "README 的 pytest 数字与实际不符"; exit 1; }
+          # 不再写死数字：实际用例数由 pytest 现算（按 tests/*.py: N 逐文件求和，不依赖 pytest 汇总行），
+          # README 必须与之一致，从根上消除二次漂移。
+          ACTUAL=$(python -m pytest --collect-only -q 2>/dev/null | awk -F': ' '/^[^ ]+\.py: [0-9]+$/ {s+=$2} END {print s+0}')
+          if [ -z "$ACTUAL" ] || [ "$ACTUAL" = "0" ]; then echo "无法从 pytest 取到用例数"; exit 1; fi
+          grep -q "$ACTUAL passed" README.md || { echo "README 的 pytest 数字与实际的 $ACTUAL 不符"; exit 1; }
+          echo "测试数口径一致：$ACTUAL passed"
           if grep -rq -- "v0.4" README.md deliverable/README-reviewer.md deliverable/README-oss.md; then
             echo "文档回退到 v0.4 口径"; exit 1
           fi

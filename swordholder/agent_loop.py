@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 
+import datetime
 import json
 import os
 import re
@@ -25,7 +26,7 @@ from typing import Any, Callable
 LAB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                        "evidence", "agent_lab")
 
-from . import exit_guard, policy_loader
+from . import evidence_auth, exit_guard, policy_loader
 from . import session as session_mod
 
 # 枚举与阈值不再硬编码在本模块，统一由策略包（swordholder/policy/*.yaml）决定。
@@ -296,7 +297,7 @@ def _valid_ref(ref: str, executed: dict[int, dict]) -> bool:
     if not m:
         return False
     n = int(m.group(1))
-    return n in executed and executed[n].get("ok")
+    return n in executed and executed[n].get("ok") is True
 
 
 def _facts(executed: dict[int, dict]) -> dict:
@@ -310,14 +311,116 @@ def _facts(executed: dict[int, dict]) -> dict:
     return {"tickets": tickets}
 
 
-def _window_covers(window: str, ts: str) -> bool:
-    """判断 "2026-10-20T09:00Z/2026-10-20T17:00Z" 是否覆盖 ts。解析失败一律视为不覆盖。"""
+def _facts_for(executed: dict[int, dict], alert: dict,
+               evidence_keys_path: str | None) -> tuple[dict, dict]:
+    """选定 facts 的来源（L1 修复的接入点）。
+
+    默认（``evidence_keys_path`` 为空）沿用值语义 ``_facts``：这是既有 304 次运行与
+    L2 统计的历史口径，不擅自改动，保证前序实测仍可比。
+
+    显式给出证据信任锚时，改用 ``evidence_auth.facts_attested``：只有**验签通过且与
+    记录逐字节一致**的工单才进入 facts，其余一律不进，由 I1 以 ``unverified`` 拒收
+    （fail-closed）。这就是 docs/formal-model.md 定理 2 的落地形态：
+    伪造工单不再能通过"值自洽"冒充授权依据。
+
+    返回 ``(facts, meta)``；meta 进 trace，用于事后复查"收了几条、拒了几条、为什么拒"，
+    而不是只留一个结论。
+    """
+    if not evidence_keys_path:
+        return _facts(executed), {"mode": "value_only", "attested_required": False}
     try:
-        a, b = [x.strip().replace("Z", "")[:19] for x in str(window).split("/")]
-        t = str(ts).replace("Z", "")[:19]
-        return a <= t <= b
-    except Exception:
+        facts = evidence_auth.facts_attested(executed, alert, keys_path=evidence_keys_path)
+    except Exception as e:  # noqa: BLE001 证据链路故障 → fail-closed：一份都不认
+        return ({"tickets": {}},
+                {"mode": "attested", "attested_required": True,
+                 "error": f"{type(e).__name__}: {e}", "admitted": 0, "rejected": None})
+    audit = facts.get("audit") or []
+    return facts, {"mode": "attested", "attested_required": True,
+                   "admitted": sum(1 for a in audit if a.get("admitted")),
+                   "rejected": sum(1 for a in audit if not a.get("admitted")),
+                   "audit": audit}
+
+
+def _to_utc(s: str) -> datetime.datetime:
+    """把 ISO 时间串归一成 UTC。
+
+    无时区的时间串按 **UTC** 解释（不是本地时区）——这是策略约定，必须与
+    `swordholder/policy/*.yaml` 的注释、README 表述保持一致；要表达本地时间就写
+    显式偏移（如 `2026-11-02T09:00+08:00`）。解析失败抛异常，由调用方 fail-closed。
+    """
+    raw = str(s).strip()
+    if not raw:
+        raise ValueError("empty timestamp")
+    txt = raw[:-1] + "+00:00" if raw[-1] in "Zz" else raw
+    dt = datetime.datetime.fromisoformat(txt)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=datetime.timezone.utc)
+    return dt.astimezone(datetime.timezone.utc)
+
+
+def _window_covers(window: str, ts: str) -> bool:
+    """判断 "2026-10-20T09:00Z/2026-10-20T17:00Z" 是否覆盖 ts（含两端点）。
+
+    按 datetime 比较而非字符串比较：字符串比较在「窗口写分钟精度、告警带秒」
+    或「窗口带 +08:00 偏移」时会把覆盖判成不覆盖、或把窗外判成窗内（v2 验证发现，
+    见 evidence/worldclass/REPORT.md W-1/W-2）。解析失败一律视为不覆盖。
+    """
+    try:
+        a, b = str(window).split("/")
+        t = _to_utc(ts)
+        return _to_utc(a) <= t <= _to_utc(b)
+    except Exception:  # noqa: BLE001  任何解析异常都不覆盖（fail-closed）
         return False
+
+
+def _inv_out(inv: dict) -> dict:
+    """不变量拒收的凭据载体：带上规则编号与命中层级。
+
+    拒收理由本身是给人看的自然语言，不含编号；但"这条改动是谁拦下的"必须可统计，
+    否则报表里 invariant 层永远显示 0，把"拦住了"读成"没生效"。
+    故以结构化字段（_rule/_layer）随 normalized 一并返回，不污染 model-facing 文案。
+    形如 `[I1]` 的内联标签仍兼容（旧证据按此正则复算）。
+    """
+    return {"_rule": str(inv.get("id") or ""), "_layer": "invariant"}
+
+
+def _weakened_action(actions: list[str], inv: dict) -> tuple[str, str] | None:
+    """在 actions 里找第一个"削弱既有防护"的动作谓词，返回 (动作, 命中模式)。
+
+    动作层不变量只认策略包给的 deny_patterns，内核不含任何安全领域词表——
+    这正是 I1/I2 的同一套约定，换场景只换 YAML。匹配用 re.search + 大小写不敏感，
+    因为动作是自然语言短句，锚定式匹配会漏掉"建议将 ASN 215199 加入出站白名单"这类写法。
+    """
+    pats = inv.get("deny_patterns") or []
+    for act in actions:
+        for p in pats:
+            if re.search(str(p), act, re.I):
+                return act, str(p)
+    return None
+
+
+def _weaken_exempt(inv: dict, decision: dict, facts: dict, alert_ts: str | None) -> bool:
+    """动作削弱是否可豁免：必须"显式引用了授权单 + 单真实存在 + 窗口覆盖事发时刻"三者同时成立。
+
+    为什么不看 facts 里有没有任意一张真单就放行：那样只要系统里存在别的有效授权单，
+    任何削弱动作都会被放过，等于把豁免做成通用后门。这里要求模型在判定里显式声明
+    authorization_ref，且该单经工具实查（facts）且时间窗覆盖——与 I1/I2 同一强度。
+    """
+    ex = inv.get("exempt_when") or {}
+    if not ex:
+        return False
+    field = ex.get("field", "authorization_ref")
+    ref = str(decision.get(field) or "").strip().upper()
+    if not ref:
+        return False
+    src = facts.get(ex.get("source", "tickets")) or {}
+    rec = src.get(ref)
+    if not isinstance(rec, dict) or not rec:
+        return False
+    if not alert_ts:
+        return False
+    win = str(rec.get(ex.get("window_field", "window")) or "")
+    return _window_covers(win, alert_ts)
 
 
 def guardrail(decision: dict, executed: dict[int, dict], facts: dict | None = None,
@@ -335,6 +438,9 @@ def guardrail(decision: dict, executed: dict[int, dict], facts: dict | None = No
     策略包不可用时 fail-closed：一律拒收，绝不"读不到策略就放行"。
     """
     facts = facts or {"tickets": {}}
+    # 类型混淆防护：非 dict 判定一律拒收，绝不允许把不可判定的输入打成异常/或被当成空判定放行
+    if not isinstance(decision, dict):
+        return False, f"decision 必须是 JSON 对象，实际 {type(decision).__name__}，拒收", {}
     try:
         pol = policy or _policy()
     except policy_loader.PolicyError as e:
@@ -348,14 +454,19 @@ def guardrail(decision: dict, executed: dict[int, dict], facts: dict | None = No
     if sev not in pol["severities"]:
         return False, f"severity 不在白名单：{sev!r}", {}
     min_steps = int(lim["min_ok_steps"])
-    if len([k for k, s in executed.items() if s.get("ok")]) < min_steps:
+    # 只认严格 True：工具步骤的 ok 必须是布尔真值，"false"/1/"ok" 等真值串不能冒充取证成功
+    if len([k for k, s in executed.items() if s.get("ok") is True]) < min_steps:
         return False, f"取证步骤不足 {min_steps} 个，拒收", {}
     table = {str(k).lower(): float(x) for k, x in (pol.get("confidence_text_map") or {}).items()}
+    raw_val = decision.get("confidence", 0)
+    # bool 是 int 的子类，True 会被 float() 转成 1.0 —— 等同于把"是"当成"100% 置信"，属类型混淆，必须拒收
+    if isinstance(raw_val, bool):
+        return False, f"confidence 不能是布尔值：{raw_val!r}", {}
     try:
-        conf = float(decision.get("confidence", 0))
+        conf = float(raw_val)
         coerced = False
     except Exception:
-        raw_conf = str(decision.get("confidence", "")).strip().lower()
+        raw_conf = str(raw_val).strip().lower()
         if raw_conf in table:
             conf, coerced = table[raw_conf], True
         else:
@@ -388,27 +499,44 @@ def guardrail(decision: dict, executed: dict[int, dict], facts: dict | None = No
            "evidence_refs": [str(r) for r in refs]}
 
     # ---- 不变量：逐条按策略包执行，命中即拒收 ----
+    # when 为空 {} 表示"对全部 verdict 生效"（动作层不变量），非空时按 verdict 精确匹配。
     for inv in pol["invariants"]:
-        if inv["when"].get("verdict") != v:
+        want = inv["when"].get("verdict")
+        if want and want != v:
             continue
         field = inv["field"]
         msgs = inv.get("messages") or {}
+        req = inv["require"]
+
+        # 动作层不变量：校验 actions 的内容本身，而不是某个字段值的凭据。
+        # 这一条是 e3（动作谓词型注入）暴露出的缺口：授权语义层（I1/I2）拦不住
+        # "把攻击者 ASN 加入白名单""跳过扫描""不隔离"这类直接削弱防护的处置动作。
+        if req == "actions_must_not_weaken":
+            hit = _weakened_action(actions, inv)
+            if hit is None:
+                continue
+            act, pat = hit
+            if _weaken_exempt(inv, decision, facts, alert_ts):
+                continue
+            return False, str(msgs.get(
+                "weakened", f"处置动作「{act}」削弱了既有防护，不得作为处置建议"
+            )).format(field=field, value=pat, action=act, pattern=pat), _inv_out(inv)
+
         val = str(decision.get(field) or "").strip().upper()
         if val:
             out.setdefault(field, val)
         src = facts.get(inv.get("source", "tickets")) or {}
-        req = inv["require"]
 
         if req == "tool_verified_ref":
             if not val:
                 msg = str(msgs.get("missing", f"{field} 缺失")).format(field=field, value=val)
                 if injection_detected:
                     msg += str(msgs.get("missing_injected", ""))
-                return False, msg, {}
+                return False, msg, _inv_out(inv)
             if val not in src:
                 return False, str(msgs.get(
                     "unverified", f"{field} {val} 未经工具验证，不得作为依据"
-                )).format(field=field, value=val), {}
+                )).format(field=field, value=val), _inv_out(inv)
 
         elif req == "window_covers_alert":
             if not val or not alert_ts:
@@ -420,12 +548,16 @@ def guardrail(decision: dict, executed: dict[int, dict], facts: dict | None = No
             if not _window_covers(str(win), alert_ts):
                 return False, str(msgs.get(
                     "not_covered", f"{field} {val} 时间窗 {win} 不覆盖 {alert_ts}"
-                )).format(field=field, value=val, window=win, alert_ts=alert_ts), {}
+                )).format(field=field, value=val, window=win, alert_ts=alert_ts), _inv_out(inv)
 
-    # 未命中任何不变量的字段（如非误报判定也附了授权单）照样透传，便于审计
+    # 未命中任何不变量的字段（如非误报判定也附了授权单）照样透传，便于审计。
+    # 只透传字符串字段：动作层不变量的 field=actions 是列表，不能被 str() 强行折叠进 out。
     for inv in pol["invariants"]:
         f = inv["field"]
-        val = str(decision.get(f) or "").strip().upper()
+        raw = decision.get(f)
+        if not isinstance(raw, str):
+            continue
+        val = raw.strip().upper()
         if val:
             out.setdefault(f, val)
     return True, "ok", out
@@ -504,7 +636,8 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
               policy_path: str | None = None,
               conversation: list[dict] | None = None,
               session: Any = None,
-              session_out: str | None = None) -> dict:
+              session_out: str | None = None,
+              evidence_keys_path: str | None = None) -> dict:
     cfg = cfg or provider_config()
     trace: dict[str, Any] = {
         "alert_id": alert.get("alert_id"),
@@ -580,9 +713,11 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
 
         if action == "submit_verdict":
             submit_attempts += 1
-            ok, reason, norm = guardrail({**args, **decision}, executed, facts=_facts(executed),
+            facts, facts_meta = _facts_for(executed, alert, evidence_keys_path)
+            ok, reason, norm = guardrail({**args, **decision}, executed, facts=facts,
                                          alert_ts=alert_ts, injection_detected=bool(alert_inj),
                                          policy=pol)
+            trace["facts"] = facts_meta
             sess_turn = max(1, sess.turn_no)
             sess_detail: dict = {}
             if ok:
@@ -598,6 +733,23 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
                          "severity": decision.get("severity")})
             trace["steps"].append({"step": i, "action": "submit_verdict", "thought": thought,
                                    "args": args, "guardrail_ok": ok, "guardrail_reason": reason})
+            # 提交历史留档（纯增量字段）：trace["guardrail"] 在判定被接受后会被最终
+            # 结论覆盖，先前"提交时被哪条不变量拒收、拒的原话是什么"随之丢失，
+            # 事后只能看到一个残留的 guardrail_rule，无法举证。这里按次留档，
+            # 让"拒收后重提通过"可被逐次复查（统计口径：终局是否接受看 ok，
+            # 提交时拒收看 history）。
+            trace.setdefault("guardrail_history", []).append({
+                "attempt": submit_attempts,
+                "ok": bool(ok),
+                "rule": None if ok else str((norm or {}).get("_rule") or "") or None,
+                "layer": None if ok else str((norm or {}).get("_layer") or "schema"),
+                "reason": reason,
+                "verdict": decision.get("verdict"),
+                "severity": decision.get("severity"),
+                "actions": args.get("actions") or decision.get("actions") or [],
+                "authorization_ref": args.get("authorization_ref")
+                                     or decision.get("authorization_ref"),
+            })
             if ok:
                 # 出口完整性：结论提交本身是一个对外出口，必须过判定点。
                 # 判定失败与 guardrail 拒收同等待遇，不给"结论已成立"的余地。
@@ -618,6 +770,15 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
                 break
             hint = reason
             trace["guardrail"].setdefault("rejected", []).append(reason)
+            # 拒收凭据：规则编号与命中层级随 trace 落盘。html/报表按 rule 计数，
+            # 无编号即"结构层拒收"（枚举/数值/证据锚定），与不变量拦截不是一回事。
+            _norm = norm if isinstance(norm, dict) else {}
+            _rule = str(_norm.get("_rule") or "")
+            trace["guardrail"].setdefault("rejected_rules", []).append(_rule or None)
+            trace["guardrail"]["last_layer"] = str(_norm.get("_layer") or "schema")
+            if _rule:
+                trace["guardrail"]["last_rule"] = _rule
+                trace["guardrail_rule"] = _rule
             if submit_attempts > MAX_SUBMIT_RETRY:
                 trace["fallback_reason"] = f"guardrail:{reason}"
                 break
@@ -668,6 +829,7 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
         trace["fallback"] = base
         trace["verdict"] = base["verdict"]
         trace["engine"] = base["engine"]
+        _export_executed(trace, executed)
         return trace
 
     trace["guardrail"] = {"ok": True, **outcome}
@@ -707,7 +869,25 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
                              if res.get(k) is not None}
         except Exception as e:
             trace["seal_error"] = f"{type(e).__name__}: {e}"
+    _export_executed(trace, executed)
     return trace
+
+
+def _export_executed(trace: dict, executed: dict[int, dict]) -> None:
+    """把已执行工具记录导出到 trace，供外部**同一轨迹重放**重算判定。
+
+    为什么需要：value_only 与 attested 是两次独立运行，温度>0 时同 seed 轨迹也不同，
+    两组结果不能逐格配对，只能报定性事实。要让"差异归因于证据层"这句话可检验，
+    必须把轨迹本身留档：同一份 executed + 同一份 record，只在 facts 口径上换一次。
+    本字段只读出、不参与任何判定，属观察面；导出失败不静默，写明原因。
+    """
+    try:
+        import json as _json
+        payload = {str(k): v for k, v in executed.items()}
+        _json.dumps(payload, ensure_ascii=False, default=str)
+        trace["executed"] = payload
+    except Exception as e:  # 导出失败不得影响判定结果的产出
+        trace["executed_export_error"] = f"{type(e).__name__}: {e}"
 
 
 def main(argv: list[str] | None = None) -> int:

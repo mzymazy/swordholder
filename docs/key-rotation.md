@@ -189,3 +189,23 @@ swordholder verify seals/<历史>.seal.json --keys trusted_keys.json
 - 只需要"签名对不对、锚认不认"→ `verify_proof.py` 足够。
 
 两份实现的分工写在这里，是为了避免"两个验证器结论不一致却没人说得清为什么"。
+
+## 9. 证据服务密钥（`evidence-svc`，L1 修复引入）
+
+`docs/formal-model.md` 定理 2 把"来源可信"落到签名上，因此**取证工具/工单系统
+成为独立的签发方**，需要自己的密钥对，不能共用判定签发方（`swordholder-mcp`）的私钥：
+
+- 签发：证据服务在返回记录时附带 `attestation`（seal 文件路径），
+  走 `core.seal → tool_seal_record → exit_guard.judge(..., basis="attested")`；
+  记录无 `verdict` 字段，落在工件登记分支，**不产生判定结论**。
+- 绑定：`challenge = evidence_auth.context_for(alert)`（由 `alert_id` 派生），
+  因此一条证据凭证只能服务于它对应的那条告警（定理 3）。
+- 登记：`swordholder trust add --pubkey-file <evidence_pub.pem> --key-id k-evidence`。
+- 轮换：与判定签发方同流程（第 0–16 天并存窗口）。轮换期间**不要立刻吊销旧钥**：
+  历史证据凭证只做验签追溯，吊销会让整段历史证据变成"来源不可信"。
+- 吊销：仅当证据服务私钥外泄时执行 `trust revoke k-evidence`；吊销后该服务的
+  历史凭证一律 `INVALID`，需要由新钥**重签**（旧凭证不会被"修复"）。
+
+> 这一条是定理 2 中 `Adv^{anchor}` 项的工程代价：**信任锚每多登记一把钥，
+> 就多一个必须被治理的面**。签名安全不能吸收锚配置错误，所以证据服务密钥
+> 的登记、轮换、吊销必须与判定签发方同等对待。

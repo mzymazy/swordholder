@@ -34,7 +34,7 @@ DEFAULT_POLICY = os.path.join(POLICY_DIR, "default-soc-triage.yaml")
 _REQUIRED = ("schema", "id", "verdicts", "severities", "limits", "invariants")
 _REQUIRED_LIMITS = ("min_ok_steps", "max_hypothesis_len", "actions_min", "actions_max",
                     "action_max_len", "action_min_len")
-REQUIRE_TYPES = ("tool_verified_ref", "window_covers_alert")
+REQUIRE_TYPES = ("tool_verified_ref", "window_covers_alert", "actions_must_not_weaken")
 
 # 会话级不变量白名单（P0-2）。拼错一个 id 就等于静默关掉一条防线，所以在加载期就拦。
 SESSION_SCHEMA = "swordholder/session/v1"
@@ -104,16 +104,61 @@ def validate(p: Any, origin: str = "<memory>") -> dict:
             _fail(f"{origin}: invariants[{i}].require={inv['require']!r} 不支持，"
                   f"可用 {list(REQUIRE_TYPES)}")
         when = inv["when"]
-        if not isinstance(when, dict) or "verdict" not in when:
-            _fail(f"{origin}: invariants[{i}].when 必须含 verdict")
-        if when["verdict"] not in p["verdicts"]:
-            _fail(f"{origin}: invariants[{i}].when.verdict={when['verdict']!r} 不在 verdicts 内")
+        if not isinstance(when, dict):
+            _fail(f"{origin}: invariants[{i}].when 必须是映射")
+        # when 有两种合法形状：
+        #   {}                  -> 对全部 verdict 生效（动作层不变量用，例如"任何结论都不许进削弱动作"）
+        #   {verdict: <枚举>}    -> 只对该 verdict 生效（I1/I2）
+        # 其它写法（含拼错的键）一律拒收，避免"写了但没生效"的静默失效。
+        if "verdict" in when:
+            if when["verdict"] not in p["verdicts"]:
+                _fail(f"{origin}: invariants[{i}].when.verdict={when['verdict']!r} 不在 verdicts 内")
+            extra = set(when) - {"verdict"}
+            if extra:
+                _fail(f"{origin}: invariants[{i}].when 含未知键 {sorted(extra)}")
+        elif when:
+            _fail(f"{origin}: invariants[{i}].when 只能是 {{}}（全 verdict）或 {{verdict: ...}}")
         msgs = inv.get("messages") or {}
         if not isinstance(msgs, dict) or not msgs:
             _fail(f"{origin}: invariants[{i}] 必须给出 messages")
 
+        if inv["require"] == "actions_must_not_weaken":
+            _validate_actions_inv(inv, i, origin)
+
     validate_session(p.get("session"), origin=origin)
     return p
+
+
+def _validate_actions_inv(inv: dict, i: int, origin: str) -> None:
+    """校验 I3 这类"动作层"不变量的配置完整性。
+
+    动作层不变量与 I1/I2 的区别：前者校验 decision.actions 的**内容**（动作谓词），
+    后者校验 decision 里某个**字段值**是否挂得住凭据。因此这里不再要求 source/field
+    语义，而是要求：
+      · field 必须是 actions（防止配成别的字段后静默不生效）；
+      · deny_patterns 非空、正则可编译；
+      · exempt_when（可选）必须是映射，且只允许 known 键——豁免范围写错等于开后门。
+    """
+    if inv.get("field") != "actions":
+        _fail(f"{origin}: invariants[{i}].field 必须为 actions，实际 {inv.get('field')!r}")
+
+    pats = inv.get("deny_patterns")
+    if not isinstance(pats, list) or not pats or not all(isinstance(x, str) and x for x in pats):
+        _fail(f"{origin}: invariants[{i}].deny_patterns 必须是非空字符串列表")
+    for p in pats:
+        try:
+            re.compile(p)
+        except re.error as e:
+            _fail(f"{origin}: invariants[{i}].deny_patterns 正则非法 {p!r}：{e}")
+
+    ex = inv.get("exempt_when")
+    if ex is None:
+        return
+    if not isinstance(ex, dict):
+        _fail(f"{origin}: invariants[{i}].exempt_when 必须是映射")
+    unknown = set(ex) - {"field", "source", "window_field"}
+    if unknown:
+        _fail(f"{origin}: invariants[{i}].exempt_when 含未知键 {sorted(unknown)}")
 
 
 def validate_session(seg: Any, origin: str = "<memory>") -> None:

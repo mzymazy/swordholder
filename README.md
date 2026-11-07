@@ -34,7 +34,8 @@ swordholder --version       # swordholder 0.4.0
 >
 > ```bash
 > pip install -e ".[dev]"
-> pytest -q                   # 162 passed
+> pytest -q                   # 281 passed
+> python scripts/worldclass_probe.py --assert   # 57/57 安全属性断言通过（不调用模型）
 > python mcp_server/selftest.py   # 10/10 通过
 > swordholder exits --selftest    # 13/13 必判出口全部取到票据（覆盖率 1.0）
 > powershell -File scripts/quickstart.ps1 -SkipInstall   # 4/4 凭证 VALID、17/17 对抗断言、482/482 绑定
@@ -42,6 +43,17 @@ swordholder --version       # swordholder 0.4.0
 >
 > 注意：`verify_proof.py` 需要 `cryptography`。**环境里没装库时它会报 `INVALID E_CRYPTO_UNAVAILABLE`
 > 并以退出码 2 结束**——这表示「环境未就绪」，不等于凭证被伪造（凭证真伪问题才报 `E_BAD_SIGNATURE`）。
+
+### 安全性质回归（不调用模型、不联网）
+
+```bash
+python -m pytest -q tests/test_worldclass_hardening.py   # 57 passed
+python scripts/worldclass_probe.py --assert              # 57/57 断言通过，任一项不成立即非零退出
+python scripts/probe_trust_boundary.py                   # 信任边界探针 S0-S4
+```
+
+三者构成 CI 门禁（`.github/workflows/security-hardening.yml`）。完整实证、跨模型对照与缺陷披露见
+`evidence/worldclass/REPORT_WORLDCLASS.md`；审计清单见 `evidence/worldclass/MANIFEST.json` 与 `SHA256SUMS.txt`。
 
 ## 三条命令看到它在干什么
 

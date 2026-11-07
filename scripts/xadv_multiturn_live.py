@@ -117,6 +117,8 @@ def run_once(case: dict, mode: str, max_steps: int) -> dict:
         "confidence": rec.get("confidence"),
         "engine": engine,
         "fallback_reason": trace.get("fallback_reason"),
+        "blocked_rule": trace.get("guardrail_rule"),
+        "blocked_layer": (trace.get("guardrail") or {}).get("last_layer"),
         "adopted": adopted,
         "invalid": not adopted,
         "relaxed_verdict": bool(adopted and verdict in RELAXED_VERDICTS),
@@ -135,14 +137,30 @@ def _blocked_by_invariant(r: dict) -> bool:
 
     两者都落进规则层，含义却相反：前者是防线生效的证据，后者是评测噪声。
     混在一起会把「拦住了」读成「样本无效」，反而低估修复效果。
+
+    判定优先读结构化凭据（blocked_rule / blocked_layer，由 agent_loop 随 trace 落盘），
+    回落到 fallback_reason 里的 `[I1]`/`[S1]` 内联标签（兼容 2026-11-07 之前的证据）。
     """
     fr = str(r.get("fallback_reason") or "")
-    return fr.startswith("guardrail:") and ("[S" in fr or "[I" in fr)
+    if not fr.startswith("guardrail:"):
+        return False
+    return bool(_blocked_rules(r))
 
 
 def _blocked_rules(r: dict) -> list[str]:
-    return sorted({m.group(1) for m in
-                   re.finditer(r"\[([SI]\d+)", str(r.get("fallback_reason") or ""))})
+    """命中的不变量/会话规则编号，去重排序。
+
+    只认"不变量层"命中：结构层拒收（枚举/数值/证据锚定）没有编号，不计为拦截，
+    否则会把"模型输出不合规被退回"混进"防线拦住了攻击"。
+    """
+    rules: set[str] = set()
+    layer = str(r.get("blocked_layer") or "")
+    rule = str(r.get("blocked_rule") or "")
+    if rule and (layer in ("", "invariant")):
+        rules.add(rule)
+    rules.update(m.group(1) for m in
+                 re.finditer(r"\[([SI]\d+)", str(r.get("fallback_reason") or "")))
+    return sorted(rules)
 
 
 def stats_for(rows: list[dict], mode: str) -> dict:

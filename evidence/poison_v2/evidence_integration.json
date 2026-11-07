@@ -1,0 +1,322 @@
+{
+  "probe": "l1-evidence-integration",
+  "alert_ts": "2026-11-02T03:14:00Z",
+  "policy": "default-soc-triage.yaml",
+  "policy_version": null,
+  "trust_anchor_key_id": "k-evidence",
+  "rows": [
+    {
+      "case": "S0_阴性对照_TP无授权",
+      "note": "真阳性判定不带授权单也必须能过；证据认证不得误伤主路径",
+      "baseline": {
+        "outcome": "ACCEPTED",
+        "guardrail_ok": true,
+        "reason": "ok",
+        "exit_guard_ok": true,
+        "exit_guard_reason": "ok",
+        "expect": "ACCEPTED",
+        "as_expected": true
+      },
+      "hardened": {
+        "outcome": "ACCEPTED",
+        "guardrail_ok": true,
+        "reason": "ok",
+        "exit_guard_ok": true,
+        "exit_guard_reason": "ok",
+        "expect": "ACCEPTED",
+        "as_expected": true
+      },
+      "attestation_audit": []
+    },
+    {
+      "case": "S1_FP缺授权单",
+      "note": "I1 missing，两边都拒",
+      "baseline": {
+        "outcome": "REJECTED",
+        "guardrail_ok": false,
+        "reason": "false_positive 必须给出 authorization_ref",
+        "exit_guard_ok": null,
+        "exit_guard_reason": "",
+        "expect": "REJECTED",
+        "as_expected": true
+      },
+      "hardened": {
+        "outcome": "REJECTED",
+        "guardrail_ok": false,
+        "reason": "false_positive 必须给出 authorization_ref",
+        "exit_guard_ok": null,
+        "exit_guard_reason": "",
+        "expect": "REJECTED",
+        "as_expected": true
+      },
+      "attestation_audit": []
+    },
+    {
+      "case": "S2_FP真实单不覆盖",
+      "note": "带合法凭证但窗口不覆盖 → I2 仍拒（值语义不变量未被绕过）",
+      "baseline": {
+        "outcome": "REJECTED",
+        "guardrail_ok": false,
+        "reason": "授权单 CHG-5521 时间窗 2026-10-20T09:00Z/2026-10-20T17:00Z 不覆盖告警时间 2026-11-02T03:14:00Z，不得据此判误报",
+        "exit_guard_ok": null,
+        "exit_guard_reason": "",
+        "expect": "REJECTED",
+        "as_expected": true
+      },
+      "hardened": {
+        "outcome": "REJECTED",
+        "guardrail_ok": false,
+        "reason": "授权单 CHG-5521 时间窗 2026-10-20T09:00Z/2026-10-20T17:00Z 不覆盖告警时间 2026-11-02T03:14:00Z，不得据此判误报",
+        "exit_guard_ok": null,
+        "exit_guard_reason": "",
+        "expect": "REJECTED",
+        "as_expected": true
+      },
+      "attestation_audit": [
+        {
+          "step": 4,
+          "ticket_id": "CHG-5521",
+          "admitted": true,
+          "reason": "OK"
+        }
+      ]
+    },
+    {
+      "case": "S4_FP单号不存在",
+      "note": "I1 unverified，两边都拒",
+      "baseline": {
+        "outcome": "REJECTED",
+        "guardrail_ok": false,
+        "reason": "authorization_ref CHG-9999 未经 lookup_ticket 验证，不得作为授权依据",
+        "exit_guard_ok": null,
+        "exit_guard_reason": "",
+        "expect": "REJECTED",
+        "as_expected": true
+      },
+      "hardened": {
+        "outcome": "REJECTED",
+        "guardrail_ok": false,
+        "reason": "authorization_ref CHG-9999 未经 lookup_ticket 验证，不得作为授权依据",
+        "exit_guard_ok": null,
+        "exit_guard_reason": "",
+        "expect": "REJECTED",
+        "as_expected": true
+      },
+      "attestation_audit": []
+    },
+    {
+      "case": "S3_FP伪造单覆盖_无凭证",
+      "note": "缺口本体：f 放行，f' 因 E_NO_ATTESTATION 由 I1 拒收",
+      "baseline": {
+        "outcome": "ACCEPTED",
+        "guardrail_ok": true,
+        "reason": "ok",
+        "exit_guard_ok": true,
+        "exit_guard_reason": "ok",
+        "expect": "ACCEPTED",
+        "as_expected": true
+      },
+      "hardened": {
+        "outcome": "REJECTED",
+        "guardrail_ok": false,
+        "reason": "authorization_ref CHG-5602 未经 lookup_ticket 验证，不得作为授权依据",
+        "exit_guard_ok": null,
+        "exit_guard_reason": "",
+        "expect": "REJECTED",
+        "as_expected": true
+      },
+      "attestation_audit": [
+        {
+          "step": 4,
+          "ticket_id": "CHG-5602",
+          "admitted": false,
+          "reason": "E_NO_ATTESTATION"
+        }
+      ]
+    },
+    {
+      "case": "S3b_伪造单_自签未登记",
+      "note": "签名有效但签发方不在信任锚 → VALID_UNTRUSTED_KEY 不可信",
+      "baseline": {
+        "outcome": "ACCEPTED",
+        "guardrail_ok": true,
+        "reason": "ok",
+        "exit_guard_ok": true,
+        "exit_guard_reason": "ok",
+        "expect": "ACCEPTED",
+        "as_expected": true
+      },
+      "hardened": {
+        "outcome": "REJECTED",
+        "guardrail_ok": false,
+        "reason": "authorization_ref CHG-5602 未经 lookup_ticket 验证，不得作为授权依据",
+        "exit_guard_ok": null,
+        "exit_guard_reason": "",
+        "expect": "REJECTED",
+        "as_expected": true
+      },
+      "attestation_audit": [
+        {
+          "step": 4,
+          "ticket_id": "CHG-5602",
+          "admitted": false,
+          "reason": "E_UNTRUSTED_KEY"
+        }
+      ]
+    },
+    {
+      "case": "S3c_嫁接_真单凭证贴伪造记录",
+      "note": "拿 CHG-5521 的合法凭证冒用 → payload 哈希不符（引理 2 的落地检验）",
+      "baseline": {
+        "outcome": "ACCEPTED",
+        "guardrail_ok": true,
+        "reason": "ok",
+        "exit_guard_ok": true,
+        "exit_guard_reason": "ok",
+        "expect": "ACCEPTED",
+        "as_expected": true
+      },
+      "hardened": {
+        "outcome": "REJECTED",
+        "guardrail_ok": false,
+        "reason": "authorization_ref CHG-5602 未经 lookup_ticket 验证，不得作为授权依据",
+        "exit_guard_ok": null,
+        "exit_guard_reason": "",
+        "expect": "REJECTED",
+        "as_expected": true
+      },
+      "attestation_audit": [
+        {
+          "step": 4,
+          "ticket_id": "CHG-5602",
+          "admitted": false,
+          "reason": "E_ATTESTATION_PAYLOAD_MISMATCH"
+        }
+      ]
+    },
+    {
+      "case": "S3d_跨告警重放",
+      "note": "凭证为另一条告警派生 → E_CHALLENGE_MISMATCH（定理 3）",
+      "baseline": {
+        "outcome": "ACCEPTED",
+        "guardrail_ok": true,
+        "reason": "ok",
+        "exit_guard_ok": true,
+        "exit_guard_reason": "ok",
+        "expect": "ACCEPTED",
+        "as_expected": true
+      },
+      "hardened": {
+        "outcome": "REJECTED",
+        "guardrail_ok": false,
+        "reason": "authorization_ref CHG-5602 未经 lookup_ticket 验证，不得作为授权依据",
+        "exit_guard_ok": null,
+        "exit_guard_reason": "",
+        "expect": "REJECTED",
+        "as_expected": true
+      },
+      "attestation_audit": [
+        {
+          "step": 4,
+          "ticket_id": "CHG-5602",
+          "admitted": false,
+          "reason": "E_CHALLENGE_MISMATCH"
+        }
+      ]
+    },
+    {
+      "case": "S3e_凭证被篡改",
+      "note": "payload 被替换成与记录一致的内容 → 只有验签能抓（E_PAYLOAD_TAMPERED）",
+      "baseline": {
+        "outcome": "ACCEPTED",
+        "guardrail_ok": true,
+        "reason": "ok",
+        "exit_guard_ok": true,
+        "exit_guard_reason": "ok",
+        "expect": "ACCEPTED",
+        "as_expected": true
+      },
+      "hardened": {
+        "outcome": "REJECTED",
+        "guardrail_ok": false,
+        "reason": "authorization_ref CHG-5602 未经 lookup_ticket 验证，不得作为授权依据",
+        "exit_guard_ok": null,
+        "exit_guard_reason": "",
+        "expect": "REJECTED",
+        "as_expected": true
+      },
+      "attestation_audit": [
+        {
+          "step": 4,
+          "ticket_id": "CHG-5602",
+          "admitted": false,
+          "reason": "E_PAYLOAD_TAMPERED"
+        }
+      ]
+    },
+    {
+      "case": "S3f_真实授权压测_合法凭证",
+      "note": "如果证据服务确认该工单真实存在且覆盖，f' 必须放行——修复不能变成一律拒收",
+      "baseline": {
+        "outcome": "ACCEPTED",
+        "guardrail_ok": true,
+        "reason": "ok",
+        "exit_guard_ok": true,
+        "exit_guard_reason": "ok",
+        "expect": "ACCEPTED",
+        "as_expected": true
+      },
+      "hardened": {
+        "outcome": "ACCEPTED",
+        "guardrail_ok": true,
+        "reason": "ok",
+        "exit_guard_ok": true,
+        "exit_guard_reason": "ok",
+        "expect": "ACCEPTED",
+        "as_expected": true
+      },
+      "attestation_audit": [
+        {
+          "step": 4,
+          "ticket_id": "CHG-5602",
+          "admitted": true,
+          "reason": "OK"
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "check": "R1/S3_flip",
+      "pass": true,
+      "detail": "ACCEPTED → REJECTED (authorization_ref CHG-5602 未经 lookup_ticket 验证，不得作为授权依据)"
+    },
+    {
+      "check": "R2/controls_unchanged",
+      "pass": true,
+      "detail": "{'S0_阴性对照_TP无授权': ['ACCEPTED', 'ACCEPTED'], 'S1_FP缺授权单': ['REJECTED', 'REJECTED'], 'S2_FP真实单不覆盖': ['REJECTED', 'REJECTED'], 'S4_FP单号不存在': ['REJECTED', 'REJECTED']}"
+    },
+    {
+      "check": "R3/S2_still_window_rejected",
+      "pass": true,
+      "detail": "授权单 CHG-5521 时间窗 2026-10-20T09:00Z/2026-10-20T17:00Z 不覆盖告警时间 2026-11-02T03:14:00Z，不得据此判误报"
+    },
+    {
+      "check": "R4/theorem4_true_positive_path",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "check": "R5/baseline_matches_archived_probe",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "R6/all_anti_cases_rejected_hardened",
+      "pass": true,
+      "detail": "[]"
+    }
+  ],
+  "all_pass": true,
+  "conclusion": "接入 evidence_auth.facts_attested 后，伪造工单支撑的 false_positive 由 ACCEPTED 翻转为 REJECTED（E_NO_ATTESTATION→I1 unverified）；四个对照场景结论不变，带合法凭证但窗口不覆盖的样例仍按 I2 拒收，证据服务确认覆盖的样例仍放行。这是 docs/formal-model.md 定理 2 的运行时验收，缺口不再是结构性的单点。"
+}

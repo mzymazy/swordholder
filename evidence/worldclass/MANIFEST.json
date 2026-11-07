@@ -1,0 +1,137 @@
+{
+  "suite": "swordholder-worldclass-verification",
+  "generated_at": "2026-11-05T18:25:46+08:00",
+  "git": {
+    "commit": "2965b8aafb510ae1844844abcce11f071626bfda",
+    "branch": "master",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.11.8",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "machine": "AMD64"
+  },
+  "model_under_test": "qwen3.8-27b:ud-q3_k_xl (Ollama, num_ctx 16384, RTX 5080)",
+  "cross_model_control": "qwen3:8b (Ollama)",
+  "sample_sizes": {
+    "poison_v2_runs": 96,
+    "effect_size_bare_runs_per_model": 80,
+    "deterministic_probe_checks": 57,
+    "hardening_tests": 57
+  },
+  "reproduce": [
+    "pip install -e . pytest",
+    "python -m pytest -q",
+    "python scripts/worldclass_probe.py --assert",
+    "python scripts/probe_trust_boundary.py",
+    "set SWORDHOLDER_MODEL=qwen3.8-27b:ud-q3_k_xl && python scripts/eval_effect_size.py --samples 10 --tag 27b"
+  ],
+  "files": [
+    {
+      "path": "evidence/poison_v2/PREREGISTRATION.md",
+      "bytes": 13080,
+      "sha256": "7a1953a2555f0dda8b15406f5403e3500589b5ec877ff6d73da8c802d77bef24"
+    },
+    {
+      "path": "evidence/poison_v2/REPORT.md",
+      "bytes": 11526,
+      "sha256": "795046269d6242234b178ec8b9c3d97c2f2bc555079c4f1dbcc4c01328a492b3"
+    },
+    {
+      "path": "evidence/poison_v2/poison_v2_cases.json",
+      "bytes": 5162,
+      "sha256": "bdbe4d832b4031a1b531f1e7cdc736c3e438f9bd66e2cdb9f70a934785c24bf9"
+    },
+    {
+      "path": "evidence/poison_v2/poison_v2_27b_A.json",
+      "bytes": 44610,
+      "sha256": "6316800a3b66da68406565b90134bbd77c47c4d96907645ffc8b1ebeac477396"
+    },
+    {
+      "path": "evidence/poison_v2/poison_v2_27b_B1.json",
+      "bytes": 28362,
+      "sha256": "34860bb751f900b5201b58a71f2f631f47eb14bee8876e12d5f72648ae047c82"
+    },
+    {
+      "path": "evidence/poison_v2/poison_v2_27b_B2.json",
+      "bytes": 28467,
+      "sha256": "b0c99ad140d71cce47c1282e2621ed390cb67d6aac9c9114cadb01f7aaae3691"
+    },
+    {
+      "path": "evidence/poison_v2/poison_v2_27b_B3.json",
+      "bytes": 30241,
+      "sha256": "8585937ead8e8d388a40bb90f8f6934eb51c0f63aa60d3e1707aaa6a09e67340"
+    },
+    {
+      "path": "evidence/poison_v2/poison_v2_27b_B4.json",
+      "bytes": 28684,
+      "sha256": "53ca5025b47af8c339703c8e24cfca1f3d6813e957a499747fffd4eec1030565"
+    },
+    {
+      "path": "evidence/poison_v2/trust_boundary_probe.json",
+      "bytes": 4068,
+      "sha256": "352bf7cbc5e63dac41031d942985421a3a5aa8661adf5b5b2963a93d38e87036"
+    },
+    {
+      "path": "evidence/poison_v2/effect_size_27b.json",
+      "bytes": 40193,
+      "sha256": "2b56e869b7fbb522b8cb2d3c91ad8733137daeadbabed88b702b5053d11ab77f"
+    },
+    {
+      "path": "evidence/poison_v2/effect_size_8b.json",
+      "bytes": 33076,
+      "sha256": "4a2dfb34f08c3be09433a2a38cbf37678b156ae6472fbf889832b0960cdb676b"
+    },
+    {
+      "path": "evidence/worldclass/probe_deterministic.json",
+      "bytes": 27157,
+      "sha256": "3bd5c09d967f3e5ee1f3f205e2fb399a21bf3a9d43d8ab4c5db77eb6a7e274d3"
+    },
+    {
+      "path": "evidence/worldclass/REPORT_WORLDCLASS.md",
+      "bytes": 18569,
+      "sha256": "5983edf6d985874ed402cd18605917cb7a88b5a01b3417b0a4df471327f5e1c6"
+    },
+    {
+      "path": "scripts/xadv_poison_live.py",
+      "bytes": 16225,
+      "sha256": "7415abf5ad80cf21f3b9c401f91272d2a144043aebf6f2fb7e7e3b62d5025574"
+    },
+    {
+      "path": "scripts/probe_trust_boundary.py",
+      "bytes": 8557,
+      "sha256": "d20e4e728c35834add56ba25e108bf1568e16320a62442e4a9c1e0b8b3c6d725"
+    },
+    {
+      "path": "scripts/worldclass_probe.py",
+      "bytes": 20817,
+      "sha256": "271d05dbbf1d9da6176821788f87a08e28fe20b23235e18efa694cbfacbaed19"
+    },
+    {
+      "path": "scripts/eval_effect_size.py",
+      "bytes": 10506,
+      "sha256": "4e9c0b3d07d558881f3bf428095ab723839e23a26d615e8f9ecaaeded34b884b"
+    },
+    {
+      "path": "tests/test_worldclass_hardening.py",
+      "bytes": 9504,
+      "sha256": "b49387f415dc9bf1eb97c27668e4390c5dd5cb61e392116c3c87cb6386bb67ac"
+    },
+    {
+      "path": "swordholder/agent_loop.py",
+      "bytes": 40041,
+      "sha256": "18ac8a1afc30005f34813086acd1add8b9c5949e381fadf7cec9056385532bb0"
+    },
+    {
+      "path": ".github/workflows/security-hardening.yml",
+      "bytes": 1758,
+      "sha256": "9094865628fe9950bd6fb2439b4ac7aff7e81a074f1a0d233e44af70fc0e93e6"
+    },
+    {
+      "path": "swordholder/policy/default-soc-triage.yaml",
+      "bytes": 6787,
+      "sha256": "6200e79c1663909fec7c7c2b9913286c6d88862bf01a096b1257c4492a4fdd9a"
+    }
+  ],
+  "missing": []
+}
