@@ -137,12 +137,15 @@ def cmd_agent(args) -> int:
                                      key_path=args.key, seal_out_dir=args.out_dir,
                                      verbose=args.verbose, policy_path=args.policy,
                                      conversation=conversation, session=sess,
-                                     session_out=getattr(args, "session_out", None))
+                                     session_out=getattr(args, "session_out", None),
+                                     ledger_out=getattr(args, "ledger_out", None),
+                                     ledger_seal_out=getattr(args, "ledger_seal_out", None))
     except Exception as e:  # 模型不可用等：明确报错，不静默降级
         _dump({"ok": False, "code": "E_AGENT_FAILED", "message": f"{type(e).__name__}: {e}"})
         return 3
 
     outcome = trace.get("guardrail") or {}
+    ledger = trace.get("ledger") or {}
     payload = {
         "ok": True,
         "alert_id": alert.get("alert_id"),
@@ -158,6 +161,12 @@ def cmd_agent(args) -> int:
         "injection_suspected": trace.get("injection_suspected"),
         "fallback_reason": trace.get("fallback_reason"),
         "seal": (trace.get("seal") or {}).get("seal_path"),
+        # 账本结论随 CLI 一起给出：调用方不必再读 trace 文件就能看到
+        # "这次运行的每一步是否都进了链、链自不自洽、头哈希是多少"。
+        "ledger": {k: ledger.get(k) for k in ("trace_id", "step_count", "head", "path")
+                   if ledger.get(k) is not None}
+                  | {"chain_ok": (ledger.get("check") or {}).get("ok"),
+                     "first_break": (ledger.get("check") or {}).get("first_break")},
     }
     if args.trace_out:
         os.makedirs(os.path.dirname(args.trace_out) or ".", exist_ok=True)
@@ -647,6 +656,10 @@ def build_parser() -> argparse.ArgumentParser:
     ag.add_argument("--session", default=None,
                     help="已有会话状态 JSON：接着上一轮判，跨轮不变量据此生效")
     ag.add_argument("--session-out", default=None, help="把更新后的会话状态写回指定路径")
+    ag.add_argument("--ledger-out", default=None,
+                    help="把本次运行的链式动作账本写入指定 JSON（可离线 verify_chain 复核）")
+    ag.add_argument("--ledger-seal-out", default=None,
+                    help="给动作账本盖章输出的凭证路径；需同时给 -k/--key，链不自洽则拒绝盖章")
     ag.add_argument("--verbose", action="store_true")
     ag.set_defaults(func=cmd_agent)
 

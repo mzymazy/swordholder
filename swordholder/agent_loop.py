@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import datetime
+import hashlib
 import json
 import os
 import re
@@ -26,7 +27,7 @@ from typing import Any, Callable
 LAB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                        "evidence", "agent_lab")
 
-from . import evidence_auth, exit_guard, policy_loader
+from . import evidence_auth, exit_guard, policy_loader, trace_ledger
 from . import session as session_mod
 
 # 枚举与阈值不再硬编码在本模块，统一由策略包（swordholder/policy/*.yaml）决定。
@@ -44,6 +45,101 @@ except policy_loader.PolicyError:  # 策略包坏了也不能让模块导入失�
 
 MAX_STEPS = 6
 MAX_SUBMIT_RETRY = 2
+
+# 账本条目的观测体积上限：全文留在 trace["steps"]，账本只存摘要 + 全文哈希。
+# 为什么不在账本里存全文：链式结构要能整体验签，账本必须可随 trace 一起落盘，
+# 若把每次工具返回（可能数 KB）原样抄一遍，trace 会翻倍，离线核验成本也随之上升。
+# 哈希足够回答"这条观测有没有被换过"——改任何一个字节，observation_sha256 立刻对不上。
+OBS_PREVIEW_CHARS = 400
+
+
+def _now_iso() -> str:
+    """UTC ISO 时间戳（秒级，带 Z）。
+
+    账本条目的 ts 只用于排序与对齐告警时间线，不参与判定；用固定格式而非本地时间，
+    避免同一份 trace 在不同时区的机器上验签出不同的 body_digest。
+    """
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _json_text(obj: Any) -> str:
+    """稳定序列化：sort_keys 保证同一份结果在任何机器上哈希一致。"""
+    try:
+        return json.dumps(obj, ensure_ascii=False, sort_keys=True)
+    except (TypeError, ValueError):
+        return repr(obj)
+
+
+def _observation(obj: Any, ok: bool, **extra: Any) -> dict:
+    """把一次观测压成入账摘要。"""
+    text = _json_text(obj)
+    obs = {
+        "ok": bool(ok),
+        "observation_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "observation_chars": len(text),
+        "preview": text[:OBS_PREVIEW_CHARS],
+    }
+    obs.update(extra)
+    return obs
+
+
+def _ledger_note(ledger: Any, trace: dict, action: str, args: Any = None,
+                 observation: Any = None, ts: str | None = None) -> None:
+    """向账本追加一步。
+
+    记账失败**不得**中断分诊：账本是可观测面，不是判定前提。但失败必须留痕
+    （trace["ledger_error"]），否则"这一步没进账本"会变成静默缺失，事后无从分辨
+    是"没发生"还是"没记上"。
+    """
+    if ledger is None:
+        return
+    try:
+        ledger.append(action, args if args is not None else {}, observation, ts=ts)
+    except Exception as e:  # noqa: BLE001 记账失败可见但不阻断
+        trace.setdefault("ledger_error", []).append(f"{action}: {type(e).__name__}: {e}")
+
+
+def _finalize_ledger(trace: dict, ledger: Any, key_path: str | None = None,
+                     issuer: str = "swordholder-agent",
+                     ledger_out: str | None = None,
+                     ledger_seal_out: str | None = None) -> None:
+    """收口：把账本写进 trace 并就地自校验；可选落盘与签章。
+
+    这里必须**真的跑一次 verify_chain**，而不是把 head 抄进 trace 就算完：
+    只有当场校验通过，"这次运行的账本自洽"才是被检验过的事实而不是假设。
+    校验结果原样记在 trace["ledger"]["check"]，任何后续复核都可重跑得到同一结论。
+    """
+    if ledger is None:
+        return
+    body = ledger.body()
+    check = trace_ledger.verify_chain(body)
+    trace["ledger"] = {
+        "trace_id": body["trace_id"], "actor": body["actor"],
+        "start_ts": body["start_ts"], "step_count": body["step_count"],
+        "head": body["head"], "check": check, "entries": body["entries"],
+    }
+    if ledger_out:
+        try:
+            parent = os.path.dirname(os.path.abspath(ledger_out))
+            os.makedirs(parent, exist_ok=True)
+            with open(ledger_out, "w", encoding="utf-8") as f:
+                json.dump(body, f, ensure_ascii=False, indent=2)
+            trace["ledger"]["path"] = ledger_out
+        except OSError as e:
+            trace["ledger"]["save_error"] = f"{type(e).__name__}: {e}"
+    if ledger_seal_out and key_path and os.path.exists(key_path):
+        if not check["ok"]:      # 账本自身都不自洽就不签，签了等于背书一个坏账本
+            trace["ledger"]["seal_error"] = "E_TRACE_BREAK: 账本未通过 verify_chain，拒绝签章"
+            return
+        try:
+            res = trace_ledger.seal_trace(body, key_path, issuer=issuer,
+                                          subject=body["trace_id"],
+                                          out_path=ledger_seal_out)
+            trace["ledger"]["seal"] = {k: res.get(k) for k in
+                                       ("seal_path", "seal_id", "payload_sha256")
+                                       if res.get(k) is not None}
+        except Exception as e:  # noqa: BLE001 签章失败不影响判定结论，但必须写明
+            trace["ledger"]["seal_error"] = f"{type(e).__name__}: {e}"
 
 
 def _policy(path: str | None = None) -> dict:
@@ -637,7 +733,9 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
               conversation: list[dict] | None = None,
               session: Any = None,
               session_out: str | None = None,
-              evidence_keys_path: str | None = None) -> dict:
+              evidence_keys_path: str | None = None,
+              ledger_out: str | None = None,
+              ledger_seal_out: str | None = None) -> dict:
     cfg = cfg or provider_config()
     trace: dict[str, Any] = {
         "alert_id": alert.get("alert_id"),
@@ -648,6 +746,16 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
         "steps": [], "injection_suspected": [], "guardrail": {}, "sealed": False,
     }
 
+    # 动作轨迹账本：从第一行起就开账，后面每一步真实动作都要落进链里。
+    # trace_id 用告警号（同一告警的每次运行共用编号，靠 head 区分具体这一次），
+    # actor 用引擎标识（谁是这条轨迹的行为主体，验签时不该靠人工回忆）。
+    ledger = None
+    try:
+        ledger = trace_ledger.TraceLedger(trace_id=str(alert.get("alert_id") or "alert"),
+                                          actor=trace["engine"], start_ts=_now_iso())
+    except trace_ledger.TraceError as e:
+        trace["ledger_error"] = [f"init: {type(e).__name__}: {e}"]
+
     # 策略包是判定的依据，必须在开头就确定下来；拿不到就 fail-closed（走规则层兜底）。
     try:
         pol = _policy(policy_path)
@@ -657,6 +765,12 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
         pol = None
         trace["policy"] = {"id": None, "version": None, "error": str(e)}
         trace["fallback_reason"] = f"policy-error:{e}"
+    # 策略解析本身也是"这一步动作"：事后要能回答"当时按哪版策略跑的这一趟"。
+    _ledger_note(ledger, trace, "policy_resolve",
+                 {"path": trace["policy"].get("path")},
+                 {"ok": pol is not None, "id": trace["policy"].get("id"),
+                  "version": trace["policy"].get("version"),
+                  "error": trace["policy"].get("error")})
     executed: dict[int, dict] = {}
     steps_view: list[dict] = []
     submit_attempts = 0
@@ -679,6 +793,14 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
         trace["fallback_reason"] = f"session-error:{e}"
         max_steps = 0
         sess = session_mod.SessionState(policy=pol)
+    # 会话是跨轮判定的前提，开不起来（fail-closed）也必须在账本里留下这一步，
+    # 否则"这一趟没取证就出了结论"看起来会像是模型偷懒，而不是会话层拒绝。
+    _ledger_note(ledger, trace, "session_open",
+                 {"session_id": trace.get("session_id"),
+                  "turns": len(conversation or [])},
+                 {"ok": trace.get("session_id") is not None,
+                  "session_error": str(trace["fallback_reason"])
+                  if str(trace.get("fallback_reason") or "").startswith("session-error") else None})
 
     alert_inj = _injection_hits(alert)
     if alert_inj:
@@ -697,10 +819,15 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
                                                   session_note=_session_note(sess, pol)))
         except Exception as e:
             trace["fallback_reason"] = f"llm-error:{type(e).__name__}"
+            _ledger_note(ledger, trace, "llm_error", {"step": i},
+                         {"ok": False, "error": type(e).__name__})
             break
         decision = parse_json_loose(raw)
         if not decision:
             trace["steps"].append({"step": i, "action": "PARSE_ERROR", "raw": raw[:300], "ok": False})
+            # 模型输出不可解析同样是"这一步动作"：账本要能证明"第 i 步确实尝试过、
+            # 但输出不是合法 JSON"，否则事后只看到步数少了一步，无法分辨原因。
+            _ledger_note(ledger, trace, "PARSE_ERROR", {"step": i}, _observation(raw, False))
             hint = "输出不是合法 JSON"
             submit_attempts += 1
             if submit_attempts > MAX_SUBMIT_RETRY + max_steps:
@@ -750,6 +877,15 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
                 "authorization_ref": args.get("authorization_ref")
                                      or decision.get("authorization_ref"),
             })
+            # 提交判定是这一步真实发生的动作，先入账再决定去留：被拒收的提交也必须
+            # 留在链上，否则"模型试过几次、每次卡在哪条不变量"会被抹掉，只留最终结论。
+            _ledger_note(ledger, trace, "submit_verdict", args,
+                         {"ok": bool(ok), "attempt": submit_attempts,
+                          "verdict": decision.get("verdict"),
+                          "severity": decision.get("severity"),
+                          "layer": None if ok else str((norm or {}).get("_layer") or "schema"),
+                          "rule": None if ok else (str((norm or {}).get("_rule") or "") or None),
+                          "reason": "" if ok else str(reason)[:300]})
             if ok:
                 # 出口完整性：结论提交本身是一个对外出口，必须过判定点。
                 # 判定失败与 guardrail 拒收同等待遇，不给"结论已成立"的余地。
@@ -758,6 +894,9 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
                                      basis="policy", policy=pol)
                 except (exit_guard.JudgmentError, exit_guard.ExitIntegrityError) as e:
                     trace["guardrail"].setdefault("rejected", []).append(f"exit_guard:{e}")
+                    _ledger_note(ledger, trace, "exit_guard",
+                                 {"step": i, "exit": "agent:submit_verdict"},
+                                 {"ok": False, "reason": str(e)[:300]})
                     hint = f"判定层拒收：{e}"
                     if submit_attempts > MAX_SUBMIT_RETRY:
                         trace["fallback_reason"] = f"exit_guard:{e}"
@@ -788,6 +927,8 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
         if fn is None:
             trace["steps"].append({"step": i, "action": action or "(empty)", "thought": thought,
                                    "ok": False, "error": "未定义工具"})
+            _ledger_note(ledger, trace, action or "(empty)", args,
+                         {"ok": False, "error": "未定义工具"})
             hint = f"工具 {action} 不存在，只能用：{', '.join(TOOLS)} 或 submit_verdict"
             continue
 
@@ -809,6 +950,9 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
         trace["steps"].append(rec)
         executed[i] = rec
         steps_view.append(rec)
+        # 工具调用是这条轨迹里最实的一步：记账本只存观测摘要 + 全文哈希，
+        # 全文仍在 trace["steps"]，两边对不上就说明有人改过其中一份。
+        _ledger_note(ledger, trace, action, args, _observation(result, ok, injected=bool(hits)))
         if verbose:
             print(f"[step {i}] {action} {args} -> ok={ok} injected={bool(hits)}")
 
@@ -829,6 +973,12 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
         trace["fallback"] = base
         trace["verdict"] = base["verdict"]
         trace["engine"] = base["engine"]
+        # 兜底结论不是"没发生的事"：模型没能给出判定本身就是轨迹的终态，必须入账。
+        _ledger_note(ledger, trace, "fallback",
+                     {"reason": trace.get("fallback_reason")},
+                     {"ok": True, "verdict": base["verdict"], "engine": base["engine"]})
+        _finalize_ledger(trace, ledger, key_path=key_path, issuer=issuer,
+                         ledger_out=ledger_out, ledger_seal_out=ledger_seal_out)
         _export_executed(trace, executed)
         return trace
 
@@ -867,8 +1017,16 @@ def run_agent(alert: dict, max_steps: int = MAX_STEPS, cfg: dict | None = None,
             trace["sealed"] = True
             trace["seal"] = {k: res.get(k) for k in ("seal_path", "seal_id", "payload_sha256")
                              if res.get(k) is not None}
+            _ledger_note(ledger, trace, "agent:seal",
+                         {"alert_id": alert.get("alert_id")},
+                         {"ok": True, "seal_id": trace["seal"].get("seal_id"),
+                          "payload_sha256": trace["seal"].get("payload_sha256")})
         except Exception as e:
             trace["seal_error"] = f"{type(e).__name__}: {e}"
+            _ledger_note(ledger, trace, "agent:seal", {"alert_id": alert.get("alert_id")},
+                         {"ok": False, "error": trace["seal_error"][:300]})
+    _finalize_ledger(trace, ledger, key_path=key_path, issuer=issuer,
+                     ledger_out=ledger_out, ledger_seal_out=ledger_seal_out)
     _export_executed(trace, executed)
     return trace
 

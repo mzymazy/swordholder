@@ -34,7 +34,7 @@ swordholder --version       # swordholder 0.4.0
 >
 > ```bash
 > pip install -e ".[dev]"
-> pytest -q                   # 281 passed
+> pytest -q                   # 306 passed
 > python scripts/worldclass_probe.py --assert   # 57/57 安全属性断言通过（不调用模型）
 > python mcp_server/selftest.py   # 10/10 通过
 > swordholder exits --selftest    # 13/13 必判出口全部取到票据（覆盖率 1.0）

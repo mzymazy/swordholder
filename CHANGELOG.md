@@ -17,6 +17,44 @@ AIGC:
 
 ---
 
+## [未发布] — L3：把账本接进真实执行路径
+
+L2 的账本此前只有单测在喂它：能说明「机制成立」，不能说明「真跑的时候用上了」。
+本版把 `TraceLedger` 接进 `agent_loop.run_agent()` 的每一次动作，并给出实跑取证：
+真跑一遍的链、独立重算的校验、以及「改一格就定位到第几步」的现场结果。
+
+### 新增（Added）
+
+- `swordholder/agent_loop.py`：`run_agent()` 新增 `ledger_out`（账本落盘）与 `ledger_seal_out`（账本盖章），
+  运行结果挂在 `trace["ledger"]`。入账动作 9 类：`policy_resolve`、`session_open`、工具调用（成功与失败都记）、
+  `llm_error`、`PARSE_ERROR`、未定义工具（动作名原样）、`submit_verdict`（**采纳与拒收都记理由**）、
+  `agent:seal`（成功记 `seal_id` / `payload_sha256`，失败记异常）、`fallback`（规则兜底）。
+- 观测摘要化：每条只存 `observation_sha256` + `observation_chars` + ≤400 字 `preview`，
+  全文仍在 `trace["steps"]`；两边哈希对不上即说明其中一份被改过。账本因此不必背着整份 trace 也能自证。
+- `_finalize_ledger()`：返回前**真跑一次** `verify_chain`，结论写进 `trace["ledger"]["check"]`；
+  链不自洽时**拒绝签章**（`E_TRACE_BREAK`），不给坏账本背书。
+  记账失败不阻断分诊（账本是可观测面，不是判定前提），但失败留痕 `trace["ledger_error"]`，
+  避免事后分不清「没发生」与「没记上」。
+- CLI：`agent` 子命令新增 `--ledger-out` / `--ledger-seal-out`，输出 payload 增 `ledger` 摘要
+  （`trace_id` / `step_count` / `head` / `chain_ok` / `first_break`），调用方不读 trace 文件即可复核。
+- `tests/test_agent_ledger.py`：13 条接线测试——逐步入链且顺序对齐、逐项重算 `entry_hash`、
+  摘要对得上真实工具返回值、改值/删步/改步号均定位到步、兜底与拒收都留痕、落盘离线可验、
+  盖章三段式 VALID、被改的落盘账本 `INVALID`、CLI 的两个账本开关真的透传到 `run_agent`。
+- `scripts/trace_ledger_live.py` + `evidence/epistemics/ledger_live/`：脚本化 LLM 实跑取证。
+  三轮取证 + 一次提交 → `step_count=7`（`policy_resolve` / `session_open` / 3 个工具 / `submit_verdict` / `agent:seal`），
+  `chain_ok=True`、`first_break=None`、`seal_verdict=VALID`；把落盘账本第 3 条 `observation.ok` 手改为 `false` 后，
+  `first_break=3`、`tampered_seal_verdict=INVALID`。
+  换脚本化 LLM 而非本机模型，是为了把「接线」与「模型可用性/判定质量」分开——后者由 `scripts/demo_agent_loop.py` 覆盖。
+- `docs/trace-ledger.md` §6：接入点表格、三条设计约束、CLI 用法与上面那次实跑输出。
+
+### 变更（Changed）
+
+- `pytest -q`：293 → **306 passed**（新增 13 条接线测试，0 失败 0 跳过）。
+- `README.md` 开发自测行同步为 `306 passed`（原 281 为 L1 之前的口径）。
+
+---
+
+
 ## [未发布] — L2：动作轨迹账本，让「智能体做了什么」可被发现篡改
 
 既有证据链证明的是「一条**结论**有没有被改过」，缺的是**过程**：智能体按什么顺序做了哪些动作、
