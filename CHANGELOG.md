@@ -17,6 +17,36 @@ AIGC:
 
 ---
 
+## [未发布] - S3：定位收缩到可核验存证层 + 存证层外部基准
+
+S2 已证明规则分诊层在公开遥测上不成立（`true_positive = 0`）。本版不再修规则，而是
+把"能证到底"的那一层单独拿出来，用同一份公开语料重测：**400 条告警签发 400/400、
+验签 400/400 `VALID`（0.608 / 5.035 ms 每条）、9 类签名域内篡改 450/450 检出且 0 次异常逃逸、
+跨告警重放 50/50 阻断、无信任锚 5/5 只判 `VALID_UNTRUSTED_KEY`、3 进程摘要一致。**
+同时修掉 S2 遗留的两个缺陷：`subject` 那 8/8 "漏检"其实是篡改算子打在了未签名的最外层
+（拆成 `header_subject_swap` 50/50 检出 + `outer_annotation_added` 如实记为边界，并新增
+`W_OUTER_FIELDS_UNSIGNED` 告警）；`sig_byte` 的 8/8 是靠 `AttributeError` 崩溃得分，
+现已加类型门，异常路径一律收敛为 `E_MALFORMED_SEAL`。
+
+商业价值复评 63.8/100（S2 为 58.8）：增量全部来自证据强度，问题真实性因定位收缩反而
+下降 0.10——分数回升是"宣称与能力对齐"的结果，不是能力增长。
+声明-证据审计在同一份 85 条登记表上由 41.53 → 93.24（分母变了，不可与 S2 的 92.82 直接比强弱）。
+
+### 新增（Added）
+
+- `docs/stage3-attestation-layer.md`：存证层外部基准与负结果（N-S3-01…06）
+- `docs/stage3-positioning.md`：定位收缩决议，逐条列出撤下的 W-S3-01…06 与替代口径
+- `scripts/s3_attestation_bench.py`：一条命令复算全部数字（取样→签发→验签→11 类篡改→重放→信任分离→跨进程复现）
+- `evidence/stage3_attestation/bench.json`：本阶段全部指标的唯一来源
+- `tests/test_seal_type_confusion.py`：18 个回归用例，钉住类型混淆与"未签名外层附注必告警"
+
+### 变更（Changed）
+
+- `mcp_server/server.py`：`tool_verify_seal` 增加签名域外字段告警 `W_OUTER_FIELDS_UNSIGNED`
+  （判定不变，但不再静默通过）；类型门前置到 schema 校验之前
+- `README.md`：新增"定位修订（第三阶段实测后）"，撤下告警分诊定位，demo 表格加"仅演示链路"注
+- `evidence/claims/claims_registry.json`：新增 10 条 S3 声明（V 9 / VR 1）与 5 条负结果（N21–N25）
+
 ## [未发布] - S2：外部效度实测（公开数据集重跑）
 
 第一阶段的最大缺口是"0/63 条声明触及真实数据"。本版用 splunk/attack_data 的 14 个

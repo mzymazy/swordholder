@@ -208,8 +208,21 @@ def tool_verify_seal(args: dict) -> dict:
 
     header = seal.get("seal_header") or {}
     payload = seal.get("payload")
-    sig_b64 = (seal.get("signature") or {}).get("value")
-    if not header or payload is None or not sig_b64:
+    # 类型混淆必须先挡住再取值：`signature` 被替换成字符串时，直接 `.get` 会抛
+    # AttributeError 而不是给出拒绝码 —— 崩溃不算"检出"，调用方也拿不到 fail-closed
+    # 的结构化结论。这里把结构校验前移，异常路径一律收敛成 E_MALFORMED_SEAL。
+    if not isinstance(header, dict):
+        return {"verdict": "INVALID", "reason": "E_MALFORMED_SEAL",
+                "detail": "seal_header 不是对象"}
+    sig_block = seal.get("signature")
+    if not isinstance(sig_block, dict):
+        return {"verdict": "INVALID", "reason": "E_MALFORMED_SEAL",
+                "detail": "signature 块不是对象（疑似类型混淆）"}
+    sig_b64 = sig_block.get("value")
+    if not isinstance(sig_b64, str) or not sig_b64:
+        return {"verdict": "INVALID", "reason": "E_MALFORMED_SEAL",
+                "detail": "signature.value 缺失或不是字符串"}
+    if not header or payload is None:
         return {"verdict": "INVALID", "reason": "E_MALFORMED_SEAL"}
 
     # 结构性契约交给版本化 schema 裁决（版本不认识就拒收，不猜着解析）。
@@ -227,8 +240,13 @@ def tool_verify_seal(args: dict) -> dict:
     signing_input = SEAL_DOMAIN + bytes.fromhex(header["payload_sha256"]) + b"\n" + c14n(header)
     pub_hex = header.get("public_key_hex", "")
     try:
+        sig_bytes = base64.b64decode(sig_b64, validate=True)
+    except Exception:  # noqa: BLE001  非 base64 属结构问题，与"签名不对"区分开
+        return {"verdict": "INVALID", "reason": "E_MALFORMED_SEAL",
+                "detail": "signature.value 不是合法 base64"}
+    try:
         Ed25519PublicKey.from_public_bytes(bytes.fromhex(pub_hex)).verify(
-            base64.b64decode(sig_b64), signing_input)
+            sig_bytes, signing_input)
     except (InvalidSignature, ValueError):
         return {"verdict": "INVALID", "reason": "E_BAD_SIGNATURE"}
 
@@ -263,6 +281,17 @@ def tool_verify_seal(args: dict) -> dict:
         for extra in ("revoked_at", "revoked_reason"):
             if policy.get(extra):
                 result[extra] = policy[extra]
+
+    # 签名域外的字段改不了判定，但可以作为"视觉误导"存在：往凭证顶层塞一个
+    # subject/issuer，人眼看上去像是在改签发对象，而签名仍然有效。这里显式告警，
+    # 让调用方知道"你看到的这个字段不是签过的"，不静默通过。
+    unsigned_top = sorted(k for k in seal if k not in ("seal_header", "payload", "signature"))
+    if unsigned_top:
+        result["warnings"] = [{
+            "code": "W_OUTER_FIELDS_UNSIGNED",
+            "fields": unsigned_top,
+            "detail": "以下顶层字段不在签名覆盖范围内，可被任意替换；请以 seal_header 内的同名字段为准",
+        }]
     return result
 
 

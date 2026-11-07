@@ -1,0 +1,184 @@
+{
+  "meta": {
+    "generated_at": "2026-11-08T06:14:24",
+    "corpus": "C:\\Users\\Administrator\\AppData\\Roaming\\Tencent\\Marvis\\User\\oAN1i2UaBRWVMkzeAqJDlM3lUpR8\\workspace\\conv_e9156d5f997c4849b7c26b4bf9de32ea\\temp\\corpus\\alerts_corpus.jsonl",
+    "records": 400,
+    "per_label": 200,
+    "per_tamper": 50,
+    "note": "public ATT&CK-derived corpus; attestation layer only, verdict quality not evaluated"
+  },
+  "sealing": {
+    "elapsed_sec": 0.243,
+    "attempted": 400,
+    "sealed_ok": 400,
+    "errors": [],
+    "ms_per_record": 0.608
+  },
+  "verification": {
+    "verified_valid": 400,
+    "total": 400,
+    "failures": [],
+    "elapsed_sec": 2.014,
+    "ms_per_record": 5.035
+  },
+  "tamper": {
+    "payload_verdict_flip": {
+      "tried": 50,
+      "detected": 50,
+      "rate": 1.0,
+      "warned": 0,
+      "uncaught_exceptions": 0,
+      "codes": {
+        "INVALID:E_PAYLOAD_TAMPERED": 50
+      }
+    },
+    "payload_confidence_bump": {
+      "tried": 50,
+      "detected": 50,
+      "rate": 1.0,
+      "warned": 0,
+      "uncaught_exceptions": 0,
+      "codes": {
+        "INVALID:E_PAYLOAD_TAMPERED": 50
+      }
+    },
+    "payload_alert_id_swap": {
+      "tried": 50,
+      "detected": 50,
+      "rate": 1.0,
+      "warned": 0,
+      "uncaught_exceptions": 0,
+      "codes": {
+        "INVALID:E_PAYLOAD_TAMPERED": 50
+      }
+    },
+    "payload_verdict_removed": {
+      "tried": 50,
+      "detected": 50,
+      "rate": 1.0,
+      "warned": 0,
+      "uncaught_exceptions": 0,
+      "codes": {
+        "INVALID:E_PAYLOAD_TAMPERED": 50
+      }
+    },
+    "header_subject_swap": {
+      "tried": 50,
+      "detected": 50,
+      "rate": 1.0,
+      "warned": 0,
+      "uncaught_exceptions": 0,
+      "codes": {
+        "INVALID:E_BAD_SIGNATURE": 50
+      }
+    },
+    "header_issuer_swap": {
+      "tried": 50,
+      "detected": 50,
+      "rate": 1.0,
+      "warned": 0,
+      "uncaught_exceptions": 0,
+      "codes": {
+        "INVALID:E_BAD_SIGNATURE": 50
+      }
+    },
+    "header_created_at_swap": {
+      "tried": 50,
+      "detected": 50,
+      "rate": 1.0,
+      "warned": 0,
+      "uncaught_exceptions": 0,
+      "codes": {
+        "INVALID:E_BAD_SIGNATURE": 50
+      }
+    },
+    "signature_value_byte_flip": {
+      "tried": 50,
+      "detected": 50,
+      "rate": 1.0,
+      "warned": 0,
+      "uncaught_exceptions": 0,
+      "codes": {
+        "INVALID:E_BAD_SIGNATURE": 50
+      }
+    },
+    "signature_block_type_confusion": {
+      "tried": 50,
+      "detected": 50,
+      "rate": 1.0,
+      "warned": 0,
+      "uncaught_exceptions": 0,
+      "codes": {
+        "INVALID:E_MALFORMED_SEAL": 50
+      }
+    },
+    "signature_value_not_base64": {
+      "tried": 50,
+      "detected": 50,
+      "rate": 1.0,
+      "warned": 0,
+      "uncaught_exceptions": 0,
+      "codes": {
+        "INVALID:E_SCHEMA_INVALID": 50
+      }
+    },
+    "outer_annotation_added": {
+      "tried": 50,
+      "detected": 0,
+      "rate": 0.0,
+      "warned": 50,
+      "uncaught_exceptions": 0,
+      "codes": {
+        "WARN:W_OUTER_FIELDS_UNSIGNED": 50
+      }
+    },
+    "_summary": {
+      "uncaught_exceptions": 0,
+      "all_structured": true,
+      "silent_passes": 0
+    }
+  },
+  "replay": {
+    "cross_alert_replay_tried": 50,
+    "cross_alert_replay_blocked": 50,
+    "block_rate": 1.0,
+    "codes": {
+      "INVALID:E_CHALLENGE_MISMATCH": 50
+    },
+    "binding_stripped_tried": 3,
+    "binding_stripped_rejected": 3
+  },
+  "trust_separation": {
+    "no_trust_anchor_tried": 5,
+    "no_trust_anchor_untrusted": 5,
+    "no_trust_anchor_never_bare_valid": true,
+    "attacker_resigned": [
+      {
+        "verdict": "VALID_UNTRUSTED_KEY",
+        "trust": "untrusted",
+        "reason": "E_UNTRUSTED_KEY"
+      },
+      {
+        "verdict": "VALID_UNTRUSTED_KEY",
+        "trust": "untrusted",
+        "reason": "E_UNTRUSTED_KEY"
+      },
+      {
+        "verdict": "VALID_UNTRUSTED_KEY",
+        "trust": "untrusted",
+        "reason": "E_UNTRUSTED_KEY"
+      }
+    ],
+    "attacker_resigned_neutralized": true
+  },
+  "determinism": {
+    "parent_digest": "5c6e74294fbf1af245411b6bfe15041c4235447054b33481b0e925e2abe9120e",
+    "child_digest_1": "5c6e74294fbf1af245411b6bfe15041c4235447054b33481b0e925e2abe9120e",
+    "child_digest_2": "5c6e74294fbf1af245411b6bfe15041c4235447054b33481b0e925e2abe9120e",
+    "identical_across_processes": true
+  },
+  "label_mix": {
+    "attack": 200,
+    "background": 200
+  }
+}
