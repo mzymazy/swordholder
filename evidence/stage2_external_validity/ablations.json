@@ -1,0 +1,80 @@
+[
+ {
+  "name": "baseline",
+  "attack": {
+   "n": 1064,
+   "verdict": {
+    "suspicious": 1064
+   },
+   "tp_rate": 0.0,
+   "fp_rate": 0.0
+  },
+  "background": {
+   "n": 20000,
+   "verdict": {
+    "suspicious": 19999,
+    "false_positive": 1
+   },
+   "tp_rate": 0.0,
+   "fp_rate": 0.0001
+  }
+ },
+ {
+  "name": "A1_attack_tag",
+  "attack": {
+   "n": 1064,
+   "verdict": {
+    "suspicious": 1064
+   },
+   "tp_rate": 0.0,
+   "fp_rate": 0.0
+  },
+  "background": {
+   "n": 20000,
+   "verdict": {
+    "suspicious": 19999,
+    "false_positive": 1
+   },
+   "tp_rate": 0.0,
+   "fp_rate": 0.0001
+  }
+ },
+ {
+  "name": "A2_egress_name",
+  "attack": {
+   "n": 1064,
+   "verdict": {
+    "suspicious": 1064
+   },
+   "tp_rate": 0.0,
+   "fp_rate": 0.0
+  },
+  "background": {
+   "n": 20000,
+   "verdict": {
+    "suspicious": 20000
+   },
+   "tp_rate": 0.0,
+   "fp_rate": 0.0
+  }
+ },
+ {
+  "name": "A3_inject_supply_keywords",
+  "attack": {
+   "n": 1064,
+   "verdict": {
+    "true_positive": 1064
+   },
+   "tp_rate": 1.0,
+   "fp_rate": 0.0
+  },
+  "background": {
+   "n": 20000,
+   "verdict": {
+    "true_positive": 20000
+   },
+   "tp_rate": 1.0,
+   "fp_rate": 0.0
+  }
+ }
+]

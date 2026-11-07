@@ -17,6 +17,31 @@ AIGC:
 
 ---
 
+## [未发布] - S2：外部效度实测（公开数据集重跑）
+
+第一阶段的最大缺口是"0/63 条声明触及真实数据"。本版用 splunk/attack_data 的 14 个
+MITRE Technique 遥测（130 文件 / 24.5 MB / 29,888 条原始事件）构造 21,064 条告警，
+在 `rules-v1` 上重跑并给出可复算的效果类指标。
+
+结论是负的：真实遥测上 `true_positive = 0`，99.63% 落入兜底分支，攻击集可决率 3.95%、
+背景集 0.17%，且把供应链关键词注入描述后攻击与背景各 100% 被判 `true_positive`
+（零区分度）。经得起外部检验的只剩记录层：篡改检出 3 类 24/24、封存 0.67 ms/条、
+验签 5.09 ms/条、判定确定可复现；但 `subject` 字段未绑定（8/8 未检出）。
+
+商业价值复评 58.8/100（前值 59.0）：证据变强、结论变坏，两者相抵。
+声明-证据审计在同一份 75 条登记表上由 43.53 → 92.82。
+
+### 新增（Added）
+
+- `docs/stage2-external-validity.md`：第二阶段完整报告（方法、7 组指标、消融、负结果 N15–N21）
+- `scripts/s2_download.py` / `s2_build_corpus.py` / `s2_eval.py` / `s2_ablation.py`：可复算流水线
+- `evidence/stage2_external_validity/`：`metrics.json`、`decisions_m1.json`、`ablations.json`、
+  `corpus_manifest.json`（130 文件 URL/字节/SHA-256）、`corpus_stats.json`、`seals_sample/`
+
+### 变更（Changed）
+
+- `evidence/claims/claims_registry.json`：新增 12 条 S2 声明（V 9 / VR 3）与 6 条负结果（N15–N20）
+
 ## [未发布] — L3：把账本接进真实执行路径
 
 L2 的账本此前只有单测在喂它：能说明「机制成立」，不能说明「真跑的时候用上了」。

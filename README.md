@@ -780,6 +780,7 @@ swordholder_mvp/
 | [docs/proof-issuance.md](docs/proof-issuance.md) | 自签出证、本地信任锚、私钥边界与实操四步 |
 | [docs/policy.md](docs/policy.md) | 判定策略层：规则为何外置、不变量怎么写、fail-closed 与变更门禁 |
 | [docs/claims-and-evidence.md](docs/claims-and-evidence.md) | **能说 / 不能说**：63 条对外声明的逐条证据裁定、19 项修补清单、可复算评分体系（`python scripts/audit_claims.py`） |
+| [docs/stage2-external-validity.md](docs/stage2-external-validity.md) | **第二阶段外部效度实测**：公开 ATT&CK 遥测（攻击 1,064 / 背景 20,000）重跑，落标率 0%、99.63% 兜底、可摄取率 0%、篡改检出 4/5 类；负结果 N15–N21 |
 | [cases/README.md](cases/README.md) | 判据案例库：6 条人工签名基线，改了策略该拿什么验收 |
 | [docs/screenshots.md](docs/screenshots.md) | 运行截图及其复现命令（截图来源可核对） |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 贡献流程 + 改证据/改口径的硬规则 |

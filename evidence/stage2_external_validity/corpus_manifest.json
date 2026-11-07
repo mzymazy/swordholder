@@ -1,0 +1,786 @@
+{
+ "total_files": 130,
+ "total_bytes": 24511238,
+ "files": [
+  {
+   "rel": "T1003.001/atomic_red_team/atomic_red_team.yml",
+   "bytes": 1709,
+   "sha256": "fcb48abd1ac0cc2576092167cf1ec122fa120e3a2abfd29150801c9e3e4123d6",
+   "head": "author: Patr"
+  },
+  {
+   "rel": "T1003.001/atomic_red_team/createdump_windows-sysmon.log",
+   "bytes": 10636,
+   "sha256": "b898327b2b446ba63c13934d50c899eb4b2ee2c722a7c6c4a1dae6c515720001",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1003.001/atomic_red_team/crowdstrike_falcon.log",
+   "bytes": 77504,
+   "sha256": "9eb639b8642f067f76ddb8b4ab66494deb9893eed528bcb02063802c2dbff140",
+   "head": "{\"event_simp"
+  },
+  {
+   "rel": "T1003.001/atomic_red_team/procdump_windows-security.log",
+   "bytes": 14595,
+   "sha256": "86be8a91228678b0639f5cc192722b40acb81f06eb998bbc34916cf08f436abd",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1003.001/atomic_red_team/windows-security.log",
+   "bytes": 8480,
+   "sha256": "962debff1935335a6c6396a19d778127af1316b964226ba4427fae4fb9c9361b",
+   "head": "03/23/2021 0"
+  },
+  {
+   "rel": "T1003.001/atomic_red_team/windows-sysmon_creddump.log",
+   "bytes": 65428,
+   "sha256": "a37b69dce32eaff6b5c1fdb4bb9cbea6dec78a4fbd22cd41362ab0e377f075ef",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1003.001/atomic_red_team/windows-system.log",
+   "bytes": 392544,
+   "sha256": "4ac7ed133d6a44788d841735605aa70644897749201d5a9b7afdc93f2d9518e7",
+   "head": "11/03/2020 0"
+  },
+  {
+   "rel": "T1003.001/snapattack/snapattack.log",
+   "bytes": 58587,
+   "sha256": "c22994ec5fa481609dfbb3403dc51d803cb1f0665d3aab29da8f5e8a9766f4af",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1003.001/snapattack/snapattack.yml",
+   "bytes": 478,
+   "sha256": "42b1390b7094effe4a6e6eefd5e0feb53b5bab1919ac34c389f4d45cbe4d79cd",
+   "head": "author: Rave"
+  },
+  {
+   "rel": "T1003.003/atomic_red_team/4688_windows-security.log",
+   "bytes": 11176,
+   "sha256": "81e1d4e381f4dc38b97c48f9fa5b0ab0b098810c321b7d4599029a9f22530259",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1003.003/atomic_red_team/atomic_red_team.yml",
+   "bytes": 1259,
+   "sha256": "eebac0c9661cabf3b1bf36f200880516e19db43a1c3680ef17e6db43c78ac4f8",
+   "head": "author: Patr"
+  },
+  {
+   "rel": "T1003.003/atomic_red_team/crowdstrike_falcon.log",
+   "bytes": 10681,
+   "sha256": "c4275ab0ef976b0d00ba7840031a06d9f47d1beeaf4c3056d2fc7bb8fe08b38a",
+   "head": "{\"WindowTitl"
+  },
+  {
+   "rel": "T1003.003/atomic_red_team/windows-sec-events.log",
+   "bytes": 3505596,
+   "sha256": "76df28738641253376748cd720f60c254a1e1917d21207d59a72bda0fe1bb078",
+   "head": "09/15/2020 1"
+  },
+  {
+   "rel": "T1003.003/atomic_red_team/windows-system.log",
+   "bytes": 389868,
+   "sha256": "9d95e9ac33a1430ec0cc2e6c35bb401379bdfb241be89bdc200bd035cf08f5a2",
+   "head": "10/08/2020 1"
+  },
+  {
+   "rel": "T1003.003/snapattack/snapattack.log",
+   "bytes": 7772,
+   "sha256": "50290b7f98c2059cb340a40c02fddc932a9815a1be32eef9074e839ae595ef4f",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1003.003/snapattack/snapattack.yml",
+   "bytes": 467,
+   "sha256": "b3c63e72e5178c786d347a1d0a453b1312f51d7aa586734d30bb1de24c0a8ad5",
+   "head": "author: Rave"
+  },
+  {
+   "rel": "T1047/atomic_red_team/4104-cimmethod-windows-powershell.log",
+   "bytes": 123197,
+   "sha256": "d03c549897ace7f2c4d45c1fc91cd10fb29128137389aadef6a9932ec554b018",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1047/atomic_red_team/atomic_red_team.yml",
+   "bytes": 1277,
+   "sha256": "c578045d885fe2b2ba2c3ff7bdd7cdf95be0cf811497d644358dd18ab1681076",
+   "head": "author: Patr"
+  },
+  {
+   "rel": "T1047/atomic_red_team/invokewmiexec_windows-powershell.log",
+   "bytes": 287004,
+   "sha256": "d0f0efeb0da7bcb6fd62992eca7edafd733a46739b290106ce8ddce699272b15",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1047/atomic_red_team/windows-system.log",
+   "bytes": 382825,
+   "sha256": "b349f7a008391caf09c01d90f8f7ff5e83daec5a21865a3ac767a9f9cd6a5174",
+   "head": "11/30/2020 1"
+  },
+  {
+   "rel": "T1047/execution_scrcons/execution_scrcons.yml",
+   "bytes": 412,
+   "sha256": "15dfe398c21029864e9b253b7a5409030a6c818e2b9d8261a5658b853d77a8a4",
+   "head": "author: Patr"
+  },
+  {
+   "rel": "T1047/execution_scrcons/windows-powershell.log",
+   "bytes": 1396472,
+   "sha256": "aa8ffa98a4566f730fda48cd79aa053bacc234412ad778ed888d340e8fcfed2a",
+   "head": "12/07/2020 0"
+  },
+  {
+   "rel": "T1047/execution_scrcons/windows-security.log",
+   "bytes": 330475,
+   "sha256": "086e3f8dbc1ae631a0be5bf89926db58d390cd5336ba20dc2deef81b299790d4",
+   "head": "12/07/2020 0"
+  },
+  {
+   "rel": "T1047/execution_scrcons/windows-system.log",
+   "bytes": 13527,
+   "sha256": "cbe201f68aa24b6fd2c2ef3d56405e54053760e408c28cb7b216f314a1dcb806",
+   "head": "12/07/2020 0"
+  },
+  {
+   "rel": "T1047/lateral_movement/lateral_movement.yml",
+   "bytes": 543,
+   "sha256": "642650b45be6b06c437d3ec1bfbabcaa555eaa09596944a06a829cb061b82136",
+   "head": "author: Maur"
+  },
+  {
+   "rel": "T1047/lateral_movement/windows-powershell.log",
+   "bytes": 5338,
+   "sha256": "6828b370ec873d0b1c87d4833602bc187299e5357002f1066bbd0f5f80794785",
+   "head": "11/15/2021 0"
+  },
+  {
+   "rel": "T1047/lateral_movement/wmi_remote_process_powershell.log",
+   "bytes": 1204,
+   "sha256": "2e8d1ff57aa98947f0782bc071c2dbf8417840ab8e36b18d7eda0953a8e0d305",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1055/cobalt_strike/Cobalt_spawnto.log",
+   "bytes": 1695870,
+   "sha256": "8ba8ffac823992e74782850f992602c3aaa0241d2b9840522b119749787405fb",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1055/cobalt_strike/cobalt_strike.yml",
+   "bytes": 889,
+   "sha256": "ff1b9d0fcc91592054f5af848a1d81168ca45c532a2f755398afb35de010cd2d",
+   "head": "author: Mich"
+  },
+  {
+   "rel": "T1055/cobalt_strike/windows-sysmon_searchprotocolhost.log",
+   "bytes": 1489733,
+   "sha256": "261129b0b1fc5237b6ac63b163ffd3e3674ce3dcdcfbc8fa6a3fe1116a239cc4",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1055/msra/msra-windows-sysmon.log",
+   "bytes": 15812,
+   "sha256": "814f426f84e7a0f193d68828189e4d1691feed2005a4d70cc7b86ec2847cbe15",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1055/msra/msra.yml",
+   "bytes": 647,
+   "sha256": "dcaf8cc2b03e7c9bdd684bf04f12b6e3638e4adfd43478ff4f5b2f6a810f9c71",
+   "head": "author: Mich"
+  },
+  {
+   "rel": "T1055/msra/windows-security.log",
+   "bytes": 2010,
+   "sha256": "c47bea7b7b048b47018e8a2b069cd6c6ea1908a02059b36a557332fa0b81f7df",
+   "head": "02/09/2022 0"
+  },
+  {
+   "rel": "T1055/named_pipes/named_pipes.yml",
+   "bytes": 465,
+   "sha256": "8770a7c3c9266d01f6fb941de660ae7c830925b479d0c279ed2332024df32f9e",
+   "head": "author: Rave"
+  },
+  {
+   "rel": "T1055/named_pipes/windows-sysmon.log",
+   "bytes": 39508,
+   "sha256": "9c0237a14a9ee61476a5eaca97c406b0c249698bfef2049234609559d02de8c1",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/asyncrat_crypto_pwh_namespace/asyncrat_crypto_pwh_namespace.yml",
+   "bytes": 514,
+   "sha256": "dfc3243ac7c22d1592cd9d75c1291783324bad43612965f530caaf64c6324390",
+   "head": "author: Teod"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/4104-psremoting-windows-powershell.log",
+   "bytes": 41228,
+   "sha256": "23c1d16765c25038d76b718b978fca80c850078cc40a71856d7e4a337b21ad7d",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/atomic_red_team.yml",
+   "bytes": 2064,
+   "sha256": "c09aea5766db95d5122d2e7fa9533259aefc03322eac05a13cb88fec9e8b48a5",
+   "head": "author: 'Com"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/captcha_windows-sysmon.log",
+   "bytes": 2153,
+   "sha256": "2349326b9042ba212dc16a4764a2cd1fbfa318a792c5591594b77bbfd20ddc9e",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/carbon_black_events.log",
+   "bytes": 1954147,
+   "sha256": "bec43f361e1896483f7363c82b01481e041e3f4bcbce27a03c41d8fb10749d42",
+   "head": "{\"type\":\"end"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/downloadfile_windows-security.log",
+   "bytes": 3161,
+   "sha256": "00adb56890d8bce43960928562f370cd62fd687d0e087ff7fdcd03fe4ab513cd",
+   "head": "02/11/2022 0"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/enableat_windows-sysmon.log",
+   "bytes": 2285,
+   "sha256": "277289fa911c6c7999f338f735c29a9811d03249e8d9584ec722af85aa051ded",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/get_ciminstance_windows-powershell.log",
+   "bytes": 5946,
+   "sha256": "3fd8f82c45ba84705a26a4490510ae8972ad4c9b8e96e30dfee0211cd4c88c90",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/irm_powershell.log",
+   "bytes": 9053,
+   "sha256": "b9112d39b0e88759dd221629b829668947521132bce155812830d29093e728ce",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/start_stop_service_windows-powershell.log",
+   "bytes": 27260,
+   "sha256": "1c8afc387daee51d92e5477a71e083af7aee474c30dd31725131362261c23520",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/win32_scheduledjob_windows-powershell.log",
+   "bytes": 21142,
+   "sha256": "a1ec87412118b5e48d32eadb5c7a66809e431917f76192b3867735951f5df7c7",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/windows-security-2.log",
+   "bytes": 1384,
+   "sha256": "3223e7385a0325fc0a50d3103c1cc690aa57a4d04ec19a0259054af32d13448c",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/atomic_red_team/windows-security.log",
+   "bytes": 593281,
+   "sha256": "aed5d2956ff35417d5b971b45d84004f8e8361db3e2c8924b96f3bd0ed57bfb9",
+   "head": "03/01/2021 1"
+  },
+  {
+   "rel": "T1059.001/encoded_powershell/encoded_powershell.yml",
+   "bytes": 1054,
+   "sha256": "277881af9e5c575268a44d7fa4cf86883dee81380afebbeb2eec3db5218fc2af",
+   "head": "author: Patr"
+  },
+  {
+   "rel": "T1059.001/encoded_powershell/explorer_spawns_windows-sysmon.log",
+   "bytes": 13142,
+   "sha256": "9200692ad74037b5234fe6f7da733d3e416b0ea8bb7f6d8ebb5bd16fc39b8b22",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/encoded_powershell/padded_windows-sysmon.log",
+   "bytes": 11135,
+   "sha256": "0324ee4e5f2cb4c761e10862808c37a046097a2ad800d034490e3980c3e86dec",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/encoded_powershell/windows-security.log",
+   "bytes": 1409,
+   "sha256": "9f4cc04679371d7e7699a85bb812adae3e2f000def8ac73213b868845e389371",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.001/encoded_powershell/windows-sysmon.log",
+   "bytes": 2012605,
+   "sha256": "b9c8438a0d8cd62714a38ed093fc583c3318d1cac768c6513ad40a3b8203fd05",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.003/atomic_red_team/atomic_red_team.yml",
+   "bytes": 421,
+   "sha256": "47e702e5fc2ca8330fb06635c845116d9f97a9a2de8765b24cc57fc5a514b9e9",
+   "head": "author: Mich"
+  },
+  {
+   "rel": "T1059.003/atomic_red_team/invokesqlcmd_powershell.log",
+   "bytes": 591663,
+   "sha256": "6ccd2afe7db25e7c1ee28ec64173a138743797faafdf28e8309cd0e857d41e03",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.003/atomic_red_team/sqlcmd_windows_sysmon.log",
+   "bytes": 16495,
+   "sha256": "e6f50e00a97eab28fe6d3d0f2ee99b5979a7214797d4380784d1bafaddb77d25",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.003/cmd_arguments/cmd_arguments_old.yml",
+   "bytes": 435,
+   "sha256": "c9791afc652cdf13de1aebd7fbbc025eeeeebcc0e06a186e44c48ba0c0988143",
+   "head": "author: Patr"
+  },
+  {
+   "rel": "T1059.003/cmd_arguments/windows-security.log",
+   "bytes": 2195,
+   "sha256": "6e87481bcb811ff292e0c66094ab0b2d7b303ab94c33753262c238026c446d16",
+   "head": "10/30/2020 1"
+  },
+  {
+   "rel": "T1059.003/cmd_for_loop/cmd_for_loop.log",
+   "bytes": 1999,
+   "sha256": "49ae5741c73c977da5b1523a651b72fb25b38eed06e26b2718b4a2a9c1c073d7",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.003/cmd_for_loop/cmd_for_loop.yml",
+   "bytes": 497,
+   "sha256": "d1969f5949f4fa0ef634adb6df91c21a5a0e073bd545497ec05f94796ca3195d",
+   "head": "author: Onur"
+  },
+  {
+   "rel": "T1059.005/discord_dnsquery/discord_dnsquery.yml",
+   "bytes": 431,
+   "sha256": "be441d05f14ca12cbfda56225c70a4cf9334cffdcbff2d07c87663c81f57c1f5",
+   "head": "author: Teod"
+  },
+  {
+   "rel": "T1059.005/lotus_blossom_chrysalis/dataset.yml",
+   "bytes": 630,
+   "sha256": "0092c492ef48b6d1ed537977d992d27c52ba9713c479bdad06dde4569067d77e",
+   "head": "author: Mich"
+  },
+  {
+   "rel": "T1059.005/lotus_blossom_chrysalis/windows-sysmon.log",
+   "bytes": 4713,
+   "sha256": "cb5ea7112ec60ef8c6c4abfe3f2d5eccb0d7e8435e0da8ffdc7ff276878e7caf",
+   "head": "{\"CommandLin"
+  },
+  {
+   "rel": "T1059.005/snapattack/snapattack.log",
+   "bytes": 7866,
+   "sha256": "e48f1861f1aca9cb80f61b7c4ac6589d74f2026519f1e61104385360fed2620c",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1059.005/snapattack/snapattack.yml",
+   "bytes": 458,
+   "sha256": "1bc434d5c35fff6819faf430fddaa73a56e4b23d0da29c48f0e9972abe45b76a",
+   "head": "author: Rave"
+  },
+  {
+   "rel": "T1071.001/http_user_agents/http_user_agents.yml",
+   "bytes": 819,
+   "sha256": "86f9c3a6ff912e0e653b83826522a9b463f34fd1adcf69d46b9804237e144668",
+   "head": "author: Rave"
+  },
+  {
+   "rel": "T1071.001/http_user_agents/suricata_c2.log",
+   "bytes": 62479,
+   "sha256": "8dc429a3e0241657320748f91e3c2ef2e6dd346734111f26b19d8ad0d3e58fb1",
+   "head": "{\"timestamp\""
+  },
+  {
+   "rel": "T1071.001/http_user_agents/suricata_malware.log",
+   "bytes": 7222,
+   "sha256": "2f8c6eeb09893ec58228f9578a61b4e6f0b36277420b58f7c8a36c7ea4c01e79",
+   "head": "{\"timestamp\""
+  },
+  {
+   "rel": "T1071.001/http_user_agents/suricata_pua.log",
+   "bytes": 3214,
+   "sha256": "a4e6904a2ad806985f244c1583cd4ffc50cc7198a744adcdde16f707ecab0305",
+   "head": "{\"timestamp\""
+  },
+  {
+   "rel": "T1071.001/http_user_agents/suricata_rmm.log",
+   "bytes": 3633,
+   "sha256": "4faeaab2d5031c7186bdccfe857a3c3f1c22da66ca36438ba58e86a2e646b21f",
+   "head": "{\"timestamp\""
+  },
+  {
+   "rel": "T1071.001/snapattack/snapattack.log",
+   "bytes": 4100,
+   "sha256": "1299122c90896e99fcfda508142ed9b3266d43653334ed1375a1440272042a1f",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1071.001/snapattack/snapattack.yml",
+   "bytes": 438,
+   "sha256": "57b727caf50d59d201e95f38ae95c5a15c7f5f642eed2fead9572df169ac8f3c",
+   "head": "author: Rave"
+  },
+  {
+   "rel": "T1071.001/zeek_http_encoded_post/http.log",
+   "bytes": 2418,
+   "sha256": "59e15788b109473544e4679c4a6e40f34365f5dbaa49ab1a2efd4253b28c6334",
+   "head": "{\"ts\": 16651"
+  },
+  {
+   "rel": "T1071.001/zeek_http_encoded_post/zeek_http_encoded_post.yml",
+   "bytes": 436,
+   "sha256": "7d708be525ce74df94b439ac64670226021427a97ad018a029d38a5ffc27985d",
+   "head": "author: Rave"
+  },
+  {
+   "rel": "T1105/atomic_red_team/T1105-windows-security.log",
+   "bytes": 122517,
+   "sha256": "bfb5c127c947fa8652c292066c83a1a0290c72e446ffd8317f9ebed1dc877641",
+   "head": "02/16/2022 0"
+  },
+  {
+   "rel": "T1105/atomic_red_team/T1105_explorer-windows-security.log",
+   "bytes": 11383,
+   "sha256": "3fc2796ad9ce29fa64a4637a5b746b1a9d30099ec8264b356a33363549f02845",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1105/atomic_red_team/atomic_red_team.yml",
+   "bytes": 1131,
+   "sha256": "85be85a74bd3b105821c70613a415821db68dad9f14115e2b659e4798b0d4128",
+   "head": "author: Mich"
+  },
+  {
+   "rel": "T1105/atomic_red_team/carbon_black_events.log",
+   "bytes": 1478202,
+   "sha256": "3900a548587db2b98743492ac61c4f580989798e1c49af93e4b3e8cb5acd4f95",
+   "head": "{\"type\":\"end"
+  },
+  {
+   "rel": "T1105/atomic_red_team/curl-linux-sysmon.log",
+   "bytes": 54386,
+   "sha256": "0ccb0e70a2ba8fcc3e3cb225e9cfe2e3e25edac0f75070641179c84432256160",
+   "head": "<Event><Syst"
+  },
+  {
+   "rel": "T1105/atomic_red_team/linux-sysmon_curlwget.log",
+   "bytes": 134205,
+   "sha256": "699e5ee2fb348b790a68095191f2420cef9f93ab8457576f2869923db62fe3e6",
+   "head": "<Event><Syst"
+  },
+  {
+   "rel": "T1105/atomic_red_team/windows-security.log",
+   "bytes": 200829,
+   "sha256": "0859fc0fea16337fefe20962fa152d8a6f39e8cbb6a016da13d4f9a4d88d234f",
+   "head": "12/06/2021 1"
+  },
+  {
+   "rel": "T1105/atomic_red_team/windows-sysmon.log",
+   "bytes": 3625178,
+   "sha256": "bd6bbf7884f44274988d159bcb3249505dc53623e551892b54a3fc87db06e18c",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1105/atomic_red_team/windows-sysmon_curl.log",
+   "bytes": 254432,
+   "sha256": "8f13a7382e2c6c2b32353971cd642fad77e929c7c26e37989bbeace4a0f381f5",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1105/atomic_red_team/windows-sysmon_curl_upload.log",
+   "bytes": 475947,
+   "sha256": "af1602ccd961b0ae04cd5ca8c5c9dcbde01df6f86381bd9da67e6a3add5951ff",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1105/atomic_red_team/winrar.log",
+   "bytes": 84233,
+   "sha256": "6ceebdfc03242508fa1619086033d558da80afaebb54d240efb2d616de8a537a",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1105/dll_loaded_in_temp/dll_loaded_in_temp.yml",
+   "bytes": 471,
+   "sha256": "632d7eddf81a949d39f124db2d4b00439be2d353d6ac345833852cbad11d0451",
+   "head": "author: Teod"
+  },
+  {
+   "rel": "T1105/dll_loaded_in_temp/module_loaded_in_temp.log",
+   "bytes": 3034,
+   "sha256": "f190e90bdefef1523b5af5bade0c217c33efbd0eb8497ea2e812f805c8b1ef72",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1105/download_to_pipe_exec/download_to_pipe_exec.log",
+   "bytes": 35886,
+   "sha256": "00816cd9278f3eab0fcb1596d284da35a15dbef9db15a8b4973fac10ebd5dbf3",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1105/download_to_pipe_exec/download_to_pipe_exec.yml",
+   "bytes": 709,
+   "sha256": "6dd30ac5e60ea99d3f0640ffe5c5ece80ba6b204c916fe2da602552a8f8c8362",
+   "head": "author: Nasr"
+  },
+  {
+   "rel": "T1105/download_to_pipe_exec/download_to_pipe_exec_linux.log",
+   "bytes": 1554,
+   "sha256": "9c629b51765f290038bef423acf717960cc3da6bf3e4d40d406627854335be7a",
+   "head": "<Event><Syst"
+  },
+  {
+   "rel": "T1112/AuthenticationLevelOverride/AuthenticationLevelOverride.yml",
+   "bytes": 427,
+   "sha256": "3abee23add1cbf62f8f6c954eb0fcac1b95a3938fdc4506f5113728bae56ab9b",
+   "head": "author: Teod"
+  },
+  {
+   "rel": "T1112/AuthenticationLevelOverride/auth_sys.log",
+   "bytes": 1147,
+   "sha256": "3aaaed08919d925a553437a7ccce80c86c0962fa0c4e9b99ccba31db665ea9d5",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1112/DisableRemoteDesktopAntiAlias/DisableRemoteDesktopAntiAlias_old.yml",
+   "bytes": 514,
+   "sha256": "06985ad7fa7b60f989833bba2dd80999d159ad1c9717f39a7b86cca175d29351",
+   "head": "author: Teod"
+  },
+  {
+   "rel": "T1112/DisableRemoteDesktopAntiAlias/disable_remote_alias.log",
+   "bytes": 2199,
+   "sha256": "ce56a4b9f2539d1748b65fb690287c4e5016cdf1abc8b64f066d4006b443c62a",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1112/atomic_red_team/atomic_red_team.yml",
+   "bytes": 1400,
+   "sha256": "e2c151e5a61733f53da4e54ed8bf2613739e0ab85d222b01a03b46f396f88f6e",
+   "head": "author: Patr"
+  },
+  {
+   "rel": "T1112/atomic_red_team/safemode_windows-sysmon.log",
+   "bytes": 45549,
+   "sha256": "57a8a6765acd975012d2bd379ced973a9d007eb7cf94151ca2c6f892db0f6f07",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1112/atomic_red_team/wdigest_windows-sysmon.log",
+   "bytes": 1116,
+   "sha256": "f51bc14b916e66487c299ffa642b938a26b14a5d934933eb2c32bb136dc0d353",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1112/atomic_red_team/windows-sysmon-webview.log",
+   "bytes": 42342,
+   "sha256": "891605a31b4cfe03c4f9883663794314dacde05ed07f32f2c87eb31bb6ecaec8",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1112/atomic_red_team/windows-system.log",
+   "bytes": 386466,
+   "sha256": "ce07426eb1af99019aee7a3a01f1c84e499de7b5b0d4bf74a9e12fbdefe16201",
+   "head": "11/06/2020 0"
+  },
+  {
+   "rel": "T1136.001/atomic_red_team/4720.log",
+   "bytes": 1726,
+   "sha256": "ef9ff5c7a65bbb875cbbd08b23ab4cf13d7bc3d6c44268a1fa4d4b9048d20e77",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1136.001/atomic_red_team/atomic_red_team.yml",
+   "bytes": 1613,
+   "sha256": "2fa07b9b0e4f12546affaff43b336e075337739a61e365e0fd70a9cc7831679b",
+   "head": "author: Patr"
+  },
+  {
+   "rel": "T1136.001/atomic_red_team/windows-powershell-esxadmins.log",
+   "bytes": 5635,
+   "sha256": "e1b77b283b038e7aa7933dbc6ed77871d1a599ca71e611553ac20fe75c3fccbe",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1136.001/atomic_red_team/windows-security-esxadmins.log",
+   "bytes": 10519,
+   "sha256": "c7bde8b973fa27199ece3f04bbf6f99a26e317c77c36cd1249af3cdbe6cae767",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1136.001/atomic_red_team/windows-sysmon-esxadmins.log",
+   "bytes": 7992,
+   "sha256": "04db89547e200b0ff007641941fc5290dbd880562c834f5e470594e532edee60",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1136.001/atomic_red_team/windows-system.log",
+   "bytes": 386007,
+   "sha256": "2f64c266ac0aa27c2c76762028c19e2c8d273fd9d4087c2b54ff6c3b9d7abf98",
+   "head": "10/09/2020 0"
+  },
+  {
+   "rel": "T1136.001/atomic_red_team/windows-xml.log",
+   "bytes": 6561,
+   "sha256": "769a8b8a0d08f62b1465b1cf6bf455908fce3c6f43110563a6870171ddab2a07",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1136.001/atomic_red_team/xml-windows-security.log",
+   "bytes": 2857,
+   "sha256": "9eaa564e74abbc6b5ac38d4d0a209f1240cd910e223d5f35010ae68e6355fd73",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1136.001/linux_auditd_add_user/auditd_proctitle_user_add.log",
+   "bytes": 13150,
+   "sha256": "2c8aa9b3b97046d45ef98ff93b569ab7aa7337f28965a2b08c47ab3850b663a1",
+   "head": "type=PROCTIT"
+  },
+  {
+   "rel": "T1136.001/linux_auditd_add_user/linux_auditd_add_user.log",
+   "bytes": 6784,
+   "sha256": "458c29d6d742cb1777fafd24aeb9b00fbe0396cf2c8623d45b3daf92b9b5783d",
+   "head": "type=PROCTIT"
+  },
+  {
+   "rel": "T1136.001/linux_auditd_add_user/linux_auditd_add_user.yml",
+   "bytes": 601,
+   "sha256": "806c9a31b425348ab85cea3ac5267385d7bd92cf3a220ddff3a322b57b2842f3",
+   "head": "author: Teod"
+  },
+  {
+   "rel": "T1218.011/atomic_red_team/atomic_red_team.yml",
+   "bytes": 1099,
+   "sha256": "24faac03d18106e3ba6c0da095edda30ec36f5b552051ed1681bffabc4c211c1",
+   "head": "author: Patr"
+  },
+  {
+   "rel": "T1218.011/atomic_red_team/ordinal_windows-sysmon.log",
+   "bytes": 21974,
+   "sha256": "441b465a0e8fb2c2989b11a37aed0485c17dbc75db54eae46fd54f16e4590450",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1218.011/atomic_red_team/windows-system.log",
+   "bytes": 389918,
+   "sha256": "3ff54b9323b77ea60d0b11b33b8ed86692b426075ea5dcdbad14c07bc4df3e7b",
+   "head": "11/30/2020 0"
+  },
+  {
+   "rel": "T1218.011/random_dll_extension/random_dll_extension.yml",
+   "bytes": 484,
+   "sha256": "7d2c5abb1bbbf94d6132738adbf3c1d3244158a317987d8dd9a2f05132b5c100",
+   "head": "author: Teod"
+  },
+  {
+   "rel": "T1218.011/random_dll_extension/random_dll_rundll32.log",
+   "bytes": 8253,
+   "sha256": "fcab984bb700abbd3fd27a150cbd70b907f608ea177c3487cb04796946f2e614",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1218.011/rundll32_dll_in_temp/rundll32_dll_in_temp.yml",
+   "bytes": 456,
+   "sha256": "c83767e176063e2f1c28806f3a7ba7d5fd487056ba1c3cadc0ed5f2d46c44359",
+   "head": "author: Teod"
+  },
+  {
+   "rel": "T1218.011/rundll32_dll_in_temp/rundll32_tmp.log",
+   "bytes": 4057,
+   "sha256": "5ac4747551f733d673cd6828a55732b7b542d3552698325cbdac2df2a69aa62f",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1547.001/atomic_red_team/atomic_red_team.yml",
+   "bytes": 1073,
+   "sha256": "59a11b90f8d5f163a74fc8a11c4fb891b6280c3575dc2c80b11b3ce9be52e6ef",
+   "head": "author: Patr"
+  },
+  {
+   "rel": "T1547.001/atomic_red_team/bootexecute-windows-sysmon.log",
+   "bytes": 21929,
+   "sha256": "250282b2b0ccfe81a2d40f2fd21ccdaeba15d1b17f46ba102f9fd67f61d6b284",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1547.001/atomic_red_team/t1547001-runonce.log",
+   "bytes": 78245,
+   "sha256": "734596074b0bc33598fae148a395d671128411b03ffe12784bf32b743da3b3cc",
+   "head": "02/17/2022 0"
+  },
+  {
+   "rel": "T1547.001/atomic_red_team/windows-system.log",
+   "bytes": 386972,
+   "sha256": "793762c6cb4fff1350baf91e59cd4a480e627e4c85abff895a75cc5364ba1c54",
+   "head": "11/27/2020 0"
+  },
+  {
+   "rel": "T1547.001/snapattack/snapattack.log",
+   "bytes": 1384,
+   "sha256": "1ca1e343e12e99abb1381e180cc0b191dc53ef37786973b2fa4b65bcb893fa84",
+   "head": "<Event xmlns"
+  },
+  {
+   "rel": "T1547.001/snapattack/snapattack.yml",
+   "bytes": 461,
+   "sha256": "8c23334b3540dd3a7598caf9a487630952e7526058443328a19e05f90fe37bf1",
+   "head": "author: Rave"
+  },
+  {
+   "rel": "T1569.002/atomic_red_team/atomic_red_team.yml",
+   "bytes": 507,
+   "sha256": "b06a45d9db25673255eaa9b4aa6f675b633e4efe7e535f5b00eaf42f1464e264",
+   "head": "author: Ryan"
+  },
+  {
+   "rel": "T1569.002/atomic_red_team/windows-system.log",
+   "bytes": 396124,
+   "sha256": "097f16e7d92b0c75797244543e88a9eeaad80b861a31b053feddeb68fcd1772e",
+   "head": "04/05/2021 0"
+  },
+  {
+   "rel": "T1569.002/linux_service_start/auditd_proctitle_service_start.log",
+   "bytes": 21703,
+   "sha256": "c9d8fbd9884d75b4b630bf9f1012765fce5747243f5140eeb7a71d264043d2c3",
+   "head": "type=PROCTIT"
+  },
+  {
+   "rel": "T1569.002/linux_service_start/linux_service_start.log",
+   "bytes": 4630,
+   "sha256": "5c9707fa41038c245ad99e63f99e4b7a37dc07dbd2cd0850186b2e0b06d77533",
+   "head": "type=PROCTIT"
+  },
+  {
+   "rel": "T1569.002/linux_service_start/linux_service_start.yml",
+   "bytes": 443,
+   "sha256": "30b764566d50fbb0522089dd3e6a7dac9f10fd20fcaf353725d4fc0678018df8",
+   "head": "author: Teod"
+  },
+  {
+   "rel": "T1569.002/malicious_powershell_executed_as_a_service/data.yml",
+   "bytes": 510,
+   "sha256": "08c5c4c3f4504b15cf787f784be04739aff91b2c0cfd5afdb3d9c33ebdd6c40c",
+   "head": "author: Gene"
+  },
+  {
+   "rel": "T1569.002/malicious_powershell_executed_as_a_service/windows-xml.log",
+   "bytes": 2801,
+   "sha256": "17ecd8e5711484349afaa259d7b1167a360370dd9c417c3fb52d1dbf1ab792c3",
+   "head": "<Event xmlns"
+  }
+ ]
+}
