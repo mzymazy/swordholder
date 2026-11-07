@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_df488c1ada9811f1bff2525400cd780f
+    ReservedCode1: nJVMmKWd+p1u5ftU7A/M4Y5KLW3veJS7EI8tYCuqGxbQ66kbI8gw5HRbLG5dmnlNqx9iGK7DKrMrs2U7AgxFxpPp90QsYFaZtg0wbOH/7vTA8sgoVdU+kz/4BYa4R0yWDTlWlnes5Ii+xTwgFFFe6ehsXd3hDketoHSYnUxo2J16m+OUV7SL/IcTjys=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_df488c1ada9811f1bff2525400cd780f
+    ReservedCode2: nJVMmKWd+p1u5ftU7A/M4Y5KLW3veJS7EI8tYCuqGxbQ66kbI8gw5HRbLG5dmnlNqx9iGK7DKrMrs2U7AgxFxpPp90QsYFaZtg0wbOH/7vTA8sgoVdU+kz/4BYa4R0yWDTlWlnes5Ii+xTwgFFFe6ehsXd3hDketoHSYnUxo2J16m+OUV7SL/IcTjys=
+---
+
 # 先行工作声明（Prior work declaration）
 
 本文件用于在**周末研究类赛事**（如 Apart Research Sprint、黑客松）中明确「哪部分是本项目此前已有的，哪部分是赛事期间新增的」。所有提交的报告与 README 都引用本文件，避免把既有工作包装成新成果。
@@ -60,3 +71,4 @@
 ## 4. 与赛事规则的对齐
 
 多数周末研究类赛事要求「只评赛事期间的工作，且需明确声明先行工作、在 README 与报告中标注 preexisting 代码」。本文件即该项义务的常设载体；对未要求该声明的赛事，本文件不产生额外义务。
+*（内容由AI生成，仅供参考）*

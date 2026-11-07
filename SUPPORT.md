@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: dbc1c155fc9201133fd4bf5993fb4878_dea25a99da9811f1a0ca525400de85a5
+    ReservedCode1: QcS5JM/d1xd4KHQk7jejKGN7BJPYStICG6VwOXZBUEeIu/+23c9JUFZ7bwuIlXvK/qHFO6WhAG5Qk11xZJo7uXori6kdOJmz4SaEclr8hox4tEmwjNwX9Z4oQNmKEvFK6HCAy91ELf0vRQwypYryAqJUzJcGusSfPOzXRZxaL3Hc47Lw4mJsYqvZOiQ=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: dbc1c155fc9201133fd4bf5993fb4878_dea25a99da9811f1a0ca525400de85a5
+    ReservedCode2: QcS5JM/d1xd4KHQk7jejKGN7BJPYStICG6VwOXZBUEeIu/+23c9JUFZ7bwuIlXvK/qHFO6WhAG5Qk11xZJo7uXori6kdOJmz4SaEclr8hox4tEmwjNwX9Z4oQNmKEvFK6HCAy91ELf0vRQwypYryAqJUzJcGusSfPOzXRZxaL3Hc47Lw4mJsYqvZOiQ=
+---
+
 # 支持渠道（SUPPORT）
 
 先看这三处，多数问题已在里面：
@@ -38,3 +49,4 @@ python scripts/worldclass_probe.py --assert
 ## 响应能力的诚实说明
 
 本项目为个人维护，无 24×7 值班。响应时限按上表执行，超出时限未回复可在原 issue 中 `@` 维护者升级。
+*（内容由AI生成，仅供参考）*

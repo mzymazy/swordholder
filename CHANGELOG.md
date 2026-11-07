@@ -17,6 +17,31 @@ AIGC:
 
 ---
 
+## [未发布] — L2：动作轨迹账本，让「智能体做了什么」可被发现篡改
+
+既有证据链证明的是「一条**结论**有没有被改过」，缺的是**过程**：智能体按什么顺序做了哪些动作、
+记录有没有被动过、动在第几步。本版补上这一层，并给出可复现的对照实验。
+
+### 新增（Added）
+
+- `swordholder/trace_ledger.py`：逐步链式账本。`entry.hash = SHA256(prev + c14n(白名单字段))`，
+  头部哈希与步数一起被封存；`verify_chain()` 重算整链并**定位首个断点**；
+  `verify_sealed_trace()` 三段校验（链自洽 → 凭证可信 → 凭证里 trace_id/head/step_count/digest 逐项相符），
+  第三段专门挡「拿 A 轨迹的凭证背书被改过的 B 轨迹」。纯标准库，无新增依赖。
+- 签发通道走 `exit_guard.issue_credential()`，不碰 `core.seal()`，符合 `test_exit_integrity` 的 AST 门禁。
+- `tests/test_trace_ledger.py`：12 条。守「不误报 / 四类篡改必检出且定位准确 / 尾部截断靠 head 拦住 /
+  拒绝为不自洽轨迹盖章 / challenge 绑定」。
+- `scripts/epistemics_tamper_bench.py` + `evidence/epistemics/tamper_bench.json`：
+  200 条确定性轨迹 × 四类篡改，三方案对照。检出率 L0=0.00、L1=L2=1.00；**定位**仅 L2 具备
+  （改值/插入/换序 1.00，删末步 0.92）；部分披露可验 L2=1.00 vs L1=0.00；假阳性 0。
+- `docs/trace-ledger.md`：机制、威胁模型与**明确的不防清单**（私钥持有者重签、造假的历史、动作合法性）。
+
+### 变更（Changed）
+
+- `pytest -q`：281 → **293 passed**（新增 12 条）。
+
+---
+
 ## [未发布] — L1：把 b2 缺口写成定理，而不是观测
 
 b2 用例（伪造授权工单 → 误报结论被签发）此前只有**现象层证据**（确定性探针 `S3` 被接受、

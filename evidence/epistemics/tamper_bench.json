@@ -1,0 +1,139 @@
+{
+  "meta": {
+    "n_traces": 200,
+    "lengths": [
+      5,
+      10,
+      20,
+      50
+    ],
+    "seed": 20261113,
+    "tampers": [
+      "modify",
+      "insert",
+      "delete",
+      "reorder"
+    ],
+    "false_positive": {
+      "L1_digest_only": 0,
+      "L2_ledger": 0
+    },
+    "note": "synthetic deterministic traces; no model calls"
+  },
+  "detection": {
+    "L0_plain": {
+      "modify": {
+        "n": 200,
+        "detected": 0,
+        "locatable": 0,
+        "locate_correct": 0,
+        "detect_rate": 0.0,
+        "locate_rate": 0.0
+      },
+      "insert": {
+        "n": 200,
+        "detected": 0,
+        "locatable": 0,
+        "locate_correct": 0,
+        "detect_rate": 0.0,
+        "locate_rate": 0.0
+      },
+      "delete": {
+        "n": 200,
+        "detected": 0,
+        "locatable": 0,
+        "locate_correct": 0,
+        "detect_rate": 0.0,
+        "locate_rate": 0.0
+      },
+      "reorder": {
+        "n": 200,
+        "detected": 0,
+        "locatable": 0,
+        "locate_correct": 0,
+        "detect_rate": 0.0,
+        "locate_rate": 0.0
+      }
+    },
+    "L1_digest_only": {
+      "modify": {
+        "n": 200,
+        "detected": 200,
+        "locatable": 0,
+        "locate_correct": 0,
+        "detect_rate": 1.0,
+        "locate_rate": 0.0
+      },
+      "insert": {
+        "n": 200,
+        "detected": 200,
+        "locatable": 0,
+        "locate_correct": 0,
+        "detect_rate": 1.0,
+        "locate_rate": 0.0
+      },
+      "delete": {
+        "n": 200,
+        "detected": 200,
+        "locatable": 0,
+        "locate_correct": 0,
+        "detect_rate": 1.0,
+        "locate_rate": 0.0
+      },
+      "reorder": {
+        "n": 200,
+        "detected": 200,
+        "locatable": 0,
+        "locate_correct": 0,
+        "detect_rate": 1.0,
+        "locate_rate": 0.0
+      }
+    },
+    "L2_ledger": {
+      "modify": {
+        "n": 200,
+        "detected": 200,
+        "locatable": 200,
+        "locate_correct": 200,
+        "detect_rate": 1.0,
+        "locate_rate": 1.0
+      },
+      "insert": {
+        "n": 200,
+        "detected": 200,
+        "locatable": 200,
+        "locate_correct": 200,
+        "detect_rate": 1.0,
+        "locate_rate": 1.0
+      },
+      "delete": {
+        "n": 200,
+        "detected": 200,
+        "locatable": 184,
+        "locate_correct": 184,
+        "detect_rate": 1.0,
+        "locate_rate": 0.92
+      },
+      "reorder": {
+        "n": 200,
+        "detected": 200,
+        "locatable": 200,
+        "locate_correct": 200,
+        "detect_rate": 1.0,
+        "locate_rate": 1.0
+      }
+    }
+  },
+  "partial_disclosure": {
+    "L2_ledger": {
+      "n": 200,
+      "verifiable": 200,
+      "verifiable_rate": 1.0
+    },
+    "L1_digest_only": {
+      "n": 200,
+      "verifiable": 0,
+      "verifiable_rate": 0.0
+    }
+  }
+}
