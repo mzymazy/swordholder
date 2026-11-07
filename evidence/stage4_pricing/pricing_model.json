@@ -1,0 +1,316 @@
+{
+  "tool": "swordholder.pricing_model",
+  "currency": "USD",
+  "pricing_unit": "每张被追责结论的凭证（seal），非日志条数、非席位",
+  "measured_inputs": {
+    "seal_ms_median": 0.538,
+    "verify_ms_median": 4.911,
+    "source": "examples/minimal_integration.py --bench-iterations 30（隔离安装环境）"
+  },
+  "assumptions": {
+    "seal_ms": 0.538,
+    "verify_ms": 4.911,
+    "verifications_per_seal": 3,
+    "vcpu_hour_usd": 0.042,
+    "seal_bytes": 2048,
+    "storage_gb_month_usd": 0.023,
+    "retention_months": 12
+  },
+  "unit_economics": {
+    "cycle_ms_per_seal": 15.271,
+    "compute_usd_per_seal": 1.781616666666667e-07,
+    "storage_usd_per_seal_12mo": 5.2642822265625e-07,
+    "marginal_usd_per_seal": 7.045898893229168e-07,
+    "seals_per_vcpu_hour": 235740,
+    "note": "只含算力与存储的边际成本；不含人力维护、支持、密钥托管、合规审计。据此得出的毛利率是上限，不是财务预测。"
+  },
+  "anchors": [
+    {
+      "id": "dropzone_investigation",
+      "vendor": "Dropzone AI",
+      "what": "AI 告警调查（Standard 档）",
+      "public_price": "$36,000 / 年，含 4,000 次完整调查",
+      "per_unit_usd": 9.0,
+      "unit": "每次调查",
+      "derived": "36000 / 4000 = 9.00",
+      "source": "dropzone.ai 官方定价页（2025）；第三方目录同载 $36K/yr for 4,000 investigations"
+    },
+    {
+      "id": "dropzone_entry",
+      "vendor": "Dropzone AI",
+      "what": "入门档",
+      "public_price": "$500 / 月",
+      "per_unit_usd": 6000.0,
+      "unit": "每年",
+      "derived": "500 × 12 = 6000",
+      "source": "官方定价页 Standard Plan $500/month"
+    },
+    {
+      "id": "human_triage_tp",
+      "vendor": "人力分诊（SANS 2025 SOC Survey 假设）",
+      "what": "Tier-1 分析师分诊一条真阳性告警",
+      "public_price": "年薪 $120K × 1.35 福利 = $162K，时薪 ≈ $78，20 分钟",
+      "per_unit_usd": 26.0,
+      "unit": "每条告警",
+      "derived": "78 / 60 × 20 = 26.00",
+      "source": "SANS 2025 SOC Survey（误报率 65–80%、单告警 12–20 分钟）+ 时薪模型"
+    },
+    {
+      "id": "human_triage_fp",
+      "vendor": "人力分诊（同上）",
+      "what": "分诊一条误报",
+      "public_price": "同上，15 分钟",
+      "per_unit_usd": 19.5,
+      "unit": "每条告警",
+      "derived": "78 / 60 × 15 = 19.50",
+      "source": "同上"
+    },
+    {
+      "id": "auditkit_business",
+      "vendor": "AuditKit",
+      "what": "不可篡改审计日志（Business）",
+      "public_price": "$99 / 月，500K 事件",
+      "per_unit_usd": 0.000198,
+      "unit": "每事件",
+      "derived": "99 × 12 / (500000 × 12) = 1.98e-4",
+      "source": "AuditKit 公开定价（SHA-256 哈希链 + Merkle 证明）"
+    },
+    {
+      "id": "immutable_pro",
+      "vendor": "getimmutable.dev",
+      "what": "不可篡改审计日志（Pro）",
+      "public_price": "$49 / 月，1M 事件",
+      "per_unit_usd": 4.9e-05,
+      "unit": "每事件",
+      "derived": "49 × 12 / (1000000 × 12) = 4.9e-5",
+      "source": "getimmutable.dev 公开定价；超限 $2/10 万事件"
+    },
+    {
+      "id": "cloudtrail_copy",
+      "vendor": "AWS CloudTrail",
+      "what": "额外管理事件副本",
+      "public_price": "$2.00 / 10 万事件",
+      "per_unit_usd": 2e-05,
+      "unit": "每事件",
+      "derived": "2.00 / 100000 = 2e-5",
+      "source": "AWS CloudTrail 官方定价（Log File Integrity Validation 免费）"
+    },
+    {
+      "id": "siem_elastic_low",
+      "vendor": "Elastic Security Serverless",
+      "what": "SIEM 摄取（公开下限）",
+      "public_price": "$0.09–$0.11 / GB",
+      "per_unit_usd": 0.09,
+      "unit": "每 GB",
+      "derived": "取区间下限 0.09",
+      "source": "Elastic 官方定价（2025-11-01 生效）"
+    },
+    {
+      "id": "siem_sentinel",
+      "vendor": "Microsoft Sentinel",
+      "what": "SIEM 摄取（PAYG）",
+      "public_price": "~$4.30 / GB（承诺层 $2.96）",
+      "per_unit_usd": 4.3,
+      "unit": "每 GB",
+      "derived": "PAYG 列表价",
+      "source": "Microsoft Sentinel 官方定价"
+    },
+    {
+      "id": "grc_drata_vanta",
+      "vendor": "Drata / Vanta",
+      "what": "GRC 平台（含证据收集）",
+      "public_price": "$5,000–$15,000+ / 年",
+      "per_unit_usd": 10000.0,
+      "unit": "每年",
+      "derived": "取区间中位 10,000",
+      "source": "公开交易基准 / TrustRadius 价目区间"
+    }
+  ],
+  "tiers": [
+    {
+      "tier": "OSS 自托管",
+      "price_usd_year": 0,
+      "included_seals": "",
+      "implied_usd_per_seal": "",
+      "overage_usd_per_seal": "",
+      "vs_dropzone_per_investigation": "",
+      "vs_auditkit_per_event": "",
+      "gross_margin_pct": "",
+      "note": "Apache-2.0，无支持 SLA；获客漏斗与可复算底座，不贡献收入"
+    },
+    {
+      "tier": "Starter",
+      "price_usd_year": 1200,
+      "included_seals": 50000,
+      "implied_usd_per_seal": "0.02400000",
+      "overage_usd_per_seal": 0.012,
+      "vs_dropzone_per_investigation": "0.2667%",
+      "vs_auditkit_per_event": "121.2x",
+      "gross_margin_pct": "99.9971",
+      "note": "对齐 AuditKit Business（$99/月 ≈ $1,188/年）这一档的年度预算，避免入门价被读成'贵 4 倍'"
+    },
+    {
+      "tier": "Team",
+      "price_usd_year": 4800,
+      "included_seals": 200000,
+      "implied_usd_per_seal": "0.02400000",
+      "overage_usd_per_seal": 0.01,
+      "vs_dropzone_per_investigation": "0.2667%",
+      "vs_auditkit_per_event": "121.2x",
+      "gross_margin_pct": "99.9971",
+      "note": "以 20 万条被追责结论/年为量级；≈ 1 个 Auditing 工时包的预算"
+    },
+    {
+      "tier": "Business",
+      "price_usd_year": 24000,
+      "included_seals": 2000000,
+      "implied_usd_per_seal": "0.01200000",
+      "overage_usd_per_seal": 0.006,
+      "vs_dropzone_per_investigation": "0.1333%",
+      "vs_auditkit_per_event": "60.6x",
+      "gross_margin_pct": "99.9941",
+      "note": "对齐 Sentinel 100GB 承诺档 / 中小 SOC 的年度工具预算区间"
+    },
+    {
+      "tier": "Enterprise",
+      "price_usd_year": 72000,
+      "included_seals": 10000000,
+      "implied_usd_per_seal": "0.00720000",
+      "overage_usd_per_seal": 0.004,
+      "vs_dropzone_per_investigation": "0.0800%",
+      "vs_auditkit_per_event": "36.4x",
+      "gross_margin_pct": "99.9902",
+      "note": "含 HSM/KMS 托管、密钥轮换演练、可审计部署评审；仍低于 Dropzone 4 千次调查的 2 倍"
+    }
+  ],
+  "value_bridge": {
+    "Starter": {
+      "usd_per_seal": 0.024,
+      "as_pct_of_ai_investigation_9usd": 0.2667,
+      "as_pct_of_human_triage_26usd": 0.0923,
+      "seals_per_9usd_of_budget": 375
+    },
+    "Team": {
+      "usd_per_seal": 0.024,
+      "as_pct_of_ai_investigation_9usd": 0.2667,
+      "as_pct_of_human_triage_26usd": 0.0923,
+      "seals_per_9usd_of_budget": 375
+    },
+    "Business": {
+      "usd_per_seal": 0.012,
+      "as_pct_of_ai_investigation_9usd": 0.1333,
+      "as_pct_of_human_triage_26usd": 0.0462,
+      "seals_per_9usd_of_budget": 750
+    },
+    "Enterprise": {
+      "usd_per_seal": 0.0072,
+      "as_pct_of_ai_investigation_9usd": 0.08,
+      "as_pct_of_human_triage_26usd": 0.0277,
+      "seals_per_9usd_of_budget": 1250
+    }
+  },
+  "sensitivity": [
+    {
+      "verifications_per_seal": 1,
+      "tier": "Starter",
+      "implied_usd_per_seal": "0.02400000",
+      "cost_usd_per_seal": "0.0000005900",
+      "gross_margin_pct": "99.9975",
+      "headroom_x": "40678"
+    },
+    {
+      "verifications_per_seal": 1,
+      "tier": "Team",
+      "implied_usd_per_seal": "0.02400000",
+      "cost_usd_per_seal": "0.0000005900",
+      "gross_margin_pct": "99.9975",
+      "headroom_x": "40678"
+    },
+    {
+      "verifications_per_seal": 1,
+      "tier": "Business",
+      "implied_usd_per_seal": "0.01200000",
+      "cost_usd_per_seal": "0.0000005900",
+      "gross_margin_pct": "99.9951",
+      "headroom_x": "20339"
+    },
+    {
+      "verifications_per_seal": 1,
+      "tier": "Enterprise",
+      "implied_usd_per_seal": "0.00720000",
+      "cost_usd_per_seal": "0.0000005900",
+      "gross_margin_pct": "99.9918",
+      "headroom_x": "12203"
+    },
+    {
+      "verifications_per_seal": 3,
+      "tier": "Starter",
+      "implied_usd_per_seal": "0.02400000",
+      "cost_usd_per_seal": "0.0000007046",
+      "gross_margin_pct": "99.9971",
+      "headroom_x": "34062"
+    },
+    {
+      "verifications_per_seal": 3,
+      "tier": "Team",
+      "implied_usd_per_seal": "0.02400000",
+      "cost_usd_per_seal": "0.0000007046",
+      "gross_margin_pct": "99.9971",
+      "headroom_x": "34062"
+    },
+    {
+      "verifications_per_seal": 3,
+      "tier": "Business",
+      "implied_usd_per_seal": "0.01200000",
+      "cost_usd_per_seal": "0.0000007046",
+      "gross_margin_pct": "99.9941",
+      "headroom_x": "17031"
+    },
+    {
+      "verifications_per_seal": 3,
+      "tier": "Enterprise",
+      "implied_usd_per_seal": "0.00720000",
+      "cost_usd_per_seal": "0.0000007046",
+      "gross_margin_pct": "99.9902",
+      "headroom_x": "10219"
+    },
+    {
+      "verifications_per_seal": 10,
+      "tier": "Starter",
+      "implied_usd_per_seal": "0.02400000",
+      "cost_usd_per_seal": "0.0000011057",
+      "gross_margin_pct": "99.9954",
+      "headroom_x": "21707"
+    },
+    {
+      "verifications_per_seal": 10,
+      "tier": "Team",
+      "implied_usd_per_seal": "0.02400000",
+      "cost_usd_per_seal": "0.0000011057",
+      "gross_margin_pct": "99.9954",
+      "headroom_x": "21707"
+    },
+    {
+      "verifications_per_seal": 10,
+      "tier": "Business",
+      "implied_usd_per_seal": "0.01200000",
+      "cost_usd_per_seal": "0.0000011057",
+      "gross_margin_pct": "99.9908",
+      "headroom_x": "10853"
+    },
+    {
+      "verifications_per_seal": 10,
+      "tier": "Enterprise",
+      "implied_usd_per_seal": "0.00720000",
+      "cost_usd_per_seal": "0.0000011057",
+      "gross_margin_pct": "99.9846",
+      "headroom_x": "6512"
+    }
+  ],
+  "honest_limits": [
+    "无付费用户、无试点、无成交、无第三方复现：价格带是竞品锚定的推演，不是需求验证。",
+    "算力成本按通用云 vCPU 小时价估算，未计入人力维护、支持、密钥托管与合规审计成本。",
+    "锚点均为公开列表价/第三方基准，实际合同价可低 40–70%，因此这里的相对倍数应视为上限。",
+    "不计入'避免一次事故'的期望损失：S2/S3 已证明本项目不提供检测能力，不能把事故避免计入本方价值。"
+  ]
+}

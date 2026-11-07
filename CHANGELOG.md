@@ -17,7 +17,54 @@ AIGC:
 
 ---
 
-## [未发布] - S3：定位收缩到可核验存证层 + 存证层外部基准
+## [未发布] - S4：发行物与最小接入路径 + 定价与单位经济模型
+
+补 S3 复评暴露的两处最低项（交付 2.30、变现 2.10）。本版不加检测能力，只做两件"别人能接手"的事：
+
+1. **发行物可安装、可隔离验收**：`dist/swordholder-0.7.1-py3-none-any.whl`（145,361 字节）
+   与 `.tar.gz` 构建成功，配 `SHA256SUMS`；构建入口固化为 `scripts/build_release.py`
+   （先探测哪个解释器同时有 setuptools+wheel，避免 `invalid command 'bdist_wheel'` 这个坑）；`scripts/verify_release.py` 把 wheel 装进隔离目录
+   （`pip --target --no-deps --no-index`）再跑接入示例，7/7 全过——校验 SHA256、`METADATA`
+   版本与 `pyproject.toml` 一致、包数据齐全、样例随包分发、版本来源指向隔离目录。
+2. **最小接入 13 项检查**：`examples/minimal_integration.py` 只用公开 API，覆盖签发 / 验签 /
+   3 类篡改 / 2 类类型混淆 / 重放 / 确定性 / 性能，一条命令输出机器可读 JSON，退出码语义固定。
+   实测 13/13 通过，`seal` 中位 0.538 ms、`verify` 中位 4.911 ms；隔离安装与源码树跑出的
+   `payload_sha256` 完全一致（`c666b896…`）。
+3. **定价与单位经济模型**：计价单位改为"每张被追责结论的凭证"，锚定公开报价
+   （Dropzone AI $9/次调查、人力分诊 $26/条、AuditKit $1.98e-4/事件），
+   边际成本 $7.05e-7 / 张、单 vCPU 小时 235,740 张，四档价格 $1,200 / $4,800 / $24,000 / $72,000。
+   同时披露比价风险（按事件比贵 121–1,200 倍）与四条价格失效条件。
+
+商业价值复评 69.5/100（S3 为 63.8）：增量来自交付（2.30→3.30）与变现（2.10→3.00），
+证据强度与问题真实性未变——**仍无付费验证、无试点、无外部使用者、无第三方复现，包未发布到 PyPI。**
+
+### 新增（Added）
+
+- `dist/swordholder-0.7.1-py3-none-any.whl`、`dist/swordholder-0.7.1.tar.gz`、`dist/SHA256SUMS`
+- `examples/minimal_integration.py`：13 项接入检查（公开 API only，退出码 0/1/2）
+- `examples/README.md`：三步接入文档与三条使用约定
+- `scripts/verify_release.py`：发行物隔离验收（7 项，含离线安装与版本一致性）
+- `scripts/build_release.py`：发行物构建入口（解释器探测 + 构建 + SHA256SUMS）
+- `scripts/pricing_model.py`：定价与单位经济模型（锚点 / 档位 / 敏感性 / 价值桥，可重算）
+- `docs/stage4-release-and-integration.md`、`docs/stage4-pricing-and-value.md`
+- `evidence/stage4_pricing/`：`pricing_model.json`、`tiers.csv`、`sensitivity.csv`、`anchors.csv`
+
+### 变更（Changed）
+
+- `README.md`：新增"发行物与最小接入"和"定价口径"两节；`pytest` 计数 306 → 324（与当前实测一致）
+- `.gitignore`：补 `.tmp_min/`、`.tmp_s4/`（S4 验收跑批的临时工作目录，属本机复现产物）
+- `examples/minimal_integration.py` 的 A8 拆分为 A8（签名块置为整数 → `E_MALFORMED_SEAL`）
+  与 A8b（非法 base64 → `E_SCHEMA_INVALID`），原先一个用例把两种失败混在一起，预期写错
+- 示例在非空工作目录下自动开 `run_<时间戳>` 子目录，避免复用目录时"密钥已存在"导致的假失败
+
+### 已知未完成（未修复，不隐藏）
+
+- 包未发布 PyPI；本阶段 GitHub `:443` 与代理均不可达，推送与上传均未验证
+- 无 CI 覆盖 `verify_release.py`；无外部使用者与第三方复现（N-S4-01…03）
+- 计价单位仅存在于文档与模型中，代码里无计量、账单、许可证校验（N-S4-11）
+
+---
+
 
 S2 已证明规则分诊层在公开遥测上不成立（`true_positive = 0`）。本版不再修规则，而是
 把"能证到底"的那一层单独拿出来，用同一份公开语料重测：**400 条告警签发 400/400、

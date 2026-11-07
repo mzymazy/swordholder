@@ -42,6 +42,10 @@ build/
 .venv/
 venv/
 
+# S4 验收跑批的临时工作目录（示例与发行物验收脚本默认写入这里，属本机复现产物）
+.tmp_min/
+.tmp_s4/
+
 # 根目录演示输出与 v2 逐样本复现中间产物（与 artifacts_v3_*/ 同口径：本机留档，不入库）
 .demo_out/
 artifacts_v2_qwen38_repro_base/

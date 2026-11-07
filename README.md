@@ -51,7 +51,7 @@ swordholder --version       # swordholder 0.7.1（与 pyproject.toml 一致）
 >
 > ```bash
 > pip install -e ".[dev]"
-> pytest                      # 306 passed（pyproject 已默认 addopts=-q，再传一次 -q 会吞掉汇总行）
+> pytest                      # 324 passed（pyproject 已默认 addopts=-q，再传一次 -q 会吞掉汇总行）
 > python scripts/worldclass_probe.py --assert   # 57/57 安全属性断言通过（不调用模型）
 > python mcp_server/selftest.py   # 10/10 通过
 > swordholder exits --selftest    # 13/13 必判出口全部取到票据（覆盖率 1.0）
@@ -61,6 +61,54 @@ swordholder --version       # swordholder 0.7.1（与 pyproject.toml 一致）
 >
 > 注意：`verify_proof.py` 需要 `cryptography`。**环境里没装库时它会报 `INVALID E_CRYPTO_UNAVAILABLE`
 > 并以退出码 2 结束**——这表示「环境未就绪」，不等于凭证被伪造（凭证真伪问题才报 `E_BAD_SIGNATURE`）。
+
+## 发行物与最小接入（给别人用的最短路径）
+
+不想读源码的人走这条路，四步，每步都可复算：
+
+```bash
+python scripts/build_release.py                       # 1) 构建 wheel/sdist（dist/ 不入库，clone 后需自建）
+pip install dist/swordholder-0.7.1-py3-none-any.whl   # 2) 离线可装（--no-index 也能过）
+python examples/minimal_integration.py --out minimal_check.json   # 3) 13/13 接入检查
+python scripts/verify_release.py --out release_check.json         # 4) 发行物隔离验收 7/7
+```
+
+> `build_release.py` 会先探测哪个解释器同时有 `setuptools` 与 `wheel`（项目 `.venv` 通常缺 `wheel`，
+> 直接 `pip wheel --no-build-isolation` 会报 `invalid command 'bdist_wheel'`）。路径带空格时用
+> `set SWORDHOLDER_BUILD_PYTHON=<python.exe>` 传入。
+
+| 产出 | 说明 |
+|---|---|
+| `dist/swordholder-0.7.1-py3-none-any.whl`（145,361 字节）/ `.tar.gz` | 可安装发行物，SHA256 见 `dist/SHA256SUMS`（`dist/` 不入库，用 `build_release.py` 重建） |
+| `examples/minimal_integration.py` | 只用公开 API 跑 13 项检查：签发 / 验签 / 3 类篡改 / 2 类类型混淆 / 重放 / 确定性 / 性能 |
+| `scripts/verify_release.py` | 在**隔离目录**装 wheel 再跑接入示例，校验版本一致、包数据齐全、SHA256 匹配 |
+| `examples/README.md` | 接入文档与三条使用约定（判定对错由人负责 / 以 `seal_header.subject` 为准 / 信任锚自己维护） |
+| `scripts/build_release.py` | 构建发行物：探测可用解释器（需 setuptools+wheel）→ 构建 → 写 `SHA256SUMS` |
+
+实测（本机单进程，30 次迭代）：`seal` 中位 0.538 ms、`verify` 中位 4.911 ms；
+隔离安装环境与源码树跑出的 `payload_sha256` 完全一致（`c666b896…`）。
+详见 [`docs/stage4-release-and-integration.md`](docs/stage4-release-and-integration.md)。
+
+> **仍未做到的**：包未发布到 PyPI（`pip install swordholder` 会失败，属预期），无 CI 门禁覆盖
+> `verify_release.py`，无外部使用者与第三方复现记录。发行物"可安装"目前仅限本地 wheel。
+
+## 定价口径（不是报价，是可复算的测算）
+
+计价单位是**每张被追责结论的凭证**，不是日志条数、不是席位——一条结论 ≠ 一条日志。
+
+| 档位 | 年费 | 含凭证数 | 单价 / 张 |
+|---|---|---|---|
+| OSS 自托管 | $0 | 自建 | — |
+| Starter | $1,200 | 50,000 | $0.0240 |
+| Business | $24,000 | 2,000,000 | $0.0120 |
+| Enterprise | $72,000 | 10,000,000 | $0.0072 |
+
+边际成本 $7.05e-7 / 张（实测算力 + 12 个月存储），单 vCPU 小时可处理 235,740 张。
+锚点全部来自公开报价（Dropzone AI $9/次调查、人力分诊 $26/条、AuditKit $1.98e-4/事件等），
+完整模型、敏感性、比价风险与失效条件见 [`docs/stage4-pricing-and-value.md`](docs/stage4-pricing-and-value.md)，
+可用 `python scripts/pricing_model.py --out-dir evidence/stage4_pricing` 重算。
+
+> **这不是需求验证**：无付费用户、无试点、无成交、无第三方询价。价格带只能证明"不违反市场常识"。
 
 ### 安全性质回归（不调用模型、不联网）
 

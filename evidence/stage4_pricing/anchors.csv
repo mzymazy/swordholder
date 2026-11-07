@@ -1,0 +1,11 @@
+id,vendor,what,public_price,per_unit_usd,unit,derived,source
+dropzone_investigation,Dropzone AI,AI 告警调查（Standard 档）,"$36,000 / 年，含 4,000 次完整调查",9.0,每次调查,36000 / 4000 = 9.00,"dropzone.ai 官方定价页（2025）；第三方目录同载 $36K/yr for 4,000 investigations"
+dropzone_entry,Dropzone AI,入门档,$500 / 月,6000.0,每年,500 × 12 = 6000,官方定价页 Standard Plan $500/month
+human_triage_tp,人力分诊（SANS 2025 SOC Survey 假设）,Tier-1 分析师分诊一条真阳性告警,年薪 $120K × 1.35 福利 = $162K，时薪 ≈ $78，20 分钟,26.0,每条告警,78 / 60 × 20 = 26.00,SANS 2025 SOC Survey（误报率 65–80%、单告警 12–20 分钟）+ 时薪模型
+human_triage_fp,人力分诊（同上）,分诊一条误报,同上，15 分钟,19.5,每条告警,78 / 60 × 15 = 19.50,同上
+auditkit_business,AuditKit,不可篡改审计日志（Business）,$99 / 月，500K 事件,0.000198,每事件,99 × 12 / (500000 × 12) = 1.98e-4,AuditKit 公开定价（SHA-256 哈希链 + Merkle 证明）
+immutable_pro,getimmutable.dev,不可篡改审计日志（Pro）,$49 / 月，1M 事件,4.9e-05,每事件,49 × 12 / (1000000 × 12) = 4.9e-5,getimmutable.dev 公开定价；超限 $2/10 万事件
+cloudtrail_copy,AWS CloudTrail,额外管理事件副本,$2.00 / 10 万事件,2e-05,每事件,2.00 / 100000 = 2e-5,AWS CloudTrail 官方定价（Log File Integrity Validation 免费）
+siem_elastic_low,Elastic Security Serverless,SIEM 摄取（公开下限）,$0.09–$0.11 / GB,0.09,每 GB,取区间下限 0.09,Elastic 官方定价（2025-11-01 生效）
+siem_sentinel,Microsoft Sentinel,SIEM 摄取（PAYG）,~$4.30 / GB（承诺层 $2.96）,4.3,每 GB,PAYG 列表价,Microsoft Sentinel 官方定价
+grc_drata_vanta,Drata / Vanta,GRC 平台（含证据收集）,"$5,000–$15,000+ / 年",10000.0,每年,"取区间中位 10,000",公开交易基准 / TrustRadius 价目区间

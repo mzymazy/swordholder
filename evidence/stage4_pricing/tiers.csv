@@ -1,0 +1,6 @@
+tier,price_usd_year,included_seals,implied_usd_per_seal,overage_usd_per_seal,vs_dropzone_per_investigation,vs_auditkit_per_event,gross_margin_pct,note
+OSS 自托管,0,,,,,,,Apache-2.0，无支持 SLA；获客漏斗与可复算底座，不贡献收入
+Starter,1200,50000,0.02400000,0.012,0.2667%,121.2x,99.9971,"对齐 AuditKit Business（$99/月 ≈ $1,188/年）这一档的年度预算，避免入门价被读成'贵 4 倍'"
+Team,4800,200000,0.02400000,0.01,0.2667%,121.2x,99.9971,以 20 万条被追责结论/年为量级；≈ 1 个 Auditing 工时包的预算
+Business,24000,2000000,0.01200000,0.006,0.1333%,60.6x,99.9941,对齐 Sentinel 100GB 承诺档 / 中小 SOC 的年度工具预算区间
+Enterprise,72000,10000000,0.00720000,0.004,0.0800%,36.4x,99.9902,含 HSM/KMS 托管、密钥轮换演练、可审计部署评审；仍低于 Dropzone 4 千次调查的 2 倍
