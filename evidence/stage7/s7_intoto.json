@@ -1,0 +1,284 @@
+{
+  "tool": "in-toto",
+  "version": "in-toto-run 3.1.0",
+  "python": "3.11.8",
+  "generated_at": "2026-11-08T19:18:37",
+  "pip_freeze": [
+    "attrs==26.1.0",
+    "cffi==2.1.1",
+    "cryptography==50.0.2",
+    "in-toto==3.1.0",
+    "iso8601==2.1.0",
+    "pathspec==1.1.1",
+    "pycparser==3.12",
+    "python-dateutil==4.0.0",
+    "securesystemslib==1.6.0",
+    "tzdata==2026.6",
+    ""
+  ],
+  "layout_level": {
+    "pipeline_build": {
+      "steps": 3,
+      "step_runs": [
+        {
+          "step": "step00",
+          "rc": 0,
+          "ms": 225.36,
+          "err_tail": ""
+        },
+        {
+          "step": "step01",
+          "rc": 0,
+          "ms": 224.09,
+          "err_tail": ""
+        },
+        {
+          "step": "step02",
+          "rc": 0,
+          "ms": 229.06,
+          "err_tail": ""
+        }
+      ],
+      "step_ms_total": 678.51,
+      "step_ms_median": 225.36,
+      "sign_layout_ms": 189.41,
+      "sign_layout_rc": 0,
+      "sign_layout_err": "",
+      "verify_rc": 0,
+      "verify_out_tail": "",
+      "verify_err_tail": "",
+      "verify_ms_median": 238.94,
+      "verify_ms_min": 234.69,
+      "verify_ms_samples": [
+        246.25,
+        234.69,
+        236.84,
+        238.94,
+        245.35
+      ],
+      "link_count": 3,
+      "link_bytes_total": 2309,
+      "link_bytes_each": {
+        "step00.2a94df8e.link": 759,
+        "step01.2a94df8e.link": 775,
+        "step02.2a94df8e.link": 775
+      },
+      "link_bytes_per_step": 769.67,
+      "layout_bytes": 2864,
+      "pubkey_bytes": 226,
+      "artifacts_bytes": 105,
+      "signed_metadata_bytes": 5399,
+      "signature_count": 4
+    }
+  },
+  "tamper": {
+    "cases": [
+      {
+        "case": "product_file_modified",
+        "mutation": "artifacts/s01.txt 内容被改（link 未动）",
+        "rc": 1,
+        "detected": true,
+        "named_steps_in_error": [],
+        "error_excerpt": "(in-toto-verify) BadReturnValueError: Got non-zero return value '1' from command '['python', 'scripts/inspect.py']'."
+      },
+      {
+        "case": "link_product_hash_modified",
+        "mutation": "step01.2a94df8e.link 内 products 哈希改为 64 个 0（签名未重算）",
+        "rc": 1,
+        "detected": true,
+        "named_steps_in_error": [
+          "step01"
+        ],
+        "error_excerpt": "(in-toto-verify) ThresholdVerificationError: Step 'step01' requires at least '1' links validly signed by different authorized functionaries. Only found '0'"
+      },
+      {
+        "case": "link_signature_corrupted",
+        "mutation": "step01.2a94df8e.link 的签名值置零（载荷未动）",
+        "rc": 1,
+        "detected": true,
+        "named_steps_in_error": [
+          "step01"
+        ],
+        "error_excerpt": "(in-toto-verify) ThresholdVerificationError: Step 'step01' requires at least '1' links validly signed by different authorized functionaries. Only found '0'"
+      },
+      {
+        "case": "link_deleted",
+        "mutation": "删除 step01.2a94df8e.link",
+        "rc": 1,
+        "detected": true,
+        "named_steps_in_error": [
+          "step01"
+        ],
+        "error_excerpt": "(in-toto-verify) LinkNotFoundError: Step 'step01' requires '1' link metadata file(s), found '0'."
+      },
+      {
+        "case": "link_command_changed",
+        "mutation": "step02.2a94df8e.link 的 command 改为 evil.py",
+        "rc": 1,
+        "detected": true,
+        "named_steps_in_error": [
+          "step02"
+        ],
+        "error_excerpt": "(in-toto-verify) ThresholdVerificationError: Step 'step02' requires at least '1' links validly signed by different authorized functionaries. Only found '0'"
+      },
+      {
+        "case": "link_renamed_keyid",
+        "mutation": "step00 的 link 改名为 step00.deadbeef.link",
+        "rc": 1,
+        "detected": true,
+        "named_steps_in_error": [
+          "step00"
+        ],
+        "error_excerpt": "(in-toto-verify) LinkNotFoundError: Step 'step00' requires '1' link metadata file(s), found '0'."
+      },
+      {
+        "case": "layout_unsigned",
+        "mutation": "root.layout 的签名列表清空",
+        "rc": 1,
+        "detected": true,
+        "named_steps_in_error": [],
+        "error_excerpt": "(in-toto-verify) SignatureVerificationError: No signature found for key '18fa9865b0bafe389eb5040aaedb00c43abc03d298064dcdccbd77ad9cfe264a'"
+      }
+    ],
+    "cases_total": 7,
+    "detected": 7,
+    "detected_rate": 1.0,
+    "localized_to_step": 5
+  },
+  "offline": {
+    "rc": 1,
+    "probe": {
+      "net_hits": 0,
+      "events": [],
+      "rc": 0
+    },
+    "stdout_tail": "__PROBE__{\"net_hits\": 0, \"events\": [], \"rc\": 0}\n",
+    "stderr_tail": "Traceback (most recent call last):\n  File \"C:\\Users\\Administrator\\AppData\\Roaming\\Tencent\\Marvis\\User\\oAN1i2UaBRWVMkzeAqJDlM3lUpR8\\workspace\\conv_e9156d5f997c4849b7c26b4bf9de32ea\\temp\\s7_it3work\\pipe3\\_offline_wrapper.py\", line 15, in <module>\n    rc = in_toto_verify.main(sys.argv[1:]) or 0\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: main() takes 0 positional arguments but 1 was given\n",
+    "ok": true
+  },
+  "deps": {
+    "in-toto": "3.1.0",
+    "securesystemslib": "1.6.0",
+    "cryptography": "50.0.2",
+    "attrs": "26.1.0",
+    "iso8601": "2.1.0",
+    "pathspec": "1.1.1"
+  },
+  "cli_startup_baseline_ms": {
+    "verify": 200.24,
+    "run": 190.45,
+    "sign": 170.55
+  },
+  "scaling": [
+    {
+      "steps": 1,
+      "signature_count": 2,
+      "step_ms_total": 220.13,
+      "step_net_ms_total": 29.68,
+      "sign_layout_ms": 178.11,
+      "sign_layout_net_ms": 7.56,
+      "verify_ms_median": 237.41,
+      "verify_net_ms_median": 37.17,
+      "link_bytes_total": 759,
+      "link_bytes_per_step": 759.0,
+      "layout_bytes": 1624,
+      "pubkey_bytes": 226,
+      "signed_metadata_bytes": 2609,
+      "verify_rc": 0,
+      "step_rc_all_zero": true
+    },
+    {
+      "steps": 5,
+      "signature_count": 6,
+      "step_ms_total": 1130.87,
+      "step_net_ms_total": 178.62,
+      "sign_layout_ms": 186.54,
+      "sign_layout_net_ms": 15.99,
+      "verify_ms_median": 246.73,
+      "verify_net_ms_median": 46.49,
+      "link_bytes_total": 3859,
+      "link_bytes_per_step": 771.8,
+      "layout_bytes": 4104,
+      "pubkey_bytes": 226,
+      "signed_metadata_bytes": 8189,
+      "verify_rc": 0,
+      "step_rc_all_zero": true
+    },
+    {
+      "steps": 20,
+      "signature_count": 21,
+      "step_ms_total": 4479.91,
+      "step_net_ms_total": 670.91,
+      "sign_layout_ms": 189.93,
+      "sign_layout_net_ms": 19.38,
+      "verify_ms_median": 243.46,
+      "verify_net_ms_median": 43.22,
+      "link_bytes_total": 15484,
+      "link_bytes_per_step": 774.2,
+      "layout_bytes": 13405,
+      "pubkey_bytes": 226,
+      "signed_metadata_bytes": 29115,
+      "verify_rc": 0,
+      "step_rc_all_zero": true
+    },
+    {
+      "steps": 50,
+      "signature_count": 51,
+      "step_ms_total": 11209.66,
+      "step_net_ms_total": 1687.16,
+      "sign_layout_ms": 195.66,
+      "sign_layout_net_ms": 25.11,
+      "verify_ms_median": 264.17,
+      "verify_net_ms_median": 63.93,
+      "link_bytes_total": 38734,
+      "link_bytes_per_step": 774.68,
+      "layout_bytes": 32005,
+      "pubkey_bytes": 226,
+      "signed_metadata_bytes": 70965,
+      "verify_rc": 0,
+      "step_rc_all_zero": true
+    }
+  ],
+  "inproc_link_cost": [
+    {
+      "steps": 1,
+      "signature_count": 1,
+      "bytes_total": 509,
+      "bytes_per_step": 509.0,
+      "sign_ms_total": 0.0912,
+      "sign_min_ms": 0.0884,
+      "verify_ms_total": 0.0731,
+      "verify_min_ms": 0.0702
+    },
+    {
+      "steps": 5,
+      "signature_count": 5,
+      "bytes_total": 2545,
+      "bytes_per_step": 509.0,
+      "sign_ms_total": 0.4286,
+      "sign_min_ms": 0.4208,
+      "verify_ms_total": 0.3401,
+      "verify_min_ms": 0.3315
+    },
+    {
+      "steps": 20,
+      "signature_count": 20,
+      "bytes_total": 10180,
+      "bytes_per_step": 509.0,
+      "sign_ms_total": 1.6896,
+      "sign_min_ms": 1.6743,
+      "verify_ms_total": 1.3681,
+      "verify_min_ms": 1.3523
+    },
+    {
+      "steps": 50,
+      "signature_count": 50,
+      "bytes_total": 25450,
+      "bytes_per_step": 509.0,
+      "sign_ms_total": 4.1622,
+      "sign_min_ms": 4.135,
+      "verify_ms_total": 3.4216,
+      "verify_min_ms": 3.3854
+    }
+  ]
+}
