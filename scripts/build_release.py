@@ -124,35 +124,40 @@ def main() -> int:
 
     if args.check:
         return 0 if usable else 2
-    if not usable:
-        print(
-            "[build_release] 没有可用构建解释器。修复方式（任选其一）：\n"
-            "  1) <python> -m pip install --upgrade setuptools wheel  （给某个解释器装上 wheel）\n"
-            "  2) 指定内置 runtime python：--python <path-to-python.exe>，必要时再加\n"
-            "     set PYTHONPATH=<python-dir>/Lib/site-packages\n"
-            "  3) 没有 wheel 时不要用 --no-isolation，让构建在隔离环境里自行拉依赖（需网络）",
-            file=sys.stderr,
-        )
-        return 2
-
-    builder = usable[0]["exe"]
-    version = read_version()
-    os.makedirs(DIST, exist_ok=True)
 
     env = dict(os.environ)
     env.setdefault("PYTHONIOENCODING", "utf-8")
-    # 让 --no-isolation 下的 setuptools/wheel 可见：把构建解释器自身的 site-packages 前置
-    site = subprocess.run(
-        [builder, "-c", "import site,sys;print(';'.join(site.getsitepackages()+[site.getusersitepackages()]))"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-    )
-    if site.returncode == 0 and site.stdout.strip():
-        env["PYTHONPATH"] = site.stdout.strip() + (";" + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
 
-    cmd = [builder, "-m", "build", "--wheel", "--sdist", "--no-isolation", "--outdir", DIST]
+    if usable:
+        builder = usable[0]["exe"]
+        isolated = False
+        # 让 --no-isolation 下的 setuptools/wheel 可见：把构建解释器自身的 site-packages 前置
+        site = subprocess.run(
+            [builder, "-c", "import site,sys;print(';'.join(site.getsitepackages()+[site.getusersitepackages()]))"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        if site.returncode == 0 and site.stdout.strip():
+            env["PYTHONPATH"] = site.stdout.strip() + (";" + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+    else:
+        # 退回隔离构建：CI runner / 干净容器里通常只装了 build 而没装 wheel，
+        # 让 build 自己建临时环境拉 setuptools+wheel，比直接失败更有用。
+        builder = reports[0]["exe"] if reports else sys.executable
+        isolated = True
+        print(
+            "[build_release] 无解释器同时具备 setuptools+wheel，改为隔离构建（build 自建环境拉依赖，需网络）："
+            + builder,
+            file=sys.stderr,
+        )
+
+    version = read_version()
+    os.makedirs(DIST, exist_ok=True)
+
+    cmd = [builder, "-m", "build", "--wheel", "--sdist", "--outdir", DIST]
+    if not isolated:
+        cmd.insert(3, "--no-isolation")
     print("[build_release] " + " ".join(cmd))
     run = subprocess.run(cmd, cwd=REPO_ROOT, env=env, capture_output=True, text=True, encoding="utf-8", errors="replace")
     tail = (run.stdout or "") + (run.stderr or "")

@@ -16,7 +16,6 @@ from __future__ import annotations
 import http.server
 import json
 import os
-import socket
 import subprocess
 import sys
 import threading
@@ -302,7 +301,7 @@ def test_module_imports_with_broken_policy_pack(tmp_path):
     r = subprocess.run([sys.executable, "-c", code], cwd=REPO, capture_output=True,
                        text=True, encoding="utf-8", errors="replace", timeout=120)
     assert r.returncode == 0, r.stderr[-800:]
-    out = [l.strip() for l in r.stdout.strip().splitlines() if l.strip()]
+    out = [line.strip() for line in r.stdout.strip().splitlines() if line.strip()]
     assert "true_positive" in out[-3]
     assert "critical" in out[-2]
     assert out[-1] == "None"

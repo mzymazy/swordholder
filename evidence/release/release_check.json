@@ -2,8 +2,8 @@
   "ok": true,
   "tool": "swordholder.verify_release",
   "wheel": "O:\\接单\\参赛\\swordholder_mvp\\dist\\swordholder-0.7.3-py3-none-any.whl",
-  "wheel_sha256": "f65b40b5df11cfc483a7bf3ea911468650dbb17dfbe446abd05a2a3678ac46f6",
-  "wheel_bytes": 147007,
+  "wheel_sha256": "f109344fd60b178ac63971608cf3437198eceb44c9b93c1b2328987802e9ac4f",
+  "wheel_bytes": 147058,
   "wheel_files": 36,
   "version": "0.7.3",
   "python": "3.11.8",
@@ -43,13 +43,13 @@
       "id": "R6",
       "name": "隔离目录可 import 且版本一致",
       "passed": true,
-      "detail": "version=0.7.3 origin=C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\swordholder-release-44a3_sml\\site\\swordholder\\__init__.py"
+      "detail": "version=0.7.3 origin=C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\swordholder-release-uooakz9y\\site\\swordholder\\__init__.py"
     },
     {
       "id": "R7",
       "name": "隔离安装 + 最小接入示例全部通过",
       "passed": true,
-      "detail": "[minimal_integration] 13/13 checks passed -> C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\swordholder-release-44a3_sml\\minimal_check.json"
+      "detail": "[minimal_integration] 13/13 checks passed -> C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\swordholder-release-uooakz9y\\minimal_check.json"
     }
   ],
   "example": {
@@ -59,7 +59,7 @@
     "checks": [
       {
         "actual": "KEYPAIR_CREATED",
-        "elapsed_ms": 45.601,
+        "elapsed_ms": 43.774,
         "expect": "KEYPAIR_CREATED",
         "id": "A1",
         "name": "生成 ed25519 密钥对",
@@ -67,7 +67,7 @@
       },
       {
         "actual": "SEALED",
-        "elapsed_ms": 15.58,
+        "elapsed_ms": 17.149,
         "expect": "SEALED",
         "id": "A2",
         "name": "对分诊结论盖章并落盘",
@@ -75,7 +75,7 @@
       },
       {
         "actual": "ANCHOR_ADDED",
-        "elapsed_ms": 0.572,
+        "elapsed_ms": 0.583,
         "expect": "ANCHOR_ADDED",
         "id": "A3",
         "name": "把公钥登记为信任锚",
@@ -83,7 +83,7 @@
       },
       {
         "actual": "VALID",
-        "elapsed_ms": 63.258,
+        "elapsed_ms": 64.666,
         "expect": "VALID",
         "id": "A4",
         "name": "带信任锚验签 -> VALID",
@@ -91,7 +91,7 @@
       },
       {
         "actual": "VALID_UNTRUSTED_KEY",
-        "elapsed_ms": 1.045,
+        "elapsed_ms": 1.046,
         "expect": "VALID_UNTRUSTED_KEY",
         "id": "A5",
         "name": "无信任锚验签 -> 不得返回 VALID",
@@ -99,7 +99,7 @@
       },
       {
         "actual": "INVALID",
-        "elapsed_ms": 7.055,
+        "elapsed_ms": 7.258,
         "expect": "INVALID",
         "id": "A6",
         "name": "改 payload 字段 -> 拒绝",
@@ -107,7 +107,7 @@
       },
       {
         "actual": "INVALID",
-        "elapsed_ms": 6.222,
+        "elapsed_ms": 5.861,
         "expect": "INVALID",
         "id": "A7",
         "name": "改 signature 字节 -> 拒绝",
@@ -115,7 +115,7 @@
       },
       {
         "actual": "E_MALFORMED_SEAL",
-        "elapsed_ms": 5.822,
+        "elapsed_ms": 4.979,
         "expect": "E_MALFORMED_SEAL",
         "id": "A8",
         "name": "signature 类型混淆 -> E_MALFORMED_SEAL",
@@ -123,7 +123,7 @@
       },
       {
         "actual": "E_SCHEMA_INVALID",
-        "elapsed_ms": 6.256,
+        "elapsed_ms": 6.311,
         "expect": "E_SCHEMA_INVALID",
         "id": "A8b",
         "name": "signature 非 base64 字符串 -> E_SCHEMA_INVALID",
@@ -131,7 +131,7 @@
       },
       {
         "actual": "E_CHALLENGE_MISMATCH",
-        "elapsed_ms": 0.928,
+        "elapsed_ms": 0.886,
         "expect": "E_CHALLENGE_MISMATCH",
         "id": "A9",
         "name": "跨会话重放 -> E_CHALLENGE_MISMATCH",
@@ -139,7 +139,7 @@
       },
       {
         "actual": "OK",
-        "elapsed_ms": 0.896,
+        "elapsed_ms": 0.882,
         "expect": "OK",
         "id": "A10",
         "name": "不比对挑战值时可验但无重放防护",
@@ -147,7 +147,7 @@
       },
       {
         "actual": "SAME",
-        "elapsed_ms": 0.72,
+        "elapsed_ms": 0.697,
         "expect": "SAME",
         "id": "A11",
         "name": "同一 payload 两次盖章摘要一致",
@@ -155,7 +155,7 @@
       },
       {
         "actual": "BENCHED",
-        "elapsed_ms": 199.37,
+        "elapsed_ms": 198.459,
         "expect": "BENCHED",
         "id": "A12",
         "name": "签发/验签耗时复算",
@@ -164,12 +164,12 @@
     ],
     "timing": {
       "iterations": 30,
-      "seal_ms_median": 0.686,
-      "seal_ms_p95": 0.785,
-      "verify_ms_median": 5.871,
-      "verify_ms_p95": 6.422
+      "seal_ms_median": 0.655,
+      "seal_ms_p95": 0.792,
+      "verify_ms_median": 6.011,
+      "verify_ms_p95": 6.567
     },
     "payload_sha256": "c666b8967af14eb5af185d1913caed0c71d8af714ad1ecb172e3b8dc5f8d8a47"
   },
-  "workdir": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\swordholder-release-44a3_sml"
+  "workdir": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\swordholder-release-uooakz9y"
 }
