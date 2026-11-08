@@ -97,7 +97,13 @@ python scripts/verify_release.py --out release_check.json         # 4) 发行物
 创建 GitHub Release 并挂上 wheel/sdist/SHA256SUMS**。这条路径不需要任何人工私密凭据，产物任何人都能匿名下载：
 
 ```bash
-# 浏览器打开 Release 页下载 wheel，或直接按直链装（版本号换成你要的那个 tag）
+# 浏览器打开 Release 页下载 wheel，再用本地文件装（最稳，不受任何下载链路策略影响）
+#   https://github.com/mzymazy/swordholder/releases/tag/v0.7.4
+pip install .\swordholder-0.7.4-py3-none-any.whl
+
+# 也可以直接按直链装（版本号换成你要的那个 tag）
+#   注意：部分网络环境会拦截 releases/download 这条直链（本机实测 pip / curl 均返回 403），
+#   遇到 403 就用上面的"先下载再本地装"，或 `pip download` 换镜像重试
 pip install https://github.com/mzymazy/swordholder/releases/download/v0.7.4/swordholder-0.7.4-py3-none-any.whl
 
 # 装完按最小路径自证一遍（不读源码、不设 PYTHONPATH）
