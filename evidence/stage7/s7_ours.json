@@ -1,0 +1,120 @@
+{
+  "tool": "swordholder",
+  "version": "0.7.4",
+  "python": "3.11.8",
+  "reps": 21,
+  "generated_at": "2026-11-08T18:13:07",
+  "rows": [
+    {
+      "steps": 1,
+      "signature_count": 1,
+      "trace_bytes": 494,
+      "seal_bytes": 951,
+      "credential_to_trace_ratio": 1.9251,
+      "sign_ms": 0.4977,
+      "sign_min_ms": 0.467,
+      "verify_ms": 0.9063,
+      "verify_min_ms": 0.8651,
+      "verify_files_required": 2,
+      "verify_inputs_bytes": 1156
+    },
+    {
+      "steps": 5,
+      "signature_count": 1,
+      "trace_bytes": 1756,
+      "seal_bytes": 951,
+      "credential_to_trace_ratio": 0.5416,
+      "sign_ms": 0.5165,
+      "sign_min_ms": 0.4907,
+      "verify_ms": 0.9146,
+      "verify_min_ms": 0.8684,
+      "verify_files_required": 2,
+      "verify_inputs_bytes": 1156
+    },
+    {
+      "steps": 20,
+      "signature_count": 1,
+      "trace_bytes": 6513,
+      "seal_bytes": 955,
+      "credential_to_trace_ratio": 0.1466,
+      "sign_ms": 0.5531,
+      "sign_min_ms": 0.5215,
+      "verify_ms": 0.9394,
+      "verify_min_ms": 0.8989,
+      "verify_files_required": 2,
+      "verify_inputs_bytes": 1160
+    },
+    {
+      "steps": 50,
+      "signature_count": 1,
+      "trace_bytes": 16043,
+      "seal_bytes": 955,
+      "credential_to_trace_ratio": 0.0595,
+      "sign_ms": 0.6475,
+      "sign_min_ms": 0.6176,
+      "verify_ms": 1.032,
+      "verify_min_ms": 1.001,
+      "verify_files_required": 2,
+      "verify_inputs_bytes": 1160
+    }
+  ],
+  "offline": {
+    "probe": {
+      "verdict": "VALID",
+      "reason": "",
+      "net_hits": 0,
+      "events": []
+    },
+    "rc": 0,
+    "stdout_tail": "__PROBE__{\"verdict\": \"VALID\", \"reason\": \"\", \"net_hits\": 0, \"events\": []}\n",
+    "stderr_tail": ""
+  },
+  "tamper": [
+    [
+      {
+        "steps": 3,
+        "mode": "weak",
+        "tampered_step": 1,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_BREAK: 第 1 步内容与其哈希不符（疑似改值）",
+        "chain_first_break": 1,
+        "chain_reason": "第 1 步内容与其哈希不符（疑似改值）",
+        "localized_to_step": true
+      },
+      {
+        "steps": 3,
+        "mode": "strong",
+        "tampered_step": 1,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_HEAD_MISMATCH",
+        "chain_first_break": null,
+        "chain_reason": "",
+        "localized_to_step": false
+      }
+    ],
+    [
+      {
+        "steps": 20,
+        "mode": "weak",
+        "tampered_step": 10,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_BREAK: 第 10 步内容与其哈希不符（疑似改值）",
+        "chain_first_break": 10,
+        "chain_reason": "第 10 步内容与其哈希不符（疑似改值）",
+        "localized_to_step": true
+      },
+      {
+        "steps": 20,
+        "mode": "strong",
+        "tampered_step": 10,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_HEAD_MISMATCH",
+        "chain_first_break": null,
+        "chain_reason": "",
+        "localized_to_step": false
+      }
+    ]
+  ],
+  "payload_dir": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_bench\\ours_c\\payloads",
+  "trust_store_bytes": 205
+}
