@@ -1,0 +1,176 @@
+{
+  "tool": "cosign",
+  "generated_at": "2026-11-08T18:45:46",
+  "version": "______   ______        _______. __    _______ .__   __.\n /      | /  __  \\      /       ||  |  /  _____||  \\ |  |\n|  ,----'|  |  |  |    |   (----`|  | |  |  __  |   \\|  |\n|  |     |  |  |  |     \\   \\    |  | |  | |_ | |  . `  |\n|  `----.|  `--'  | .----)   |   |  | |  |__| | |  |\\   |\n \\______| \\______/  |_______/    |__|  \\______| |__| \\__|\ncosign: A tool for Container Signing, Verification and Storage in an OCI registry.\n\nGitVersion:    v2.6.1\nGitCommit:     634fabe54f9fbbab55d821a83ba93b2d25bdba5f\nGitTreeState:  clean\nBuildDate:     2025-09-26T17:24:36Z\nGoVersion:     go1.25.1\nCompiler:      gc\nPlatform:      windows/amd64",
+  "binary": {
+    "path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_cosign\\cosign-windows-amd64.exe",
+    "bytes": 217388926,
+    "sha256": "049026dae3246d6ea8201512ec3efce3aab0c7f1d338d52e26c525dd02b418a0"
+  },
+  "cli_startup_baseline_ms": 44.44,
+  "keygen": {
+    "rc": 0,
+    "err_tail": "Private key written to cosign.key\nPublic key written to cosign.pub",
+    "priv_bytes": 653,
+    "pub_bytes": 178,
+    "priv_encrypted": true
+  },
+  "rows": [
+    {
+      "steps": 1,
+      "payload_bytes": 494,
+      "sign_rc": 0,
+      "sign_median_ms": 140.43,
+      "sign_min_ms": 136.69,
+      "sign_bundle_median_ms": 141.26,
+      "sign_net_ms": 95.99,
+      "sig_bytes": 96,
+      "bundle_bytes": 118,
+      "verify_sig_rc": 0,
+      "verify_sig_net_median_ms": 2147.99,
+      "verify_sig_offline_median_ms": 50.39,
+      "verify_sig_offline_min_ms": 50.17,
+      "verify_sig_offline_net_ms": 5.95,
+      "verify_bundle_offline_rc": 1,
+      "verify_bundle_offline_ok": false,
+      "verify_bundle_offline_err_tail": "o-cdn.sigstore.dev/13.root.json\": proxyconnect tcp: dial tcp 127.0.0.1:9: connectex: No connection could be made because the target machine actively refused it.",
+      "verify_bundle_online_rc": 1,
+      "verify_bundle_online_ms": 2079.49,
+      "sig_bytes_per_step": 96.0,
+      "tlog_upload_rc": 1,
+      "tlog_upload_err_tail": "n: upload to tlog: user declined the prompt\nerror during command execution: signing C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_bench\\ours_c\\payloads\\trace_1.json: upload to tlog: user declined the prompt"
+    },
+    {
+      "steps": 5,
+      "payload_bytes": 1756,
+      "sign_rc": 0,
+      "sign_median_ms": 136.13,
+      "sign_min_ms": 134.37,
+      "sign_bundle_median_ms": 134.12,
+      "sign_net_ms": 91.69,
+      "sig_bytes": 96,
+      "bundle_bytes": 118,
+      "verify_sig_rc": 0,
+      "verify_sig_net_median_ms": 2167.53,
+      "verify_sig_offline_median_ms": 51.67,
+      "verify_sig_offline_min_ms": 50.68,
+      "verify_sig_offline_net_ms": 7.23,
+      "verify_bundle_offline_rc": 1,
+      "verify_bundle_offline_ok": false,
+      "verify_bundle_offline_err_tail": "o-cdn.sigstore.dev/13.root.json\": proxyconnect tcp: dial tcp 127.0.0.1:9: connectex: No connection could be made because the target machine actively refused it.",
+      "verify_bundle_online_rc": 1,
+      "verify_bundle_online_ms": 2144.78,
+      "sig_bytes_per_step": 19.2,
+      "tlog_upload_rc": 1,
+      "tlog_upload_err_tail": "n: upload to tlog: user declined the prompt\nerror during command execution: signing C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_bench\\ours_c\\payloads\\trace_5.json: upload to tlog: user declined the prompt"
+    },
+    {
+      "steps": 20,
+      "payload_bytes": 6513,
+      "sign_rc": 0,
+      "sign_median_ms": 136.4,
+      "sign_min_ms": 134.2,
+      "sign_bundle_median_ms": 135.55,
+      "sign_net_ms": 91.96,
+      "sig_bytes": 96,
+      "bundle_bytes": 118,
+      "verify_sig_rc": 0,
+      "verify_sig_net_median_ms": 2160.94,
+      "verify_sig_offline_median_ms": 51.2,
+      "verify_sig_offline_min_ms": 50.61,
+      "verify_sig_offline_net_ms": 6.76,
+      "verify_bundle_offline_rc": 1,
+      "verify_bundle_offline_ok": false,
+      "verify_bundle_offline_err_tail": "o-cdn.sigstore.dev/13.root.json\": proxyconnect tcp: dial tcp 127.0.0.1:9: connectex: No connection could be made because the target machine actively refused it.",
+      "verify_bundle_online_rc": 1,
+      "verify_bundle_online_ms": 2722.71,
+      "sig_bytes_per_step": 4.8,
+      "tlog_upload_rc": 1,
+      "tlog_upload_err_tail": ": upload to tlog: user declined the prompt\nerror during command execution: signing C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_bench\\ours_c\\payloads\\trace_20.json: upload to tlog: user declined the prompt"
+    },
+    {
+      "steps": 50,
+      "payload_bytes": 16043,
+      "sign_rc": 0,
+      "sign_median_ms": 134.99,
+      "sign_min_ms": 134.16,
+      "sign_bundle_median_ms": 135.0,
+      "sign_net_ms": 90.55,
+      "sig_bytes": 96,
+      "bundle_bytes": 118,
+      "verify_sig_rc": 0,
+      "verify_sig_net_median_ms": 2183.21,
+      "verify_sig_offline_median_ms": 51.51,
+      "verify_sig_offline_min_ms": 50.35,
+      "verify_sig_offline_net_ms": 7.07,
+      "verify_bundle_offline_rc": 1,
+      "verify_bundle_offline_ok": false,
+      "verify_bundle_offline_err_tail": "o-cdn.sigstore.dev/13.root.json\": proxyconnect tcp: dial tcp 127.0.0.1:9: connectex: No connection could be made because the target machine actively refused it.",
+      "verify_bundle_online_rc": 1,
+      "verify_bundle_online_ms": 2042.55,
+      "sig_bytes_per_step": 1.9,
+      "tlog_upload_rc": 1,
+      "tlog_upload_err_tail": ": upload to tlog: user declined the prompt\nerror during command execution: signing C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_bench\\ours_c\\payloads\\trace_50.json: upload to tlog: user declined the prompt"
+    }
+  ],
+  "tamper": {
+    "single_blob": {
+      "case": "改 trace 第 1 步 observation 后验签（整条轨迹一个 blob）",
+      "rc": 1,
+      "detected": true,
+      "err_tail": " tcp 127.0.0.1:9: connectex: No connection could be made because the target machine actively refused it.\nError: invalid signature when validating ASN.1 encoded signature\nerror during command execution: invalid signature when validating ASN.1 encoded signature ",
+      "names_step": false,
+      "note": "整条轨迹一个 blob 时只能得到「验签失败」，不点名任何步骤"
+    },
+    "per_step_sign": {
+      "sigs": [
+        {
+          "step": 0,
+          "rc": 0,
+          "sig_bytes": 96
+        },
+        {
+          "step": 1,
+          "rc": 0,
+          "sig_bytes": 96
+        },
+        {
+          "step": 2,
+          "rc": 0,
+          "sig_bytes": 96
+        }
+      ],
+      "sig_bytes_total": 288,
+      "verify_results": [
+        {
+          "step": 0,
+          "rc": 0,
+          "ok": true,
+          "err_tail": "dial tcp 127.0.0.1:9: connectex: No connection could be made because the target machine actively refused it.\nVerified OK"
+        },
+        {
+          "step": 1,
+          "rc": 1,
+          "ok": false,
+          "err_tail": "dating ASN.1 encoded signature\nerror during command execution: invalid signature when validating ASN.1 encoded signature"
+        },
+        {
+          "step": 2,
+          "rc": 0,
+          "ok": true,
+          "err_tail": "dial tcp 127.0.0.1:9: connectex: No connection could be made because the target machine actively refused it.\nVerified OK"
+        }
+      ],
+      "localized": [
+        1
+      ],
+      "verify_calls_needed": 3,
+      "note": "cosign 本身无步概念；按「每步一个 blob + 一个签名」自行切分后才能定位，代价是签名数=步数、验签次数=步数、体积=步数×96B（另加 blob 本身）"
+    }
+  },
+  "keyless_offline": {
+    "rc": 1,
+    "ms": 53.07,
+    "err_tail": "NI~1\\AppData\\Local\\Temp\\s7_bench\\ours_c\\payloads\\trace_1.json: upload to tlog: user declined the prompt\nerror during command execution: signing C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_bench\\ours_c\\payloads\\trace_1.json: upload to tlog: user declined the prompt"
+  }
+}
