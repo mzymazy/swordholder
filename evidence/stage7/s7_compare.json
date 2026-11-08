@@ -1,0 +1,237 @@
+{
+  "generated_at": "2026-11-08T19:22:53",
+  "table": [
+    {
+      "steps": 1,
+      "ours_credential_bytes": 951,
+      "intoto_credential_bytes": 2609,
+      "intoto_credential_breakdown": {
+        "layout": 1624,
+        "links": 759,
+        "pubkeys": 226
+      },
+      "intoto_link_bytes_only": 759,
+      "cosign_signature_bytes": 96,
+      "cosign_bundle_bytes": 118,
+      "size_ratio_intoto_over_ours": 2.74,
+      "size_ratio_intoto_links_only_over_ours": 0.8,
+      "size_ratio_ours_over_cosign_sig": 9.91,
+      "ours_sig_count": 1,
+      "intoto_sig_count": 2,
+      "cosign_sig_count_whole_trace": 1,
+      "cosign_sig_count_per_step": 1,
+      "sig_count_ratio_intoto_over_ours": 2.0,
+      "ours_verify_ms": 0.9063,
+      "ours_verify_min_ms": 0.8651,
+      "intoto_verify_wall_ms_median": 237.41,
+      "intoto_verify_net_ms_median": 37.17,
+      "intoto_link_only_inproc_verify_ms_total": 0.0731,
+      "cosign_verify_offline_net_ms_median": 5.95,
+      "cosign_verify_online_ms_median": 2147.99,
+      "verify_ratio_intoto_net_over_ours": 41.01,
+      "verify_ratio_ours_over_cosign_offline_net": 0.15,
+      "ours_sign_ms": 0.4977,
+      "intoto_sign_net_ms_total": 29.68,
+      "intoto_sign_layout_net_ms": 7.56,
+      "intoto_sign_net_ms_total_with_layout": 37.24,
+      "cosign_sign_net_ms_median": 95.99,
+      "ours_verify_files_required": 2,
+      "ours_verify_inputs_bytes": 1156,
+      "intoto_verify_files_required": 3,
+      "cosign_verify_files_required": 3
+    },
+    {
+      "steps": 5,
+      "ours_credential_bytes": 951,
+      "intoto_credential_bytes": 8189,
+      "intoto_credential_breakdown": {
+        "layout": 4104,
+        "links": 3859,
+        "pubkeys": 226
+      },
+      "intoto_link_bytes_only": 3859,
+      "cosign_signature_bytes": 96,
+      "cosign_bundle_bytes": 118,
+      "size_ratio_intoto_over_ours": 8.61,
+      "size_ratio_intoto_links_only_over_ours": 4.06,
+      "size_ratio_ours_over_cosign_sig": 9.91,
+      "ours_sig_count": 1,
+      "intoto_sig_count": 6,
+      "cosign_sig_count_whole_trace": 1,
+      "cosign_sig_count_per_step": 5,
+      "sig_count_ratio_intoto_over_ours": 6.0,
+      "ours_verify_ms": 0.9146,
+      "ours_verify_min_ms": 0.8684,
+      "intoto_verify_wall_ms_median": 246.73,
+      "intoto_verify_net_ms_median": 46.49,
+      "intoto_link_only_inproc_verify_ms_total": 0.3401,
+      "cosign_verify_offline_net_ms_median": 7.23,
+      "cosign_verify_online_ms_median": 2167.53,
+      "verify_ratio_intoto_net_over_ours": 50.83,
+      "verify_ratio_ours_over_cosign_offline_net": 0.13,
+      "ours_sign_ms": 0.5165,
+      "intoto_sign_net_ms_total": 178.62,
+      "intoto_sign_layout_net_ms": 15.99,
+      "intoto_sign_net_ms_total_with_layout": 194.61,
+      "cosign_sign_net_ms_median": 91.69,
+      "ours_verify_files_required": 2,
+      "ours_verify_inputs_bytes": 1156,
+      "intoto_verify_files_required": 7,
+      "cosign_verify_files_required": 3
+    },
+    {
+      "steps": 20,
+      "ours_credential_bytes": 955,
+      "intoto_credential_bytes": 29115,
+      "intoto_credential_breakdown": {
+        "layout": 13405,
+        "links": 15484,
+        "pubkeys": 226
+      },
+      "intoto_link_bytes_only": 15484,
+      "cosign_signature_bytes": 96,
+      "cosign_bundle_bytes": 118,
+      "size_ratio_intoto_over_ours": 30.49,
+      "size_ratio_intoto_links_only_over_ours": 16.21,
+      "size_ratio_ours_over_cosign_sig": 9.95,
+      "ours_sig_count": 1,
+      "intoto_sig_count": 21,
+      "cosign_sig_count_whole_trace": 1,
+      "cosign_sig_count_per_step": 20,
+      "sig_count_ratio_intoto_over_ours": 21.0,
+      "ours_verify_ms": 0.9394,
+      "ours_verify_min_ms": 0.8989,
+      "intoto_verify_wall_ms_median": 243.46,
+      "intoto_verify_net_ms_median": 43.22,
+      "intoto_link_only_inproc_verify_ms_total": 1.3681,
+      "cosign_verify_offline_net_ms_median": 6.76,
+      "cosign_verify_online_ms_median": 2160.94,
+      "verify_ratio_intoto_net_over_ours": 46.01,
+      "verify_ratio_ours_over_cosign_offline_net": 0.14,
+      "ours_sign_ms": 0.5531,
+      "intoto_sign_net_ms_total": 670.91,
+      "intoto_sign_layout_net_ms": 19.38,
+      "intoto_sign_net_ms_total_with_layout": 690.29,
+      "cosign_sign_net_ms_median": 91.96,
+      "ours_verify_files_required": 2,
+      "ours_verify_inputs_bytes": 1160,
+      "intoto_verify_files_required": 22,
+      "cosign_verify_files_required": 3
+    },
+    {
+      "steps": 50,
+      "ours_credential_bytes": 955,
+      "intoto_credential_bytes": 70965,
+      "intoto_credential_breakdown": {
+        "layout": 32005,
+        "links": 38734,
+        "pubkeys": 226
+      },
+      "intoto_link_bytes_only": 38734,
+      "cosign_signature_bytes": 96,
+      "cosign_bundle_bytes": 118,
+      "size_ratio_intoto_over_ours": 74.31,
+      "size_ratio_intoto_links_only_over_ours": 40.56,
+      "size_ratio_ours_over_cosign_sig": 9.95,
+      "ours_sig_count": 1,
+      "intoto_sig_count": 51,
+      "cosign_sig_count_whole_trace": 1,
+      "cosign_sig_count_per_step": 50,
+      "sig_count_ratio_intoto_over_ours": 51.0,
+      "ours_verify_ms": 1.032,
+      "ours_verify_min_ms": 1.001,
+      "intoto_verify_wall_ms_median": 264.17,
+      "intoto_verify_net_ms_median": 63.93,
+      "intoto_link_only_inproc_verify_ms_total": 3.4216,
+      "cosign_verify_offline_net_ms_median": 7.07,
+      "cosign_verify_online_ms_median": 2183.21,
+      "verify_ratio_intoto_net_over_ours": 61.95,
+      "verify_ratio_ours_over_cosign_offline_net": 0.15,
+      "ours_sign_ms": 0.6475,
+      "intoto_sign_net_ms_total": 1687.16,
+      "intoto_sign_layout_net_ms": 25.11,
+      "intoto_sign_net_ms_total_with_layout": 1712.27,
+      "cosign_sign_net_ms_median": 90.55,
+      "ours_verify_files_required": 2,
+      "ours_verify_inputs_bytes": 1160,
+      "intoto_verify_files_required": 52,
+      "cosign_verify_files_required": 3
+    }
+  ],
+  "summary": {
+    "versions": {
+      "swordholder": "0.7.4",
+      "in-toto": "3.1.0",
+      "cosign": "v2.6.1",
+      "python": "3.11.8",
+      "cryptography": "50.0.2",
+      "securesystemslib": "1.6.0"
+    },
+    "offline": {
+      "ours": {
+        "verdict": "VALID",
+        "net_hits": 0,
+        "rc": 0,
+        "ok": true
+      },
+      "intoto": {
+        "rc": 0,
+        "net_hits": 0,
+        "ms_wall": 243.29,
+        "ok": true
+      },
+      "cosign": {
+        "key_based_verify_rc": [
+          0,
+          0
+        ],
+        "key_based_verify_ms_dead_proxy": [
+          49.04,
+          49.44
+        ],
+        "verify_ms_online": [
+          2608.5,
+          2189.94,
+          2753.44,
+          2734.28
+        ],
+        "bundle_rc_default": 1,
+        "bundle_rc_with_ignore_tlog": 0,
+        "keyless_offline_rc": 1,
+        "tuf_attempted_every_run": true
+      }
+    },
+    "tamper": {
+      "ours": {
+        "cases": 4,
+        "detected": 4,
+        "localized_to_step": 2,
+        "note": "weak 模式定位到步；strong 模式（只验头）只判 INVALID 不定位"
+      },
+      "intoto": {
+        "cases": 7,
+        "detected": 7,
+        "localized_to_step": 5,
+        "unlocalized": [
+          "product_file_modified",
+          "layout_unsigned"
+        ],
+        "resign_cases": 2,
+        "resign_detected": 2,
+        "resign_undetected": [],
+        "note": "MATCH 是消费式规则，哈希不符只是不消费、不报错；必须配 DISALLOW * 才转为失败。缺 DISALLOW 时 H1（改 link 内哈希并用该步 functionary 重签）静默通过 verify_rc=0；补齐 DISALLOW * 后 H1/H2 均 rc=1 并点名 step02"
+      },
+      "cosign": {
+        "whole_blob_localized": false,
+        "per_step_sign_localized": true,
+        "per_step_sigs": 3,
+        "per_step_verify_calls": 3
+      }
+    },
+    "external_dependency": {
+      "ours": "无外部日志 / 无 CA / 无在线密钥源；公钥离线分发",
+      "intoto": "无 Rekor / 无 Fulcio / 无 TSA / 无 OIDC；授权清单写在 layout 内",
+      "cosign": "key-based 起手即访问 tuf-repo-cdn.sigstore.dev；默认签名上传 Rekor；keyless 需 OIDC+Fulcio+Rekor"
+    }
+  }
+}
