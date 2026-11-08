@@ -114,3 +114,36 @@ mode="none"   → 凭证是 0.7.4 风格纯头部凭证，无步级承诺，不�
 - `trace_ledger.py` 新增 `ANCHOR_MAX / ANCHOR_TRUNC / anchor_stride / anchor_points / build_anchors / locate_step`，
   `seal_trace` 新增 `anchor_stride / anchor_max / anchor_trunc`，`verify_sealed_trace` 新增 `require_anchors`
   并固定返回 `localization`。
+
+## 7. 与 in-toto 定位能力的口径对照（诚实记账）
+
+统计口径必须写清，否则 30/30 与 in-toto 的 5/7 不可比：
+
+| 维度 | 我方 0.7.5 | in-toto 3.1.0 |
+|---|---|---|
+| 被篡改对象 | 轨迹 body（不重新盖章，用原凭证验） | link / layout 文件（不重签） |
+| 检出率 | 30/30（10 类 × N=3/20/50） | 7/7（第七阶段同机实测） |
+| 点名到步 | **30/30 给出 span，其中 24/30 上界也收到同一步** | 5/7；2 类不点名（`product_file_modified` 只报 inspection 退出码、`layout_unsigned` 只点名 owner keyid） |
+| 定位产物 | 结构化 `segment=[lo,hi]` + `loc_mode` | 报错文本里出现 step 名 |
+| 需验文件数 | 2（seal + trace） | N+2（layout + N 个 link + 公钥） |
+
+额外区分：`cross_trace_credential`（拿 A 轨迹的凭证验 B 轨迹）在 3 种配置下都返回
+`segment=[0,0]` + `span_unbounded=true`。这一条**本身不具定位信息量**（任何两条不同轨迹的分叉点都在第 0 步），
+若把它视为「应报 INVALID 但定位无意义」的一类，则有效定位为 **27/27**（弱 3、强 21、截尾 3），
+其中上界封死 24/27。两种口径都写在这里，不做择一粉饰。
+
+## 8. in-toto 侧同任务体积复测（本轮补测，替代第七阶段旧口径）
+
+第七阶段的 70 965 B 是「每步带命令流 + 多产物」的任务形态，与本阶段 `N 步挂同一产物` 不可直接相除。
+本轮机内复测（in-toto 3.1.0，`--use-dsse`，layout 由 owner key 签，link 由 alice key 签，
+不含公钥文件与产物本体）：
+
+| N | 文件数 | 美化字节 | 紧凑字节 | 我方紧凑 | 比值（紧凑） |
+|---|---|---|---|---|---|
+| 1 | 2 | 1 855 | 1 622 | 879 | 1.8× |
+| 5 | 6 | 6 911 | 5 938 | 1 003 | 5.9× |
+| 20 | 21 | 25 871 | 22 123 | 1 480 | 14.9× |
+| 50 | 51 | 63 791 | 54 493 | 2 440 | 22.3× |
+
+我方 2 文件恒定，in-toto 为 N+1 文件线性增长；体积优势随 N 放大，但**这是「无步级索引」换来的**——
+0.7.4 的 943 B 只有头部承诺，本版用 2.6× 体积换回步级定位，属刻意取舍。
