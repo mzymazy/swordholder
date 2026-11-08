@@ -34,10 +34,18 @@ AIGC:
    一次 CI 就能看出根因。
 3. **覆盖率与质量门禁给出数字**：CI `quality-gate` job 执行 `pytest --cov=swordholder --cov=mcp_server`
    ＋ `ruff check`，阈值同源于 `pyproject.toml`（`fail_under = 85`）。实测：
-   **行覆盖率 88.19%**（3260 语句 / 339 未覆盖 / 1092 分支 / 151 partial），**471 passed, 1 skipped**，
-   `ruff 0.17.4` 全通过。本机以同一命令复跑得到同一天花板数字（88.19%），CI 与本地不存在双口径。
+   **合并覆盖率（行+分支）88.19%** = (2921/3260 行 + 917/1092 分支) / (3260 + 1092) = 3838/4352；
+   单看行口径是 89.60%（339 行未覆盖），单看分支口径是 83.97%（151 个 partial 分支）。
+   **471 passed, 1 skipped**（`--collect-only` 计 472 = 471 + 1 skip），`ruff 0.17.4` 全通过。
+   本机以同一命令复跑得到同一数字（88.19%，TOTAL 行 3260/339/1092/151 完全一致），CI 与本地不存在双口径。
 4. **版本号对齐**：`pyproject.toml` / `swordholder.__version__` / README 内的示例路径与下载链接
    统一到 `0.7.4`。
+5. **公开渠道与 CI 证据入库**：`evidence/release/v0.7.4_ci_release_evidence.json` 登记 v0.7.4 的
+   四个 workflow run id 与结论、`verify` 的 10 个 job 结论、三个 Release 附件的字节数与 SHA256、
+   三个干净 venv 的安装与冒烟输出；配套说明见 [`docs/stage6-public-and-gates.md`](docs/stage6-public-and-gates.md)。
+   负结果一并记录：本机对 `github.com/.../releases/download/...` 直链返回 403（`curl.exe` 同 URL 亦 403），
+   README 里的 `pip install <Release 直链>` 在本机无法自证，需在无该限制的网络复验；同一资产经
+   GitHub API `application/octet-stream` 取回的字节 SHA256 与 Release digest、`SHA256SUMS` 三者一致。
 
 已知仍未成立的事项（不因本版上线而变为成立）：PyPI 包名仍不可用、无 Trusted Publisher，
 `release.yml` 的 `publish` job 仍处 fail-closed 的未执行状态。
