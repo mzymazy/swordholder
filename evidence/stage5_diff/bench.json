@@ -1,0 +1,295 @@
+{
+  "stage": "S5",
+  "generated_at": "2026-11-08T10:36:42",
+  "environment": {
+    "python": "3.11.8",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "cryptography": "50.0.2",
+    "interpreter": "O:\\接单\\参赛\\swordholder_mvp\\.venv\\Scripts\\python.exe"
+  },
+  "offline": {
+    "seals_valid": 30,
+    "seals_total": 30,
+    "seals_invalid": 0,
+    "trace_verdict": "VALID",
+    "trace_reason": "",
+    "socket_attempts": 0,
+    "denylist_loaded": [],
+    "network_modules_loaded": [],
+    "seal_bytes": 761,
+    "trace_seal_bytes": 954,
+    "pubkey_bytes": 113,
+    "trust_store_bytes": 209,
+    "trust_store_is_local_file": true,
+    "verify_inputs_count": 2,
+    "verify_inputs_bytes": 970
+  },
+  "localize": {
+    "steps": 20,
+    "cases": [
+      {
+        "case": "value_change",
+        "tampered_index": 7,
+        "expect_first_break": 7,
+        "detected": true,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_BREAK",
+        "first_break": 7,
+        "localized": true
+      },
+      {
+        "case": "hash_recompute_single_step",
+        "tampered_index": 5,
+        "expect_first_break": 6,
+        "detected": true,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_BREAK",
+        "first_break": 6,
+        "localized": true
+      },
+      {
+        "case": "step_insert",
+        "tampered_index": 4,
+        "expect_first_break": 5,
+        "detected": true,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_BREAK",
+        "first_break": 5,
+        "localized": true
+      },
+      {
+        "case": "step_delete",
+        "tampered_index": 6,
+        "expect_first_break": 6,
+        "detected": true,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_BREAK",
+        "first_break": 6,
+        "localized": true
+      },
+      {
+        "case": "step_reorder",
+        "tampered_index": 9,
+        "expect_first_break": 9,
+        "detected": true,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_BREAK",
+        "first_break": 9,
+        "localized": true
+      },
+      {
+        "case": "step_number_rewrite",
+        "tampered_index": 11,
+        "expect_first_break": 11,
+        "detected": true,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_BREAK",
+        "first_break": 11,
+        "localized": true
+      },
+      {
+        "case": "prev_hash_rewrite",
+        "tampered_index": 13,
+        "expect_first_break": 13,
+        "detected": true,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_BREAK",
+        "first_break": 13,
+        "localized": true
+      },
+      {
+        "case": "truncate_tail",
+        "tampered_index": 17,
+        "expect_first_break": null,
+        "detected": true,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_HEAD_MISMATCH",
+        "first_break": null,
+        "localized": true
+      },
+      {
+        "case": "rebuild_chain_selfconsistent",
+        "tampered_index": 3,
+        "expect_first_break": null,
+        "detected": true,
+        "verdict": "INVALID",
+        "reason": "E_TRACE_HEAD_MISMATCH",
+        "first_break": null,
+        "localized": true
+      }
+    ],
+    "detected": 9,
+    "detected_rate": 1.0,
+    "first_break_exact": 7,
+    "first_break_cases": 7,
+    "first_break_exact_rate": 1.0,
+    "localized_incl_detect_only": 9
+  },
+  "coverage": {
+    "steps": 50,
+    "credential_bytes": 946,
+    "signature_count": 1,
+    "detected": 50,
+    "detected_rate": 1.0,
+    "exact_index": 50,
+    "exact_index_rate": 1.0,
+    "bytes_1step": 945,
+    "bytes_added_per_step": 0.0204,
+    "misses": []
+  },
+  "scaling": {
+    "ours": [
+      {
+        "steps": 1,
+        "seal_bytes": 951,
+        "trace_bytes": 494,
+        "credential_to_trace_ratio": 1.9251,
+        "seal_ms": 0.4096,
+        "verify_ms": 0.8304,
+        "verify_min_ms": 0.7712,
+        "per_step_verify_ms": 0.8304,
+        "signature_count": 1,
+        "record_id": null
+      },
+      {
+        "steps": 5,
+        "seal_bytes": 951,
+        "trace_bytes": 1756,
+        "credential_to_trace_ratio": 0.5416,
+        "seal_ms": 0.4252,
+        "verify_ms": 0.831,
+        "verify_min_ms": 0.7808,
+        "per_step_verify_ms": 0.1662,
+        "signature_count": 1,
+        "record_id": null
+      },
+      {
+        "steps": 20,
+        "seal_bytes": 955,
+        "trace_bytes": 6513,
+        "credential_to_trace_ratio": 0.1466,
+        "seal_ms": 0.4642,
+        "verify_ms": 0.8883,
+        "verify_min_ms": 0.8309,
+        "per_step_verify_ms": 0.0444,
+        "signature_count": 1,
+        "record_id": null
+      },
+      {
+        "steps": 50,
+        "seal_bytes": 955,
+        "trace_bytes": 16043,
+        "credential_to_trace_ratio": 0.0595,
+        "seal_ms": 0.563,
+        "verify_ms": 0.9858,
+        "verify_min_ms": 0.9277,
+        "per_step_verify_ms": 0.0197,
+        "signature_count": 1,
+        "record_id": null
+      }
+    ],
+    "intoto_per_step_links": {
+      "skipped": false,
+      "version": "3.1.0",
+      "rows": [
+        {
+          "steps": 1,
+          "signature_count": 1,
+          "bytes_total": 495,
+          "bytes_per_step": 495.0,
+          "sign_ms_total": 0.0952,
+          "verify_ms_total": 0.1501,
+          "sign_ms_per_step": 0.0952,
+          "verify_ms_per_step": 0.1501
+        },
+        {
+          "steps": 5,
+          "signature_count": 5,
+          "bytes_total": 2475,
+          "bytes_per_step": 495.0,
+          "sign_ms_total": 0.4506,
+          "verify_ms_total": 0.7208,
+          "sign_ms_per_step": 0.0901,
+          "verify_ms_per_step": 0.1442
+        },
+        {
+          "steps": 20,
+          "signature_count": 20,
+          "bytes_total": 9900,
+          "bytes_per_step": 495.0,
+          "sign_ms_total": 1.7314,
+          "verify_ms_total": 2.8884,
+          "sign_ms_per_step": 0.0866,
+          "verify_ms_per_step": 0.1444
+        },
+        {
+          "steps": 50,
+          "signature_count": 50,
+          "bytes_total": 24750,
+          "bytes_per_step": 495.0,
+          "sign_ms_total": 4.3845,
+          "verify_ms_total": 7.2187,
+          "sign_ms_per_step": 0.0877,
+          "verify_ms_per_step": 0.1444
+        }
+      ]
+    }
+  },
+  "refusals": {
+    "cases": {
+      "payload_edited": {
+        "verdict": "INVALID",
+        "reason": "E_PAYLOAD_TAMPERED"
+      },
+      "signature_garbage_b64": {
+        "verdict": "INVALID",
+        "reason": "E_SCHEMA_INVALID"
+      },
+      "signature_type_confusion": {
+        "verdict": "INVALID",
+        "reason": "E_MALFORMED_SEAL"
+      },
+      "header_digest_swapped": {
+        "verdict": "INVALID",
+        "reason": "E_PAYLOAD_TAMPERED"
+      },
+      "unknown_schema_version": {
+        "verdict": "INVALID",
+        "reason": "E_UNSUPPORTED_SEAL_VERSION"
+      },
+      "payload_type_confusion": {
+        "verdict": "INVALID",
+        "reason": "E_PAYLOAD_TAMPERED"
+      },
+      "missing_file": {
+        "verdict": "INVALID",
+        "reason": "E_SEAL_NOT_FOUND"
+      }
+    },
+    "distinct_codes": [
+      "E_MALFORMED_SEAL",
+      "E_PAYLOAD_TAMPERED",
+      "E_SCHEMA_INVALID",
+      "E_SEAL_NOT_FOUND",
+      "E_UNSUPPORTED_SEAL_VERSION"
+    ],
+    "uncaught_exceptions": 0,
+    "cases_total": 7
+  },
+  "trust": {
+    "stranger_anchor_verdict": "VALID_UNTRUSTED_KEY",
+    "stranger_anchor_reason": "E_NO_TRUST_ANCHOR",
+    "no_anchor_verdict": "VALID_UNTRUSTED_KEY",
+    "no_anchor_reason": "E_UNTRUSTED_KEY",
+    "never_bare_valid": true
+  },
+  "determinism": {
+    "runs": 3,
+    "digests": [
+      "279e81860011d3dc29f4215fc3f7594910500369385514e6578482b9dff0b718",
+      "279e81860011d3dc29f4215fc3f7594910500369385514e6578482b9dff0b718",
+      "279e81860011d3dc29f4215fc3f7594910500369385514e6578482b9dff0b718"
+    ],
+    "identical": true
+  }
+}

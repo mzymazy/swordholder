@@ -17,6 +17,56 @@ AIGC:
 
 ---
 
+## [未发布] - S5：与 Sigstore/Rekor、in-toto/SLSA、SCITT、JACS 的逐项正面对比
+
+补 S4 复评里最低的差异度（3.10）。本版**不加任何检测或存证能力**，只做一件事：把已有的三条宣称
+拿同口径实测去对，能立住的写清数字，立不住的撤下来。
+
+1. **步级定位立住**：20 步轨迹 9 类篡改 9/9 检出，需要步号的 7 例 `first_break` 7/7 与注入位置一致；
+   50 步轨迹逐位置改值，50/50 精确指到步号。凭证体积每多覆盖一步仅增 0.0204 B。
+2. **单凭证覆盖立住（数量级差）**：同机与 in-toto 3.1.0 对照（reps=31，取中位），N=50 时
+   凭证 955 B vs 24,750 B（25.9× 更小）、验证 0.99 ms vs 7.22 ms（7.3× 更快）、签名 1 次 vs 50 次。
+   **反向事实同列**：N=1 时我们更慢（0.83 ms vs 0.15 ms），交叉点 N≈6。
+3. **离线验签不构成差异**：我们 30/30 VALID、网络调用 0 次、导入期不加载任何网络模块，但
+   Sigstore 新 bundle 原生支持离线、in-toto 只需公钥、JACS 亦自称离线——这条从"优势"降级为"实现对齐"。
+4. **无外部日志/CA 依赖只对一半对手成立**：验签输入 2 文件 970 B（凭证 761 B + 信任锚 209 B），
+   对 Sigstore keyless 与 SCITT 成立，对 in-toto 与 JACS 不成立。
+5. **发布与 CI 的现实边界如实登记**：新增 `release.yml`（推 `v*` tag 触发构建→验收→OIDC 发布），
+   但 PyPI 包名仍 404、无 token、无 Trusted Publisher，**发布路径一次都没跑过**，`twine check` 只证明元数据可渲染。
+
+顺带修掉两个被实测逼出来的缺陷（不是设计时想到的）：
+`swordholder/rules.py` 顶层 `import urllib.request` 使 `import swordholder` 即加载网络栈，
+改为函数内惰性导入；`mcp_server/server.py` 的 `tool_verify_seal` 在凭证文件不存在时返回
+`{"ok": false, ...}`，与其余分支的 `verdict` 形态不一致（调用方按 `verdict` 判定会 KeyError），
+统一为 `INVALID / E_SEAL_NOT_FOUND`。
+
+商业价值复评 **73.8/100**（S4 为 69.5）：差异度 3.10→3.60、证据强度 4.30→4.50、交付 3.30→3.55，
+变现维持 3.00、问题真实性维持 3.40。**增量全部来自"把已有差异测出来并写清边界"与"CI 蓝图"，
+没有一分来自能力增长；变现仍是最低项，且无技术工作可补。** 负结果 12 条见
+[`docs/stage5-scoring.md`](docs/stage5-scoring.md) 的 N-S5-01…12。
+
+### 新增（Added）
+
+- `scripts/stage5_diff_bench.py`：差异度实测台（离线 / 定位 / 规模 / 拒绝 / 信任 / 确定性 / 覆盖率），一条命令复算
+- `evidence/stage5_diff/bench.json`：本阶段全部指标的唯一来源
+- `evidence/stage5_diff/competitor_facts.json`：竞品能力登记（每条附 URL、原文摘录、self_reported 标记与未测清单）
+- `docs/stage5-head-to-head.md`：逐项正面对比报告
+- `docs/stage5-scoring.md`：复评与负结果登记（N-S5-01…12）
+- `tests/test_stage5_boundaries.py`：6 个用例钉住结构化拒绝、导入期零网络栈、步级定位与截断
+- `.github/workflows/release.yml`：tag 触发的构建→验收→OIDC 发布（**从未执行**）
+
+### 变更（Changed）
+
+- `swordholder/rules.py`：`import urllib.request` 由模块顶层改为 `llm_available` / `llm_enrich` 函数内惰性导入
+- `mcp_server/server.py`：凭证文件不存在统一为 `invalid / E_SEAL_NOT_FOUND`
+- 版本号 0.7.1 → 0.7.2（`pyproject.toml` / `swordholder/__init__.py` 同步）
+
+### 已知边界（Known limits）
+
+- 包仍未发布到 PyPI；`release.yml` 未执行；无可复现的第三方数据；Sigstore / SCITT / JACS 无同机量化数据
+
+---
+
 ## [未发布] - S4：发行物与最小接入路径 + 定价与单位经济模型
 
 补 S3 复评暴露的两处最低项（交付 2.30、变现 2.10）。本版不加检测能力，只做两件"别人能接手"的事：

@@ -1,0 +1,90 @@
+{
+  "stage": "S5",
+  "collected_at": "2026-11-08",
+  "purpose": "第五阶段差异度对比的公开依据登记。每条只记录可在所引 URL 原文里逐字找到的内容；self_reported=true 表示该说法来自竞品自己的宣传/文档，未经我们独立复现。",
+  "sources": [
+    {
+      "id": "src-sigstore-offline",
+      "url": "https://docs.sigstore.dev/cosign/verifying/verify/",
+      "publisher": "Sigstore project docs",
+      "accessed": "2026-11-08",
+      "http_bytes": 73554,
+      "quotes": [
+        "it supports offline verification, and includes additional information (like signed timestamps and attestations) in a single file",
+        "cosign verify-blob <file> --bundle artifact.sigstore.json --certificate-identity=name@example.com --certificate-oidc-issuer=https://accounts.example.com"
+      ],
+      "note": "Sigstore 的新 bundle 格式（protobuf）已支持离线验签，因此「Sigstore 不能离线验签」是过期说法，不能拿来当差异点。"
+    },
+    {
+      "id": "src-jacs-compare",
+      "url": "https://humanassisted.github.io/JACS/native/concepts/attestation-comparison.html",
+      "publisher": "JACS (HumanAssisted) native docs",
+      "accessed": "2026-11-08",
+      "http_bytes": 19209,
+      "self_reported": true,
+      "quotes": [
+        "Primary domain: AI agent runtime",
+        "Offline verification: Yes",
+        "Multi-agent quorum: Yes (M-of-N)",
+        "Evidence normalization: Yes (A2A, email, JWT, custom)",
+        "Transform receipts: Yes (derivation chains)",
+        "Central infrastructure: Not required",
+        "JACS verification works without contacting any server.",
+        "This source reference can include unreleased changes"
+      ],
+      "note": "JACS 是与我们最贴面的对手：同样宣称 AI agent runtime、离线验签、去中心化、无需中央设施。该页面同时声明可能含未发布变更，故其行只能按 self_reported 处理。"
+    },
+    {
+      "id": "src-intoto-site",
+      "url": "https://in-toto.io/",
+      "publisher": "in-toto project",
+      "accessed": "2026-11-08",
+      "http_bytes": 16774,
+      "quotes": [
+        "in-toto is designed to ensure the integrity of a software product from initiation to end-user installation. It does so by making it transparent to the user what steps were performed, by whom and in what order.",
+        "Open, extensible standard",
+        "in-toto is a CNCF graduated project."
+      ],
+      "note": "in-toto 的元数据单位是「每一步的 link 文件」，由各自的 functionary 签名；它的语义重心是供应链构建步骤，不是运行时 agent 动作。"
+    },
+    {
+      "id": "src-slsa-spec",
+      "url": "https://slsa.dev/spec/v1.0/",
+      "publisher": "SLSA specification",
+      "accessed": "2026-11-08",
+      "http_bytes": 16566,
+      "quotes": [
+        "SLSA is a specification for describing and incrementally improving supply chain security, established by industry consensus. It is organized into a series of levels that describe increasing security guarantees."
+      ],
+      "note": "SLSA 是分级要求（levels）而非签名工具；它约束构建平台可信度，不提供「运行时动作的步级定位」。"
+    },
+    {
+      "id": "src-scitt-rfc9943",
+      "url": "https://www.rfc-editor.org/rfc/rfc9943.txt",
+      "publisher": "IETF RFC 9943 (SCITT Architecture)",
+      "accessed": "2026-11-08",
+      "http_bytes": 76117,
+      "quotes": [
+        "Registering signed statements with a Transparency Service (TS) is akin to a notarization procedure.",
+        "Receipt: a COSE Single Signer Data Object as defined in [RFC9942].",
+        "Receipt Profiles implemented by a TS MUST support inclusion proofs and MAY support other Proof Types (see Section 3 of [RFC9942]), such as consistency proofs.",
+        "Signed Statements can be made transparent by attaching a proof of Registration by a TS in the form of a Receipt."
+      ],
+      "note": "SCITT 的可验证性锚在 Transparency Service 上：没有注册就没有 Receipt。Receipt 的数学验证本身可离线做，但「透明」这一属性依赖 TS 存在。"
+    }
+  ],
+  "claims_we_test": [
+    "离线验签在我们这里是否真的成立（含导入期不加载网络栈）",
+    "验证是否需要外部日志/CA/TS（输入面）",
+    "是否能定位到具体步号（而非只判整体有效/无效）",
+    "单凭证覆盖 N 步的体积与耗时相对逐步骤签名如何",
+    "拒绝时是否给结构化代码而不是抛异常",
+    "信任分离是否为 VALID_UNTRUSTED_KEY 而非裸 VALID"
+  ],
+  "claims_we_do_not_test": [
+    "Sigstore/Rekor 的 Merkle 包含证明性能（未安装 sigstore 客户端，S5 未做同机实验）",
+    "in-toto 完整 layout 验证（in_toto_verify）的端到端耗时（只测了 link 级签/验）",
+    "SCITT TS 的真实部署行为（无实现）",
+    "JACS 的任何数字（其页面无量化指标，仅能力勾选）"
+  ]
+}

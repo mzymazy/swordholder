@@ -42,7 +42,7 @@ AIGC:
 ```bash
 git clone https://github.com/mzymazy/swordholder && cd swordholder
 pip install -e .            # 运行时依赖 3 个：cryptography / pyyaml / jsonschema
-swordholder --version       # swordholder 0.7.1（与 pyproject.toml 一致）
+swordholder --version       # swordholder 0.7.2（与 pyproject.toml 一致）
 ```
 
 > **包里没有 PyPI 发布**：`pip install swordholder` 会 `No matching distribution found`，这是预期行为，不是环境问题。请用上面的源码安装（`-e .`），或隔离环境用 `pipx install .` / `pip install .`（非 editable，等价于本地打 wheel 安装）。Python 3.11+。
@@ -51,7 +51,7 @@ swordholder --version       # swordholder 0.7.1（与 pyproject.toml 一致）
 >
 > ```bash
 > pip install -e ".[dev]"
-> pytest                      # 324 passed（pyproject 已默认 addopts=-q，再传一次 -q 会吞掉汇总行）
+> pytest                      # 330 passed（pyproject 已默认 addopts=-q，再传一次 -q 会吞掉汇总行）
 > python scripts/worldclass_probe.py --assert   # 57/57 安全属性断言通过（不调用模型）
 > python mcp_server/selftest.py   # 10/10 通过
 > swordholder exits --selftest    # 13/13 必判出口全部取到票据（覆盖率 1.0）
@@ -68,7 +68,7 @@ swordholder --version       # swordholder 0.7.1（与 pyproject.toml 一致）
 
 ```bash
 python scripts/build_release.py                       # 1) 构建 wheel/sdist（dist/ 不入库，clone 后需自建）
-pip install dist/swordholder-0.7.1-py3-none-any.whl   # 2) 离线可装（--no-index 也能过）
+pip install dist/swordholder-0.7.2-py3-none-any.whl   # 2) 离线可装（--no-index 也能过）
 python examples/minimal_integration.py --out minimal_check.json   # 3) 13/13 接入检查
 python scripts/verify_release.py --out release_check.json         # 4) 发行物隔离验收 7/7
 ```
@@ -79,7 +79,7 @@ python scripts/verify_release.py --out release_check.json         # 4) 发行物
 
 | 产出 | 说明 |
 |---|---|
-| `dist/swordholder-0.7.1-py3-none-any.whl`（145,361 字节）/ `.tar.gz` | 可安装发行物，SHA256 见 `dist/SHA256SUMS`（`dist/` 不入库，用 `build_release.py` 重建） |
+| `dist/swordholder-0.7.2-py3-none-any.whl`（146,301 字节）/ `.tar.gz` | 可安装发行物，SHA256 见 `dist/SHA256SUMS`（`dist/` 不入库，用 `build_release.py` 重建） |
 | `examples/minimal_integration.py` | 只用公开 API 跑 13 项检查：签发 / 验签 / 3 类篡改 / 2 类类型混淆 / 重放 / 确定性 / 性能 |
 | `scripts/verify_release.py` | 在**隔离目录**装 wheel 再跑接入示例，校验版本一致、包数据齐全、SHA256 匹配 |
 | `examples/README.md` | 接入文档与三条使用约定（判定对错由人负责 / 以 `seal_header.subject` 为准 / 信任锚自己维护） |
@@ -89,8 +89,11 @@ python scripts/verify_release.py --out release_check.json         # 4) 发行物
 隔离安装环境与源码树跑出的 `payload_sha256` 完全一致（`c666b896…`）。
 详见 [`docs/stage4-release-and-integration.md`](docs/stage4-release-and-integration.md)。
 
-> **仍未做到的**：包未发布到 PyPI（`pip install swordholder` 会失败，属预期），无 CI 门禁覆盖
-> `verify_release.py`，无外部使用者与第三方复现记录。发行物"可安装"目前仅限本地 wheel。
+> **仍未做到的**：包未发布到 PyPI（`pip install swordholder` 会失败，属预期）。`S5` 已补上
+> `.github/workflows/release.yml`（推 `v*` tag 时构建→验收→OIDC 发布），但 PyPI 侧 Trusted Publisher
+> 尚未登记、仓库也无 API token，所以**发布这一步从未真正执行过**，仍属未验证；无外部使用者与第三方复现记录。
+> 发行物"可安装"目前仅限本地 wheel。详见 [`docs/stage5-head-to-head.md`](docs/stage5-head-to-head.md) 与
+> [`docs/stage5-scoring.md`](docs/stage5-scoring.md)。
 
 ## 定价口径（不是报价，是可复算的测算）
 
@@ -720,7 +723,7 @@ swordholder_mvp/
 ├── PRIVATE_KEY.md                # 出证私钥为什么不入库 + 自签与信任锚使用说明
 ├── requirements.txt              # 核心运行依赖（4 个包，CPU 可跑）
 ├── requirements-train.txt        # QLoRA 微调依赖 + 硬件门槛（GPU ≥16GB / CUDA 12）
-├── pyproject.toml                # pip 打包配置（swordholder 0.7.1 + mcp_server，含 CLI 入口）
+├── pyproject.toml                # pip 打包配置（swordholder 0.7.2 + mcp_server，含 CLI 入口）
 ├── swordholder/                  # 可 pip 安装的核心包
 │   ├── core.py                   # keygen / seal / verify / triage / triage_event / payload_sha256
 │   ├── alert.py                  # 多源告警归一（generic / splunk / sentinel / wazuh）+ 契约校验

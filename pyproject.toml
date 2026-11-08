@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "swordholder"
-version = "0.7.1"
-description = "给 AI 结论盖章：把告警分诊结论封成可离线独立验签的 ed25519 凭证，可接入 SOC / SOAR / MCP"
+version = "0.7.2"
+description = "缁?AI 缁撹鐩栫珷锛氭妸鍛婅鍒嗚瘖缁撹灏佹垚鍙绾跨嫭绔嬮獙绛剧殑 ed25519 鍑瘉锛屽彲鎺ュ叆 SOC / SOAR / MCP"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }

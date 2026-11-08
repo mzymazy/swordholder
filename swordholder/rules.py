@@ -8,7 +8,10 @@ from __future__ import annotations
 
 import json
 import os
-import urllib.request
+
+# urllib 只在 LLM 增强（可选路径）里用，改成函数内惰性导入：
+# 签发/验签路径不应该因为 import swordholder 就把 http.client / ssl 拉进进程，
+# 否则「离线验签」在导入期就已经牵上网路栈，"离线"只是运行时没调用而已。
 
 DEFAULT_MODEL = os.environ.get("SWORDHOLDER_MODEL", "qwen3:8b")
 DEFAULT_BASE = os.environ.get("SWORDHOLDER_OLLAMA", "http://127.0.0.1:11434")
@@ -66,6 +69,8 @@ def rule_triage(alert: dict) -> dict:
 
 
 def llm_available(base: str = DEFAULT_BASE) -> bool:
+    import urllib.request  # 惰性导入，见文件头说明
+
     try:
         with urllib.request.urlopen(base + "/api/tags", timeout=3) as r:
             return r.status == 200
@@ -76,6 +81,8 @@ def llm_available(base: str = DEFAULT_BASE) -> bool:
 def llm_enrich(alert: dict, base_triage: dict, model: str = DEFAULT_MODEL,
                base: str = DEFAULT_BASE, timeout: int = 90) -> dict:
     """LLM 只允许补 hypothesis/actions，不允许改 verdict/severity。失败原样返回。"""
+    import urllib.request  # 惰性导入，见文件头说明
+
     prompt = (
         "你是 SOC 分诊助手。基于以下告警与规则初判，用中文给出更具体的成因假设与处置建议。\n"
         "硬约束：不得改变 verdict 与 severity，只输出 JSON："

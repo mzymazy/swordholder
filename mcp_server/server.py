@@ -202,7 +202,11 @@ def tool_verify_seal(args: dict) -> dict:
 
     seal_path = args.get("seal_path")
     if not seal_path or not os.path.exists(seal_path):
-        return _err(f"seal 文件不存在：{seal_path}")
+        # 早期这里返回 {"ok": False, "error": ...}，与其余分支的 verdict 形态不一致：
+        # 调用方按 `res["verdict"] == "INVALID"` 判失败时会直接 KeyError，
+        # 也就是"文件不存在"这条最常见的路径反而绕过了 fail-closed 的统一契约。
+        return {"verdict": "INVALID", "reason": "E_SEAL_NOT_FOUND",
+                "detail": f"seal 文件不存在：{seal_path}"}
     with open(seal_path, "r", encoding="utf-8") as f:
         seal = json.load(f)
 

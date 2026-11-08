@@ -51,3 +51,7 @@ venv/
 artifacts_v2_qwen38_repro_base/
 artifacts_v2_injected_qwen38_repro_injected/
 artifacts_v2_*/
+
+# S5
+.tmp_s5_site/
+artifacts_s5_*/
