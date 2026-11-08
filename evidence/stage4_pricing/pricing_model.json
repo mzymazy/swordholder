@@ -3,13 +3,13 @@
   "currency": "USD",
   "pricing_unit": "每张被追责结论的凭证（seal），非日志条数、非席位",
   "measured_inputs": {
-    "seal_ms_median": 0.538,
-    "verify_ms_median": 4.911,
-    "source": "examples/minimal_integration.py --bench-iterations 30（隔离安装环境）"
+    "seal_ms_median": 0.551,
+    "verify_ms_median": 4.925,
+    "source": "examples/minimal_integration.py --bench-iterations 30；三次独立运行区间 seal 0.538–0.551 ms / verify 4.718–4.925 ms（源码树 / 隔离安装 / 重建后隔离安装），取观测上界"
   },
   "assumptions": {
-    "seal_ms": 0.538,
-    "verify_ms": 4.911,
+    "seal_ms": 0.551,
+    "verify_ms": 4.925,
     "verifications_per_seal": 3,
     "vcpu_hour_usd": 0.042,
     "seal_bytes": 2048,
@@ -17,11 +17,11 @@
     "retention_months": 12
   },
   "unit_economics": {
-    "cycle_ms_per_seal": 15.271,
-    "compute_usd_per_seal": 1.781616666666667e-07,
+    "cycle_ms_per_seal": 15.326,
+    "compute_usd_per_seal": 1.7880333333333333e-07,
     "storage_usd_per_seal_12mo": 5.2642822265625e-07,
-    "marginal_usd_per_seal": 7.045898893229168e-07,
-    "seals_per_vcpu_hour": 235740,
+    "marginal_usd_per_seal": 7.052315559895833e-07,
+    "seals_per_vcpu_hour": 234894,
     "note": "只含算力与存储的边际成本；不含人力维护、支持、密钥托管、合规审计。据此得出的毛利率是上限，不是财务预测。"
   },
   "anchors": [
@@ -214,97 +214,97 @@
       "verifications_per_seal": 1,
       "tier": "Starter",
       "implied_usd_per_seal": "0.02400000",
-      "cost_usd_per_seal": "0.0000005900",
+      "cost_usd_per_seal": "0.0000005903",
       "gross_margin_pct": "99.9975",
-      "headroom_x": "40678"
+      "headroom_x": "40656"
     },
     {
       "verifications_per_seal": 1,
       "tier": "Team",
       "implied_usd_per_seal": "0.02400000",
-      "cost_usd_per_seal": "0.0000005900",
+      "cost_usd_per_seal": "0.0000005903",
       "gross_margin_pct": "99.9975",
-      "headroom_x": "40678"
+      "headroom_x": "40656"
     },
     {
       "verifications_per_seal": 1,
       "tier": "Business",
       "implied_usd_per_seal": "0.01200000",
-      "cost_usd_per_seal": "0.0000005900",
+      "cost_usd_per_seal": "0.0000005903",
       "gross_margin_pct": "99.9951",
-      "headroom_x": "20339"
+      "headroom_x": "20328"
     },
     {
       "verifications_per_seal": 1,
       "tier": "Enterprise",
       "implied_usd_per_seal": "0.00720000",
-      "cost_usd_per_seal": "0.0000005900",
+      "cost_usd_per_seal": "0.0000005903",
       "gross_margin_pct": "99.9918",
-      "headroom_x": "12203"
+      "headroom_x": "12197"
     },
     {
       "verifications_per_seal": 3,
       "tier": "Starter",
       "implied_usd_per_seal": "0.02400000",
-      "cost_usd_per_seal": "0.0000007046",
+      "cost_usd_per_seal": "0.0000007052",
       "gross_margin_pct": "99.9971",
-      "headroom_x": "34062"
+      "headroom_x": "34031"
     },
     {
       "verifications_per_seal": 3,
       "tier": "Team",
       "implied_usd_per_seal": "0.02400000",
-      "cost_usd_per_seal": "0.0000007046",
+      "cost_usd_per_seal": "0.0000007052",
       "gross_margin_pct": "99.9971",
-      "headroom_x": "34062"
+      "headroom_x": "34031"
     },
     {
       "verifications_per_seal": 3,
       "tier": "Business",
       "implied_usd_per_seal": "0.01200000",
-      "cost_usd_per_seal": "0.0000007046",
+      "cost_usd_per_seal": "0.0000007052",
       "gross_margin_pct": "99.9941",
-      "headroom_x": "17031"
+      "headroom_x": "17016"
     },
     {
       "verifications_per_seal": 3,
       "tier": "Enterprise",
       "implied_usd_per_seal": "0.00720000",
-      "cost_usd_per_seal": "0.0000007046",
+      "cost_usd_per_seal": "0.0000007052",
       "gross_margin_pct": "99.9902",
-      "headroom_x": "10219"
+      "headroom_x": "10209"
     },
     {
       "verifications_per_seal": 10,
       "tier": "Starter",
       "implied_usd_per_seal": "0.02400000",
-      "cost_usd_per_seal": "0.0000011057",
+      "cost_usd_per_seal": "0.0000011074",
       "gross_margin_pct": "99.9954",
-      "headroom_x": "21707"
+      "headroom_x": "21672"
     },
     {
       "verifications_per_seal": 10,
       "tier": "Team",
       "implied_usd_per_seal": "0.02400000",
-      "cost_usd_per_seal": "0.0000011057",
+      "cost_usd_per_seal": "0.0000011074",
       "gross_margin_pct": "99.9954",
-      "headroom_x": "21707"
+      "headroom_x": "21672"
     },
     {
       "verifications_per_seal": 10,
       "tier": "Business",
       "implied_usd_per_seal": "0.01200000",
-      "cost_usd_per_seal": "0.0000011057",
+      "cost_usd_per_seal": "0.0000011074",
       "gross_margin_pct": "99.9908",
-      "headroom_x": "10853"
+      "headroom_x": "10836"
     },
     {
       "verifications_per_seal": 10,
       "tier": "Enterprise",
       "implied_usd_per_seal": "0.00720000",
-      "cost_usd_per_seal": "0.0000011057",
+      "cost_usd_per_seal": "0.0000011074",
       "gross_margin_pct": "99.9846",
-      "headroom_x": "6512"
+      "headroom_x": "6501"
     }
   ],
   "honest_limits": [

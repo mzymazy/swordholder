@@ -18,9 +18,9 @@
 
 | 项 | 值 |
 |---|---|
-| wheel | `dist/swordholder-0.7.1-py3-none-any.whl`，145,361 字节，36 个条目 |
-| sdist | `dist/swordholder-0.7.1.tar.gz`，239,042 字节（含 `examples/`、`docs/`、`evidence/stage4_pricing/`） |
-| wheel SHA256 | `5d4637b4a7df45420fce51ceac490427e997860f3d465c03fcbc13f03a21b3cf` |
+| wheel | `dist/swordholder-0.7.1-py3-none-any.whl`，145,628 字节，36 个条目 |
+| sdist | `dist/swordholder-0.7.1.tar.gz`，239,835 字节（含 `examples/`、`docs/`、`evidence/stage4_pricing/`） |
+| wheel SHA256 | `a83d5bfae6da969a95dfa90834e50f88aa66819bc2ef958b3ec11be63b848d33` |
 | 校验清单 | `dist/SHA256SUMS`（wheel + sdist 两行） |
 | 版本权威源 | `pyproject.toml` version = `0.7.1` = wheel `METADATA` = `swordholder.__version__` = `swordholder --version` |
 | 运行时依赖 | `cryptography>=42.0.0`、`pyyaml>=6.0.1,<7`、`jsonschema>=4.18`（三项，与 `pyproject.toml` 一致） |
@@ -68,7 +68,8 @@ set SWORDHOLDER_BUILD_PYTHON=<python.exe>
 | 确定性（A11/A12） | 摘要 `SAME`、nonce `DIFFERENT` |
 | **合计** | **13/13 通过** |
 
-性能（30 次迭代，本机，含文件读写）：`seal` 中位 0.538–0.551 ms（p95 0.583–0.614）、`verify` 中位 4.718–4.911 ms（p95 5.227–5.376）。
+性能（30 次迭代，本机，含文件读写；三次独立运行的区间）：`seal` 中位 **0.538–0.551 ms**（p95 0.583–0.646）、
+`verify` 中位 **4.718–4.925 ms**（p95 5.227–5.539）。差异 <5%，量级稳定。
 区间来自两次独立运行（源码树 / 隔离安装），波动 <5%，不改变单位经济结论。
 `payload_sha256 = c666b8967af14eb5af185d1913caed0c71d8af714ad1ecb172e3b8dc5f8d8a47`。
 
@@ -91,14 +92,14 @@ set SWORDHOLDER_BUILD_PYTHON=<python.exe>
 
 1. **确定性跨环境保持**：隔离安装环境跑出的 `payload_sha256` 与源码树跑出的完全一致
    （`c666b896...`）。这不是巧合，是 `payload` 规范化 + 固定密钥的结果，也说明示例本身不依赖执行路径。
-2. **性能跨环境稳定**：隔离安装下 `seal` 0.551 ms、`verify` 4.718 ms，源码树下 0.538/4.911 ms，
+2. **性能跨环境稳定**：隔离安装下 `seal` 0.549–0.551 ms、`verify` 4.718–4.925 ms，源码树下 0.538/4.911 ms，
    同量级（差 <5%）。发行物没有引入可观测的额外开销。
 
 ## 5. 负结果与边界（不美化）
 
 | 编号 | 事实 | 影响 |
 |---|---|---|
-| N-S4-01 | **包没发到 PyPI**：`pip install swordholder` 仍会 `No matching distribution found`；本阶段 GitHub `:443` 与代理均不可达，PyPI 上传也无法验证 | 发行物"可安装"仅限本地 wheel / `pip install .`；对陌生人的摩擦仍未降到一条 `pip install` |
+| N-S4-01 | **包没发到 PyPI**：`pip install swordholder` 仍会 `No matching distribution found`；PyPI 账号与上传流程未验证（GitHub 侧已恢复推送，见 §7） | 发行物"可安装"仅限本地 wheel / `pip install .`；对陌生人的摩擦仍未降到一条 `pip install` |
 | N-S4-02 | **无 CI**：所有验收靠人肉触发脚本，`verify_release.py` 本身没有回归保护 | 下一次改动若打坏包数据，没人会收到红灯 |
 | N-S4-03 | **无外部使用者 / 无第三方复现**：13 项检查、7 项发行物检查都是我们自己在同一台机器上跑的 | "可被外部复算"目前是**可复算的方法**，不是**已被复算的事实** |
 | N-S4-04 | **示例覆盖的是接入链路，不是判定质量** | 13 项全过不代表结论判得对；S2 已证伪规则层质量，这里不重复 |
@@ -119,3 +120,23 @@ python examples/minimal_integration.py --out minimal_check.json          # 13/13
 # 全量测试
 .venv\Scripts\python.exe -m pytest -q                                    # 324 passed
 ```
+
+## 7. 交付完成后的推送恢复记录（N-S4-12，供同类环境复用诊断）
+
+本阶段结束前，第三、四阶段两个提交一直滞留在本地。诊断顺序与结论：
+
+1. `git config --get http.https://github.com.proxy` → `http://127.0.0.1:12636`，该端口无监听（残留配置）。
+   `git -c "http.https://github.com.proxy=" push` 仍失败：`Recv failure: Connection was reset`。
+2. `Test-NetConnection github.com -Port 443` → False；DNS 解析结果为 `140.82.113.3`，该 IP 超时
+   （6011 ms）。环境变量 `HTTP(S)_PROXY` 均为空。
+3. 对照探测：`ssh.github.com` 139 ms、`api.github.com` 118 ms、`codeload.github.com` 113 ms、
+   `pypi.org` 1108 ms 均通；说明**不是整体断网，是 DNS 返回的单个前置 IP 不可达**。
+4. 逐一握手 GitHub 前置 IP：`140.82.112.3` 545 ms、`140.82.114.3` 460 ms、`140.82.116.3` 463 ms、
+   `20.27.177.113` 130 ms —— 全部 TLS 正常。
+5. 做法：本地起一个最小 HTTP `CONNECT` 转发（`127.0.0.1:8899` → `140.82.112.3:443`），
+   仅用 `git -c http.https://github.com.proxy=http://127.0.0.1:8899` 在**当次命令**指定。
+   结果：`6078f02..3ab20d5 master -> master`，GitHub API 复核远端 HEAD = `3ab20d5`。
+
+三条必须说清的限制：**没有写入任何仓库/全局 git 配置**（一次性命令参数，不改用户环境）；
+**没有关闭 TLS 校验、没有改 Host/SNI**（证书仍按 `github.com` 校验，`credential.helper=manager`
+的凭据可复用）；**这是绕过，不是修复**——DNS 返回不可达 IP 的根因在本地网络侧，下次仍可能复现。

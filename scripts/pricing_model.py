@@ -177,8 +177,11 @@ TIERS = [
 
 # ---------------------------------------------------------------- 单位经济
 COST = {
-    "seal_ms": 0.538,          # 实测中位数（本机，单进程）
-    "verify_ms": 4.911,        # 实测中位数（含 schema 校验 + Ed25519 验签 + 信任锚判定）
+    # 实测中位数（本机、单进程、30 次迭代）：seal 0.538–0.551 ms、verify 4.718–4.925 ms。
+    # 区间来自三次独立运行（源码树 / 隔离安装 / 重建后隔离安装），差 <5%；
+    # 此处取观测上界以保守（把成本往高估的一侧算）。
+    "seal_ms": 0.551,
+    "verify_ms": 4.925,
     "verifications_per_seal": 3,   # 假设：签发方自检 1 次 + 审计方 1 次 + 争议时 1 次
     "vcpu_hour_usd": 0.042,    # 通用云 vCPU 小时价（按需档，量级参考）
     "seal_bytes": 2048,        # 凭证 JSON 体积量级
@@ -285,7 +288,7 @@ def main(argv: list[str] | None = None) -> int:
         "measured_inputs": {
             "seal_ms_median": COST["seal_ms"],
             "verify_ms_median": COST["verify_ms"],
-            "source": "examples/minimal_integration.py --bench-iterations 30（隔离安装环境）",
+            "source": "examples/minimal_integration.py --bench-iterations 30；三次独立运行区间 seal 0.538–0.551 ms / verify 4.718–4.925 ms（源码树 / 隔离安装 / 重建后隔离安装），取观测上界",
         },
         "assumptions": COST,
         "unit_economics": ue,
