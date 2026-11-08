@@ -36,6 +36,12 @@ from . import core
 GENESIS = "0" * 64
 """创世前驱哈希。空轨迹的 head 即为此值。"""
 
+ANCHOR_MAX = 64
+"""凭证里默认携带的步级锚点上限。步数不超过它时锚点密度为 1，即**逐步可定位**。"""
+
+ANCHOR_TRUNC = 16
+"""锚点哈希保留的十六进制字符数（16 字符 = 64 bit）。截断只为压体积，不改变可定位性。"""
+
 ENTRY_KEYS = ("n", "ts", "action", "args", "observation")
 """参与哈希的字段白名单。字段外的东西（如渲染用的备注）不进哈希，避免无关字段造成假断点。"""
 
@@ -225,14 +231,143 @@ def _break(idx: int, expected_head: str, claimed_head: str, step_count: int, rea
     }
 
 
+# ------------------------------------------------------- 步级锚点（定位用）
+def anchor_stride(step_count: int, max_anchors: int = ANCHOR_MAX) -> int:
+    """给定步数，算出能装进 ``max_anchors`` 个锚点的最小步距（步距 1 = 逐步可定位）。"""
+    n = int(step_count or 0)
+    if n <= 0:
+        return 1
+    if max_anchors is None or int(max_anchors) <= 0:
+        return n
+    return max(1, -(-n // int(max_anchors)))
+
+
+def anchor_points(step_count: int, stride: int) -> list[int]:
+    """锚点落位：均匀取样，且**强制包含最后一步**（否则尾部篡改落进盲区）。"""
+    n = int(step_count or 0)
+    if n <= 0:
+        return []
+    s = max(1, int(stride))
+    pts = list(range(s - 1, n, s))
+    if not pts or pts[-1] != n - 1:
+        pts.append(n - 1)
+    return pts
+
+
+def _chain_hashes(entries: list) -> list[str]:
+    """独立重算整链哈希（不看条目里存的 ``hash`` 字段，避免被伪造值带偏）。"""
+    prev, out = GENESIS, []
+    for entry in entries:
+        h = entry_hash(entry, prev)
+        out.append(h)
+        prev = h
+    return out
+
+
+def build_anchors(body: dict, stride: int | None = None, trunc: int = ANCHOR_TRUNC,
+                  max_anchors: int = ANCHOR_MAX) -> dict:
+    """从轨迹体算出步级锚点向量：``{"stride","trunc","count","points":[{"i","h"}]}``。
+
+    锚点是「第 i 步之后的累计哈希」的前缀截断。它随凭证一起被签名，因而**由签发方**
+    固定下来；验证方重算后逐点比对，即可把「整链自洽但头部对不上」的篡改**夹逼到
+    一个步区间**，而不是只能报一句「头不符」。
+
+    为什么要它：链式哈希的定位能力只对「没重算后续哈希」的篡改有效。攻击者若把改过的
+    那一步及之后全部重算、连 head 一起改，链会自洽，凭证只能靠 head 判 INVALID——这时
+    若凭证里没有独立的步级承诺，篡改位置在信息论上就**无从恢复**。锚点就是补这个承诺。
+    """
+    entries = body.get("entries") if isinstance(body, dict) else None
+    if not isinstance(entries, list):
+        raise TraceError("entries 必须是列表，无法生成锚点")
+    n = len(entries)
+    s = anchor_stride(n, max_anchors) if stride is None else int(stride)
+    s = max(1, s)
+    t = max(8, min(64, int(trunc)))
+    hashes = _chain_hashes(entries)
+    return {
+        "v": 1,
+        "stride": s,
+        "trunc": t,
+        "count": n,
+        "points": [{"i": i, "h": hashes[i][:t]} for i in anchor_points(n, s)],
+    }
+
+
+def locate_step(body: dict, sealed_anchors: dict) -> dict:
+    """用凭证里的锚点夹逼篡改步区间。
+
+    返回::
+
+        {"mode": "anchor", "stride": int, "matched": bool,
+         "segment": [lo, hi] | None, "exact": bool, ...}
+
+    ``segment`` 是**可能被改动的步号闭区间**：链式哈希的缘故，改动第 t 步会让 t 及其
+    之后全部累计哈希变样，故第一个失配锚点 ``i_k`` 之前的锚点都还对，于是
+    ``t ∈ (i_{k-1}, i_k]``。步距为 1 时区间退化为单点，即精确到步。
+    """
+    if not isinstance(sealed_anchors, dict):
+        raise TraceError("锚点必须是 dict")
+    stride = int(sealed_anchors.get("stride") or 1)
+    trunc = int(sealed_anchors.get("trunc") or ANCHOR_TRUNC)
+    sealed_pts = sealed_anchors.get("points") or []
+    if not isinstance(sealed_pts, list):
+        raise TraceError("锚点 points 必须是列表")
+
+    fresh = build_anchors(body, stride=stride, trunc=trunc, max_anchors=0)
+    fresh_pts = fresh["points"]
+    n = len(body.get("entries") or [])
+
+    idx = None
+    for k in range(min(len(sealed_pts), len(fresh_pts))):
+        a, b = sealed_pts[k], fresh_pts[k]
+        if not isinstance(a, dict) or a.get("i") != b["i"] or a.get("h") != b["h"]:
+            idx = k
+            break
+
+    if idx is None and len(sealed_pts) == len(fresh_pts):
+        return {"mode": "anchor", "stride": stride, "matched": True,
+                "segment": None, "exact": True, "count": n}
+
+    if idx is None:
+        # 点数不同：多步/少步（截断或追加），指纹落在缺失的那一段
+        idx = min(len(sealed_pts), len(fresh_pts))
+        lo = fresh_pts[idx - 1]["i"] + 1 if idx > 0 and idx - 1 < len(fresh_pts) else 0
+        hi = max(n - 1, lo)
+        return {"mode": "anchor", "stride": stride, "matched": False,
+                "segment": [lo, hi], "exact": (lo == hi),
+                "note": "anchor_count_changed",
+                "sealed_points": len(sealed_pts), "observed_points": len(fresh_pts)}
+
+    lo = fresh_pts[idx - 1]["i"] + 1 if idx > 0 else 0
+    hi = fresh_pts[idx]["i"] if idx < len(fresh_pts) else max(n - 1, lo)
+    out = {"mode": "anchor", "stride": stride, "matched": False,
+           "segment": [lo, hi], "exact": (lo == hi),
+           "first_mismatch_anchor": fresh_pts[idx]["i"],
+           "sealed_hash": sealed_pts[idx].get("h") if idx < len(sealed_pts) else None,
+           "observed_hash": fresh_pts[idx]["h"]}
+    if idx == 0:
+        # 第一个锚点（第 0 步累计哈希）就已不符：只能确定「从第 0 步起就和凭证不同」，
+        # 无法区分「只改了第 0 步并重算整链」与「整条本来就是另一条轨迹」——两者在
+        # 信息上等价。故 segment 只表示**分叉点**，改动跨度不可收窄，必须标出来，
+        # 免得把 [0,0] 误读成「改动范围就是一步」。
+        out["span_unbounded"] = True
+        out["note"] = "divergence_from_step0"
+    return out
+
+
 # ------------------------------------------------------------------ 与凭证串联
 def seal_trace(body: dict, private_key_path: str, issuer: str, subject: str | None = None,
                out_path: str | None = None, challenge: str | None = None,
-               exit_name: str = "cli:seal") -> dict:
-    """把「轨迹头 + 摘要」盖章封存。
+               exit_name: str = "cli:seal", anchor_stride: int | None = None,
+               anchor_max: int = ANCHOR_MAX, anchor_trunc: int = ANCHOR_TRUNC) -> dict:
+    """把「轨迹头 + 摘要 + 步级锚点」盖章封存。
 
-    被封存的 payload 只含 ``trace_id / step_count / head / digest``，**不含逐步全文**：
-    全文留在持有方，第三方凭签名与重算即可判断是否有改动。
+    被封存的 payload 含 ``trace_id / step_count / head / digest / anchors``，**不含逐步全文**：
+    全文留在持有方，第三方凭签名与重算即可判断是否有改动，并能把改动**夹逼到具体步**。
+
+    ``anchors`` 是 0.7.5 新增的步级承诺向量（见 :func:`build_anchors`）。传
+    ``anchor_stride=0`` 可退回 0.7.4 的纯头部凭证（此时凭证更小，但只能判 INVALID、
+    无法定位）；默认 ``None`` 表示按 ``anchor_max`` 自动取步距，步数不超过 64 时步距为 1。
 
     签发走 :func:`exit_guard.issue_credential`——仓内唯一凭证通道（先要票、再盖章），
     不绕开 ``tests/test_exit_integrity.py`` 的静态 AST 门禁。``exit_name`` 必须是
@@ -252,6 +387,9 @@ def seal_trace(body: dict, private_key_path: str, issuer: str, subject: str | No
         "head": body.get("head"),
         "digest": body_digest(body),
     }
+    if anchor_stride is None or int(anchor_stride) > 0:
+        payload["anchors"] = build_anchors(body, stride=anchor_stride,
+                                          trunc=anchor_trunc, max_anchors=anchor_max)
     exit_guard.judge(exit_name, payload, basis="attested")
     return exit_guard.issue_credential(payload, private_key_path, issuer,
                                        exit_name=exit_name,
@@ -260,36 +398,91 @@ def seal_trace(body: dict, private_key_path: str, issuer: str, subject: str | No
 
 
 def verify_sealed_trace(body: dict, seal_path: str, keys_path: str | None = None,
-                        expected_challenge: str | None = None) -> dict:
-    """三段式校验：① 链自洽 ② 凭证签名可信 ③ 凭证里的头与本轨迹一致。
+                        expected_challenge: str | None = None,
+                        require_anchors: bool = False) -> dict:
+    """三段式校验：① 链自洽 ② 凭证签名可信 ③ 凭证里的头/摘要与本轨迹一致。
 
     任一段不通过都返回 ``verdict = "INVALID"``，并给 ``reason``。只有三段全过才是 ``VALID``。
     第三段是为了挡住「拿 A 轨迹的凭证来背书被改过的 B 轨迹」。
+
+    0.7.5 起，返回体固定带 ``localization``：
+
+    - ``mode="chain"``：链自己就断了，``first_break`` 即精确步号；
+    - ``mode="anchor"``：链自洽但凭证不符，用凭证里的锚点夹逼出 ``segment=[lo,hi]``，
+      ``exact=True`` 表示该区间只有一个步（步距 1 时成立）；
+    - ``mode="none"``：凭证是 0.7.4 风格的纯头部凭证，无步级锚点，只能判 INVALID。
+
+    ``require_anchors=True`` 时拒绝无锚点凭证（``E_TRACE_ANCHORS_ABSENT``），用于
+    阻断「拿旧版弱凭证降级验证」。
     """
     chain = verify_chain(body)
     if not chain["ok"]:
+        first = chain["first_break"]
         return {"verdict": "INVALID", "reason": "E_TRACE_BREAK: " + chain["reason"],
-                "chain": chain, "seal": None}
+                "chain": chain, "seal": None,
+                "localization": {"mode": "chain", "first_break": first,
+                                 "segment": None if first is None else [first, first],
+                                 "exact": first is not None}}
+
 
     seal_res = core.verify(seal_path, keys_path=keys_path,
                            expected_challenge=expected_challenge)
     if seal_res.get("verdict") == "INVALID":
         return {"verdict": "INVALID", "reason": "E_SEAL_" + str(seal_res.get("reason")),
-                "chain": chain, "seal": seal_res}
+                "chain": chain, "seal": seal_res,
+                "localization": {"mode": "none", "reason": "seal_untrusted",
+                                 "segment": None, "exact": False}}
 
     payload = _seal_payload(seal_path)
     if payload is None:
         return {"verdict": "INVALID", "reason": "E_SEAL_NO_PAYLOAD",
-                "chain": chain, "seal": seal_res}
+                "chain": chain, "seal": seal_res,
+                "localization": {"mode": "none", "reason": "no_payload",
+                                 "segment": None, "exact": False}}
+
+    sealed_anchors = payload.get("anchors") if isinstance(payload, dict) else None
+    if require_anchors and not isinstance(sealed_anchors, dict):
+        return {"verdict": "INVALID", "reason": "E_TRACE_ANCHORS_ABSENT",
+                "chain": chain, "seal": seal_res,
+                "localization": {"mode": "none", "reason": "seal_without_anchors",
+                                 "segment": None, "exact": False}}
 
     if payload.get("trace_id") != body.get("trace_id"):
-        return {"verdict": "INVALID", "reason": "E_TRACE_ID_MISMATCH", "chain": chain, "seal": seal_res}
+        loc = _locate(body, sealed_anchors)
+        return {"verdict": "INVALID", "reason": "E_TRACE_ID_MISMATCH", "chain": chain,
+                "seal": seal_res, "localization": loc}
     if payload.get("head") != body.get("head") or payload.get("step_count") != body.get("step_count"):
-        return {"verdict": "INVALID", "reason": "E_TRACE_HEAD_MISMATCH", "chain": chain, "seal": seal_res}
+        loc = _locate(body, sealed_anchors)
+        return {"verdict": "INVALID", "reason": "E_TRACE_HEAD_MISMATCH", "chain": chain,
+                "seal": seal_res, "localization": loc}
     if payload.get("digest") != body_digest(body):
-        return {"verdict": "INVALID", "reason": "E_TRACE_DIGEST_MISMATCH", "chain": chain, "seal": seal_res}
+        loc = _locate(body, sealed_anchors)
+        return {"verdict": "INVALID", "reason": "E_TRACE_DIGEST_MISMATCH", "chain": chain,
+                "seal": seal_res, "localization": loc}
+    # 头与摘要都对上，却有条目级锚点不符：只可能出现在截断参数被改或哈希碰撞下，
+    # 属防御性拦截——宁可多报一次异常，也不让「头对得上但内容对不上」溜过。
+    if isinstance(sealed_anchors, dict):
+        loc = _locate(body, sealed_anchors)
+        if loc.get("matched") is False:
+            return {"verdict": "INVALID", "reason": "E_TRACE_ANCHOR_MISMATCH",
+                    "chain": chain, "seal": seal_res, "localization": loc}
 
-    return {"verdict": seal_res.get("verdict", "VALID"), "reason": "", "chain": chain, "seal": seal_res}
+    return {"verdict": seal_res.get("verdict", "VALID"), "reason": "", "chain": chain,
+            "seal": seal_res,
+            "localization": {"mode": "anchor" if isinstance(sealed_anchors, dict) else "none",
+                             "reason": "no_tamper", "segment": None, "exact": True}}
+
+
+def _locate(body: dict, sealed_anchors: Any) -> dict:
+    """锚点夹逼的容错封装：锚点缺失/不可解析时退化为「无法定位」，绝不让校验本身抛错。"""
+    if not isinstance(sealed_anchors, dict) or not sealed_anchors.get("points"):
+        return {"mode": "none", "reason": "seal_without_anchors",
+                "segment": None, "exact": False}
+    try:
+        return locate_step(body, sealed_anchors)
+    except (TraceError, TypeError, ValueError) as exc:
+        return {"mode": "none", "reason": "anchors_unusable: %s" % exc,
+                "segment": None, "exact": False}
 
 
 def _seal_payload(seal_path: str) -> dict | None:

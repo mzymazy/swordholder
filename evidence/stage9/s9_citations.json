@@ -1,0 +1,222 @@
+{
+  "checked_at_unix": 1794152650.3777418,
+  "records": [
+    {
+      "key": "eu_ai_act_full",
+      "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+      "purpose": "EU AI Act 全文（Regulation (EU) 2024/1689），Article 12 / 19 / 26 / 73 与 Recital 71 的权威出处",
+      "status": 200,
+      "bytes": 1534110,
+      "sha256": "417eb6516c1409309b4ece8e42b8ccd8f9607d52df2717a98086efd77b06399e",
+      "source": "cache",
+      "error": null
+    },
+    {
+      "key": "eu_art12_mirror",
+      "url": "https://www.artificialintelligenceact.eu/article/12/",
+      "purpose": "Article 12 Record-keeping 可读镜像（与 OJ 原文对照用）",
+      "status": 200,
+      "bytes": 139205,
+      "sha256": "57a088ddac68a22eb47986cebadaee0d2e0bb0b2bccf020687f713a7755b49b4",
+      "source": "cache",
+      "error": null
+    },
+    {
+      "key": "eu_art19_mirror",
+      "url": "https://www.artificialintelligenceact.eu/article/19/",
+      "purpose": "Article 19 Automatically generated logs 可读镜像",
+      "status": 200,
+      "bytes": 120651,
+      "sha256": "9a026689221e2f7ae444d919607ea878fd1bba5543488ce7346864220b6fbae1",
+      "source": "cache",
+      "error": null
+    },
+    {
+      "key": "eu_art26_mirror",
+      "url": "https://www.artificialintelligenceact.eu/article/26/",
+      "purpose": "Article 26 Obligations of deployers 可读镜像",
+      "status": 200,
+      "bytes": 190496,
+      "sha256": "cdb7b0279d70b3b6d2d21a908d3b6e668663e04722a9bb16ac845a9838812792",
+      "source": "cache",
+      "error": null
+    },
+    {
+      "key": "eu_art73_mirror",
+      "url": "https://www.artificialintelligenceact.eu/article/73/",
+      "purpose": "Article 73 Reporting of serious incidents 可读镜像",
+      "status": 200,
+      "bytes": 136224,
+      "sha256": "1214bcd33741af965dfbad24e51ee33c594758c8b7097c316e72254a82b7aa69",
+      "source": "cache",
+      "error": null
+    },
+    {
+      "key": "eu_recital71_mirror",
+      "url": "https://www.artificialintelligenceact.eu/recital/71/",
+      "purpose": "Recital 71 可读镜像",
+      "status": 200,
+      "bytes": 115674,
+      "sha256": "7a730a7bf84cbbfd437cc78a4987d0867d86ba419653eb475562eb6dd3d12d9f",
+      "source": "cache",
+      "error": null
+    },
+    {
+      "key": "nist_ai_rmf_100_1",
+      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+      "purpose": "NIST AI RMF 1.0（AI 100-1）",
+      "status": 200,
+      "bytes": 1946127,
+      "sha256": "7576edb531d9848825814ee88e28b1795d3a84b435b4b797d3670eafdc4a89f1",
+      "source": "cache",
+      "error": null
+    },
+    {
+      "key": "nist_ai_600_1",
+      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf",
+      "purpose": "NIST AI 600-1 Generative AI Profile",
+      "status": 200,
+      "bytes": 1174643,
+      "sha256": "6e73620ab6b64e90ef2c04bf0e0d6246185a2f4b1b13cab0df494496cff89b6a",
+      "source": "cache",
+      "error": null
+    },
+    {
+      "key": "sr_11_7",
+      "url": "https://www.federalreserve.gov/boarddocs/srletters/2011/sr1107a1.pdf",
+      "purpose": "SR 11-7 Guidance on Model Risk Management",
+      "status": 200,
+      "bytes": 300659,
+      "sha256": "0046c0e4eb705830d43312da000271655000beb2a349e1cc3802815638c62cc0",
+      "source": "cache",
+      "error": null
+    },
+    {
+      "key": "iso_42001_official",
+      "purpose": "ISO/IEC 42001:2023 官方页面（标准正文为付费内容）",
+      "source": "network",
+      "url": "https://www.iso.org/standard/81230.html",
+      "status": 403,
+      "bytes": 0,
+      "error": "HTTPError"
+    },
+    {
+      "key": "iso_42001_catalog",
+      "purpose": "ISO/IEC 42001 目录跳转",
+      "source": "network",
+      "url": "https://www.iso.org/standard/42001",
+      "status": 403,
+      "bytes": 0,
+      "error": "HTTPError"
+    }
+  ],
+  "quotes": {
+    "rmf_measure_2_7": {
+      "found": true,
+      "key": "MEASURE 2.7",
+      "quote": "MEASURE 2.7: AI system security and resilience – as identified in the MAP function – are evaluated and documented. MEASURE 2.8: Risks associated with transparency and account- ability – as identified in the MAP function – are examined and documented. MEASURE 2.9: The AI model is explained, validated, and docu- mented, and AI system output is interpreted within its context – as identified in the MAP function – to inform responsible use and governance. MEASURE 2.10: Privacy risk of the AI system – as identified in the MAP function – is examined and documented. MEASURE 2.11: Fairness and bias – as identified in the MAP function – are evaluated and results are documented. MEASURE 2.12: Environme"
+    },
+    "rmf_measure_3_1": {
+      "found": true,
+      "key": "MEASURE 3.1",
+      "quote": "MEASURE 3.1: Approaches, personnel, and documentation are in place to regularly identify and track existing, unanticipated, and emergent AI risks based on factors such as intended and ac- tual performance in deployed contexts. MEASURE 3.2: Risk tracking approaches are considered for settings where AI risks are difficult to assess using currently available measurement techniques or where metrics are not yet available. Categories Subcategories Continued on next page Page 30 NIST AI 100-1 AI RMF 1.0 Table 3: Categories and subcategories for the MEASURE function. (Continued) MEASURE 3.3: Feedback processes for end users and impacted communities to report problems and appeal system outcomes are e"
+    },
+    "rmf_measure_2_8": {
+      "found": true,
+      "key": "MEASURE 2.8",
+      "quote": "MEASURE 2.8: Risks associated with transparency and account- ability – as identified in the MAP function – are examined and documented. MEASURE 2.9: The AI model is explained, validated, and docu- mented, and AI system output is interpreted within its context – as identified in the MAP function – to inform responsible use and governance. MEASURE 2.10: Privacy risk of the AI system – as identified in the MAP function – is examined and documented. MEASURE 2.11: Fairness and bias – as identified in the MAP function – are evaluated and results are documented. MEASURE 2.12: Environmental impact and sustainability of AI model training and management activities – as identified in the MAP function –"
+    },
+    "gai_ms_2_8_003": {
+      "found": true,
+      "key": "MS-2.8-003",
+      "quote": "MS-2.8-003 Use digital content transparency solutions to enable the documentation of each instance where content is generated, modiﬁed, or shared to provide a tamper- proof history of the content, promote transparency, and enable traceability. Robust version control systems can also be applied to track changes across the AI lifecycle over time. Information Integrity MS-2.8-004 Verify adequacy of GAI system user instructions through user testing. Human-AI Conﬁguration AI Actor Tasks: AI Deployment, AI Impact Assessment, Domain Experts, Operation and Monitoring, TEVV 35 MEASURE 2.9: The AI model is explained, validated, and documented, and AI system output is interpreted within its context – a"
+    },
+    "gai_ms_1_1_002": {
+      "found": true,
+      "key": "MS-1.1-002",
+      "quote": "MS-1.1-002 Integrate tools designed to analyze content provenance and detect data anomalies, verify the authenticity of digital signatures, and identify patterns associated with misinformation or manipulation. Information Integrity MS-1.1-003 Disaggregate evaluation metrics by demographic factors to identify any discrepancies in how content provenance mechanisms work across diverse populations. Information Integrity; Harmful Bias and Homogenization MS-1.1-004 Develop a suite of metrics to evaluate structured public feedback exercises informed by representative AI Actors. Human-AI Conﬁguration; Harmful Bias and Homogenization; CBRN Information or Capabilities MS-1.1-005 Evaluate novel methods"
+    },
+    "gai_ms_2_7_005": {
+      "found": true,
+      "key": "MS-2.7-005",
+      "quote": "MS-2.7-005 Measure reliability of content authentication methods, such as watermarking, cryptographic signatures, digital ﬁngerprints, as well as access controls, conformity assessment, and model integrity veriﬁcation, which can help support the eﬀective implementation of content provenance techniques. Evaluate the rate of false positives and false negatives in content provenance, as well as true positives and true negatives for veriﬁcation. Information Integrity MS-2.7-006 Measure the rate at which recommendations from security checks and incidents are implemented. Assess how quickly the AI system can adapt and improve based on lessons learned from security incidents and feedback. Informati"
+    },
+    "gai_gv_1_6_003": {
+      "found": true,
+      "key": "GV-1.6-003",
+      "quote": "GV-1.6-003 In addition to general model, governance, and risk information, consider the following items in GAI system inventory entries: Data provenance information (e.g., source, signatures, versioning, watermarks); Known issues reported from internal bug tracking or external information sharing resources (e.g., AI incident database, AVID, CVE, NVD, or OECD AI incident monitor); Human oversight roles and responsibilities; Special rights and considerations for intellectual property, licensed works, or personal, privileged, proprietary or sensitive data; Underlying foundation models, versions of underlying models, and access modes. Data Privacy; Human-AI Conﬁguration; Information Integrity; I"
+    },
+    "sr_doc_detailed": {
+      "found": true,
+      "key": "documentation",
+      "quote": "Documentation of model development and validation should be sufficiently detailed so that parties unfamiliar with a model can understand how the model operates, its limitations, and its key assumptions. Documentation provides for continuity of operations, makes compliance with policy transparent, and helps track recommendations, responses, and exceptions. Developers, users, control and compliance units, and supervisors are all served by effective documentation. Banks can benefit from advances in information and knowledge management systems and electronic documentation to improve the organizati"
+    },
+    "sr_tracking": {
+      "found": true,
+      "key": "tracking",
+      "quote": "Documentation and tracking of activities surrounding model development, implementation, use, and validation are needed to provide a record that makes compliance with policy transparent. Internal Audit A bank's internal audit function should assess the overall effectiveness of the model risk management framework, including the framework's ability to address both types of model risk described in Section III, for individual models and in the aggregate. Findings from internal audit related to models should be documented and reported to the board or its appropriately delegated agent. Banks should e"
+    }
+  },
+  "eu_cross_check": {
+    "art12_1": {
+      "probes": [
+        "High-risk AI systems shall technically allow for the automatic recording of events (logs) over the lifetime of the system"
+      ],
+      "oj_hits": 1,
+      "mirror_hits": 1,
+      "mirror": "eu_art12_mirror",
+      "both": true
+    },
+    "art12_2": {
+      "probes": [
+        "logging capabilities shall enable the recording of events relevant for"
+      ],
+      "oj_hits": 1,
+      "mirror_hits": 1,
+      "mirror": "eu_art12_mirror",
+      "both": true
+    },
+    "art19_1": {
+      "probes": [
+        "keep the logs referred to in Article 12(1), automatically generated by their",
+        "of at least six months, unless provided otherwise"
+      ],
+      "oj_hits": 2,
+      "mirror_hits": 2,
+      "mirror": "eu_art19_mirror",
+      "both": true
+    },
+    "art26_6": {
+      "probes": [
+        "keep the logs automatically generated by that",
+        "to the extent such logs are under their control",
+        "of at least six months, unless provided otherwise"
+      ],
+      "oj_hits": 3,
+      "mirror_hits": 3,
+      "mirror": "eu_art26_mirror",
+      "both": true
+    },
+    "art73_6": {
+      "probes": [
+        "shall not perform any investigation which involves altering the",
+        "in a way which may affect any subsequent evaluation of the causes of the incident, prior to informing the competent authorities"
+      ],
+      "oj_hits": 2,
+      "mirror_hits": 2,
+      "mirror": "eu_art73_mirror",
+      "both": true
+    },
+    "rec71": {
+      "probes": [
+        "high-risk AI systems should technically allow for the automatic recording of events, by means of logs, over the duration of the lifetime of the system"
+      ],
+      "oj_hits": 1,
+      "mirror_hits": 1,
+      "mirror": "eu_recital71_mirror",
+      "both": true
+    }
+  },
+  "eu_cross_check_both": 6,
+  "eu_cross_check_total": 6
+}

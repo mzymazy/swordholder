@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "swordholder"
-version = "0.7.4"
-description = "给 AI 结论盖章：把告警分诊结论封成可离线独立验签的 ed25519 凭证，可接入 SOC / SOAR / MCP"
+version = "0.7.5"
+description = "缁?AI 缁撹鐩栫珷锛氭妸鍛婅鍒嗚瘖缁撹灏佹垚鍙绾跨嫭绔嬮獙绛剧殑 ed25519 鍑瘉锛屽彲鎺ュ叆 SOC / SOAR / MCP"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -49,8 +49,8 @@ source = ["swordholder", "mcp_server"]
 branch = true
 
 [tool.coverage.report]
-# 质量门禁：总覆盖率低于 85% 就让 pytest 退出码非 0，CI 随之中断。
-# 门槛取 85 而非当前实测值，是为了留出重构余量又防止无声下滑。
+# 璐ㄩ噺闂ㄧ锛氭€昏鐩栫巼浣庝簬 85% 灏辫 pytest 閫€鍑虹爜闈?0锛孋I 闅忎箣涓柇銆?
+# 闂ㄦ鍙?85 鑰岄潪褰撳墠瀹炴祴鍊硷紝鏄负浜嗙暀鍑洪噸鏋勪綑閲忓張闃叉鏃犲０涓嬫粦銆?
 fail_under = 85
 show_missing = true
 skip_covered = false
@@ -67,7 +67,7 @@ target-version = "py311"
 extend-exclude = ["proofs/legacy_v0.4", "dist", "build", "evidence"]
 
 [tool.ruff.lint]
-# 只开"真错误"级规则：语法/未定义名/未用导入/行长。
-# 不追求一次性把历史风格债清零，避免门禁长期红着失去意义。
+# 鍙紑"鐪熼敊璇?绾ц鍒欙細璇硶/鏈畾涔夊悕/鏈敤瀵煎叆/琛岄暱銆?
+# 涓嶈拷姹備竴娆℃€ф妸鍘嗗彶椋庢牸鍊烘竻闆讹紝閬垮厤闂ㄧ闀挎湡绾㈢潃澶卞幓鎰忎箟銆?
 select = ["E4", "E7", "E9", "F", "E501"]
 

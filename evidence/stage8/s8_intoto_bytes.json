@@ -1,0 +1,50 @@
+{
+ "N=1": {
+  "files": 2,
+  "pretty_bytes": 1855,
+  "compact_bytes": 1622,
+  "note": "root.layout(owner 签名) + 1 个 link(每步 alice 签名)，不含签名者公钥文件与产物本体",
+  "dir_listing": [
+   "artifact.bin",
+   "root.layout",
+   "seed0.txt",
+   "step00.2a94df8e.link"
+  ]
+ },
+ "N=5": {
+  "files": 6,
+  "pretty_bytes": 6911,
+  "compact_bytes": 5938,
+  "note": "root.layout(owner 签名) + 5 个 link(每步 alice 签名)，不含签名者公钥文件与产物本体",
+  "dir_listing": [
+   "artifact.bin",
+   "root.layout",
+   "seed0.txt",
+   "step00.2a94df8e.link"
+  ]
+ },
+ "N=20": {
+  "files": 21,
+  "pretty_bytes": 25871,
+  "compact_bytes": 22123,
+  "note": "root.layout(owner 签名) + 20 个 link(每步 alice 签名)，不含签名者公钥文件与产物本体",
+  "dir_listing": [
+   "artifact.bin",
+   "root.layout",
+   "seed0.txt",
+   "step00.2a94df8e.link"
+  ]
+ },
+ "N=50": {
+  "files": 51,
+  "pretty_bytes": 63791,
+  "compact_bytes": 54493,
+  "note": "root.layout(owner 签名) + 50 个 link(每步 alice 签名)，不含签名者公钥文件与产物本体",
+  "dir_listing": [
+   "artifact.bin",
+   "root.layout",
+   "seed0.txt",
+   "step00.2a94df8e.link"
+  ]
+ }
+}

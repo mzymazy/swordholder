@@ -1,0 +1,1147 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="robots" content="index, follow"><meta name="description" content="High-risk AI systems shall technically allow for the automatic recording of events (logs) over the lifetime of the system."><meta property="og:title" content="Article 12: Record-Keeping | EU Artificial Intelligence Act"><meta property="og:description" content="High-risk AI systems shall technically allow for the automatic recording of events (logs) over the lifetime of the system."><meta property="og:url" content="https://artificialintelligenceact.eu/article/12/"><meta property="og:type" content="website"><meta property="og:site_name" content="EU AI Act Explorer"><meta property="og:image" content="https://artificialintelligenceact.eu/og-image.jpg"><meta property="og:image:width" content="1920"><meta property="og:image:height" content="1080"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Article 12: Record-Keeping | EU Artificial Intelligence Act"><meta name="twitter:description" content="High-risk AI systems shall technically allow for the automatic recording of events (logs) over the lifetime of the system."><meta name="twitter:image" content="https://artificialintelligenceact.eu/og-image.jpg"><link rel="icon" href="/favicon/favicon-32x32.png" sizes="32x32" type="image/png"><link rel="icon" href="/favicon/android-chrome-192x192.png" sizes="192x192" type="image/png"><link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png"><link rel="sitemap" href="/ai-act-explorer/sitemap-index.xml"><link rel="canonical" href="https://artificialintelligenceact.eu/article/12/"><link rel="alternate" hreflang="bg" href="https://artificialintelligenceact.eu/bg/article/12/"><link rel="alternate" hreflang="cs" href="https://artificialintelligenceact.eu/cs/article/12/"><link rel="alternate" hreflang="da" href="https://artificialintelligenceact.eu/da/article/12/"><link rel="alternate" hreflang="de" href="https://artificialintelligenceact.eu/de/article/12/"><link rel="alternate" hreflang="el" href="https://artificialintelligenceact.eu/el/article/12/"><link rel="alternate" hreflang="en" href="https://artificialintelligenceact.eu/article/12/"><link rel="alternate" hreflang="es" href="https://artificialintelligenceact.eu/es/article/12/"><link rel="alternate" hreflang="et" href="https://artificialintelligenceact.eu/et/article/12/"><link rel="alternate" hreflang="fi" href="https://artificialintelligenceact.eu/fi/article/12/"><link rel="alternate" hreflang="fr" href="https://artificialintelligenceact.eu/fr/article/12/"><link rel="alternate" hreflang="ga" href="https://artificialintelligenceact.eu/ga/article/12/"><link rel="alternate" hreflang="hr" href="https://artificialintelligenceact.eu/hr/article/12/"><link rel="alternate" hreflang="hu" href="https://artificialintelligenceact.eu/hu/article/12/"><link rel="alternate" hreflang="it" href="https://artificialintelligenceact.eu/it/article/12/"><link rel="alternate" hreflang="lt" href="https://artificialintelligenceact.eu/lt/article/12/"><link rel="alternate" hreflang="lv" href="https://artificialintelligenceact.eu/lv/article/12/"><link rel="alternate" hreflang="mt" href="https://artificialintelligenceact.eu/mt/article/12/"><link rel="alternate" hreflang="nl" href="https://artificialintelligenceact.eu/nl/article/12/"><link rel="alternate" hreflang="pl" href="https://artificialintelligenceact.eu/pl/article/12/"><link rel="alternate" hreflang="pt" href="https://artificialintelligenceact.eu/pt/article/12/"><link rel="alternate" hreflang="ro" href="https://artificialintelligenceact.eu/ro/article/12/"><link rel="alternate" hreflang="sk" href="https://artificialintelligenceact.eu/sk/article/12/"><link rel="alternate" hreflang="sl" href="https://artificialintelligenceact.eu/sl/article/12/"><link rel="alternate" hreflang="sv" href="https://artificialintelligenceact.eu/sv/article/12/"><link rel="alternate" hreflang="x-default" href="https://artificialintelligenceact.eu/article/12/"><title>Article 12: Record-Keeping | EU Artificial Intelligence Act</title><script defer src="/external-links.js"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      /* GLOBAL default (no region key) — covers every opt-out country. REQUIRED;
+         do NOT delete it as "redundant". A signal with no explicit default is
+         not granted: Google applies an IMPLICIT DENIAL, visible in the console
+         as google_tag_data.ics.entries['analytics_storage'] === {implicit:true,
+         default:false}. With only the region-scoped call below, a visitor
+         outside region[] loaded gtm.js and GA4 ran cookieless — no _ga, no
+         _ga_<id>, nothing written until they clicked Accept. Reproduced from a
+         Serbian IP with tz Europe/Belgrade and restricted:false, i.e. our own
+         region detection was right and the storage denial came from Consent
+         Mode. The four signals that came back denied were exactly the four a
+         CMP manages; functionality_storage and security_storage stayed granted.
+         Ordered before the regional call to match Google's documented example
+         (precedence is by region specificity, not order, but keep it anyway). */
+      gtag('consent', 'default', {
+        ad_personalization: 'granted',
+        ad_storage: 'granted',
+        ad_user_data: 'granted',
+        analytics_storage: 'granted',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        personalization_storage: 'granted',
+      });
+      /* REGION-SCOPED override for the 32 EEA/UK/CH countries. Google evaluates
+         region[] server-side from the request IP, so this is the authoritative
+         region decision — the timezone heuristic further down only picks which
+         banner UI to show, never whether storage is allowed. A more specific
+         region beats the global default above regardless of call order, so
+         these visitors stay denied until they consent. */
+      gtag('consent', 'default', {
+        ad_personalization: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'denied',
+        security_storage: 'denied',
+        personalization_storage: 'denied',
+        region: ['AT','BE','BG','CH','CY','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IS','IT','LI','LT','LU','LV','MT','NL','NO','PL','PT','RO','SE','SI','SK'],
+      });
+      (function () {
+        var map = {
+          statistics: ['analytics_storage'],
+          marketing: ['ad_storage', 'ad_user_data', 'ad_personalization'],
+          functional: ['functionality_storage', 'security_storage'],
+          preferences: ['personalization_storage'],
+        };
+        function read(cat) {
+          var out = null;
+          var cookies = document.cookie.split(';');
+          var prefix = 'cmplz_' + cat + '=';
+          for (var i = 0; i < cookies.length; i++) {
+            var c = cookies[i].trim();
+            if (c.indexOf(prefix) !== 0) continue;
+            var val = c.substring(prefix.length);
+            if (val !== 'allow' && val !== 'deny') continue;
+            if (out !== null && out !== val) return 'deny'; // conflicting duplicates → fail closed
+            out = val;
+          }
+          return out;
+        }
+        /* Exactly the timezones of the 32 countries in the region[] list above,
+           generated from tzdata zone.tab (one country per zone) and extended with
+           the legacy link names browsers still report, plus the French outermost
+           regions, which have their own ISO codes but are EU territory where GDPR
+           applies. Do NOT reintroduce a 'Europe/' prefix test: Europe/ holds ~60
+           zones and most are outside the EEA — Belgrade, Istanbul, Moscow, Kyiv,
+           Minsk, Sarajevo, Skopje, Podgorica, Tirane, Chisinau, Andorra, Monaco,
+           San_Marino, Vatican. And do NOT generate this from zone1970.tab, which
+           groups countries by identical post-1970 clocks and so files Croatia and
+           Slovenia under Europe/Belgrade and Iceland under Africa/Abidjan.
+           Deliberately excluded: Atlantic/Faroe and Greenland (Danish territories
+           outside the EU), America/St_Barthelemy and America/Miquelon (OCTs, not
+           outermost regions), Gibraltar and the Crown dependencies (own regimes,
+           and not in region[]). */
+        var EEA_TZ = ('Africa/Ceuta Asia/Famagusta Asia/Nicosia Atlantic/Azores Atlantic/Canary ' +
+          'Atlantic/Madeira Atlantic/Reykjavik Europe/Amsterdam Europe/Athens Europe/Berlin ' +
+          'Europe/Bratislava Europe/Brussels Europe/Bucharest Europe/Budapest Europe/Busingen ' +
+          'Europe/Copenhagen Europe/Dublin Europe/Helsinki Europe/Lisbon Europe/Ljubljana ' +
+          'Europe/London Europe/Luxembourg Europe/Madrid Europe/Malta Europe/Oslo Europe/Paris ' +
+          'Europe/Prague Europe/Riga Europe/Rome Europe/Sofia Europe/Stockholm Europe/Tallinn ' +
+          'Europe/Vaduz Europe/Vienna Europe/Vilnius Europe/Warsaw Europe/Zagreb Europe/Zurich ' +
+          'Europe/Nicosia Europe/Belfast Arctic/Longyearbyen Atlantic/Jan_Mayen Iceland ' +
+          'America/Cayenne America/Guadeloupe America/Martinique America/Marigot ' +
+          'Indian/Reunion Indian/Mayotte').split(' ');
+        /* NOTE: this reads the DEVICE's configured timezone, not the visitor's IP.
+           A visitor in a non-EEA country whose machine is set to any EEA city in
+           the same offset (Serbia shares CET with Berlin, Vienna, Budapest,
+           Zagreb, Prague, Warsaw) is detected as restricted. That is the known
+           ceiling of a client-side heuristic on a static host; the exposed tz
+           below makes it diagnosable instead of invisible. */
+        var detectedTz = null;
+        try { detectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e) {}
+        function isRestricted() {
+          if (!detectedTz) return true;
+          /* Privacy tools normalise to UTC/Etc/*; treat as restricted (fail closed).
+             Costs a banner for some non-EEA visitors, never the reverse. */
+          if (detectedTz === 'UTC' || detectedTz.indexOf('Etc/') === 0) return true;
+          return EEA_TZ.indexOf(detectedTz) !== -1;
+        }
+        var restricted = isRestricted();
+        window.cmplzConsent = {
+          signalMap: map,
+          read: read,
+          tz: detectedTz, // exposed so region misdetection is inspectable in the console
+          restricted: restricted,
+          /* An explicit choice wins everywhere, in BOTH directions — region only
+             decides the default for a visitor who has not chosen. Testing region
+             first would let an opt-out visitor who clicked Reject keep loading
+             gtm.js, which is the whole point of offering them the choice. */
+          gtmAllowed: function () {
+            var s = read('statistics');
+            if (s === 'allow') return true;
+            if (s === 'deny') return false;
+            return !restricted;
+          },
+        };
+        var update = {};
+        var found = false;
+        try {
+          for (var cat in map) {
+            var val = read(cat);
+            if (val === null) continue;
+            for (var j = 0; j < map[cat].length; j++) {
+              update[map[cat][j]] = val === 'allow' ? 'granted' : 'denied';
+            }
+            found = true;
+          }
+        } catch (e) { found = false; }
+        if (found) gtag('consent', 'update', update);
+      })();
+    </script><script>(function(){const GTM_ID = "GTM-K8W53KK";
+
+      (function () {
+        var loaded = false;
+        var triggers = ['scroll', 'mousemove', 'touchstart', 'keydown', 'pointerdown'];
+
+        function loadGtm() {
+          if (loaded) return;
+          var gate = window.cmplzConsent;
+          if (!gate || !gate.gtmAllowed()) return;
+          loaded = true;
+          triggers.forEach(function (evt) {
+            window.removeEventListener(evt, loadGtm);
+          });
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+          var first = document.getElementsByTagName('script')[0];
+          var tag = document.createElement('script');
+          tag.async = true;
+          tag.src = 'https://www.googletagmanager.com/gtm.js?id=' + GTM_ID;
+          first.parentNode.insertBefore(tag, first);
+        }
+
+        triggers.forEach(function (evt) {
+          window.addEventListener(evt, loadGtm, { once: true, passive: true });
+        });
+
+        setTimeout(loadGtm, 3500);
+
+        if (window.cmplzConsent) window.cmplzConsent.injectGtm = loadGtm;
+      })();
+    })();</script><script>(function(){const WEGLOT_API_KEY = "wg_3b8a4da6d503fe6ada9852c97872030d6";
+
+      /*
+       * Weglot used to be a plain <script src> here, which is parser- AND
+       * render-blocking in <head>: nothing painted until 74 kB had crossed the
+       * network and ~1.3 s of script had run. Measured on a throttled mobile
+       * profile (1.6 Mbps / 150 ms / 4x CPU, 5 reps), removing that block moved
+       * FCP by -808 ms and LCP by -668 ms — the largest single cost on the page.
+       *
+       * It is now injected dynamically, which is async by default, so it no
+       * longer blocks the parser. Everything that needs the library moved into
+       * _wgStart(), run from the script's onload; everything that does NOT need it
+       * stays synchronous below, because ordering still matters for those.
+       */
+
+      /*
+       * Runs NOW, before any page script, and needs no library.
+       *
+       * html[lang] is the page's language of record, read by page scripts. It is
+       * set from the URL PATH (/fr/... -> 'fr'), which is authoritative and which
+       * Weglot cannot change — deliberately not from Weglot's stored cookie. This
+       * used to be done in _forceWgLang() after the library loaded, which left a
+       * window in which Weglot could overwrite html[lang] with the cookie
+       * language first. Setting it before the library exists closes that window
+       * rather than racing it.
+       *
+       * The ?l= injection has the same shape: CoP pages fetch their content
+       * asynchronously via cop.js, and Weglot needs the target language's
+       * translations preloaded BEFORE that content arrives, otherwise the
+       * async-injected English text won't get translated. Weglot reads ?l= at
+       * initialize() and eagerly fetches translations. cop.js strips it from the
+       * URL after rendering. It must therefore be in the URL before _wgStart().
+       */
+      var _wgPathLang = (location.pathname.match(/^\/([a-z]{2})\//) || [])[1] || 'en';
+      document.documentElement.lang = _wgPathLang;
+      if (_wgPathLang !== 'en' && /\/cop-/.test(location.pathname)) {
+        var _wgUrl = new URL(location.href);
+        if (!_wgUrl.searchParams.has('l')) {
+          _wgUrl.searchParams.set('l', _wgPathLang);
+          history.replaceState(null, '', _wgUrl.toString());
+        }
+      }
+
+      function _wgStart() {
+      /*
+       * url_type: 2 = query-parameter mode (?l=fr). Weglot stops doing any URL
+       * manipulation; our path routing handles language, Weglot just translates DOM.
+       */
+      Weglot.initialize({
+        api_key: WEGLOT_API_KEY,
+        hide_switcher: true,
+        excluded_blocks: [{ value: ".weglot-ignore" }],
+        url_type: 2,
+        // Actively watch these JS-rendered elements for text changes.
+        // Pathway titles/notes are set dynamically by renderPlaylistPanel()
+        // and pathways.json only has partial translations (FR, DE), so Weglot
+        // covers the remaining 22 languages.
+        // #document is watched for CoP pages whose content is async-fetched
+        // by cop.js after Weglot has initialized.
+        // .aui-modal-anchor/.aui-modal-content = chat button + modal UI; [data-slot="tooltip-content"] = action bar tooltips (portaled to body)
+        // #searchResults / #searchCorrection = search tray panel (appended to <body>,
+        // outside #document) — its UI chrome ("Articles & annexes", "Mentions in the
+        // text", "Show N more…", "Approximate matches", "Showing results for…") is
+        // injected by JS after init, so Weglot must watch it to translate those strings.
+        // .cb-banner/.cb-reopen = consent banner + its reopen button — statically
+        // rendered but toggled/prefilled by JS, so watch them too.
+        // .welcome-modal = the what's-new modal, React-portaled into <body> after
+        // hydration. It has no build-time strings in src/lib/i18n.ts, so Weglot is
+        // the only thing translating it on the other 23 language builds.
+        // .para-sheet = the touch action sheet (shared.js initParaSheet), appended
+        // to <body> outside #document. UNLIKE the welcome modal it is MIXED: most
+        // of its text is mirrored from rail buttons whose titles come from
+        // UI_CHROME and is therefore already in the page language. Sending that
+        // back through an EN→xx translation would re-translate French as if it
+        // were English, so every already-localized node carries .weglot-ignore
+        // and only the genuinely English strings are left exposed here.
+        dynamic: ".playlist-icon-title,.playlist-item-note,#document,.cop-deferred,.aui-modal-anchor,.aui-modal-content,[data-slot=\"tooltip-content\"],#searchResults,#searchCorrection,.cb-banner,.cb-reopen,.welcome-modal,.para-sheet",
+      });
+      /*
+       * Enforce the URL language against Weglot's stored cookie. Still called
+       * immediately after initialize(), and still re-asserted on 'initialized',
+       * so the ordering the cookie could exploit is unchanged; only the wall
+       * clock moved. Re-reads the path rather than trusting html[lang], which
+       * the library may have rewritten by now.
+       */
+      function _forceWgLang() {
+        try {
+          var pathLang = (location.pathname.match(/^\/([a-z]{2})\//) || [])[1] || 'en';
+          document.documentElement.lang = pathLang;
+          Weglot.switchTo(pathLang);
+        } catch(e) {}
+      }
+      _forceWgLang();
+      if (Weglot.on) Weglot.on('initialized', _forceWgLang);
+      }
+
+      /*
+       * A dynamically created script is async by default, so this neither blocks
+       * the parser nor delays first paint, and _wgStart() runs on its load event —
+       * far earlier than DOMContentLoaded, which on this page is ~6.6 s away
+       * because of the 5 MB document.
+       *
+       * ENGLISH PAGES DO NOT LOAD IT AT ALL until the reader leaves English.
+       * Every page is server-rendered in its own language and English is the
+       * source language, so on an English page Weglot has nothing to translate
+       * (EN -> EN) — yet initialising it still walks the ~50,000-node DOM on the
+       * main thread: a single 2.1 s task on the throttled mobile profile, two
+       * thirds of the page's Total Blocking Time, and the largest single item
+       * in its PageSpeed score. So English pages expose window.__loadWeglot and
+       * index-page.js's client-side language switcher calls it on the first
+       * switch away from English. It starts on the language the URL carries
+       * by then (switchLang pushes the new path before calling it), exactly as
+       * an eager start on a /fr/ page would. Everything Weglot-related in the
+       * page scripts is already guarded by `typeof Weglot !== 'undefined'`.
+       */
+      var _wgRequested = false;
+      function _wgLoad() {
+        if (_wgRequested) return;
+        _wgRequested = true;
+        var s = document.createElement('script');
+        s.src = 'https://cdn.weglot.com/weglot.min.js';
+        s.onload = _wgStart;
+        s.onerror = function () {
+          // Translation is an enhancement: the body of every page is already
+          // server-rendered in its own language. Losing Weglot costs the header
+          // chrome its translation, not the document.
+          console.error('[weglot] failed to load — page chrome stays untranslated');
+        };
+        document.head.appendChild(s);
+      }
+      window.__loadWeglot = _wgLoad;
+      if (_wgPathLang !== 'en') _wgLoad();
+    })();</script><style>/* Generated by scripts/fetch-google-fonts.mjs — do not edit by hand.
+ * Source: https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&display=swap
+ * Fetched: 2026-09-02
+ * Inlined into <head> by src/layouts/ExplorerLayout.astro; see the script for why. */
+/* latin-ext */
+@font-face {
+  font-family: 'Red Hat Display';
+  font-style: italic;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/redhatdisplay/v21/8vIS7wUr0m80wwYf0QCXZzYzUoTg-A6tTY_9CQ.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Red Hat Display';
+  font-style: italic;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/redhatdisplay/v21/8vIS7wUr0m80wwYf0QCXZzYzUoTg-A6jTY8.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Red Hat Display';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/redhatdisplay/v21/8vIQ7wUr0m80wwYf0QCXZzYzUoTg8z6hVYs.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Red Hat Display';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/redhatdisplay/v21/8vIQ7wUr0m80wwYf0QCXZzYzUoTg_T6h.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFK2_tTDB4M7-auWDN0ahZJW1gewti_Wo7H.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFK2_tTDB4M7-auWDN0ahZJW1gewtG_Wo7H.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFK2_tTDB4M7-auWDN0ahZJW1gewta_Wo7H.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFK2_tTDB4M7-auWDN0ahZJW1gewtq_Wo7H.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFK2_tTDB4M7-auWDN0ahZJW1gewtu_Wo7H.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFK2_tTDB4M7-auWDN0ahZJW1gewtW_Wg.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFI2_tTDB4M7-auWDN0ahZJW1gW8tenXg.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFI2_tTDB4M7-auWDN0ahZJW1gf8tenXg.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFI2_tTDB4M7-auWDN0ahZJW1gY8tenXg.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFI2_tTDB4M7-auWDN0ahZJW1gU8tenXg.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFI2_tTDB4M7-auWDN0ahZJW1gV8tenXg.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFI2_tTDB4M7-auWDN0ahZJW1gb8tc.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style><link rel="stylesheet" href="/shared.css"><link rel="stylesheet" href="/shared-components.css"><link rel="stylesheet" href="/object-page.css"><link rel="stylesheet" href="/vendor/font-awesome-5.15.4/css/all.min.css"><link rel="stylesheet" href="/_astro/digital-omnibus.CWOzVjM7.css">
+<style>@keyframes aui-pulse{50%{opacity:.5}}:where(.aui-md[data-status=running]):empty:after,:where(.aui-md[data-status=running])>:where(:not(ol):not(ul):not(pre)):last-child:after,:where(.aui-md[data-status=running])>pre:last-child code:after,:where(.aui-md[data-status=running])>:where(:is(ol,ul):last-child)>:where(li:last-child:not(:has(*>li))):after,:where(.aui-md[data-status=running])>:where(:is(ol,ul):last-child)>:where(li:last-child)>:where(:is(ol,ul):last-child)>:where(li:last-child:not(:has(*>li))):after,:where(.aui-md[data-status=running])>:where(:is(ol,ul):last-child)>:where(li:last-child)>:where(:is(ol,ul):last-child)>:where(li:last-child)>:where(:is(ol,ul):last-child)>:where(li:last-child):after{animation:aui-pulse 2s cubic-bezier(.4,0,.6,1) infinite;font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji",Segoe UI Symbol,"Noto Color Emoji";--aui-content: "●";content:var(--aui-content);margin-left:.25rem;margin-right:.25rem}
+</style></head> <body>  <header class="site-header"> <a href="https://artificialintelligenceact.eu/" class="site-header-logo">  <picture> <source type="image/webp" srcset="/images/eu-ai-act-logo-425.webp"> <img src="/images/eu-ai-act-logo-425.png" width="425" height="108" alt="EU Artificial Intelligence Act"> </picture> </a> <button class="gnav-burger" id="gnavBurger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="globalNav" data-astro-cid-3cursr6z> <i class="fas fa-bars" data-astro-cid-3cursr6z></i> </button> <nav class="global-nav" id="globalNav" aria-label="Site" data-astro-cid-3cursr6z> <ul class="gnav-list" data-astro-cid-3cursr6z> <li class="gnav-item gnav-item-mega" data-astro-cid-3cursr6z> <button class="gnav-top" type="button" aria-expanded="false" aria-controls="gnav-panel-0" data-astro-cid-3cursr6z> The Act <i class="fas fa-chevron-down gnav-chevron" data-astro-cid-3cursr6z></i> </button> <div class="gnav-mega" id="gnav-panel-0" data-cols="2" data-astro-cid-3cursr6z> <div class="gnav-mega-inner" data-astro-cid-3cursr6z> <div class="gnav-group" data-astro-cid-3cursr6z> <div class="gnav-group-label" data-astro-cid-3cursr6z>Explore the Act</div> <ul class="gnav-group-items" data-astro-cid-3cursr6z> <li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/ai-act-explorer/" data-astro-cid-3cursr6z> The AI Act Explorer </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/the-act/" data-astro-cid-3cursr6z> The Act Texts </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/high-level-summary/" data-astro-cid-3cursr6z> High-level summary of the AI Act </a> </li> </ul> </div><div class="gnav-group" data-astro-cid-3cursr6z> <div class="gnav-group-label" data-astro-cid-3cursr6z>Context</div> <ul class="gnav-group-items" data-astro-cid-3cursr6z> <li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/context/" data-astro-cid-3cursr6z> Institutional Context </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/documents/" data-astro-cid-3cursr6z> Historic Documents </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/developments/" data-astro-cid-3cursr6z> Historic Timeline </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/analyses/" data-astro-cid-3cursr6z> Analyses </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/assessment/" data-astro-cid-3cursr6z> Assessment </a> </li> </ul> </div> </div> </div> </li><li class="gnav-item gnav-item-mega" data-astro-cid-3cursr6z> <button class="gnav-top" type="button" aria-expanded="false" aria-controls="gnav-panel-1" data-astro-cid-3cursr6z> Implementation <i class="fas fa-chevron-down gnav-chevron" data-astro-cid-3cursr6z></i> </button> <div class="gnav-mega" id="gnav-panel-1" data-cols="4" data-astro-cid-3cursr6z> <div class="gnav-mega-inner" data-astro-cid-3cursr6z> <div class="gnav-group" data-astro-cid-3cursr6z> <div class="gnav-group-label" data-astro-cid-3cursr6z>Overview</div> <ul class="gnav-group-items" data-astro-cid-3cursr6z> <li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/implementation-documents/" data-astro-cid-3cursr6z> Implementation Documents </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/implementation-timeline/" data-astro-cid-3cursr6z> Implementation Timeline </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/standard-setting-overview/" data-astro-cid-3cursr6z> Standard Setting </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/whistleblowing-and-the-eu-ai-act/" data-astro-cid-3cursr6z> Whistleblowing </a> </li> </ul> </div><div class="gnav-group" data-astro-cid-3cursr6z> <div class="gnav-group-label" data-astro-cid-3cursr6z>Member States</div> <ul class="gnav-group-items" data-astro-cid-3cursr6z> <li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/responsibilities-of-member-states/" data-astro-cid-3cursr6z> Tasks for Member States </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/national-implementation-plans/" data-astro-cid-3cursr6z> National Implementation Plans </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/ai-regulatory-sandbox-approaches-eu-member-state-overview/" data-astro-cid-3cursr6z> AI Regulatory Sandboxes </a> </li> </ul> </div><div class="gnav-group" data-astro-cid-3cursr6z> <div class="gnav-group-label" data-astro-cid-3cursr6z>The AI Office</div> <ul class="gnav-group-items" data-astro-cid-3cursr6z> <li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/the-ai-office-summary/" data-astro-cid-3cursr6z> Overview: The AI Office </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/responsibilities-of-european-commission-ai-office/" data-astro-cid-3cursr6z> Tasks for The AI Office </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/enforcement-of-chapter-v-under-the-eu-ai-act/" data-astro-cid-3cursr6z> Enforcement of Chapter V: GPAI Obligations </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/the-advisory-forum-what-is-it-and-how-does-it-work/" data-astro-cid-3cursr6z> The Advisory Forum: What Is It And How Does It Work? </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/why-work-at-the-eu-ai-office/" data-astro-cid-3cursr6z> Why work at The AI Office? </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/scientific-panel/" data-astro-cid-3cursr6z> The Scientific Panel: What Is It And How Does It Work? </a> </li> </ul> </div><div class="gnav-group" data-astro-cid-3cursr6z> <div class="gnav-group-label" data-astro-cid-3cursr6z>General-Purpose AI</div> <ul class="gnav-group-items" data-astro-cid-3cursr6z> <li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/providers-of-general-purpose-ai-models-what-we-know-about-who-will-qualify/" data-astro-cid-3cursr6z> Overview: Providers of GPAI Models </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/gpai-guidelines-overview/" data-astro-cid-3cursr6z> Guidelines for GPAI Models </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/introduction-to-code-of-practice/" data-astro-cid-3cursr6z> Introduction to the Code of Practice </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/code-of-practice-overview/" data-astro-cid-3cursr6z> Code of Practice Summarised </a> </li> </ul> </div> </div> </div> </li><li class="gnav-item gnav-item-mega" data-astro-cid-3cursr6z> <button class="gnav-top" type="button" aria-expanded="false" aria-controls="gnav-panel-2" data-astro-cid-3cursr6z> Compliance <i class="fas fa-chevron-down gnav-chevron" data-astro-cid-3cursr6z></i> </button> <div class="gnav-mega" id="gnav-panel-2" data-cols="2" data-astro-cid-3cursr6z> <div class="gnav-mega-inner" data-astro-cid-3cursr6z> <div class="gnav-group" data-astro-cid-3cursr6z> <div class="gnav-group-label" data-astro-cid-3cursr6z>Tools</div> <ul class="gnav-group-items" data-astro-cid-3cursr6z> <li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/assessment/eu-ai-act-compliance-checker/" data-astro-cid-3cursr6z> Compliance Checker </a> </li> </ul> </div><div class="gnav-group" data-astro-cid-3cursr6z> <div class="gnav-group-label" data-astro-cid-3cursr6z>Guides for Businesses</div> <ul class="gnav-group-items" data-astro-cid-3cursr6z> <li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/small-businesses-guide-to-the-ai-act/" data-astro-cid-3cursr6z> Small Businesses’ Guide </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/ai-therapy-under-the-eu-ai-act/" data-astro-cid-3cursr6z> AI Therapy under the EU AI Act </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/what-the-act-means-for-staffing-businesses/" data-astro-cid-3cursr6z> Guide for HR &amp; Staffing Businesses </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/transparency-rules-article-50/" data-astro-cid-3cursr6z> Guide to Article 50 Transparency rules </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/ai-literacy-programs/" data-astro-cid-3cursr6z> AI Literacy Programs </a> </li><li data-astro-cid-3cursr6z> <a class="gnav-link" href="https://artificialintelligenceact.eu/modifying-ai-under-the-eu-ai-act/" data-astro-cid-3cursr6z> Modifying AI Models &amp; Systems </a> </li> </ul> </div> </div> </div> </li><li class="gnav-item" data-astro-cid-3cursr6z> <a class="gnav-top" href="https://artificialintelligenceact.eu/about/" data-astro-cid-3cursr6z> About us  </a> </li><li class="gnav-item gnav-item-primary" data-astro-cid-3cursr6z> <a class="gnav-top gnav-top-primary" href="https://artificialintelligenceact.substack.com/" data-astro-cid-3cursr6z> Newsletter <i class="fas fa-external-link-alt gnav-ext" data-astro-cid-3cursr6z></i> </a> </li> </ul> </nav> <div class="gnav-scrim" id="gnavScrim" hidden data-astro-cid-3cursr6z></div>  <script>
+  (function () {
+    var nav = document.getElementById("globalNav");
+    var burger = document.getElementById("gnavBurger");
+    var scrim = document.getElementById("gnavScrim");
+    if (!nav || !burger) return;
+
+    var desktop = window.matchMedia("(min-width: 881px)");
+    var megas = Array.prototype.slice.call(
+      nav.querySelectorAll(".gnav-item-mega"),
+    );
+    var hoverTimer = null;
+
+    function setOpen(li, open) {
+      var btn = li.querySelector(":scope > .gnav-top");
+      if (open) li.setAttribute("data-open", "");
+      else li.removeAttribute("data-open");
+      if (btn) btn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open && desktop.matches) clamp(li);
+    }
+
+    function closeAll(except) {
+      megas.forEach(function (li) {
+        if (li !== except) setOpen(li, false);
+      });
+    }
+
+    // Panels are centred on their trigger, so a wide one hangs off the viewport
+    // near either end of the bar. Slide it back by exactly the overflow rather
+    // than re-anchoring, so it stays as close to centred as it can.
+    //
+    // The target position is derived from the trigger's box and the panel's
+    // LAYOUT width, never from the panel's own rect: the panel's rect reflects
+    // the in-flight transform, so reopening one mid-transition would otherwise
+    // measure a half-animated position and compute the wrong offset.
+    var EDGE_GAP = 12;
+    function clamp(li) {
+      var panel = li.querySelector(":scope > .gnav-mega");
+      var trigger = li.querySelector(":scope > .gnav-top");
+      if (!panel || !trigger) return;
+
+      var t = trigger.getBoundingClientRect();
+      var centre = t.left + t.width / 2;
+      var halfW = panel.offsetWidth / 2;
+      var nudge = 0;
+      if (centre + halfW > window.innerWidth - EDGE_GAP) {
+        nudge = window.innerWidth - EDGE_GAP - (centre + halfW);
+      } else if (centre - halfW < EDGE_GAP) {
+        nudge = EDGE_GAP - (centre - halfW);
+      }
+      panel.style.setProperty("--gnav-nudge", nudge + "px");
+    }
+
+    megas.forEach(function (li) {
+      var btn = li.querySelector(":scope > .gnav-top");
+
+      btn.addEventListener("click", function () {
+        var open = li.hasAttribute("data-open");
+        closeAll(li);
+        setOpen(li, !open);
+      });
+
+      // Pointer affordance is desktop-only; on the drawer the panels are
+      // accordions driven purely by the click above.
+      li.addEventListener("mouseenter", function () {
+        if (!desktop.matches) return;
+        clearTimeout(hoverTimer);
+        closeAll(li);
+        setOpen(li, true);
+      });
+      li.addEventListener("mouseleave", function () {
+        if (!desktop.matches) return;
+        hoverTimer = setTimeout(function () {
+          setOpen(li, false);
+        }, 180);
+      });
+    });
+
+    function setDrawer(open) {
+      nav.classList.toggle("gnav-open", open);
+      burger.setAttribute("aria-expanded", open ? "true" : "false");
+      burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      if (scrim) scrim.hidden = !open;
+      if (!open) closeAll(null);
+    }
+
+    burger.addEventListener("click", function () {
+      setDrawer(!nav.classList.contains("gnav-open"));
+    });
+    if (scrim) {
+      scrim.addEventListener("click", function () {
+        setDrawer(false);
+      });
+    }
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      closeAll(null);
+      if (nav.classList.contains("gnav-open")) {
+        setDrawer(false);
+        burger.focus();
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (nav.contains(e.target) || burger.contains(e.target)) return;
+      closeAll(null);
+    });
+
+    window.addEventListener("resize", function () {
+      if (!desktop.matches) return;
+      var open = nav.querySelector(".gnav-item-mega[data-open]");
+      if (open) clamp(open);
+    });
+
+    // Leaving the drawer breakpoint strands the fixed panel off-screen state;
+    // reset both layers so the desktop bar starts clean.
+    desktop.addEventListener("change", function () {
+      setDrawer(false);
+      closeAll(null);
+    });
+  })();
+</script> </header>  <header class="header header-docs"> <span class="header-doc-label">AI Act Documents:</span> <nav class="header-doc-tabs" id="mainNavTabs"> <a class="header-doc-tab active" href="/ai-act-explorer/" data-doc="ai_act"> <i class="fas fa-file-alt header-doc-tab-icon"></i>EU AI Act
+</a> <a class="header-doc-tab" id="copNavTab" href="/ai-act-explorer/cop-home"> <i class="fas fa-file-alt header-doc-tab-icon"></i>Code of Practice
+</a> <a class="header-doc-tab" href="/ai-act-explorer/digital-omnibus/" data-doc="digital_omnibus"> <i class="fas fa-file-alt header-doc-tab-icon"></i>Digital Omnibus
+</a> <div class="header-doc-tab header-doc-dropdown" id="implActsNavTab">
+Implementing Acts
+<i class="fas fa-chevron-down header-dropdown-chevron"></i> <div class="header-dropdown-menu"> <a class="header-dropdown-item" href="/ai-act-explorer/scientific-panel/" data-doc="scientific_panel"> <i class="fas fa-file-alt header-doc-tab-icon"></i>Scientific Panel
+</a> <a class="header-dropdown-item" href="/ai-act-explorer/proceedings/" data-doc="proceedings"> <i class="fas fa-file-alt header-doc-tab-icon"></i>Commission
+          Proceedings
+</a> </div> </div> </nav> <a id="navSearchBtn" class="search-btn" href="/ai-act-explorer/?search=1" aria-label="Search (Ctrl+K)"> <i class="fas fa-search"></i><span class="search-btn-text">Search</span> <kbd class="search-kbd">Ctrl+K</kbd> </a> <script>(function(){const searchHref = "/ai-act-explorer/?search=1";
+
+        (function () {
+          if (/Mac|iPhone|iPad|iPod/.test(navigator.platform || "")) {
+            var kbd = document.querySelector("#navSearchBtn .search-kbd");
+            if (kbd) kbd.textContent = "⌘K";
+            document
+              .getElementById("navSearchBtn")
+              ?.setAttribute("aria-label", "Search (⌘K)");
+          }
+          document.addEventListener("keydown", function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+              e.preventDefault();
+              location.href = searchHref;
+            }
+          });
+        })();
+      })();</script>  </header> <div class="layout layout--single"> <nav class="toc" id="toc"> <div class="toc-search-wrap"><a class="toc-search-btn" href="/ai-act-explorer/?search=1" aria-label="Search the full explorer"><i class="fas fa-search toc-search-icon"></i><span class="toc-search-btn-text">Search…</span></a></div><a class="toc-overview-sticky" href="/ai-act-explorer/#doc-overview"><i class="fas fa-th-list"></i>Overview</a><div id="tocItems" class="weglot-ignore"><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-I')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter I</span>
+              <span class="toc-ch-range">Arts. 1–4a</span>
+            </div>
+            <span class="toc-ch-title">General Provisions</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-I"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-I"><div class="toc-sub-item"><a class="toc-sub-link" href="/article/1/">Article 1: Subject Matter</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/2/">Article 2: Scope</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/3/">Article 3: Definitions</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/4/">Article 4: AI literacy</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/4a/">Article 4a: Processing of special categories of personal data for bias detection and correction</a></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-II')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter II</span>
+              <span class="toc-ch-range">Art. 5</span>
+            </div>
+            <span class="toc-ch-title">Prohibited AI Practices</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-II"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-II"><div class="toc-sub-item"><a class="toc-sub-link" href="/article/5/">Article 5: Prohibited AI Practices</a></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-III')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter III</span>
+              <span class="toc-ch-range">Arts. 6–49</span>
+            </div>
+            <span class="toc-ch-title">High-Risk AI Systems</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-III"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-III"><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-III-s1')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 1</span>
+                  <span class="toc-sec-range">Arts. 6–7</span>
+                </div>
+                <span class="toc-sec-title">Classification of AI systems as high-risk</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-III-s1"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-III-s1"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/6/">Article 6: Classification Rules for High-Risk AI Systems</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/7/">Article 7: Amendments to Annex III</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-III-s2')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 2</span>
+                  <span class="toc-sec-range">Arts. 8–15</span>
+                </div>
+                <span class="toc-sec-title">Requirements for high-risk AI systems</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-III-s2"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-III-s2"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/8/">Article 8: Compliance with the Requirements</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/9/">Article 9: Risk Management System</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/10/">Article 10: Data and Data Governance</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/11/">Article 11: Technical Documentation</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/12/">Article 12: Record-Keeping</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/13/">Article 13: Transparency and Provision of Information to Deployers</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/14/">Article 14: Human Oversight</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/15/">Article 15: Accuracy, Robustness and Cybersecurity</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-III-s3')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 3</span>
+                  <span class="toc-sec-range">Arts. 16–27</span>
+                </div>
+                <span class="toc-sec-title">Obligations of providers and deployers of high-risk AI systems and other parties</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-III-s3"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-III-s3"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/16/">Article 16: Obligations of Providers of High-Risk AI Systems</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/17/">Article 17: Quality Management System</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/18/">Article 18: Documentation Keeping</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/19/">Article 19: Automatically Generated Logs</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/20/">Article 20: Corrective Actions and Duty of Information</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/21/">Article 21: Cooperation with Competent Authorities</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/22/">Article 22: Authorised Representatives of Providers of High-Risk AI Systems</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/23/">Article 23: Obligations of Importers</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/24/">Article 24: Obligations of Distributors</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/25/">Article 25: Responsibilities Along the AI Value Chain</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/26/">Article 26: Obligations of Deployers of High-Risk AI Systems</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/27/">Article 27: Fundamental Rights Impact Assessment for High-Risk AI Systems</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-III-s4')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 4</span>
+                  <span class="toc-sec-range">Arts. 28–39</span>
+                </div>
+                <span class="toc-sec-title">Notifying authorities and notified bodies</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-III-s4"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-III-s4"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/28/">Article 28: Notifying Authorities</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/29/">Article 29: Application of a Conformity Assessment Body for Notification</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/30/">Article 30: Notification Procedure</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/31/">Article 31: Requirements Relating to Notified Bodies</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/32/">Article 32: Presumption of Conformity with Requirements Relating to Notified Bodies</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/33/">Article 33: Subsidiaries of Notified Bodies and Subcontracting</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/34/">Article 34: Operational Obligations of Notified Bodies</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/35/">Article 35: Identification Numbers and Lists of Notified Bodies</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/36/">Article 36: Changes to Notifications</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/37/">Article 37: Challenge to the Competence of Notified Bodies</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/38/">Article 38: Coordination of Notified Bodies</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/39/">Article 39: Conformity Assessment Bodies of Third Countries</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-III-s5')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 5</span>
+                  <span class="toc-sec-range">Arts. 40–49</span>
+                </div>
+                <span class="toc-sec-title">Standards, conformity assessment, certificates, registration</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-III-s5"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-III-s5"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/40/">Article 40: Harmonised Standards and Standardisation Deliverables</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/41/">Article 41: Common Specifications</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/42/">Article 42: Presumption of Conformity with Certain Requirements</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/43/">Article 43: Conformity Assessment</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/44/">Article 44: Certificates</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/45/">Article 45: Information Obligations of Notified Bodies</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/46/">Article 46: Derogation from Conformity Assessment Procedure</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/47/">Article 47: EU Declaration of Conformity</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/48/">Article 48: CE Marking</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/49/">Article 49: Registration</a></div></div></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-IV')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter IV</span>
+              <span class="toc-ch-range">Art. 50</span>
+            </div>
+            <span class="toc-ch-title">Transparency Obligations for Providers and Deployers of Certain AI Systems</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-IV"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-IV"><div class="toc-sub-item"><a class="toc-sub-link" href="/article/50/">Article 50: Transparency Obligations for Providers and Deployers of Certain AI Systems</a></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-V')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter V</span>
+              <span class="toc-ch-range">Arts. 51–56</span>
+            </div>
+            <span class="toc-ch-title">General-Purpose AI Models</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-V"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-V"><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-V-s1')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 1</span>
+                  <span class="toc-sec-range">Arts. 51–52</span>
+                </div>
+                <span class="toc-sec-title">Classification rules</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-V-s1"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-V-s1"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/51/">Article 51: Classification of General-Purpose AI Models as General-Purpose AI Models with Systemic Risk</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/52/">Article 52: Procedure</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-V-s2')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 2</span>
+                  <span class="toc-sec-range">Arts. 53–54</span>
+                </div>
+                <span class="toc-sec-title">Obligations for providers of general-purpose AI models</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-V-s2"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-V-s2"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/53/">Article 53: Obligations for Providers of General-Purpose AI Models</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/54/">Article 54: Authorised Representatives of Providers of General-Purpose AI Models</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-V-s3')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 3</span>
+                  <span class="toc-sec-range">Art. 55</span>
+                </div>
+                <span class="toc-sec-title">Obligations of providers of general-purpose AI models with systemic risk</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-V-s3"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-V-s3"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/55/">Article 55: Obligations of Providers of General-Purpose AI Models with Systemic Risk</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-V-s4')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 4</span>
+                  <span class="toc-sec-range">Art. 56</span>
+                </div>
+                <span class="toc-sec-title">Codes of practice</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-V-s4"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-V-s4"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/56/">Article 56: Codes of Practice</a></div></div></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-VI')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter VI</span>
+              <span class="toc-ch-range">Arts. 57–63</span>
+            </div>
+            <span class="toc-ch-title">Measures in Support of Innovation</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-VI"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-VI"><div class="toc-sub-item"><a class="toc-sub-link" href="/article/57/">Article 57: AI Regulatory Sandboxes</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/58/">Article 58: Detailed Arrangements for, and Functioning of, AI Regulatory Sandboxes</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/59/">Article 59: Further Processing of Personal Data for Developing Certain AI Systems in the Public Interest in the AI Regulatory Sandbox</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/60/">Article 60: Testing of High-Risk AI Systems in Real World Conditions Outside AI Regulatory Sandboxes</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/60a/">Article 60a: Testing of high-risk AI systems covered by Union harmonisation legislation listed in Section B of Annex I in real-world conditions outside AI regulatory sandboxes</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/61/">Article 61: Informed Consent to Participate in Testing in Real World Conditions Outside AI Regulatory Sandboxes</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/62/">Article 62: Measures for Providers and Deployers, in Particular SMEs, Including Start-Ups</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/63/">Article 63: Derogations for Specific Operators</a></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-VII')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter VII</span>
+              <span class="toc-ch-range">Arts. 64–70</span>
+            </div>
+            <span class="toc-ch-title">Governance</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-VII"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-VII"><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-VII-s1')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 1</span>
+                  <span class="toc-sec-range">Arts. 64–69</span>
+                </div>
+                <span class="toc-sec-title">Governance at Union level</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-VII-s1"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-VII-s1"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/64/">Article 64: AI Office</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/65/">Article 65: Establishment and Structure of the European Artificial Intelligence Board</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/66/">Article 66: Tasks of the Board</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/67/">Article 67: Advisory Forum</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/68/">Article 68: Scientific Panel of Independent Experts</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/69/">Article 69: Access to the Pool of Experts by the Member States</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-VII-s2')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 2</span>
+                  <span class="toc-sec-range">Art. 70</span>
+                </div>
+                <span class="toc-sec-title">National competent authorities</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-VII-s2"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-VII-s2"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/70/">Article 70: Designation of National Competent Authorities and Single Points of Contact</a></div></div></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-VIII')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter VIII</span>
+              <span class="toc-ch-range">Art. 71</span>
+            </div>
+            <span class="toc-ch-title">EU Database for High-Risk AI Systems</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-VIII"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-VIII"><div class="toc-sub-item"><a class="toc-sub-link" href="/article/71/">Article 71: EU Database for High-Risk AI Systems Listed in Annex III</a></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-IX')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter IX</span>
+              <span class="toc-ch-range">Arts. 72–94</span>
+            </div>
+            <span class="toc-ch-title">Post-Market Monitoring, Information Sharing and Market Surveillance</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-IX"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-IX"><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-IX-s1')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 1</span>
+                  <span class="toc-sec-range">Art. 72</span>
+                </div>
+                <span class="toc-sec-title">Post-market monitoring</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-IX-s1"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-IX-s1"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/72/">Article 72: Post-Market Monitoring by Providers and Post-Market Monitoring Plan for High-Risk AI Systems</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-IX-s2')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 2</span>
+                  <span class="toc-sec-range">Art. 73</span>
+                </div>
+                <span class="toc-sec-title">Sharing of information on serious incidents</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-IX-s2"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-IX-s2"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/73/">Article 73: Reporting of Serious Incidents</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-IX-s3')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 3</span>
+                  <span class="toc-sec-range">Arts. 74–84</span>
+                </div>
+                <span class="toc-sec-title">Enforcement</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-IX-s3"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-IX-s3"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/74/">Article 74: Market Surveillance and Control of AI Systems in the Union Market</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/75/">Article 75: Market surveillance and control of AI systems and mutual assistance</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/75a/">Article 75a: Supervisory and enforcement powers of the AI Office</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/75b/">Article 75b: Commitments</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/75c/">Article 75c: Non-compliance, fines and periodic penalty payments</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/75d/">Article 75d: Safeguards and further specification</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/76/">Article 76: Supervision of Testing in Real World Conditions by Market Surveillance Authorities</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/77/">Article 77: Powers of authorities protecting fundamental rights and cooperation with market surveillance authorities</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/78/">Article 78: Confidentiality</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/79/">Article 79: Procedure at National Level for Dealing with AI Systems Presenting a Risk</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/80/">Article 80: Procedure for Dealing with AI Systems Classified by the Provider as Non-High-Risk in Application of Annex III</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/81/">Article 81: Union Safeguard Procedure</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/82/">Article 82: Compliant AI Systems Which Present a Risk</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/83/">Article 83: Formal Non-Compliance</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/84/">Article 84: Union AI Testing Support Structures</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-IX-s4')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 4</span>
+                  <span class="toc-sec-range">Arts. 85–87</span>
+                </div>
+                <span class="toc-sec-title">Remedies</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-IX-s4"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-IX-s4"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/85/">Article 85: Right to Lodge a Complaint with a Market Surveillance Authority</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/86/">Article 86: Right to Explanation of Individual Decision-Making</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/87/">Article 87: Reporting of Infringements and Protection of Reporting Persons</a></div></div></div><div class="toc-sec-block">
+            <div class="toc-sub-section-header" onclick="tocToggle('ch-IX-s5')">
+              <div class="toc-sec-info">
+                <div class="toc-id-row">
+                  <span class="toc-sec-label">Section 5</span>
+                  <span class="toc-sec-range">Arts. 88–94</span>
+                </div>
+                <span class="toc-sec-title">Supervision, investigation, enforcement and monitoring in respect of providers of general-purpose AI models</span>
+              </div>
+              <span class="toc-arrow" id="arr-ch-IX-s5"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="toc-sub" id="sub-ch-IX-s5"><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/88/">Article 88: Enforcement of the Obligations of Providers of General-Purpose AI Models</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/89/">Article 89: Monitoring Actions</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/90/">Article 90: Alerts of Systemic Risks by the Scientific Panel</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/91/">Article 91: Power to Request Documentation and Information</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/92/">Article 92: Power to Conduct Evaluations</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/93/">Article 93: Power to Request Measures</a></div><div class="toc-sub-item"><a class="toc-sub-link toc-sub-deep" href="/article/94/">Article 94: Procedural Rights of Economic Operators of the General-Purpose AI Model</a></div></div></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-X')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter X</span>
+              <span class="toc-ch-range">Arts. 95–96</span>
+            </div>
+            <span class="toc-ch-title">Codes of Conduct and Guidelines</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-X"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-X"><div class="toc-sub-item"><a class="toc-sub-link" href="/article/95/">Article 95: Codes of Conduct for Voluntary Application of Specific Requirements</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/96/">Article 96: Guidelines from the Commission on the Implementation of this Regulation</a></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-XI')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter XI</span>
+              <span class="toc-ch-range">Arts. 97–98</span>
+            </div>
+            <span class="toc-ch-title">Delegation of Power and Committee Procedure</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-XI"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-XI"><div class="toc-sub-item"><a class="toc-sub-link" href="/article/97/">Article 97: Exercise of the Delegation</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/98/">Article 98: Committee Procedure</a></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-XII')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter XII</span>
+              <span class="toc-ch-range">Arts. 99–101</span>
+            </div>
+            <span class="toc-ch-title">Penalties</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-XII"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-XII"><div class="toc-sub-item"><a class="toc-sub-link" href="/article/99/">Article 99: Penalties</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/100/">Article 100: Administrative Fines on Union Institutions, Bodies, Offices and Agencies</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/101/">Article 101: Fines for Providers of General-Purpose AI Models</a></div></div></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('ch-XIII')">
+          <div class="toc-ch-info">
+            <div class="toc-id-row">
+              <span class="toc-ch-label">Chapter XIII</span>
+              <span class="toc-ch-range">Arts. 102–113</span>
+            </div>
+            <span class="toc-ch-title">Final Provisions</span>
+          </div>
+          <span class="toc-arrow" id="arr-ch-XIII"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-ch-XIII"><div class="toc-sub-item"><a class="toc-sub-link" href="/article/102/">Article 102: Amendment to Regulation (EC) No 300/2008</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/103/">Article 103: Amendment to Regulation (EU) No 167/2013</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/104/">Article 104: Amendment to Regulation (EU) No 168/2013</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/105/">Article 105: Amendment to Directive 2014/90/EU</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/106/">Article 106: Amendment to Directive (EU) 2016/797</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/107/">Article 107: Amendment to Regulation (EU) 2018/858</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/108/">Article 108: Amendments to Regulation (EU) 2018/1139</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/109/">Article 109: Amendment to Regulation (EU) 2019/2144</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/110/">Article 110: Amendment to Directive (EU) 2020/1828</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/111/">Article 111: AI Systems Already Placed on the Market or Put into Service and General-Purpose AI Models Already Placed on the Marked</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/112/">Article 112: Evaluation and Review</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/article/113/">Article 113: Entry into Force and Application</a></div></div></div><div class="toc-divider"></div><div>
+        <div class="toc-collapsible-header" onclick="tocToggle('anx')">
+          <span>Annexes</span>
+          <span class="toc-arrow" id="arr-anx"><i class="fas fa-chevron-right"></i></span>
+        </div>
+        <div class="toc-sub" id="sub-anx"><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/1/">Annex I: List of Union Harmonisation Legislation</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/2/">Annex II: List of Criminal Offences</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/3/">Annex III: High-Risk AI Systems</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/4/">Annex IV: Technical Documentation Referred to in Article 11(1)</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/5/">Annex V: EU Declaration of Conformity</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/6/">Annex VI: Conformity Assessment Procedure Based on Internal Control</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/7/">Annex VII: Quality Management System and Technical Documentation Assessment</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/8/">Annex VIII: Registration Information: High-Risk AI</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/9/">Annex IX: Registration Information: Real-World Testing</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/10/">Annex X: Large-Scale IT Systems Legislation</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/11/">Annex XI: Technical Documentation: GPAI Providers</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/12/">Annex XII: Transparency Info: GPAI Downstream Providers</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/13/">Annex XIII: Systemic Risk Designation Criteria</a></div><div class="toc-sub-item"><a class="toc-sub-link" href="/annex/14/">Annex XIV: List of Codes for Notified Bodies</a></div></div></div><div class="toc-divider"></div><div>
+      <div class="toc-collapsible-header" onclick="tocToggle('rec')">
+        <span>Recitals</span>
+        <span class="toc-arrow" id="arr-rec"><i class="fas fa-chevron-right"></i></span>
+      </div>
+      <div class="toc-sub" id="sub-rec"><div class="toc-rec-grid"><a class="toc-rec-btn" href="/recital/1/" title="Recital 1">1</a><a class="toc-rec-btn" href="/recital/2/" title="Recital 2">2</a><a class="toc-rec-btn" href="/recital/3/" title="Recital 3">3</a><a class="toc-rec-btn" href="/recital/4/" title="Recital 4">4</a><a class="toc-rec-btn" href="/recital/5/" title="Recital 5">5</a><a class="toc-rec-btn" href="/recital/6/" title="Recital 6">6</a><a class="toc-rec-btn" href="/recital/7/" title="Recital 7">7</a><a class="toc-rec-btn" href="/recital/8/" title="Recital 8">8</a><a class="toc-rec-btn" href="/recital/9/" title="Recital 9">9</a><a class="toc-rec-btn" href="/recital/10/" title="Recital 10">10</a><a class="toc-rec-btn" href="/recital/11/" title="Recital 11">11</a><a class="toc-rec-btn" href="/recital/12/" title="Recital 12">12</a><a class="toc-rec-btn" href="/recital/13/" title="Recital 13">13</a><a class="toc-rec-btn" href="/recital/14/" title="Recital 14">14</a><a class="toc-rec-btn" href="/recital/15/" title="Recital 15">15</a><a class="toc-rec-btn" href="/recital/16/" title="Recital 16">16</a><a class="toc-rec-btn" href="/recital/17/" title="Recital 17">17</a><a class="toc-rec-btn" href="/recital/18/" title="Recital 18">18</a><a class="toc-rec-btn" href="/recital/19/" title="Recital 19">19</a><a class="toc-rec-btn" href="/recital/20/" title="Recital 20">20</a><a class="toc-rec-btn" href="/recital/21/" title="Recital 21">21</a><a class="toc-rec-btn" href="/recital/22/" title="Recital 22">22</a><a class="toc-rec-btn" href="/recital/23/" title="Recital 23">23</a><a class="toc-rec-btn" href="/recital/24/" title="Recital 24">24</a><a class="toc-rec-btn" href="/recital/25/" title="Recital 25">25</a><a class="toc-rec-btn" href="/recital/26/" title="Recital 26">26</a><a class="toc-rec-btn" href="/recital/27/" title="Recital 27">27</a><a class="toc-rec-btn" href="/recital/28/" title="Recital 28">28</a><a class="toc-rec-btn" href="/recital/29/" title="Recital 29">29</a><a class="toc-rec-btn" href="/recital/30/" title="Recital 30">30</a><a class="toc-rec-btn" href="/recital/31/" title="Recital 31">31</a><a class="toc-rec-btn" href="/recital/32/" title="Recital 32">32</a><a class="toc-rec-btn" href="/recital/33/" title="Recital 33">33</a><a class="toc-rec-btn" href="/recital/34/" title="Recital 34">34</a><a class="toc-rec-btn" href="/recital/35/" title="Recital 35">35</a><a class="toc-rec-btn" href="/recital/36/" title="Recital 36">36</a><a class="toc-rec-btn" href="/recital/37/" title="Recital 37">37</a><a class="toc-rec-btn" href="/recital/38/" title="Recital 38">38</a><a class="toc-rec-btn" href="/recital/39/" title="Recital 39">39</a><a class="toc-rec-btn" href="/recital/40/" title="Recital 40">40</a><a class="toc-rec-btn" href="/recital/41/" title="Recital 41">41</a><a class="toc-rec-btn" href="/recital/42/" title="Recital 42">42</a><a class="toc-rec-btn" href="/recital/43/" title="Recital 43">43</a><a class="toc-rec-btn" href="/recital/44/" title="Recital 44">44</a><a class="toc-rec-btn" href="/recital/45/" title="Recital 45">45</a><a class="toc-rec-btn" href="/recital/46/" title="Recital 46">46</a><a class="toc-rec-btn" href="/recital/47/" title="Recital 47">47</a><a class="toc-rec-btn" href="/recital/48/" title="Recital 48">48</a><a class="toc-rec-btn" href="/recital/49/" title="Recital 49">49</a><a class="toc-rec-btn" href="/recital/50/" title="Recital 50">50</a><a class="toc-rec-btn" href="/recital/51/" title="Recital 51">51</a><a class="toc-rec-btn" href="/recital/52/" title="Recital 52">52</a><a class="toc-rec-btn" href="/recital/53/" title="Recital 53">53</a><a class="toc-rec-btn" href="/recital/54/" title="Recital 54">54</a><a class="toc-rec-btn" href="/recital/55/" title="Recital 55">55</a><a class="toc-rec-btn" href="/recital/56/" title="Recital 56">56</a><a class="toc-rec-btn" href="/recital/57/" title="Recital 57">57</a><a class="toc-rec-btn" href="/recital/58/" title="Recital 58">58</a><a class="toc-rec-btn" href="/recital/59/" title="Recital 59">59</a><a class="toc-rec-btn" href="/recital/60/" title="Recital 60">60</a><a class="toc-rec-btn" href="/recital/61/" title="Recital 61">61</a><a class="toc-rec-btn" href="/recital/62/" title="Recital 62">62</a><a class="toc-rec-btn" href="/recital/63/" title="Recital 63">63</a><a class="toc-rec-btn" href="/recital/64/" title="Recital 64">64</a><a class="toc-rec-btn" href="/recital/65/" title="Recital 65">65</a><a class="toc-rec-btn" href="/recital/66/" title="Recital 66">66</a><a class="toc-rec-btn" href="/recital/67/" title="Recital 67">67</a><a class="toc-rec-btn" href="/recital/68/" title="Recital 68">68</a><a class="toc-rec-btn" href="/recital/69/" title="Recital 69">69</a><a class="toc-rec-btn" href="/recital/70/" title="Recital 70">70</a><a class="toc-rec-btn" href="/recital/71/" title="Recital 71">71</a><a class="toc-rec-btn" href="/recital/72/" title="Recital 72">72</a><a class="toc-rec-btn" href="/recital/73/" title="Recital 73">73</a><a class="toc-rec-btn" href="/recital/74/" title="Recital 74">74</a><a class="toc-rec-btn" href="/recital/75/" title="Recital 75">75</a><a class="toc-rec-btn" href="/recital/76/" title="Recital 76">76</a><a class="toc-rec-btn" href="/recital/77/" title="Recital 77">77</a><a class="toc-rec-btn" href="/recital/78/" title="Recital 78">78</a><a class="toc-rec-btn" href="/recital/79/" title="Recital 79">79</a><a class="toc-rec-btn" href="/recital/80/" title="Recital 80">80</a><a class="toc-rec-btn" href="/recital/81/" title="Recital 81">81</a><a class="toc-rec-btn" href="/recital/82/" title="Recital 82">82</a><a class="toc-rec-btn" href="/recital/83/" title="Recital 83">83</a><a class="toc-rec-btn" href="/recital/84/" title="Recital 84">84</a><a class="toc-rec-btn" href="/recital/85/" title="Recital 85">85</a><a class="toc-rec-btn" href="/recital/86/" title="Recital 86">86</a><a class="toc-rec-btn" href="/recital/87/" title="Recital 87">87</a><a class="toc-rec-btn" href="/recital/88/" title="Recital 88">88</a><a class="toc-rec-btn" href="/recital/89/" title="Recital 89">89</a><a class="toc-rec-btn" href="/recital/90/" title="Recital 90">90</a><a class="toc-rec-btn" href="/recital/91/" title="Recital 91">91</a><a class="toc-rec-btn" href="/recital/92/" title="Recital 92">92</a><a class="toc-rec-btn" href="/recital/93/" title="Recital 93">93</a><a class="toc-rec-btn" href="/recital/94/" title="Recital 94">94</a><a class="toc-rec-btn" href="/recital/95/" title="Recital 95">95</a><a class="toc-rec-btn" href="/recital/96/" title="Recital 96">96</a><a class="toc-rec-btn" href="/recital/97/" title="Recital 97">97</a><a class="toc-rec-btn" href="/recital/98/" title="Recital 98">98</a><a class="toc-rec-btn" href="/recital/99/" title="Recital 99">99</a><a class="toc-rec-btn" href="/recital/100/" title="Recital 100">100</a><a class="toc-rec-btn" href="/recital/101/" title="Recital 101">101</a><a class="toc-rec-btn" href="/recital/102/" title="Recital 102">102</a><a class="toc-rec-btn" href="/recital/103/" title="Recital 103">103</a><a class="toc-rec-btn" href="/recital/104/" title="Recital 104">104</a><a class="toc-rec-btn" href="/recital/105/" title="Recital 105">105</a><a class="toc-rec-btn" href="/recital/106/" title="Recital 106">106</a><a class="toc-rec-btn" href="/recital/107/" title="Recital 107">107</a><a class="toc-rec-btn" href="/recital/108/" title="Recital 108">108</a><a class="toc-rec-btn" href="/recital/109/" title="Recital 109">109</a><a class="toc-rec-btn" href="/recital/110/" title="Recital 110">110</a><a class="toc-rec-btn" href="/recital/111/" title="Recital 111">111</a><a class="toc-rec-btn" href="/recital/112/" title="Recital 112">112</a><a class="toc-rec-btn" href="/recital/113/" title="Recital 113">113</a><a class="toc-rec-btn" href="/recital/114/" title="Recital 114">114</a><a class="toc-rec-btn" href="/recital/115/" title="Recital 115">115</a><a class="toc-rec-btn" href="/recital/116/" title="Recital 116">116</a><a class="toc-rec-btn" href="/recital/117/" title="Recital 117">117</a><a class="toc-rec-btn" href="/recital/118/" title="Recital 118">118</a><a class="toc-rec-btn" href="/recital/119/" title="Recital 119">119</a><a class="toc-rec-btn" href="/recital/120/" title="Recital 120">120</a><a class="toc-rec-btn" href="/recital/121/" title="Recital 121">121</a><a class="toc-rec-btn" href="/recital/122/" title="Recital 122">122</a><a class="toc-rec-btn" href="/recital/123/" title="Recital 123">123</a><a class="toc-rec-btn" href="/recital/124/" title="Recital 124">124</a><a class="toc-rec-btn" href="/recital/125/" title="Recital 125">125</a><a class="toc-rec-btn" href="/recital/126/" title="Recital 126">126</a><a class="toc-rec-btn" href="/recital/127/" title="Recital 127">127</a><a class="toc-rec-btn" href="/recital/128/" title="Recital 128">128</a><a class="toc-rec-btn" href="/recital/129/" title="Recital 129">129</a><a class="toc-rec-btn" href="/recital/130/" title="Recital 130">130</a><a class="toc-rec-btn" href="/recital/131/" title="Recital 131">131</a><a class="toc-rec-btn" href="/recital/132/" title="Recital 132">132</a><a class="toc-rec-btn" href="/recital/133/" title="Recital 133">133</a><a class="toc-rec-btn" href="/recital/134/" title="Recital 134">134</a><a class="toc-rec-btn" href="/recital/135/" title="Recital 135">135</a><a class="toc-rec-btn" href="/recital/136/" title="Recital 136">136</a><a class="toc-rec-btn" href="/recital/137/" title="Recital 137">137</a><a class="toc-rec-btn" href="/recital/138/" title="Recital 138">138</a><a class="toc-rec-btn" href="/recital/139/" title="Recital 139">139</a><a class="toc-rec-btn" href="/recital/140/" title="Recital 140">140</a><a class="toc-rec-btn" href="/recital/141/" title="Recital 141">141</a><a class="toc-rec-btn" href="/recital/142/" title="Recital 142">142</a><a class="toc-rec-btn" href="/recital/143/" title="Recital 143">143</a><a class="toc-rec-btn" href="/recital/144/" title="Recital 144">144</a><a class="toc-rec-btn" href="/recital/145/" title="Recital 145">145</a><a class="toc-rec-btn" href="/recital/146/" title="Recital 146">146</a><a class="toc-rec-btn" href="/recital/147/" title="Recital 147">147</a><a class="toc-rec-btn" href="/recital/148/" title="Recital 148">148</a><a class="toc-rec-btn" href="/recital/149/" title="Recital 149">149</a><a class="toc-rec-btn" href="/recital/150/" title="Recital 150">150</a><a class="toc-rec-btn" href="/recital/151/" title="Recital 151">151</a><a class="toc-rec-btn" href="/recital/152/" title="Recital 152">152</a><a class="toc-rec-btn" href="/recital/153/" title="Recital 153">153</a><a class="toc-rec-btn" href="/recital/154/" title="Recital 154">154</a><a class="toc-rec-btn" href="/recital/155/" title="Recital 155">155</a><a class="toc-rec-btn" href="/recital/156/" title="Recital 156">156</a><a class="toc-rec-btn" href="/recital/157/" title="Recital 157">157</a><a class="toc-rec-btn" href="/recital/158/" title="Recital 158">158</a><a class="toc-rec-btn" href="/recital/159/" title="Recital 159">159</a><a class="toc-rec-btn" href="/recital/160/" title="Recital 160">160</a><a class="toc-rec-btn" href="/recital/161/" title="Recital 161">161</a><a class="toc-rec-btn" href="/recital/162/" title="Recital 162">162</a><a class="toc-rec-btn" href="/recital/163/" title="Recital 163">163</a><a class="toc-rec-btn" href="/recital/164/" title="Recital 164">164</a><a class="toc-rec-btn" href="/recital/165/" title="Recital 165">165</a><a class="toc-rec-btn" href="/recital/166/" title="Recital 166">166</a><a class="toc-rec-btn" href="/recital/167/" title="Recital 167">167</a><a class="toc-rec-btn" href="/recital/168/" title="Recital 168">168</a><a class="toc-rec-btn" href="/recital/169/" title="Recital 169">169</a><a class="toc-rec-btn" href="/recital/170/" title="Recital 170">170</a><a class="toc-rec-btn" href="/recital/171/" title="Recital 171">171</a><a class="toc-rec-btn" href="/recital/172/" title="Recital 172">172</a><a class="toc-rec-btn" href="/recital/173/" title="Recital 173">173</a><a class="toc-rec-btn" href="/recital/174/" title="Recital 174">174</a><a class="toc-rec-btn" href="/recital/175/" title="Recital 175">175</a><a class="toc-rec-btn" href="/recital/176/" title="Recital 176">176</a><a class="toc-rec-btn" href="/recital/177/" title="Recital 177">177</a><a class="toc-rec-btn" href="/recital/178/" title="Recital 178">178</a><a class="toc-rec-btn" href="/recital/179/" title="Recital 179">179</a><a class="toc-rec-btn" href="/recital/180/" title="Recital 180">180</a></div></div></div><div class="toc-divider"></div>
+    <a class="toc-flat-link" href="/ai-act-explorer/#sec-footnotes">Footnotes</a></div> </nav> <main class="document weglot-ignore" id="document"> <div class="document-inner"> <div class="content-constrain"> <div class="object-topbar"> <a class="object-back" href="/ai-act-explorer/#article-12"><i class="fas fa-arrow-left"></i> AI Act Explorer</a> <nav class="object-crumbs" aria-label="Breadcrumb"> <span class="object-crumb"> <a href="/chapter/3/">Chapter III: High-Risk AI Systems</a> </span><span class="object-crumb"> <a href="/section/3-2/">Section 2: Requirements for high-risk AI systems</a> </span> </nav> </div> <div class="ov-lang-block">
+      <div class="ov-struct-label">Language</div>
+      <div id="langSwitcher" class="lang-switcher lang-switcher-ov weglot-ignore"><a class="lang-btn" href="/bg/article/12/" title="BG"><img class="lang-flag" src="/flags/bg.svg" alt="" width="20" height="20"> BG</a><a class="lang-btn" href="/cs/article/12/" title="CS"><img class="lang-flag" src="/flags/cz.svg" alt="" width="20" height="20"> CS</a><a class="lang-btn" href="/da/article/12/" title="DA"><img class="lang-flag" src="/flags/dk.svg" alt="" width="20" height="20"> DA</a><a class="lang-btn" href="/de/article/12/" title="DE"><img class="lang-flag" src="/flags/de.svg" alt="" width="20" height="20"> DE</a><a class="lang-btn" href="/el/article/12/" title="EL"><img class="lang-flag" src="/flags/gr.svg" alt="" width="20" height="20"> EL</a><a class="lang-btn active" href="/article/12/" title="EN"><img class="lang-flag" src="/flags/gb.svg" alt="" width="20" height="20"> EN</a><a class="lang-btn" href="/es/article/12/" title="ES"><img class="lang-flag" src="/flags/es.svg" alt="" width="20" height="20"> ES</a><a class="lang-btn" href="/et/article/12/" title="ET"><img class="lang-flag" src="/flags/ee.svg" alt="" width="20" height="20"> ET</a><a class="lang-btn" href="/fi/article/12/" title="FI"><img class="lang-flag" src="/flags/fi.svg" alt="" width="20" height="20"> FI</a><a class="lang-btn" href="/fr/article/12/" title="FR"><img class="lang-flag" src="/flags/fr.svg" alt="" width="20" height="20"> FR</a><a class="lang-btn" href="/ga/article/12/" title="GA"><img class="lang-flag" src="/flags/ie.svg" alt="" width="20" height="20"> GA</a><a class="lang-btn" href="/hr/article/12/" title="HR"><img class="lang-flag" src="/flags/hr.svg" alt="" width="20" height="20"> HR</a><a class="lang-btn" href="/hu/article/12/" title="HU"><img class="lang-flag" src="/flags/hu.svg" alt="" width="20" height="20"> HU</a><a class="lang-btn" href="/it/article/12/" title="IT"><img class="lang-flag" src="/flags/it.svg" alt="" width="20" height="20"> IT</a><a class="lang-btn" href="/lt/article/12/" title="LT"><img class="lang-flag" src="/flags/lt.svg" alt="" width="20" height="20"> LT</a><a class="lang-btn" href="/lv/article/12/" title="LV"><img class="lang-flag" src="/flags/lv.svg" alt="" width="20" height="20"> LV</a><a class="lang-btn" href="/mt/article/12/" title="MT"><img class="lang-flag" src="/flags/mt.svg" alt="" width="20" height="20"> MT</a><a class="lang-btn" href="/nl/article/12/" title="NL"><img class="lang-flag" src="/flags/nl.svg" alt="" width="20" height="20"> NL</a><a class="lang-btn" href="/pl/article/12/" title="PL"><img class="lang-flag" src="/flags/pl.svg" alt="" width="20" height="20"> PL</a><a class="lang-btn" href="/pt/article/12/" title="PT"><img class="lang-flag" src="/flags/pt.svg" alt="" width="20" height="20"> PT</a><a class="lang-btn" href="/ro/article/12/" title="RO"><img class="lang-flag" src="/flags/ro.svg" alt="" width="20" height="20"> RO</a><a class="lang-btn" href="/sk/article/12/" title="SK"><img class="lang-flag" src="/flags/sk.svg" alt="" width="20" height="20"> SK</a><a class="lang-btn" href="/sl/article/12/" title="SL"><img class="lang-flag" src="/flags/si.svg" alt="" width="20" height="20"> SL</a><a class="lang-btn" href="/sv/article/12/" title="SV"><img class="lang-flag" src="/flags/se.svg" alt="" width="20" height="20"> SV</a></div>
+      <p class="lang-smallprint">These are the complete, official texts exactly as published in the Official Journal of the European Union. Please report issues to <a href="/cdn-cgi/l/email-protection#a8dfcdcadbc1dccddbe8cedddcdddacdc7cec4c1cecd86c7dacf"><span class="__cf_email__" data-cfemail="04736166776d706177446271707176616b62686d62612a6b7663">[email&#160;protected]</span></a>.</p>
+    </div> <section id="article-12">
+        <h1 class="item-heading"><span class="heading-label">Article 12</span><span class="heading-title">: Record-Keeping</span><button class="ask-ai-btn" title="Ask the assistant about this" aria-label="Ask the assistant about this" data-ask-label="Article 12" data-ask-url="https://artificialintelligenceact.eu/article/12/"><i class="fas fa-comment-dots"></i></button><button class="copy-url-btn" title="Copy link" onclick="copyItemUrl(this,'https://artificialintelligenceact.eu/article/12/')"><i class="fas fa-link"></i></button></h1>
+        <div class="item-meta"><span class="item-meta-text">Comes into force 2 December 2027 (high-risk under Annex III) / 2 August 2028 (high-risk under Annex I), according to <a href="/article/113/#p-article-113-0.c">Article 113(c)</a></span></div>
+        <div class="related-refs"><i class="fas fa-list-ul"></i> <span class="related-refs-label">Related recitals:</span> <a class="related-link" href="/recital/66/">66</a> <a class="related-link" href="/recital/71/">71</a></div><div class="para depth-0" id="p-article-12-1">
+          <span class="para-label">1.</span>
+          <span class="para-text">High-risk AI systems shall technically allow for the automatic recording of events (logs) over the lifetime of the system.</span>
+          <div class="para-actions"><button class="cmp-btn" title="Compare across languages"
+               onclick="openComparison(this)"
+               onmouseenter="cmpPreviewOn(this)" onmouseleave="cmpPreviewOff()"
+               data-type="article" data-item="12"
+               data-pid="1" data-pid-idx="0" data-label="1."><i class="fas fa-language"></i></button><button class="ask-ai-btn" title="Ask the assistant about this" aria-label="Ask the assistant about this" data-ask-label="Article 12(1)" data-ask-url="https://artificialintelligenceact.eu/article/12/#p-article-12-1"><i class="fas fa-comment-dots"></i></button><button class="copy-url-btn" title="Copy link" onclick="copyItemUrl(this,'https://artificialintelligenceact.eu/article/12/#p-article-12-1')"><i class="fas fa-link"></i></button></div>
+        </div><div class="para depth-0" id="p-article-12-2">
+          <span class="para-label">2.</span>
+          <span class="para-text">In order to ensure a level of traceability of the functioning of a high-risk <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> that is appropriate to the <span class="term-ref">intended purpose<span class="term-tip"><span class="term-tip-key">intended purpose</span><span class="term-tip-body">means the use for which an <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> is intended by the <span class="term-ref">provider<span class="term-tip"><span class="term-tip-key">provider</span><span class="term-tip-body">means a natural or legal person, public authority, agency or other body that develops an AI system or a general-purpose AI model or that has an AI system or a general-purpose AI model developed and places it on the market or puts the AI system into service under its own name or trademark, whether for payment or free of charge</span><span class="term-tip-src">Article 3(3)</span></span></span>, including the specific context and conditions of use, as specified in the information supplied by the <span class="term-ref">provider<span class="term-tip"><span class="term-tip-key">provider</span><span class="term-tip-body">means a natural or legal person, public authority, agency or other body that develops an AI system or a general-purpose AI model or that has an AI system or a general-purpose AI model developed and places it on the market or puts the AI system into service under its own name or trademark, whether for payment or free of charge</span><span class="term-tip-src">Article 3(3)</span></span></span> in the instructions for use, promotional or sales materials and statements, as well as in the technical documentation</span><span class="term-tip-src">Article 3(12)</span></span></span> of the system, logging capabilities shall enable the recording of events relevant for:</span>
+          <div class="para-actions"><button class="cmp-btn" title="Compare across languages"
+               onclick="openComparison(this)"
+               onmouseenter="cmpPreviewOn(this)" onmouseleave="cmpPreviewOff()"
+               data-type="article" data-item="12"
+               data-pid="2" data-pid-idx="1" data-label="2."><i class="fas fa-language"></i></button><button class="ask-ai-btn" title="Ask the assistant about this" aria-label="Ask the assistant about this" data-ask-label="Article 12(2)" data-ask-url="https://artificialintelligenceact.eu/article/12/#p-article-12-2"><i class="fas fa-comment-dots"></i></button><button class="copy-url-btn" title="Copy link" onclick="copyItemUrl(this,'https://artificialintelligenceact.eu/article/12/#p-article-12-2')"><i class="fas fa-link"></i></button></div>
+        </div><div class="para depth-1" id="p-article-12-2.a">
+          <span class="para-label">(a)</span>
+          <span class="para-text">identifying situations that may result in the high-risk <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> presenting a risk within the meaning of <a class="int-link" href="/article/79/">Article 79</a>(1) or in a <span class="term-ref">substantial modification<span class="term-tip"><span class="term-tip-key">substantial modification</span><span class="term-tip-body">means a change to an <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> after its <span class="term-ref">placing on the market<span class="term-tip"><span class="term-tip-key">placing on the market</span><span class="term-tip-body">means the first making available of an <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> or a general-purpose AI model on the Union market</span><span class="term-tip-src">Article 3(9)</span></span></span> or <span class="term-ref">putting into service<span class="term-tip"><span class="term-tip-key">putting into service</span><span class="term-tip-body">means the supply of an <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> for first use directly to the <span class="term-ref">deployer<span class="term-tip"><span class="term-tip-key">deployer</span><span class="term-tip-body">means a natural or legal person, public authority, agency or other body using an AI system under its authority except where the AI system is used in the course of a personal non-professional activity</span><span class="term-tip-src">Article 3(4)</span></span></span> or for own use in the Union for its <span class="term-ref">intended purpose<span class="term-tip"><span class="term-tip-key">intended purpose</span><span class="term-tip-body">means the use for which an <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> is intended by the <span class="term-ref">provider<span class="term-tip"><span class="term-tip-key">provider</span><span class="term-tip-body">means a natural or legal person, public authority, agency or other body that develops an AI system or a general-purpose AI model or that has an AI system or a general-purpose AI model developed and places it on the market or puts the AI system into service under its own name or trademark, whether for payment or free of charge</span><span class="term-tip-src">Article 3(3)</span></span></span>, including the specific context and conditions of use, as specified in the information supplied by the <span class="term-ref">provider<span class="term-tip"><span class="term-tip-key">provider</span><span class="term-tip-body">means a natural or legal person, public authority, agency or other body that develops an AI system or a general-purpose AI model or that has an AI system or a general-purpose AI model developed and places it on the market or puts the AI system into service under its own name or trademark, whether for payment or free of charge</span><span class="term-tip-src">Article 3(3)</span></span></span> in the instructions for use, promotional or sales materials and statements, as well as in the technical documentation</span><span class="term-tip-src">Article 3(12)</span></span></span></span><span class="term-tip-src">Article 3(11)</span></span></span> which is not foreseen or planned in the initial <span class="term-ref">conformity assessment<span class="term-tip"><span class="term-tip-key">conformity assessment</span><span class="term-tip-body">means the process of demonstrating whether the requirements set out in Chapter III, Section 2 relating to a high-risk <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> have been fulfilled</span><span class="term-tip-src">Article 3(20)</span></span></span> carried out by the <span class="term-ref">provider<span class="term-tip"><span class="term-tip-key">provider</span><span class="term-tip-body">means a natural or legal person, public authority, agency or other body that develops an AI system or a general-purpose AI model or that has an AI system or a general-purpose AI model developed and places it on the market or puts the AI system into service under its own name or trademark, whether for payment or free of charge</span><span class="term-tip-src">Article 3(3)</span></span></span> and as a result of which the compliance of the <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> with the requirements set out in Chapter III, Section 2 is affected or results in a modification to the <span class="term-ref">intended purpose<span class="term-tip"><span class="term-tip-key">intended purpose</span><span class="term-tip-body">means the use for which an <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> is intended by the <span class="term-ref">provider<span class="term-tip"><span class="term-tip-key">provider</span><span class="term-tip-body">means a natural or legal person, public authority, agency or other body that develops an AI system or a general-purpose AI model or that has an AI system or a general-purpose AI model developed and places it on the market or puts the AI system into service under its own name or trademark, whether for payment or free of charge</span><span class="term-tip-src">Article 3(3)</span></span></span>, including the specific context and conditions of use, as specified in the information supplied by the <span class="term-ref">provider<span class="term-tip"><span class="term-tip-key">provider</span><span class="term-tip-body">means a natural or legal person, public authority, agency or other body that develops an AI system or a general-purpose AI model or that has an AI system or a general-purpose AI model developed and places it on the market or puts the AI system into service under its own name or trademark, whether for payment or free of charge</span><span class="term-tip-src">Article 3(3)</span></span></span> in the instructions for use, promotional or sales materials and statements, as well as in the technical documentation</span><span class="term-tip-src">Article 3(12)</span></span></span> for which the <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> has been assessed</span><span class="term-tip-src">Article 3(23)</span></span></span>;</span>
+          <div class="para-actions"><button class="cmp-btn" title="Compare across languages"
+               onclick="openComparison(this)"
+               onmouseenter="cmpPreviewOn(this)" onmouseleave="cmpPreviewOff()"
+               data-type="article" data-item="12"
+               data-pid="2.a" data-pid-idx="2" data-label="(a)"><i class="fas fa-language"></i></button><button class="ask-ai-btn" title="Ask the assistant about this" aria-label="Ask the assistant about this" data-ask-label="Article 12(2)(a)" data-ask-url="https://artificialintelligenceact.eu/article/12/#p-article-12-2.a"><i class="fas fa-comment-dots"></i></button><button class="copy-url-btn" title="Copy link" onclick="copyItemUrl(this,'https://artificialintelligenceact.eu/article/12/#p-article-12-2.a')"><i class="fas fa-link"></i></button></div>
+        </div><div class="para depth-1" id="p-article-12-2.b">
+          <span class="para-label">(b)</span>
+          <span class="para-text">facilitating the post-market monitoring referred to in <a class="int-link" href="/article/72/">Article 72</a>; and</span>
+          <div class="para-actions"><button class="cmp-btn" title="Compare across languages"
+               onclick="openComparison(this)"
+               onmouseenter="cmpPreviewOn(this)" onmouseleave="cmpPreviewOff()"
+               data-type="article" data-item="12"
+               data-pid="2.b" data-pid-idx="3" data-label="(b)"><i class="fas fa-language"></i></button><button class="ask-ai-btn" title="Ask the assistant about this" aria-label="Ask the assistant about this" data-ask-label="Article 12(2)(b)" data-ask-url="https://artificialintelligenceact.eu/article/12/#p-article-12-2.b"><i class="fas fa-comment-dots"></i></button><button class="copy-url-btn" title="Copy link" onclick="copyItemUrl(this,'https://artificialintelligenceact.eu/article/12/#p-article-12-2.b')"><i class="fas fa-link"></i></button></div>
+        </div><div class="para depth-1" id="p-article-12-2.c">
+          <span class="para-label">(c)</span>
+          <span class="para-text">monitoring the operation of high-risk AI systems referred to in <a class="int-link" href="/article/26/">Article 26</a>(5).</span>
+          <div class="para-actions"><button class="cmp-btn" title="Compare across languages"
+               onclick="openComparison(this)"
+               onmouseenter="cmpPreviewOn(this)" onmouseleave="cmpPreviewOff()"
+               data-type="article" data-item="12"
+               data-pid="2.c" data-pid-idx="4" data-label="(c)"><i class="fas fa-language"></i></button><button class="ask-ai-btn" title="Ask the assistant about this" aria-label="Ask the assistant about this" data-ask-label="Article 12(2)(c)" data-ask-url="https://artificialintelligenceact.eu/article/12/#p-article-12-2.c"><i class="fas fa-comment-dots"></i></button><button class="copy-url-btn" title="Copy link" onclick="copyItemUrl(this,'https://artificialintelligenceact.eu/article/12/#p-article-12-2.c')"><i class="fas fa-link"></i></button></div>
+        </div><div class="para depth-0" id="p-article-12-3">
+          <span class="para-label">3.</span>
+          <span class="para-text">For high-risk AI systems referred to in point 1 (a), of <a class="int-link" href="/annex/3/">Annex III</a>, the logging capabilities shall provide, at a minimum:</span>
+          <div class="para-actions"><button class="cmp-btn" title="Compare across languages"
+               onclick="openComparison(this)"
+               onmouseenter="cmpPreviewOn(this)" onmouseleave="cmpPreviewOff()"
+               data-type="article" data-item="12"
+               data-pid="3" data-pid-idx="5" data-label="3."><i class="fas fa-language"></i></button><button class="ask-ai-btn" title="Ask the assistant about this" aria-label="Ask the assistant about this" data-ask-label="Article 12(3)" data-ask-url="https://artificialintelligenceact.eu/article/12/#p-article-12-3"><i class="fas fa-comment-dots"></i></button><button class="copy-url-btn" title="Copy link" onclick="copyItemUrl(this,'https://artificialintelligenceact.eu/article/12/#p-article-12-3')"><i class="fas fa-link"></i></button></div>
+        </div><div class="para depth-1" id="p-article-12-3.a">
+          <span class="para-label">(a)</span>
+          <span class="para-text">recording of the period of each use of the system (start date and time and end date and time of each use);</span>
+          <div class="para-actions"><button class="cmp-btn" title="Compare across languages"
+               onclick="openComparison(this)"
+               onmouseenter="cmpPreviewOn(this)" onmouseleave="cmpPreviewOff()"
+               data-type="article" data-item="12"
+               data-pid="3.a" data-pid-idx="6" data-label="(a)"><i class="fas fa-language"></i></button><button class="ask-ai-btn" title="Ask the assistant about this" aria-label="Ask the assistant about this" data-ask-label="Article 12(3)(a)" data-ask-url="https://artificialintelligenceact.eu/article/12/#p-article-12-3.a"><i class="fas fa-comment-dots"></i></button><button class="copy-url-btn" title="Copy link" onclick="copyItemUrl(this,'https://artificialintelligenceact.eu/article/12/#p-article-12-3.a')"><i class="fas fa-link"></i></button></div>
+        </div><div class="para depth-1" id="p-article-12-3.b">
+          <span class="para-label">(b)</span>
+          <span class="para-text">the reference database against which <span class="term-ref">input data<span class="term-tip"><span class="term-tip-key">input data</span><span class="term-tip-body">means data provided to or directly acquired by an <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> on the basis of which the system produces an output</span><span class="term-tip-src">Article 3(33)</span></span></span> has been checked by the system;</span>
+          <div class="para-actions"><button class="cmp-btn" title="Compare across languages"
+               onclick="openComparison(this)"
+               onmouseenter="cmpPreviewOn(this)" onmouseleave="cmpPreviewOff()"
+               data-type="article" data-item="12"
+               data-pid="3.b" data-pid-idx="7" data-label="(b)"><i class="fas fa-language"></i></button><button class="ask-ai-btn" title="Ask the assistant about this" aria-label="Ask the assistant about this" data-ask-label="Article 12(3)(b)" data-ask-url="https://artificialintelligenceact.eu/article/12/#p-article-12-3.b"><i class="fas fa-comment-dots"></i></button><button class="copy-url-btn" title="Copy link" onclick="copyItemUrl(this,'https://artificialintelligenceact.eu/article/12/#p-article-12-3.b')"><i class="fas fa-link"></i></button></div>
+        </div><div class="para depth-1" id="p-article-12-3.c">
+          <span class="para-label">(c)</span>
+          <span class="para-text">the <span class="term-ref">input data<span class="term-tip"><span class="term-tip-key">input data</span><span class="term-tip-body">means data provided to or directly acquired by an <span class="term-ref">AI system<span class="term-tip"><span class="term-tip-key">AI system</span><span class="term-tip-body">means a machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment, and that, for explicit or implicit objectives, infers, from the input it receives, how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments</span><span class="term-tip-src">Article 3(1)</span></span></span> on the basis of which the system produces an output</span><span class="term-tip-src">Article 3(33)</span></span></span> for which the search has led to a match;</span>
+          <div class="para-actions"><button class="cmp-btn" title="Compare across languages"
+               onclick="openComparison(this)"
+               onmouseenter="cmpPreviewOn(this)" onmouseleave="cmpPreviewOff()"
+               data-type="article" data-item="12"
+               data-pid="3.c" data-pid-idx="8" data-label="(c)"><i class="fas fa-language"></i></button><button class="ask-ai-btn" title="Ask the assistant about this" aria-label="Ask the assistant about this" data-ask-label="Article 12(3)(c)" data-ask-url="https://artificialintelligenceact.eu/article/12/#p-article-12-3.c"><i class="fas fa-comment-dots"></i></button><button class="copy-url-btn" title="Copy link" onclick="copyItemUrl(this,'https://artificialintelligenceact.eu/article/12/#p-article-12-3.c')"><i class="fas fa-link"></i></button></div>
+        </div><div class="para depth-1" id="p-article-12-3.d">
+          <span class="para-label">(d)</span>
+          <span class="para-text">the identification of the natural persons involved in the verification of the results, as referred to in <a class="int-link" href="/article/14/">Article 14</a>(5).</span>
+          <div class="para-actions"><button class="cmp-btn" title="Compare across languages"
+               onclick="openComparison(this)"
+               onmouseenter="cmpPreviewOn(this)" onmouseleave="cmpPreviewOff()"
+               data-type="article" data-item="12"
+               data-pid="3.d" data-pid-idx="9" data-label="(d)"><i class="fas fa-language"></i></button><button class="ask-ai-btn" title="Ask the assistant about this" aria-label="Ask the assistant about this" data-ask-label="Article 12(3)(d)" data-ask-url="https://artificialintelligenceact.eu/article/12/#p-article-12-3.d"><i class="fas fa-comment-dots"></i></button><button class="copy-url-btn" title="Copy link" onclick="copyItemUrl(this,'https://artificialintelligenceact.eu/article/12/#p-article-12-3.d')"><i class="fas fa-link"></i></button></div>
+        </div></section> <nav class="object-pagenav"> <a class="object-pagenav-link prev" href="/article/11/"> <i class="fas fa-arrow-left"></i> Article 11 </a> <a class="object-pagenav-link explorer" href="/ai-act-explorer/#article-12"> <i class="fas fa-book-open"></i> View in the full AI Act Explorer
+</a> <a class="object-pagenav-link next" href="/article/13/"> Article 13 <i class="fas fa-arrow-right"></i> </a> </nav> </div> </div> </main> </div> <div class="cmp-overlay" id="cmpOverlay" onclick="if (event.target === this) closeComparison();"> <div class="cmp-modal"> <div class="cmp-header"> <div> <div class="cmp-title">Compare across languages</div> <div class="cmp-subtitle" id="cmpSubtitle"></div> </div> <button class="cmp-close" onclick="closeComparison()" title="Close (Esc)">
+&#10005;
+</button> </div> <div class="cmp-lang-picker"> <span class="cmp-picker-label">Languages:</span> <div id="cmpLangPicker" class="weglot-ignore" style="display: contents"></div> </div> <div class="cmp-columns weglot-ignore" id="cmpColumns"> <div class="cmp-column"> <div class="loading"><div class="loading-spinner"></div></div> </div> </div> </div> </div> <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>(function(){const fnSeedJson = "{}";
+const lang = "EN";
+const cmpItemLabelJson = "\"Article 12\"";
+
+    window.__FN_SEED = JSON.parse(fnSeedJson);
+    window.__PAGE_LANG = lang;
+    window.__CMP_ITEM_LABEL = JSON.parse(cmpItemLabelJson);
+  })();</script> <script src="/shared.js"></script> <script type="module" src="/_astro/ObjectPage.astro_astro_type_script_index_0_lang.DesJ5DJu.js"></script> <script type="module" src="/_astro/ObjectPage.astro_astro_type_script_index_1_lang.k9YyUG2H.js"></script> <script>
+    try {
+      for (const k in window.__FN_SEED || {}) fnMap[k] = window.__FN_SEED[k];
+    } catch (e) {}
+    // The static TOC ships off-screen on mobile (see the ≤920px drawer rules
+    // in shared.css) — without this it's simply unreachable, since these pages
+    // never run the boot code (index-page.js / single-page.js) that other
+    // consumers rely on to create the toggle FAB.
+    initMobileTocFab();
+  </script>  <style>astro-island,astro-slot,astro-static-slot{display:contents}</style><script>(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).only=e;window.dispatchEvent(new Event("astro:only"));})();</script><script>(()=>{var A=Object.defineProperty;var g=(i,o,a)=>o in i?A(i,o,{enumerable:!0,configurable:!0,writable:!0,value:a}):i[o]=a;var d=(i,o,a)=>g(i,typeof o!="symbol"?o+"":o,a);{let i={0:t=>m(t),1:t=>a(t),2:t=>new RegExp(t),3:t=>new Date(t),4:t=>new Map(a(t)),5:t=>new Set(a(t)),6:t=>BigInt(t),7:t=>new URL(t),8:t=>new Uint8Array(t),9:t=>new Uint16Array(t),10:t=>new Uint32Array(t),11:t=>1/0*t},o=t=>{let[l,e]=t;return l in i?i[l](e):void 0},a=t=>t.map(o),m=t=>typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([l,e])=>[l,o(e)]));class y extends HTMLElement{constructor(){super(...arguments);d(this,"Component");d(this,"hydrator");d(this,"hydrate",async()=>{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let c=this.querySelectorAll("astro-slot"),n={},h=this.querySelectorAll("template[data-astro-template]");for(let r of h){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("data-astro-template")||"default"]=r.innerHTML,r.remove())}for(let r of c){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("name")||"default"]=r.innerHTML)}let p;try{p=this.hasAttribute("props")?m(JSON.parse(this.getAttribute("props"))):{}}catch(r){let s=this.getAttribute("component-url")||"<unknown>",v=this.getAttribute("component-export");throw v&&(s+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${s}`,this.getAttribute("props"),r),r}let u;await this.hydrator(this)(this.Component,p,n,{client:this.getAttribute("client")}),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});d(this,"unmount",()=>{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener("DOMContentLoaded",e),c.disconnect(),this.childrenConnectedCallback()},c=new MutationObserver(()=>{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue==="astro:end"&&(this.lastChild.remove(),e())});c.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&&await import(e),this.start()}async start(){let e=JSON.parse(this.getAttribute("opts")),c=this.getAttribute("client");if(Astro[c]===void 0){window.addEventListener(`astro:${c}`,()=>this.start(),{once:!0});return}try{await Astro[c](async()=>{let n=this.getAttribute("renderer-url"),[h,{default:p}]=await Promise.all([import(this.getAttribute("component-url")),n?import(n):()=>()=>{}]),u=this.getAttribute("component-export")||"default";if(!u.includes("."))this.Component=h[u];else{this.Component=h;for(let f of u.split("."))this.Component=this.Component[f]}return this.hydrator=p,this.hydrate},e,this)}catch(n){console.error(`[astro-island] Error hydrating ${this.getAttribute("component-url")}`,n)}}attributeChangedCallback(){this.hydrate()}}d(y,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",y)}})();</script><astro-island uid="Fc7qo" component-url="/_astro/ChatWidget.BbLxazA2.js" component-export="ChatWidget" renderer-url="/_astro/client.CslBqR4K.js" props="{}" ssr client="only" opts="{&quot;name&quot;:&quot;ChatWidget&quot;,&quot;value&quot;:&quot;react&quot;}"></astro-island> <div id="cb-banner" class="cb-banner" role="dialog" aria-labelledby="cb-title" aria-describedby="cb-desc" hidden data-astro-cid-2effgw6e> <h2 class="cb-title" id="cb-title" data-astro-cid-2effgw6e>Cookies on this website</h2> <p class="cb-desc" id="cb-desc" data-astro-cid-2effgw6e>
+We use cookies to understand how the explorer is used. Functional cookies are
+    always on; everything else is your choice, shared with
+    artificialintelligenceact.eu so you are only asked once. Read the
+<a href="https://artificialintelligenceact.eu/cookie-policy-eu/" data-astro-cid-2effgw6e>Cookie Policy</a> and the
+<a href="https://artificialintelligenceact.eu/privacy-statement-eu/" data-astro-cid-2effgw6e>Privacy Statement</a>.
+</p> <div class="cb-cats" id="cb-cats" hidden data-astro-cid-2effgw6e> <label class="cb-cat" data-astro-cid-2effgw6e> <input type="checkbox" checked disabled data-astro-cid-2effgw6e> Functional
+<span class="cb-cat-note" data-astro-cid-2effgw6e>(always on)</span> </label> <label class="cb-cat" data-astro-cid-2effgw6e><input type="checkbox" data-cat="statistics" data-astro-cid-2effgw6e> Statistics</label> <label class="cb-cat" data-astro-cid-2effgw6e><input type="checkbox" data-cat="marketing" data-astro-cid-2effgw6e> Marketing</label> <label class="cb-cat" data-astro-cid-2effgw6e><input type="checkbox" data-cat="preferences" data-astro-cid-2effgw6e> Preferences</label> </div> <div class="cb-actions" data-astro-cid-2effgw6e> <button type="button" id="cb-accept" class="cb-btn cb-btn-primary" data-astro-cid-2effgw6e>Accept all</button> <button type="button" id="cb-reject" class="cb-btn" data-astro-cid-2effgw6e>Reject all</button> <button type="button" id="cb-save" class="cb-btn cb-btn-primary" hidden data-astro-cid-2effgw6e>
+Save preferences
+</button> <button type="button" id="cb-manage" class="cb-btn cb-btn-ghost" aria-expanded="false" aria-controls="cb-cats" data-astro-cid-2effgw6e>Manage preferences</button> </div> </div> <button type="button" id="cb-reopen" class="cb-reopen" aria-label="Cookie preferences" title="Cookie preferences" hidden data-astro-cid-2effgw6e> <i class="fas fa-cookie-bite" aria-hidden="true" data-astro-cid-2effgw6e></i> </button>  <script>
+  (function () {
+    var gate = window.cmplzConsent;
+    var banner = document.getElementById('cb-banner');
+    if (!gate || !banner) return;
+    var PROD_ROOT = 'artificialintelligenceact.eu';
+    var cats = document.getElementById('cb-cats');
+    var manageBtn = document.getElementById('cb-manage');
+    var saveBtn = document.getElementById('cb-save');
+    var acceptBtn = document.getElementById('cb-accept');
+    var rejectBtn = document.getElementById('cb-reject');
+    var reopenBtn = document.getElementById('cb-reopen');
+    var boxes = cats.querySelectorAll('input[data-cat]');
+
+    /* Complianz-parity write: same name/value/domain/path/attribute order and
+       365-day expiry as the parent's cmplz_set_cookie, so the two hosts share
+       one cookie. Never write host-only on production — the browser would then
+       hold BOTH a host-only and the parent's root-domain cookie under one name
+       and reads become order-dependent; the pre-expiry of any stray host-only
+       duplicate is extra insurance. Off-production (localhost, previews):
+       host-only, and 'secure' only on https — mirroring Complianz's own
+       degradation — so the banner still works in yarn dev. */
+    function writeCookie(name, value) {
+      var host = location.hostname;
+      var onProd = host === PROD_ROOT || host.endsWith('.' + PROD_ROOT);
+      var secure = location.protocol === 'https:' ? ';secure' : '';
+      var d = new Date();
+      d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+      if (onProd) document.cookie = name + '=;SameSite=Lax;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+      document.cookie =
+        name + '=' + value + ';SameSite=Lax' + secure + ';expires=' + d.toUTCString() +
+        (onProd ? ';domain=' + PROD_ROOT : '') + ';path=/';
+    }
+
+    function persist(choices) {
+      choices.functional = 'allow'; // Complianz forces functional on
+      var update = {};
+      for (var cat in gate.signalMap) {
+        var val = choices[cat] === 'allow' ? 'allow' : 'deny';
+        writeCookie('cmplz_' + cat, val);
+        var sigs = gate.signalMap[cat];
+        for (var j = 0; j < sigs.length; j++) update[sigs[j]] = val === 'allow' ? 'granted' : 'denied';
+      }
+      /* The parent's banner keys on this cookie to not re-prompt. cmplz_policy_id
+         is deliberately NOT written: Complianz's policy-id check no-ops when the
+         cookie is absent, and hardcoding the current id here would rot. */
+      writeCookie('cmplz_banner-status', 'dismissed');
+      gtag('consent', 'update', update);
+      if (gate.gtmAllowed() && gate.injectGtm) gate.injectGtm();
+      closeBanner();
+    }
+
+    function prefill() {
+      boxes.forEach(function (box) {
+        var v = gate.read(box.getAttribute('data-cat'));
+        /* No cookie yet: default to the region's model — opt-out regions start
+           checked, opt-in (restricted) regions start unchecked. */
+        box.checked = v === 'allow' || (v === null && !gate.restricted);
+      });
+    }
+
+    function openBanner(takeFocus) {
+      prefill();
+      banner.hidden = false;
+      reopenBtn.hidden = true;
+      if (takeFocus) acceptBtn.focus();
+    }
+
+    function closeBanner() {
+      banner.hidden = true;
+      reopenBtn.hidden = false;
+    }
+
+    acceptBtn.addEventListener('click', function () {
+      persist({ statistics: 'allow', marketing: 'allow', preferences: 'allow' });
+    });
+    rejectBtn.addEventListener('click', function () {
+      persist({ statistics: 'deny', marketing: 'deny', preferences: 'deny' });
+    });
+    saveBtn.addEventListener('click', function () {
+      var choices = {};
+      boxes.forEach(function (box) {
+        choices[box.getAttribute('data-cat')] = box.checked ? 'allow' : 'deny';
+      });
+      persist(choices);
+    });
+    manageBtn.addEventListener('click', function () {
+      cats.hidden = !cats.hidden;
+      saveBtn.hidden = cats.hidden;
+      manageBtn.setAttribute('aria-expanded', String(!cats.hidden));
+    });
+    reopenBtn.addEventListener('click', function () {
+      openBanner(true);
+    });
+    banner.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        closeBanner(); // no cookies written: dismissal is not consent
+        reopenBtn.focus();
+      }
+    });
+
+    /* Auto-open ONLY where consent is required and no choice has been recorded.
+       Everywhere else the visitor is already tracked under the opt-out model, so
+       a popup is noise — the floating icon carries the full settings and is the
+       opt-out path, which keeps withdrawal as easy as granting (GDPR Art. 7(3)
+       where it applies, and notice-plus-opt-out where it does not). */
+    if (gate.restricted && gate.read('statistics') === null) openBanner(true);
+    else reopenBtn.hidden = false;
+  })();
+</script>   </body></html>

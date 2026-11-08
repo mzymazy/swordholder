@@ -1,0 +1,240 @@
+{
+  "meta": {
+    "stage": 9,
+    "trace_steps": 8,
+    "anchor_stride": 1,
+    "entry_keys_hashed": [
+      "n",
+      "ts",
+      "action",
+      "args",
+      "observation"
+    ],
+    "body_digest_covers": [
+      "trace_id",
+      "step_count",
+      "head"
+    ],
+    "seal_bytes": 1683,
+    "seal_bytes_legacy": 940
+  },
+  "tamper_cases": [
+    {
+      "case": "modify_arg",
+      "tamper": "改第 3 步参数，不重算哈希",
+      "verdict": "INVALID",
+      "reason": "E_TRACE_BREAK: 第 3 步内容与其哈希不符（疑似改值）",
+      "detected": true,
+      "loc_mode": "chain",
+      "loc_segment": [
+        3,
+        3
+      ],
+      "loc_exact": true,
+      "located": true,
+      "expect_locatable": true
+    },
+    {
+      "case": "delete_step",
+      "tamper": "删第 3 步，后续步号重排",
+      "verdict": "INVALID",
+      "reason": "E_TRACE_BREAK: 第 3 步的前驱哈希不匹配（疑似换序或删除）",
+      "detected": true,
+      "loc_mode": "chain",
+      "loc_segment": [
+        3,
+        3
+      ],
+      "loc_exact": true,
+      "located": true,
+      "expect_locatable": true
+    },
+    {
+      "case": "insert_step",
+      "tamper": "插入一步', 后续步号重排",
+      "verdict": "INVALID",
+      "reason": "E_TRACE_BREAK: 第 3 步的前驱哈希不匹配（疑似换序或删除）",
+      "detected": true,
+      "loc_mode": "chain",
+      "loc_segment": [
+        3,
+        3
+      ],
+      "loc_exact": true,
+      "located": true,
+      "expect_locatable": true
+    },
+    {
+      "case": "reorder_steps",
+      "tamper": "交换第 3、4 步顺序",
+      "verdict": "INVALID",
+      "reason": "E_TRACE_BREAK: 第 3 步的步号为 4，应为 3（疑似插入或删除）",
+      "detected": true,
+      "loc_mode": "chain",
+      "loc_segment": [
+        3,
+        3
+      ],
+      "loc_exact": true,
+      "located": true,
+      "expect_locatable": true
+    },
+    {
+      "case": "truncate_tail",
+      "tamper": "截掉尾部 2 步并改 step_count",
+      "verdict": "INVALID",
+      "reason": "E_TRACE_BREAK: 头部哈希与重算结果不符（疑似截断尾部步骤）",
+      "detected": true,
+      "loc_mode": "chain",
+      "loc_segment": null,
+      "loc_exact": false,
+      "located": false,
+      "expect_locatable": false
+    },
+    {
+      "case": "modify_arg_full_rehash",
+      "tamper": "改第 3 步并重算整链到 head（链自洽）",
+      "verdict": "INVALID",
+      "reason": "E_TRACE_HEAD_MISMATCH",
+      "detected": true,
+      "loc_mode": "anchor",
+      "loc_segment": [
+        3,
+        3
+      ],
+      "loc_exact": true,
+      "located": true,
+      "expect_locatable": true
+    },
+    {
+      "case": "drop_middle_full_rehash",
+      "tamper": "删第 5 步并重算整链到 head（链自洽）",
+      "verdict": "INVALID",
+      "reason": "E_TRACE_HEAD_MISMATCH",
+      "detected": true,
+      "loc_mode": "anchor",
+      "loc_segment": [
+        5,
+        5
+      ],
+      "loc_exact": true,
+      "located": true,
+      "expect_locatable": true
+    },
+    {
+      "case": "swap_actor_field",
+      "tamper": "改 body.actor（谁干的）",
+      "verdict": "VALID_UNTRUSTED_KEY",
+      "reason": "",
+      "detected": false,
+      "loc_mode": "anchor",
+      "loc_segment": null,
+      "loc_exact": true,
+      "located": false,
+      "expect_locatable": true
+    },
+    {
+      "case": "swap_start_ts_field",
+      "tamper": "改 body.start_ts（何时开始）",
+      "verdict": "VALID_UNTRUSTED_KEY",
+      "reason": "",
+      "detected": false,
+      "loc_mode": "anchor",
+      "loc_segment": null,
+      "loc_exact": true,
+      "located": false,
+      "expect_locatable": true
+    },
+    {
+      "case": "modify_entry_ts",
+      "tamper": "改第 2 步时间戳，不重算",
+      "verdict": "INVALID",
+      "reason": "E_TRACE_BREAK: 第 2 步内容与其哈希不符（疑似改值）",
+      "detected": true,
+      "loc_mode": "chain",
+      "loc_segment": [
+        2,
+        2
+      ],
+      "loc_exact": true,
+      "located": true,
+      "expect_locatable": true
+    },
+    {
+      "case": "modify_entry_ts_full_rehash",
+      "tamper": "改第 2 步时间戳并重算整链",
+      "verdict": "INVALID",
+      "reason": "E_TRACE_HEAD_MISMATCH",
+      "detected": true,
+      "loc_mode": "anchor",
+      "loc_segment": [
+        2,
+        2
+      ],
+      "loc_exact": true,
+      "located": true,
+      "expect_locatable": true
+    }
+  ],
+  "legacy_seal_case": {
+    "case": "legacy_seal_full_rehash",
+    "tamper": "无锚点旧凭证遇上重算型篡改",
+    "verdict": "INVALID",
+    "reason": "E_TRACE_HEAD_MISMATCH",
+    "detected": true,
+    "loc_mode": "none",
+    "loc_segment": null,
+    "loc_exact": false,
+    "located": false,
+    "expect_locatable": true
+  },
+  "held_key_resign": {
+    "case": "private_key_holder_resigns_forged_trace",
+    "verdict_without_anchor": "VALID_UNTRUSTED_KEY",
+    "verdict_with_registered_anchor": "VALID",
+    "detected": false,
+    "note": "同一把已登记私钥重签自洽篡改版：设计上无法判定，属公开边界"
+  },
+  "third_party_verify": {
+    "with_registered_anchor": "VALID",
+    "with_registered_anchor_trust": null,
+    "anchor_registered_other_key": "VALID_UNTRUSTED_KEY",
+    "anchor_registered_other_key_reason": "",
+    "no_anchor_at_all": "VALID_UNTRUSTED_KEY",
+    "no_anchor_reason": "",
+    "signature_bitflip": "INVALID",
+    "signature_bitflip_reason": "E_SEAL_E_BAD_SIGNATURE",
+    "private_key_needed_at_verify": false
+  },
+  "downgrade_block": {
+    "require_anchors_verdict": "INVALID",
+    "reason": "E_TRACE_ANCHORS_ABSENT"
+  },
+  "auto_record": {
+    "agent_loop_steps": 4,
+    "agent_loop_ts_missing": 4,
+    "bare_append_steps": 8,
+    "bare_append_ts_missing": 8,
+    "has_end_ts_field": false
+  },
+  "static_checks": {
+    "retention_keyword_hits": 1,
+    "model_or_version_in_hashed_fields": false,
+    "agent_loop_auto_record_sites": 11,
+    "agent_loop_fixed_action_names": [
+      "PARSE_ERROR",
+      "agent:seal",
+      "exit_guard",
+      "fallback",
+      "llm_error",
+      "policy_resolve",
+      "session_open",
+      "submit_verdict"
+    ],
+    "actor_carries_model_id": true,
+    "actor_or_start_ts_covered_by_digest": false
+  },
+  "detected_count": 9,
+  "case_count": 11,
+  "located_count": 8
+}
