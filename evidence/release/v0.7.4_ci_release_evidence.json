@@ -1,0 +1,161 @@
+{
+  "stage": "S6",
+  "recorded_at_utc": "2026-11-08T06:30:00Z",
+  "repository": "https://github.com/mzymazy/swordholder",
+  "release_tag": "v0.7.4",
+  "tag_sha": "dbdf7d88fd896e127862e92e233afc79bf3dc4e3",
+  "head_commit": "b3897be96db8c5d2b569a3dac0960e3cc81e8233",
+  "release_url": "https://github.com/mzymazy/swordholder/releases/tag/v0.7.4",
+  "workflow_runs": [
+    {
+      "workflow": "release",
+      "run_id": 42454039062,
+      "conclusion": "success",
+      "url": "https://github.com/mzymazy/swordholder/actions/runs/42454039062",
+      "note": "build job 12/12 steps success、github-release success、publish skipped (vars.PYPI_TRUSTED_PUBLISHER != 'true')"
+    },
+    {
+      "workflow": "verify",
+      "run_id": 42454039185,
+      "conclusion": "success",
+      "url": "https://github.com/mzymazy/swordholder/actions/runs/42454039185"
+    },
+    {
+      "workflow": "mcp-selftest",
+      "run_id": 42454039055,
+      "conclusion": "success",
+      "url": "https://github.com/mzymazy/swordholder/actions/runs/42454039055"
+    },
+    {
+      "workflow": "security-hardening",
+      "run_id": 42454039045,
+      "conclusion": "success",
+      "url": "https://github.com/mzymazy/swordholder/actions/runs/42454039045"
+    }
+  ],
+  "verify_jobs": [
+    {
+      "name": "quality-gate",
+      "conclusion": "success"
+    },
+    {
+      "name": "verify-proofs",
+      "conclusion": "success"
+    },
+    {
+      "name": "exit-integrity",
+      "conclusion": "success"
+    },
+    {
+      "name": "package-smoke (ubuntu-latest, 3.11)",
+      "conclusion": "success"
+    },
+    {
+      "name": "package-smoke (ubuntu-latest, 3.12)",
+      "conclusion": "success"
+    },
+    {
+      "name": "package-smoke (ubuntu-latest, 3.13)",
+      "conclusion": "success"
+    },
+    {
+      "name": "package-smoke (windows-latest, 3.11)",
+      "conclusion": "success"
+    },
+    {
+      "name": "package-smoke (windows-latest, 3.12)",
+      "conclusion": "success"
+    },
+    {
+      "name": "package-smoke (windows-latest, 3.13)",
+      "conclusion": "success"
+    },
+    {
+      "name": "package-smoke-macos",
+      "conclusion": "skipped"
+    }
+  ],
+  "coverage_gate_ci": {
+    "tests_passed": 471,
+    "tests_skipped": 1,
+    "pytest_duration_s": 21.24,
+    "coverage_combined_percent": 88.19,
+    "fail_under_percent": 85.0,
+    "coverage_xml_line_rate": 0.896,
+    "coverage_xml_branch_rate": 0.8397,
+    "lines_valid": 3260,
+    "lines_missing": 339,
+    "branches_valid": 1092,
+    "branches_covered": 917,
+    "ruff": "All checks passed!",
+    "note": "88.19% 为 coverage.py 行+分支合并口径 (2921/3260 行, 917/1092 分支 -> 3838/4352)；coverage.xml 的 line-rate=0.896 是纯行口径 2921/3260。两个数字都是真实输出，分母不同",
+    "source_run": 42454039185,
+    "source_step": "quality-gate / 全量测试 + 覆盖率门禁"
+  },
+  "release_assets": [
+    {
+      "name": "swordholder-0.7.4-py3-none-any.whl",
+      "size": 145637,
+      "sha256": "8986fb4cd6b474283806a57b70656243f6070e56eaee001662197c1d8eb70db1",
+      "browser_download_url": "https://github.com/mzymazy/swordholder/releases/download/v0.7.4/swordholder-0.7.4-py3-none-any.whl",
+      "download_via_api_verified": true
+    },
+    {
+      "name": "swordholder-0.7.4.tar.gz",
+      "size": 261920,
+      "sha256": "22c40bec37ae2bc0a4615e102cd243cf0e598c4fa613d87415868576888a96f5",
+      "browser_download_url": "https://github.com/mzymazy/swordholder/releases/download/v0.7.4/swordholder-0.7.4.tar.gz",
+      "download_via_api_verified": true
+    },
+    {
+      "name": "SHA256SUMS",
+      "size": 192,
+      "sha256": "0e1cf5bd2f923beac88e26f2d379ed17ca2c03303acb05a754d3d6e98d2dd16e",
+      "browser_download_url": "https://github.com/mzymazy/swordholder/releases/download/v0.7.4/SHA256SUMS",
+      "download_via_api_verified": true
+    }
+  ],
+  "clean_room_install": {
+    "env": "Windows 11 26200 / Python 3.11.8 / 全新 venv（仅 pip 24.0 + setuptools 65.5）",
+    "wheel_install": {
+      "source": "Release 附件 swordholder-0.7.4-py3-none-any.whl（GitHub API application/octet-stream 取回，sha256 与 Release digest 及 SHA256SUMS 一致）",
+      "command": "python -m pip install swordholder-0.7.4-py3-none-any.whl",
+      "result": "installed swordholder 0.7.4 + cryptography 50.0.2 / pyyaml 6.0.3 / jsonschema 4.26.0"
+    },
+    "sdist_install": {
+      "source": "Release 附件 swordholder-0.7.4.tar.gz（sha256 一致）",
+      "command": "python -m pip install swordholder-0.7.4.tar.gz",
+      "result": "Building wheel for swordholder (pyproject.toml): finished with status 'done' -> Successfully installed swordholder-0.7.4"
+    },
+    "quickstart_chain": [
+      "swordholder --version -> 'swordholder 0.7.4' (exit 0)",
+      "swordholder keygen --out keys -> KEYPAIR_CREATED (exit 0)",
+      "swordholder triage alert.json --seal -k keys/swordholder_ed25519_private.pem -> verdict=suspicious, seal=alert.seal.json (exit 0)",
+      "swordholder trust add --pubkey ... --keys-file trusted.json --key-id clean-room -> ok=true (exit 0)",
+      "swordholder verify alert.seal.json --keys trusted.json -> verdict=VALID, trust=trusted (exit 0)"
+    ]
+  },
+  "negative_results": [
+    {
+      "item": "pip install <Release wheel 直链>",
+      "result": "FAIL",
+      "detail": "HTTP error 403 while getting https://github.com/mzymazy/swordholder/releases/download/v0.7.4/swordholder-0.7.4-py3-none-any.whl（curl.exe 同 URL 亦 403，响应体 1812 字节）。本机网络对 github.com release 资产下载路径返回 403；同一资产经 GitHub API application/octet-stream 可下载且 sha256 与 Release digest 完全一致，说明是本地网络出口限制，不是发行物问题",
+      "impact": "README 的 pip 直链安装方式在本机无法自证，需在无该限制的网络环境复验"
+    },
+    {
+      "item": "PyPI 发布（publish job）",
+      "result": "SKIPPED",
+      "detail": "release run 42454039062 的 publish job 因 vars.PYPI_TRUSTED_PUBLISHER != 'true' 被跳过；PyPI 侧 Trusted Publisher 仍未登记，pip install swordholder 依旧 404"
+    },
+    {
+      "item": "package-smoke-macos",
+      "result": "SKIPPED",
+      "detail": "macOS 作业在 verify run 42454039185 中为 skipped（矩阵条件未启用）"
+    },
+    {
+      "item": "覆盖率口径",
+      "result": "CLARIFIED",
+      "detail": "88.19%（行+分支合并）与 coverage.xml line-rate 0.896（纯行）不是矛盾，是分母不同；对外只应引用 88.19% 并标注口径"
+    }
+  ]
+}
