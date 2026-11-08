@@ -121,37 +121,40 @@ Successfully installed ... swordholder-0.7.4
 
 ### 3.3 装完按文档跑一次最小链路（陌生人视角）
 
-全部在该干净 venv 内执行，工作目录是一个空目录，只放了 `alert.json`：
+全部在该干净 venv 内执行。工作目录只放一个 `alert.json`（取自 wheel 内置 `swordholder/samples/alert_01_egress.json`，
+即"只用装进来的东西，不用仓库源码"）：
 
 ```text
 $ swordholder --version
-swordholder 0.7.4                                          [exit=0]
+swordholder 0.7.4                                                     [exit=0]
 
 $ swordholder keygen --out keys
-{ "public_key_hex": "53434f20e368c4bea71ef4629694c7a2500c6ac339f361de86c8c28c6a427d1c", ... }
-                                                           [exit=0]
+{ "private_key_path": "keys\\swordholder_ed25519_private.pem",
+  "public_key_path": "keys\\swordholder_ed25519_public.pem",
+  "public_key_hex": "f51b36a99bb82c290eb664a159f70c472a9caf1890b7df397f0cf48acc893c38" }   [exit=0]
 
 $ swordholder triage alert.json --seal -k keys\swordholder_ed25519_private.pem
-{ "alert_id": "ALRT-CLEAN-1", "verdict": "suspicious", "confidence": 0.78,
-  "engine": "rules-v1", "seal": "alert.seal.json",
-  "payload_sha256": "090edec1466915f5ee7b22358cd2729882b0f11062be8791be2f3b5f188b7f9e" }
-                                                           [exit=0]
+{ "alert_id": "ALRT-2026-1102-0007", "asset": "build-runner-07",
+  "verdict": "suspicious", "severity": "high", "confidence": 0.78, "engine": "rules-v1",
+  "seal": "alert.seal.json",
+  "payload_sha256": "de2cc7d671d86bdaf104b0cb9ddc9ac1b4a675eedcd379085a1e8897890e644a" }     [exit=0]
 
-$ swordholder trust add --pubkey 53434f20... --keys-file trusted.json --key-id clean-room
+$ swordholder trust add --pubkey f51b36a9... --keys-file trusted.json --key-id clean-room
 { "ok": true, "total_keys": 1,
-  "key": { "key_id": "clean-room", "status": "active",
-           "fingerprint_sha256": "3574b0d2d6468940e3922dfe610b2f87e45ecbdff005d0e88a74317d49046e6f" } }
-                                                           [exit=0]
+  "key": { "key_id": "clean-room", "algorithm": "ed25519", "status": "active",
+           "fingerprint_sha256": "a226ee7893cb8b42cee17fb9a3bc7ec1914871f8fa9e516d9dc1052f32396f48" } }  [exit=0]
 
 $ swordholder verify alert.seal.json --keys trusted.json
 { "verdict": "VALID", "reason": "OK", "trust": "trusted",
-  "seal_id": "248128ae-1393-4cb8-9f53-a19bfe82b6cf",
-  "payload_sha256": "090edec1466915f5ee7b22358cd2729882b0f11062be8791be2f3b5f188b7f9e",
-  "key_id": "clean-room", "key_status": "active" }
-                                                           [exit=0]
+  "seal_id": "b431bdaa-665d-43bd-ac5f-9940cb0d1e49",
+  "created_at": "2026-11-08T07:21:18Z",
+  "payload_sha256": "de2cc7d671d86bdaf104b0cb9ddc9ac1b4a675eedcd379085a1e8897890e644a",
+  "public_key_hex": "f51b36a99bb82c290eb664a159f70c472a9caf1890b7df397f0cf48acc893c38",
+  "key_id": "clean-room", "key_status": "active" }                                          [exit=0]
 ```
 
-盖章前的 `payload_sha256` 与验签返回的 `payload_sha256` 是同一串，`verdict=VALID`、`trust=trusted`。
+读法：盖章前算出的 `payload_sha256`（`de2cc7d6…`）与验签返回的是同一串，`verdict=VALID`、`trust=trusted`，
+`public_key_hex` 与 `keygen` 打印的一致，说明凭证是用这把私钥盖的、且这把公钥已作为信任锚登记。
 
 ---
 
