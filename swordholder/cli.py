@@ -544,7 +544,11 @@ def cmd_policy_show(args) -> int:
           f"hypothesis ≤ {lim['max_hypothesis_len']} 字")
     print(f"\n不变量（{len(p['invariants'])} 条，命中即拒收）：")
     for inv in p["invariants"]:
-        print(f"  [{inv['id']}] 当 verdict = {inv['when']['verdict']} → 要求 {inv['require']}（字段 {inv['field']}）")
+        # when 为空表示"任何结论都生效"（例如 I3 禁止削弱防护的处置动作），
+        # 不能让渲染逻辑强依赖 when.verdict，否则 policy show 会直接 KeyError。
+        when = inv.get("when") or {}
+        cond = "、".join(f"{k}={v}" for k, v in sorted(when.items())) if when else "任何结论"
+        print(f"  [{inv['id']}] 当 {cond} → 要求 {inv['require']}（字段 {inv.get('field', '-')}）")
         print(f"        {inv.get('title', '')}")
     return 0
 

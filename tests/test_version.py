@@ -37,7 +37,6 @@ def test_version_is_semver():
 
 def test_cli_reports_package_version():
     """`swordholder --version` 必须报包自己的版本，而不是 argparse 的默认串。"""
-    import argparse
     import io
     from contextlib import redirect_stdout
 

@@ -42,7 +42,7 @@ AIGC:
 ```bash
 git clone https://github.com/mzymazy/swordholder && cd swordholder
 pip install -e .            # 运行时依赖 3 个：cryptography / pyyaml / jsonschema
-swordholder --version       # swordholder 0.7.2（与 pyproject.toml 一致）
+swordholder --version       # swordholder 0.7.3（与 pyproject.toml 一致）
 ```
 
 > **包里没有 PyPI 发布**：`pip install swordholder` 会 `No matching distribution found`，这是预期行为，不是环境问题。请用上面的源码安装（`-e .`），或隔离环境用 `pipx install .` / `pip install .`（非 editable，等价于本地打 wheel 安装）。Python 3.11+。
@@ -51,7 +51,9 @@ swordholder --version       # swordholder 0.7.2（与 pyproject.toml 一致）
 >
 > ```bash
 > pip install -e ".[dev]"
-> pytest                      # 330 passed（pyproject 已默认 addopts=-q，再传一次 -q 会吞掉汇总行）
+> pytest                      # 472 passed（pyproject 已默认 addopts=-q，再传一次 -q 会吞掉汇总行）
+> pytest --cov=swordholder --cov=mcp_server --cov-report=term   # 覆盖率 88.19%（门禁 fail_under=85）
+> ruff check swordholder mcp_server tests                       # 静态检查，0 issue
 > python scripts/worldclass_probe.py --assert   # 57/57 安全属性断言通过（不调用模型）
 > python mcp_server/selftest.py   # 10/10 通过
 > swordholder exits --selftest    # 13/13 必判出口全部取到票据（覆盖率 1.0）
@@ -68,7 +70,7 @@ swordholder --version       # swordholder 0.7.2（与 pyproject.toml 一致）
 
 ```bash
 python scripts/build_release.py                       # 1) 构建 wheel/sdist（dist/ 不入库，clone 后需自建）
-pip install dist/swordholder-0.7.2-py3-none-any.whl   # 2) 离线可装（--no-index 也能过）
+pip install dist/swordholder-0.7.3-py3-none-any.whl   # 2) 离线可装（--no-index 也能过）
 python examples/minimal_integration.py --out minimal_check.json   # 3) 13/13 接入检查
 python scripts/verify_release.py --out release_check.json         # 4) 发行物隔离验收 7/7
 ```
@@ -79,7 +81,7 @@ python scripts/verify_release.py --out release_check.json         # 4) 发行物
 
 | 产出 | 说明 |
 |---|---|
-| `dist/swordholder-0.7.2-py3-none-any.whl`（146,301 字节）/ `.tar.gz` | 可安装发行物，SHA256 见 `dist/SHA256SUMS`（`dist/` 不入库，用 `build_release.py` 重建） |
+| `dist/swordholder-0.7.3-py3-none-any.whl` / `.tar.gz` | 可安装发行物，SHA256 见 `dist/SHA256SUMS`（`dist/` 不入库，用 `build_release.py` 重建；字节数与哈希以每次构建后的 `SHA256SUMS` 为准，不在此写死） |
 | `examples/minimal_integration.py` | 只用公开 API 跑 13 项检查：签发 / 验签 / 3 类篡改 / 2 类类型混淆 / 重放 / 确定性 / 性能 |
 | `scripts/verify_release.py` | 在**隔离目录**装 wheel 再跑接入示例，校验版本一致、包数据齐全、SHA256 匹配 |
 | `examples/README.md` | 接入文档与三条使用约定（判定对错由人负责 / 以 `seal_header.subject` 为准 / 信任锚自己维护） |
@@ -89,11 +91,29 @@ python scripts/verify_release.py --out release_check.json         # 4) 发行物
 隔离安装环境与源码树跑出的 `payload_sha256` 完全一致（`c666b896…`）。
 详见 [`docs/stage4-release-and-integration.md`](docs/stage4-release-and-integration.md)。
 
-> **仍未做到的**：包未发布到 PyPI（`pip install swordholder` 会失败，属预期）。`S5` 已补上
-> `.github/workflows/release.yml`（推 `v*` tag 时构建→验收→OIDC 发布），但 PyPI 侧 Trusted Publisher
-> 尚未登记、仓库也无 API token，所以**发布这一步从未真正执行过**，仍属未验证；无外部使用者与第三方复现记录。
-> 发行物"可安装"目前仅限本地 wheel。详见 [`docs/stage5-head-to-head.md`](docs/stage5-head-to-head.md) 与
-> [`docs/stage5-scoring.md`](docs/stage5-scoring.md)。
+### 从公开渠道装（不需要我的任何凭据，也不需要 PyPI 账号）
+
+推 `v*` tag 时 `.github/workflows/release.yml` 会构建 → 验收 → **用 Actions 自带的 `GITHUB_TOKEN`
+创建 GitHub Release 并挂上 wheel/sdist/SHA256SUMS**。这条路径不需要任何人工私密凭据，产物任何人都能匿名下载：
+
+```bash
+# 浏览器打开 Release 页下载 wheel，或直接按直链装（版本号换成你要的那个 tag）
+pip install https://github.com/mzymazy/swordholder/releases/download/v0.7.3/swordholder-0.7.3-py3-none-any.whl
+
+# 装完按最小路径自证一遍（不读源码、不设 PYTHONPATH）
+swordholder --version
+swordholder keygen --out keys
+swordholder triage alert.json --seal -k keys/swordholder_ed25519_private.pem   # 产出 alert.seal.json
+swordholder trust add --pubkey <keygen 打印的 public_key_hex> --keys-file trusted.json --key-id me
+swordholder verify alert.seal.json --keys trusted.json                        # 期望 verdict=VALID
+```
+
+> **仍未做到的**：`pip install swordholder` 走 PyPI 仍会失败——PyPI 侧 Trusted Publisher 尚未登记
+> （需要包主账号操作），因此 `release.yml` 里的 `publish` job 通过仓库变量 `PYPI_TRUSTED_PUBLISHER`
+> 关着，未开启时该 job 不执行，也就不会把发布链路拖红。**开启后无需改文件即可 OIDC 上传**。
+> 公开渠道目前是 GitHub Release（匿名可下载、可 `pip install <wheel 直链>`），不是 PyPI 索引。
+> 发行物安装验证由 `release.yml` 的 build job 在一个空 venv 里实跑 keygen → triage --seal → trust add → verify 完成；
+> 本机另做过一次同样的陌生人视角复核（见 [`docs/stage6-public-and-gates.md`](docs/stage6-public-and-gates.md)）。
 
 ## 定价口径（不是报价，是可复算的测算）
 

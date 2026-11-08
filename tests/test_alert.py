@@ -1,5 +1,7 @@
 import json
 import os
+import subprocess
+import sys
 
 import pytest
 
@@ -80,10 +82,6 @@ def test_triage_event_end_to_end(name, fmt, verdict):
     # 原始日志不进凭证，只留 hash
     assert "raw" not in res["input"]
 
-# ---- CLI 输入契约（stdin / 错误码）----------------------------------------
-import subprocess
-import sys
-import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)

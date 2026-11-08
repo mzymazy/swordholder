@@ -55,3 +55,9 @@ artifacts_v2_*/
 # S5
 .tmp_s5_site/
 artifacts_s5_*/
+
+# S6：覆盖率与质量门禁的本机残留
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/

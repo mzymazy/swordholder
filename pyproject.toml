@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "swordholder"
-version = "0.7.2"
-description = "缁?AI 缁撹鐩栫珷锛氭妸鍛婅鍒嗚瘖缁撹灏佹垚鍙绾跨嫭绔嬮獙绛剧殑 ed25519 鍑瘉锛屽彲鎺ュ叆 SOC / SOAR / MCP"
+version = "0.7.3"
+description = "给 AI 结论盖章：把告警分诊结论封成可离线独立验签的 ed25519 凭证，可接入 SOC / SOAR / MCP"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "coverage[toml]>=7.4", "ruff>=0.5"]
 
 [project.scripts]
 swordholder = "swordholder.cli:main"
@@ -42,4 +42,32 @@ swordholder = ["samples/*.json", "alert.schema.json", "seal.schema.json", "polic
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+filterwarnings = ["error::DeprecationWarning:swordholder.*"]
+
+[tool.coverage.run]
+source = ["swordholder", "mcp_server"]
+branch = true
+
+[tool.coverage.report]
+# 质量门禁：总覆盖率低于 85% 就让 pytest 退出码非 0，CI 随之中断。
+# 门槛取 85 而非当前实测值，是为了留出重构余量又防止无声下滑。
+fail_under = 85
+show_missing = true
+skip_covered = false
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+  "raise NotImplementedError",
+]
+
+[tool.ruff]
+line-length = 160
+target-version = "py311"
+extend-exclude = ["proofs/legacy_v0.4", "dist", "build", "evidence"]
+
+[tool.ruff.lint]
+# 只开"真错误"级规则：语法/未定义名/未用导入/行长。
+# 不追求一次性把历史风格债清零，避免门禁长期红着失去意义。
+select = ["E4", "E7", "E9", "F", "E501"]
 

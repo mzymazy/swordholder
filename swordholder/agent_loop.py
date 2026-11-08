@@ -24,11 +24,11 @@ import urllib.error
 import urllib.request
 from typing import Any, Callable
 
-LAB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                       "evidence", "agent_lab")
-
 from . import evidence_auth, exit_guard, policy_loader, trace_ledger
 from . import session as session_mod
+
+LAB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                       "evidence", "agent_lab")
 
 # 枚举与阈值不再硬编码在本模块，统一由策略包（swordholder/policy/*.yaml）决定。
 # 下面两个常量仅作"内置默认策略的镜像"，供外部引用/展示；真正的判定一律走 _policy()。
@@ -1086,6 +1086,10 @@ def main(argv: list[str] | None = None) -> int:
                       conversation=conversation, session=sess, session_out=a.session_out)
     text = json.dumps(trace, ensure_ascii=False, indent=2)
     if a.out:
+        # --out 允许带不存在的子目录（"runs/2026-11-08/trace.json" 这种最自然），
+        # 交付物目录不能要求用户先手工 mkdir，否则第一条命令就报错。
+        parent = os.path.dirname(os.path.abspath(a.out))
+        os.makedirs(parent, exist_ok=True)
         with open(a.out, "w", encoding="utf-8") as f:
             f.write(text)
         print(f"trace -> {a.out}")

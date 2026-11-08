@@ -129,6 +129,51 @@ jobs:
               d["bound_total"], d["records_with_response"], d["T1_response_text_hash_ok"]))
           PY
 
+  # 质量门禁：静态检查与"测试真的覆盖到多少"两件事，以前只存在于本机命令里。
+  # 门禁阈值写在 pyproject.toml（[tool.coverage.report] fail_under / [tool.ruff.lint]），
+  # CI 只负责执行——阈值与文档同源，改一处即生效，避免 CI 与本地口径打架。
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v6
+
+      - name: 配置 Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: 安装依赖（含 dev：pytest / pytest-cov / coverage / ruff）
+        run: |
+          pip install -r requirements.txt
+          pip install -e ".[dev]"
+
+      - name: 静态检查（ruff，规则集与行长阈值取自 pyproject.toml）
+        run: |
+          set -euo pipefail
+          ruff --version
+          ruff check swordholder mcp_server tests
+
+      - name: 全量测试 + 覆盖率门禁（fail_under 取自 pyproject.toml）
+        run: |
+          set -euo pipefail
+          pytest -p no:cacheprovider --cov=swordholder --cov=mcp_server                  --cov-report=term-missing --cov-report=xml:coverage.xml
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          root = ET.parse("coverage.xml").getroot()
+          rate = float(root.get("line-rate"))
+          print("覆盖率（行）：%.2f%%" % (rate * 100))
+          assert rate >= 0.85, rate
+          PY
+
+      - name: 覆盖率报告留档
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
   # 出口完整性门禁：reference monitor 的 always invoked 前提必须可被证伪。
   # tests/test_exit_integrity.py 27 用例分四组：A 枚举完整性（AST 扫真实入口与 EXITS 双向比对）
   # / B 绕过注入 11 条（解释合理但证据不足、改严重性、越权改信任锚、票据串用等）/

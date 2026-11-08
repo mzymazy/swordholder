@@ -1,14 +1,15 @@
 name: release
 
-# 只在推送形如 v0.7.2 的 tag 时触发；日常 push 不会跑到发布逻辑。
+# 只在推送形如 v0.7.3 的 tag 时触发；日常 push 不会跑到发布逻辑。
+# workflow_dispatch 允许手动重放一次，用于在 tag 之外复核整条链路。
 on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: read
-  id-token: write   # PyPI Trusted Publishing（OIDC）需要
 
 jobs:
   build:
@@ -26,19 +27,86 @@ jobs:
         run: python scripts/verify_release.py --write-sums
       - name: Twine metadata check
         run: python -m twine check dist/*
+
+      # 装出来才算发行物：把刚构建的 wheel 装进一个空 venv，再用**公开 CLI** 跑一遍
+      # keygen → triage --seal → trust add → verify。这条链只依赖 wheel 与 pip，
+      # 不读源码树、不设 PYTHONPATH，任何一环失败都说明"给别人装不上或用不了"。
+      - name: Install the built wheel into a clean venv and run the public quickstart
+        run: |
+          set -euo pipefail
+          python -m venv /tmp/smoke
+          /tmp/smoke/bin/python -m pip install --quiet --upgrade pip
+          /tmp/smoke/bin/python -m pip install --quiet dist/*.whl
+          /tmp/smoke/bin/swordholder --version
+          mkdir -p /tmp/run && cd /tmp/run
+          python - <<'PY'
+          import json
+          json.dump({"alert_id": "ALRT-REL-1", "title": "Build runner outbound TLS",
+                     "asset": "build-runner-07", "severity": "high",
+                     "signal": "unexpected outbound TLS to unknown ASN 215199"},
+                    open("alert.json", "w", encoding="utf-8"), ensure_ascii=False)
+          PY
+          HEX=$(/tmp/smoke/bin/swordholder keygen --out keys | python -c "import json,sys;print(json.load(sys.stdin)['public_key_hex'])")
+          /tmp/smoke/bin/swordholder triage alert.json --seal -k keys/swordholder_ed25519_private.pem > triage.json
+          /tmp/smoke/bin/swordholder trust add --pubkey "$HEX" --keys-file trusted.json --key-id release-smoke > /dev/null
+          /tmp/smoke/bin/swordholder verify alert.seal.json --keys trusted.json | tee verify.json
+          python - <<'PY'
+          import json
+          v = json.load(open("verify.json", encoding="utf-8"))
+          assert v["verdict"] == "VALID", v
+          t = json.load(open("triage.json", encoding="utf-8"))
+          assert t["seal"] and t["payload_sha256"], t
+          print("wheel 冒烟：判定 -> 盖章 -> 独立验签 VALID 全通")
+          PY
+
       - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/*
 
-  publish:
+  # 公开分发：Release 的写令牌由 Actions 在运行时自动注入（GITHUB_TOKEN），
+  # 不需要人工私密凭据、也不需要 PyPI 账号。资产公开可匿名下载，
+  # `pip install https://github.com/mzymazy/swordholder/releases/download/vX.Y.Z/<wheel>` 即可装。
+  github-release:
     needs: build
     runs-on: ubuntu-latest
-    # 环境名在 PyPI 侧配置 Trusted Publisher 时必须与之匹配；未配置则本 job 提交失败，
-    # 这正是我们希望的 fail-closed 行为——没有登记过的发布者不能上传。
+    permissions:
+      contents: write      # 仅此 job 需要写权限，且只用于创建 Release 与附加资产
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Show exactly what will be published
+        run: |
+          set -euo pipefail
+          ls -l dist
+          cd dist && sha256sum * || true
+      - name: Create GitHub Release with installable artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+            dist/SHA256SUMS
+          generate_release_notes: true
+          fail_on_unpublished: true
+          draft: false
+          prerelease: false
+
+  # PyPI 仍是"待开启"：需先在 PyPI 侧登记 Trusted Publisher，并在仓库里把变量
+  # PYPI_TRUSTED_PUBLISHER 设为 true。未开启时本 job 根本不进入执行，因此
+  # 缺凭据不会把整条发布链路拖红；开启后无需改本文件即可 OIDC 上传。
+  publish:
+    needs: [build, github-release]
+    if: ${{ vars.PYPI_TRUSTED_PUBLISHER == 'true' }}
+    runs-on: ubuntu-latest
     environment:
       name: pypi
       url: https://pypi.org/p/swordholder
+    permissions:
+      id-token: write
     steps:
       - uses: actions/download-artifact@v4
         with:
