@@ -1,0 +1,46 @@
+{
+  "base": {
+    "verify_rc": 0,
+    "base_ok": true,
+    "step_rcs": [
+      0,
+      0,
+      0
+    ]
+  },
+  "cases": [
+    {
+      "case": "H1_link_hash_resigned",
+      "mutation": "改 step01.2a94df8e.link 内 artifacts/s01.txt 的 sha256（原 9f3d27e2… → 1111…），产物文件不动",
+      "resign_rc": 0,
+      "resign_err_tail": "",
+      "verify_rc": 1,
+      "detected": true,
+      "named_steps_in_error": [
+        "step01",
+        "step02"
+      ],
+      "error_excerpt": "(in-toto-verify) RuleVerificationError: 'DISALLOW *' matched the following artifacts: ['artifacts/s01.txt']\nFull trace for 'expected_materials' of item 'step02':\nAvailable materials (used for queue):\n['artifacts/s01.txt']\nAvailable products:\n['artifacts/s02.txt']\nQueue after 'MATCH artifacts/s01.txt WITH PRODUCTS FROM step01':\n['artifacts/s01.txt']",
+      "verify_out_tail": ""
+    },
+    {
+      "case": "H2_artifact_and_link_resigned",
+      "mutation": "改产物 artifacts/s01.txt 内容并同步改 step01.2a94df8e.link 内哈希（9f3d27e2… → df422a14…）",
+      "resign_rc": 0,
+      "resign_err_tail": "",
+      "verify_rc": 1,
+      "detected": true,
+      "named_steps_in_error": [
+        "step01",
+        "step02"
+      ],
+      "error_excerpt": "(in-toto-verify) RuleVerificationError: 'DISALLOW *' matched the following artifacts: ['artifacts/s01.txt']\nFull trace for 'expected_materials' of item 'step02':\nAvailable materials (used for queue):\n['artifacts/s01.txt']\nAvailable products:\n['artifacts/s02.txt']\nQueue after 'MATCH artifacts/s01.txt WITH PRODUCTS FROM step01':\n['artifacts/s01.txt']",
+      "verify_out_tail": ""
+    }
+  ],
+  "summary": {
+    "cases": 2,
+    "detected": 2,
+    "undetected": []
+  }
+}
