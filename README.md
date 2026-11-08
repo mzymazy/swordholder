@@ -42,7 +42,7 @@ AIGC:
 ```bash
 git clone https://github.com/mzymazy/swordholder && cd swordholder
 pip install -e .            # 运行时依赖 3 个：cryptography / pyyaml / jsonschema
-swordholder --version       # swordholder 0.7.3（与 pyproject.toml 一致）
+swordholder --version       # swordholder 0.7.4（与 pyproject.toml 一致）
 ```
 
 > **包里没有 PyPI 发布**：`pip install swordholder` 会 `No matching distribution found`，这是预期行为，不是环境问题。请用上面的源码安装（`-e .`），或隔离环境用 `pipx install .` / `pip install .`（非 editable，等价于本地打 wheel 安装）。Python 3.11+。
@@ -70,7 +70,7 @@ swordholder --version       # swordholder 0.7.3（与 pyproject.toml 一致）
 
 ```bash
 python scripts/build_release.py                       # 1) 构建 wheel/sdist（dist/ 不入库，clone 后需自建）
-pip install dist/swordholder-0.7.3-py3-none-any.whl   # 2) 离线可装（--no-index 也能过）
+pip install dist/swordholder-0.7.4-py3-none-any.whl   # 2) 离线可装（--no-index 也能过）
 python examples/minimal_integration.py --out minimal_check.json   # 3) 13/13 接入检查
 python scripts/verify_release.py --out release_check.json         # 4) 发行物隔离验收 7/7
 ```
@@ -81,7 +81,7 @@ python scripts/verify_release.py --out release_check.json         # 4) 发行物
 
 | 产出 | 说明 |
 |---|---|
-| `dist/swordholder-0.7.3-py3-none-any.whl` / `.tar.gz` | 可安装发行物，SHA256 见 `dist/SHA256SUMS`（`dist/` 不入库，用 `build_release.py` 重建；字节数与哈希以每次构建后的 `SHA256SUMS` 为准，不在此写死） |
+| `dist/swordholder-0.7.4-py3-none-any.whl` / `.tar.gz` | 可安装发行物，SHA256 见 `dist/SHA256SUMS`（`dist/` 不入库，用 `build_release.py` 重建；字节数与哈希以每次构建后的 `SHA256SUMS` 为准，不在此写死） |
 | `examples/minimal_integration.py` | 只用公开 API 跑 13 项检查：签发 / 验签 / 3 类篡改 / 2 类类型混淆 / 重放 / 确定性 / 性能 |
 | `scripts/verify_release.py` | 在**隔离目录**装 wheel 再跑接入示例，校验版本一致、包数据齐全、SHA256 匹配 |
 | `examples/README.md` | 接入文档与三条使用约定（判定对错由人负责 / 以 `seal_header.subject` 为准 / 信任锚自己维护） |
@@ -98,7 +98,7 @@ python scripts/verify_release.py --out release_check.json         # 4) 发行物
 
 ```bash
 # 浏览器打开 Release 页下载 wheel，或直接按直链装（版本号换成你要的那个 tag）
-pip install https://github.com/mzymazy/swordholder/releases/download/v0.7.3/swordholder-0.7.3-py3-none-any.whl
+pip install https://github.com/mzymazy/swordholder/releases/download/v0.7.4/swordholder-0.7.4-py3-none-any.whl
 
 # 装完按最小路径自证一遍（不读源码、不设 PYTHONPATH）
 swordholder --version

@@ -169,8 +169,17 @@ def main(argv: list[str] | None = None) -> int:
     if example_ok:
         example_report = json.load(open(ex_out, encoding="utf-8"))
         example_ok = bool(example_report.get("ok"))
-    add("R7", "隔离安装 + 最小接入示例全部通过", example_ok,
-        f"{proc.stdout.strip()[-200:]}" if proc.stdout else (proc.stderr.strip()[-200:]))
+    # 失败时把"哪一项、期望什么、实际得到什么"直接带出来：只报 "0/13 passed" 无法定位，
+    # 上一版 CI 就因此多花了一轮才看出是运行期依赖缺失。
+    example_detail = f"{proc.stdout.strip()[-200:]}" if proc.stdout else (proc.stderr.strip()[-200:])
+    bad_items = [c for c in example_report.get("checks", []) if not c.get("passed")]
+    if bad_items:
+        example_detail += " || " + "; ".join(
+            f"{c.get('id')} expect={c.get('expect')} actual={c.get('actual')}"
+            + (f" err={c.get('error')}" if c.get("error") else "")
+            for c in bad_items[:3]
+        )
+    add("R7", "隔离安装 + 最小接入示例全部通过", example_ok, example_detail)
 
     report = {
         "ok": all(c["passed"] for c in checks),
