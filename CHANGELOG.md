@@ -17,6 +17,33 @@ AIGC:
 
 ---
 
+## [0.7.4] - 2026-11-08 - S6：发布链路实测修复与质量门禁数字
+
+本版不改判定逻辑、不改凭证格式，只把"发布"和"覆盖率"两件一直被引用却从没跑出过数字的事做实，
+并把上一版宣称的 CI 蓝图里第一次真跑就暴露的缺陷修掉。
+
+1. **发布流水线第一次真跑，暴露假红并修复**：`v0.7.3` tag 触发的 `release` run 在验收步骤失败。
+   根因不是发行物本身，而是验收脚本用 `pip install --no-deps` 把 wheel 装进空目录做隔离冒烟，
+   runner 环境却只装了构建工具（build/twine），没有运行期依赖：`core.keygen` 在生成密钥前要过一次
+   策略层判定，策略层 `import yaml` 失败 → A1 失败 → 后续 12 项因缺少前置状态连带全红，报告只剩
+   "0/13 checks passed"。修复方式是 `release.yml` 在验收前按 **wheel METADATA 的 `Requires-Dist`**
+   安装运行期依赖（不手写清单，随 pyproject 自动同步），隔离安装的语义（`--no-deps` 装进空目录）
+   保持不变。
+2. **失败信息可诊断**：`scripts/verify_release.py` 的 R7 以前只回传示例 stdout 末尾 200 字，
+   定位不到具体哪项红。现在会把前 3 个失败项的 `id / expect / actual / err` 直接写进验收报告，
+   一次 CI 就能看出根因。
+3. **覆盖率与质量门禁给出数字**：CI `quality-gate` job 执行 `pytest --cov=swordholder --cov=mcp_server`
+   ＋ `ruff check`，阈值同源于 `pyproject.toml`（`fail_under = 85`）。实测：
+   **行覆盖率 88.19%**（3260 语句 / 339 未覆盖 / 1092 分支 / 151 partial），**471 passed, 1 skipped**，
+   `ruff 0.17.4` 全通过。本机以同一命令复跑得到同一天花板数字（88.19%），CI 与本地不存在双口径。
+4. **版本号对齐**：`pyproject.toml` / `swordholder.__version__` / README 内的示例路径与下载链接
+   统一到 `0.7.4`。
+
+已知仍未成立的事项（不因本版上线而变为成立）：PyPI 包名仍不可用、无 Trusted Publisher，
+`release.yml` 的 `publish` job 仍处 fail-closed 的未执行状态。
+
+---
+
 ## [未发布] - S5：与 Sigstore/Rekor、in-toto/SLSA、SCITT、JACS 的逐项正面对比
 
 补 S4 复评里最低的差异度（3.10）。本版**不加任何检测或存证能力**，只做一件事：把已有的三条宣称
