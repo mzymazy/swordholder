@@ -30,8 +30,12 @@ entry[n].hash = SHA256( entry[n-1].hash + "\n" + c14n(n, ts, action, args, obser
 
 - 每步只把白名单字段（`n/ts/action/args/observation`）纳入哈希，渲染用备注不进哈希，
   避免无关字段造成假断点；
-- 头部哈希 `head` 与步数 `step_count` 一起被封存：`seal_trace()` 只签
-  `{trace_id, step_count, head, digest}`，**逐字全文留在持有方**，凭证因此很小；
+- 头部哈希 `head` 与步数 `step_count` 一起被封存：`seal_trace()` 签
+  `{trace_id, step_count, head, digest, anchors}`，**逐字全文留在持有方**，凭证因此很小；
+- `anchors`（0.7.5 起）是**步级锚点**：每 `stride` 步存一份累计哈希的前 16 hex（64 bit），
+  上限 64 个点、末步必含。它让「改某步并把后续哈希与 `head` 一起重算」这类强篡改也能给出步区间；
+  纯 `head` 凭证在信息上不可能定位到步（`head` 不保留中间态）。细节见
+  [stage8-step-localization.md](stage8-step-localization.md)；
 - 验证分三段，任一段不过即 `INVALID`：
   1. `verify_chain()` 重算整链 → 判自洽、定位首断点；
   2. `exit_guard.issue_credential()` 签发的凭证 → `core.verify()` 判签名与信任锚；
@@ -46,7 +50,8 @@ entry[n].hash = SHA256( entry[n-1].hash + "\n" + c14n(n, ts, action, args, obser
 |---|---|
 | 事后改某一步的参数或观测值 | 能，且定位到该步 |
 | 插入一步、删除中间某步、交换相邻两步 | 能，定位到首个断点 |
-| 删除**尾部**若干步 | 能（靠 `step_count` / `head`），但无 `first_break`——存活部分各自自洽 |
+| 删除**尾部**若干步 | 能（靠 `step_count` / `head`）；0.7.5 起靠锚点给出截断点区间，≤64 步时精确到单步 |
+| 改某步并把后续哈希与 `head` 一起重算（强篡改） | 能；0.7.5 起靠锚点夹逼给出步区间（`mode="anchor"`），不再只是「INVALID 但说不出哪步」 |
 | 只披露轨迹的一段给第三方审 | 能验段内完整（段首自带 `prev`） |
 | **持有私钥的人重签一份自洽的篡改版** | **不能**。这是本机制的硬边界：私钥必须离开记录方 |
 | 从第一步之前就作假（造假的历史） | **不能**。本机制只防事后改动 |
