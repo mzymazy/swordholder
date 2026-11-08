@@ -1,17 +1,17 @@
-"""Swordholder：给 AI 的判断盖章，让任何人都能独立验签。
+"""Swordholder锛氱粰 AI 鐨勫垽鏂洊绔狅紝璁╀换浣曚汉閮借兘鐙珛楠岀銆?
 
-公开 API：
-    keygen()       生成 ed25519 签名密钥对
-    seal()         把任意 JSON 结论封装成可验签凭证
-    verify()       独立验签（不需要源码、不需要信任签发方）
-    triage()       对安全告警做分诊，产出结论
-    triage_event() 先把任意来源告警归一，再分诊（Splunk/Sentinel/Wazuh/自定义）
-    normalize()    只做告警归一与校验（契约见 alert.schema.json）
-    Store          凭证索引（sqlite），供按结论/主体/时间检索
-    trust          信任锚治理：轮换窗口、密钥/凭证吊销、轮换体检
-    ServerConfig / build_server   HTTP 服务（serve.py）
+鍏紑 API锛?
+    keygen()       鐢熸垚 ed25519 绛惧悕瀵嗛挜瀵?
+    seal()         鎶婁换鎰?JSON 缁撹灏佽鎴愬彲楠岀鍑瘉
+    verify()       鐙珛楠岀锛堜笉闇€瑕佹簮鐮併€佷笉闇€瑕佷俊浠荤鍙戞柟锛?
+    triage()       瀵瑰畨鍏ㄥ憡璀﹀仛鍒嗚瘖锛屼骇鍑虹粨璁?
+    triage_event() 鍏堟妸浠绘剰鏉ユ簮鍛婅褰掍竴锛屽啀鍒嗚瘖锛圫plunk/Sentinel/Wazuh/鑷畾涔夛級
+    normalize()    鍙仛鍛婅褰掍竴涓庢牎楠岋紙濂戠害瑙?alert.schema.json锛?
+    Store          鍑瘉绱㈠紩锛坰qlite锛夛紝渚涙寜缁撹/涓讳綋/鏃堕棿妫€绱?
+    trust          淇′换閿氭不鐞嗭細杞崲绐楀彛銆佸瘑閽?鍑瘉鍚婇攢銆佽疆鎹綋妫€
+    ServerConfig / build_server   HTTP 鏈嶅姟锛坰erve.py锛?
 
-命令行入口：``swordholder``（见 cli.py）。
+鍛戒护琛屽叆鍙ｏ細``swordholder``锛堣 cli.py锛夈€?
 """
 
 from .core import SealError, keygen, seal, triage, triage_event, verify, verify_or_raise
@@ -23,7 +23,7 @@ from . import seal_schema
 from .trust import (TrustError, add_key, retire_key, revoke_key, revoke_seal,
                     restore_seal, summary, check_rotation, evaluate)
 
-__version__ = "0.7.4"
+__version__ = "0.7.5"
 
 __all__ = [
     "__version__",
