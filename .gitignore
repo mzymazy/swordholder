@@ -61,3 +61,4 @@ artifacts_s5_*/
 .coverage.*
 coverage.xml
 htmlcov/
+evidence/stage13/e2e/

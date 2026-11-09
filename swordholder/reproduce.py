@@ -193,6 +193,181 @@ def git_tracked_paths(root: str) -> set | None:
     return {p.replace("\\", "/") for p in out.split("\0") if p}
 
 
+SCOPE_MODE = "repo-partition"
+
+
+def _git_ls(root: str, extra_args: list[str], *, timeout: float = 90.0) -> set | None:
+    """``git ls-files -z`` 的薄封装。非 git 仓库返回 None（不静默当空集）。"""
+    try:
+        res = subprocess.run(["git", "ls-files", "-z"] + list(extra_args), cwd=root,
+                             capture_output=True, timeout=timeout)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if res.returncode != 0:
+        return None
+    out = res.stdout.decode("utf-8", "replace")
+    return {p.replace("\\", "/") for p in out.split("\0") if p}
+
+
+def git_repo_universe(root: str) -> dict | None:
+    """「提交后这棵树里有什么」的那个集合。
+
+    ``tracked`` = 已跟踪；``untracked`` = 存在但未提交且**未被 .gitignore 忽略**（即
+    确实该提交的东西）；``ignored`` = 被 .gitignore 挡住的（运行期产物、密钥、.venv）。
+
+    分账口径取 ``tracked ∪ untracked``：构建清单时本阶段新增文件可能还没 commit，
+    但提交后它们必然进入 ``tracked``，用并集才能让「此刻的分账」与「clone 后的分账」
+    算出同一个值。
+    """
+    tracked = _git_ls(root, [])
+    if tracked is None:
+        return None
+    untracked = _git_ls(root, ["--others", "--exclude-standard"]) or set()
+    ignored = _git_ls(root, ["--others", "--ignored", "--exclude-standard"]) or set()
+    return {"tracked": tracked, "untracked": untracked - tracked, "ignored": ignored,
+            "universe": tracked | (untracked - tracked)}
+
+
+def pathset_digest(paths: Iterable[str]) -> str:
+    """对一组相对路径取摘要（排序、LF 连接、UTF-8）。用于锁死「不在范围内」那一半。"""
+    joined = "\n".join(sorted(paths)).encode("utf-8")
+    return hashlib.sha256(joined).hexdigest()
+
+
+def _under(path: str, prefixes: Iterable[str]) -> bool:
+    for pre in prefixes or ():
+        pre = pre.replace("\\", "/")
+        if path == pre or path.startswith(pre.rstrip("/") + "/"):
+            return True
+    return False
+
+
+# 与内容无关、纯粹是「跑一遍就长出来」的产物目录/后缀。它们被 .gitignore 挡住是
+# 语言/工具链的既定事实，不构成「交付方私藏了什么」——若也要逐条解释，真实的排除
+# 项（如带凭证的样本）就会被上千条 .pyc 淹没，等于变相放水。第三方用同一份清单
+# 重算时按相同规则剔除，结论一致。
+INTRINSIC_IGNORED_PARTS = frozenset({
+    "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".tox",
+    ".eggs", ".venv", "venv", "node_modules", ".ipynb_checkpoints",
+})
+INTRINSIC_IGNORED_SUFFIXES = frozenset({
+    ".pyc", ".pyo", ".pyd", ".so", ".dylib", ".dll", ".log", ".err", ".out",
+})
+
+
+def is_intrinsic_ignored(path: str) -> bool:
+    """这条被忽略的路径是不是「纯运行期产物」（无需解释，也不算交付缺口）。"""
+    parts = path.replace("\\", "/").split("/")
+    if any(p in INTRINSIC_IGNORED_PARTS for p in parts[:-1]):
+        return True
+    name = parts[-1]
+    if name.startswith(".coverage"):
+        return True
+    return os.path.splitext(name)[1].lower() in INTRINSIC_IGNORED_SUFFIXES
+
+
+def _norm_declared(root: str, path: str) -> str:
+    """把「声明为交付物的路径」统一成相对 root 的 posix 路径。
+
+    调用方可能给绝对路径（``collect()`` 的返回值就是绝对路径），也可能给相对路径。
+    以前这里只做反斜杠替换，绝对路径会被当成"仓库里不存在的文件"，让 not_in_repo
+    冒出一堆假阳性——第三方按自己的习惯传参就会误判交付造假，所以必须归一。
+    """
+    raw = str(path).replace("\\", "/")
+    if not os.path.isabs(raw):
+        return raw
+    root_abs = os.path.abspath(root)
+    try:
+        if os.path.commonpath([root_abs, os.path.abspath(raw)]) != root_abs:
+            return raw
+    except ValueError:  # 跨盘符
+        return raw
+    return os.path.relpath(os.path.abspath(raw), root_abs).replace("\\", "/")
+
+
+def scope_report(root: str, declared: Iterable[str], *,
+                 delivery_prefixes: Iterable[str] = (),
+                 included_ignored: Iterable[str] = ()) -> dict:
+    """把「交付范围」变成可机械复核的全量分账（R1 的收敛手段）。
+
+    要解决的问题：以前清单只说「我交了这 74 个文件」，为什么不是 76 个、哪 2 个被
+    悄悄排除，全靠清单作者自述。现在改成**仓库内每个待提交文件都必须有归属**：
+
+    - ``declared``：清单里的文件（有哈希，交付物）；
+    - ``out_of_scope``：``universe - declared``——不交付的部分，用路径集合摘要锁死。
+
+    第三方拿到 clone 后自己跑 ``git ls-files`` 重算这两半，任何「少报几个文件以掩盖」
+    都会让 ``out_of_scope_digest`` 对不上或 ``delivery_missing`` 非空，无处可藏。
+    """
+    root = os.path.abspath(root)
+    universe_doc = git_repo_universe(root)
+    if universe_doc is None:
+        raise ReproduceError("E_REPRO_NOT_A_REPO: %s 不是 git 仓库，无法做交付范围分账" % root)
+    universe = universe_doc["universe"]
+    declared_set = {_norm_declared(root, p) for p in declared}
+    out_of_scope = universe - declared_set
+    not_in_repo = sorted(declared_set - universe)
+    delivery_missing = sorted(p for p in universe
+                              if _under(p, delivery_prefixes) and p not in declared_set)
+    ignored_all = [p for p in universe_doc["ignored"] if _under(p, delivery_prefixes)]
+    ignored_under = sorted(p for p in ignored_all if not is_intrinsic_ignored(p))
+    ignored_intrinsic = len(ignored_all) - len(ignored_under)
+    ignored_used = sorted(p for p in (included_ignored or ()) if p in universe_doc["ignored"])
+    unexplained_ignored = sorted(set(ignored_under) - set(ignored_used))
+    return {
+        "mode": SCOPE_MODE,
+        "ok": not not_in_repo and not delivery_missing and not unexplained_ignored,
+        "delivery_prefixes": sorted({p.replace("\\", "/") for p in delivery_prefixes}),
+        "tracked_count": len(universe_doc["tracked"]),
+        "untracked_uncommitted_count": len(universe_doc["untracked"]),
+        "universe_count": len(universe),
+        "declared_count": len(declared_set),
+        "out_of_scope_count": len(out_of_scope),
+        "out_of_scope_digest": pathset_digest(out_of_scope),
+        "declared_digest": pathset_digest(declared_set),
+        "not_in_repo": not_in_repo,
+        "delivery_missing": delivery_missing,
+        "ignored_under_delivery": ignored_under,
+        "ignored_explained": ignored_used,
+        "ignored_unexplained": unexplained_ignored,
+        "ignored_intrinsic_count": ignored_intrinsic,
+        "sample_out_of_scope": sorted(out_of_scope)[:8],
+    }
+
+
+def verify_scope(manifest: dict, root: str, *, delivery_prefixes: Iterable[str] = ()) -> dict:
+    """独立复核清单声明的交付范围是否真的成立（只读、只看 git 与清单）。"""
+    files = manifest.get("files") or []
+    declared = [f["path"] for f in files]
+    scope = (manifest.get("extra") or {}).get("scope") or {}
+    prefixes = list(delivery_prefixes or scope.get("delivery_prefixes") or [])
+    try:
+        report = scope_report(root, declared, delivery_prefixes=prefixes,
+                              included_ignored=scope.get("ignored_explained") or [])
+    except ReproduceError as exc:
+        return {"ok": False, "error": str(exc)[:200], "checked": len(declared)}
+    checks = {
+        "no_unbacked_entries": not report["not_in_repo"],
+        "no_delivery_gap": not report["delivery_missing"],
+        "all_out_of_scope_accounted": (report["out_of_scope_count"]
+                                       == scope.get("out_of_scope_count")
+                                       and report["out_of_scope_digest"]
+                                       == scope.get("out_of_scope_digest")),
+        "declared_count_matches": report["declared_count"] == len(declared),
+        "ignored_all_explained": not report["ignored_unexplained"],
+        # 原来的 prefixes_match 是拿 prefixes 跟自己比，恒真，已废弃。
+        # 现在要求：清单声明的每一个文件都必须落在自己声明的交付前缀之内。
+        "declared_within_prefixes": all(
+            _under(p.replace("\\", "/"), report["delivery_prefixes"]) for p in declared),
+    }
+    return {"ok": all(checks.values()), "checks": checks,
+            "recomputed": {k: report[k] for k in
+                           ("tracked_count", "universe_count", "declared_count",
+                            "out_of_scope_count", "out_of_scope_digest",
+                            "not_in_repo", "delivery_missing", "ignored_unexplained")},
+            "checked": len(declared)}
+
+
 def collect(root: str, patterns: list[str]) -> list[str]:
     """按目录前缀或后缀收文件（足够用，不引入 glob 复杂度）。"""
     picked = []
@@ -217,11 +392,17 @@ def build_manifest(root: str, paths: list[str], *, extra: dict | None = None,
                    expected: dict | None = None, commands: list[str] | None = None,
                    include_git: bool = True, dirty_scope: list[str] | None = None,
                    hash_mode: str = HASH_MODE_CANONICAL,
-                   tracked_only: bool = False) -> dict:
+                   tracked_only: bool = False,
+                   delivery_prefixes: list[str] | None = None,
+                   ignored_explained: list[str] | None = None) -> dict:
     """生成交付清单。``expected`` 一般放探针分档/计数，供外部复跑比对。
 
     ``tracked_only=True`` 时只收 git 跟踪的文件，并把被剔除的未跟踪文件记进
     ``extra["untracked_excluded"]``——清单必须是"第三方取得到的文件"的清单。
+
+    ``delivery_prefixes`` 非空时，额外写入 ``extra["scope"]``：全仓库分账（交付了什么、
+    其余为什么不在范围），供 ``verify_scope`` / ``external_verify.py --check-scope``
+    独立重算。这一步把「交付范围由交付方自述」换成「每个待提交文件都有归属且可复算」。
     """
     root = os.path.abspath(root)
     excluded: list[str] = []
@@ -244,6 +425,11 @@ def build_manifest(root: str, paths: list[str], *, extra: dict | None = None,
         merged_extra.setdefault("tracked_only", True)
         merged_extra.setdefault("untracked_excluded", sorted(excluded))
         merged_extra.setdefault("untracked_excluded_count", len(excluded))
+    if delivery_prefixes:
+        declared_rel = [_rel(root, p) for p in paths]
+        merged_extra["scope"] = scope_report(
+            root, declared_rel, delivery_prefixes=delivery_prefixes,
+            included_ignored=ignored_explained or [])
     return {
         "schema": SCHEMA,
         "root_name": os.path.basename(root.rstrip("\\/")),

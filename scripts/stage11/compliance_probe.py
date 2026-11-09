@@ -60,6 +60,10 @@ try:
     from swordholder import reproduce as rp  # noqa: E402
 except Exception:  # pragma: no cover
     rp = None
+try:  # 0.10.2 新增：公共透明日志锚定（Rekor 类只追加日志）
+    from swordholder import transparency as tp  # noqa: E402
+except Exception:  # pragma: no cover
+    tp = None
 
 LEDGER = os.path.join(REPO, "swordholder", "trace_ledger.py")
 RETENTION = os.path.join(REPO, "swordholder", "retention.py")
@@ -802,14 +806,16 @@ def p_sr_documentation(keys: dict, tmp: str) -> dict:
 def _delivery_patterns() -> tuple:
     """取**当前阶段**的交付范围，避免探针与清单脚本各写一份而漂移。
 
-    v5：优先读 stage12 的 ``build_manifest12.DELIVERY``（10 个交付路径，含
-    ``scripts/stage12/`` 与 ``docs/stage12-risk-fields-and-tsa.md``）。v4 只读 stage11 的
-    8 个路径，会把本阶段新增的脚本与文档漏在清单外——复算对象就不是"真实交付树"，
-    而是"上一阶段的交付树"，这正是判据要修的那类偷工。
+    v6：优先读 stage13 的 ``build_manifest13.DELIVERY``（12 个交付路径，含
+    ``scripts/stage13/`` 与 ``docs/stage13-transparency-and-scope.md``）；找不到再退
+    stage12（10 路径）、stage11（8 路径）。退档本身是可接受的，但**漏收本阶段新增的
+    脚本与文档**不行——那会让复算对象变成"上一阶段的交付树"，正是判据要修的那类偷工。
     """
     import importlib.util
 
-    for tag, rel in (("s12_build_manifest", os.path.join("scripts", "stage12",
+    for tag, rel in (("s13_build_manifest", os.path.join("scripts", "stage13",
+                                                         "build_manifest13.py")),
+                     ("s12_build_manifest", os.path.join("scripts", "stage12",
                                                          "build_manifest12.py")),
                      ("s11_build_manifest", os.path.join("scripts", "stage11",
                                                          "build_manifest.py"))):
@@ -1117,6 +1123,194 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
            len(deterministic_mismatch)))
 
 
+def _clone_matrix(tmp: str) -> dict:
+    """在两个**全新建出的 clone**里各跑一次 ``run_all.py``，看结论是否一致。
+
+    为什么非要 clone 而不是 ``git archive``：archive 导出不带 ``.git``，第三方拿到的
+    是一个"看起来像仓库的目录"，交付范围分账（``git ls-files``）根本没法核；clone 才是
+    第三方真实的获取路径（还自带 CRLF/LF 两种检出风格）。
+    """
+    py = sys.executable
+    runs = {}
+    for label, autocrlf in (("autocrlf_true", "true"), ("autocrlf_false", "false")):
+        dst = os.path.join(tmp, "clone_%s" % label, "repo")
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        cl = subprocess.run(["git", "clone", "-q", "-c", "core.autocrlf=%s" % autocrlf,
+                             REPO, dst], capture_output=True, timeout=900)
+        info = {"autocrlf": autocrlf, "clone_rc": cl.returncode,
+                "clone_err": cl.stderr.decode("utf-8", "replace")[-300:]}
+        if cl.returncode != 0:
+            runs[label] = info
+            continue
+        # 递归闸门：clone 内的 P13 只做脚本级自检，不再克隆一次（否则无限套娃）。
+        env = dict(os.environ)
+        env["SWORDHOLDER_E2E_DEPTH"] = str(int(os.environ.get("SWORDHOLDER_E2E_DEPTH", "0")) + 1)
+        env["PYTHONIOENCODING"] = "utf-8"
+        res = subprocess.run([py, os.path.join("scripts", "stage13", "run_all.py"),
+                              "--root", ".", "--skip-tests", "--skip-network"],
+                             cwd=dst, capture_output=True, timeout=1800, env=env)
+        info["run_rc"] = res.returncode
+        info["run_out"] = res.stdout.decode("utf-8", "replace")[-1200:]
+        info["run_err"] = res.stderr.decode("utf-8", "replace")[-600:]
+        summary_path = os.path.join(dst, "evidence", "stage13", "s13_e2e_summary.json")
+        doc = {}
+        if os.path.isfile(summary_path):
+            try:
+                with open(summary_path, "r", encoding="utf-8") as fh:
+                    doc = json.load(fh)
+            except ValueError:
+                doc = {}
+        facts = doc.get("facts") or {}
+        eol_seen = subprocess.run(["git", "config", "--get", "core.autocrlf"], cwd=dst,
+                                  capture_output=True)
+        info.update({
+            "summary_present": bool(doc), "summary_ok": doc.get("ok"),
+            "worktree_clean_at_start": (doc.get("env") or {}).get("worktree_clean"),
+            "checked": facts.get("checked"),
+            "tree_digest_match": facts.get("tree_digest_match"),
+            "scope_ok": facts.get("scope_ok"),
+            "scope_out_of_scope": facts.get("scope_out_of_scope"),
+            "expected_ok": facts.get("expected_ok"),
+            "mismatched_count": facts.get("mismatched_count"),
+            "clone_autocrlf": eol_seen.stdout.decode("utf-8", "replace").strip(),
+            "steps": {k: v.get("ok") for k, v in (doc.get("steps") or {}).items()},
+            "failed_steps": doc.get("failed_steps"),
+            "crlf_bytes_observed": None,
+        })
+        runs[label] = info
+    return runs
+
+
+def p_one_command_and_scope(keys: dict, tmp: str) -> dict:
+    """交付断言 S13-01/02：**一条命令**在干净 clone 里跑通 + 交付范围可机械复核。
+
+    两条要求在 S12.1 都是缺口：
+      * G15：没有一键复现脚本，第三方要照文档手敲 4 条命令，顺序错一步结论就变；
+      * G14/R1：清单只说"我交了 74 个文件"，为什么不是 76 个、哪两个被排除，全靠
+        交付方自述——审计方无法机械判定。
+    """
+    depth = int(os.environ.get("SWORDHOLDER_E2E_DEPTH", "0") or 0)
+    run_all_py = os.path.join(REPO, "scripts", "stage13", "run_all.py")
+    verify_anchor_py = os.path.join(REPO, "scripts", "stage13", "verify_anchor.py")
+    script_ok = os.path.isfile(run_all_py) and os.path.isfile(verify_anchor_py)
+    stdlib_main, mods_main = _stdlib_only(run_all_py) if script_ok else (False, [])
+    stdlib_anchor, mods_anchor = _stdlib_only(verify_anchor_py) if script_ok else (False, [])
+    helper_ok = os.path.isfile(os.path.join(REPO, "scripts", "stage13", "build_manifest13.py"))
+
+    if script_ok:
+        helprc = subprocess.run([sys.executable, "-I", run_all_py, "--help"],
+                                cwd=REPO, capture_output=True, timeout=120)
+        help_ok = helprc.returncode == 0
+    else:
+        help_ok = False
+
+    # ---- R1：把交付范围做成"全仓库分账"，并验证它能抓出三类作弊
+    patterns, patterns_file = _delivery_patterns()
+    files = rp.collect(REPO, patterns)
+    scope_declared = [os.path.relpath(os.path.join(REPO, f), REPO).replace("\\", "/")
+                      for f in files]
+    scope = rp.scope_report(REPO, scope_declared, delivery_prefixes=patterns,
+                            included_ignored=["swordholder/samples/alert_02_token.seal.json"])
+    manifest = rp.build_manifest(REPO, files, hash_mode=rp.HASH_MODE_CANONICAL,
+                                 tracked_only=True, delivery_prefixes=patterns,
+                                 ignored_explained=["swordholder/samples/alert_02_token.seal.json"],
+                                 extra={"stage": 13})
+    mpath = os.path.join(tmp, "s13_scope_manifest.json")
+    rp.dump(manifest, mpath)
+    scoped_ok = bool((manifest["extra"].get("scope") or {}).get("ok"))
+
+    # 负例①：悄悄少交一个文件（把最后一条从 files 里删掉）——分账必须对不上
+    under = copy.deepcopy(manifest)
+    under["files"] = under["files"][:-1]
+    under_report = rp.verify_scope(under, REPO, delivery_prefixes=patterns)
+    # 负例②：清单里塞一个仓库里不存在的文件——必须被 not_in_repo 抓到
+    over = copy.deepcopy(manifest)
+    over["files"] = over["files"] + [dict(over["files"][0], path="swordholder/ghost_module.py")]
+    over_report = rp.verify_scope(over, REPO, delivery_prefixes=patterns)
+    # 负例③：交付范围内有文件被"忽略"却没解释——必须被抓
+    noisy = copy.deepcopy(manifest)
+    (noisy["extra"].get("scope") or {})["ignored_explained"] = []
+    noisy_report = rp.verify_scope(noisy, REPO, delivery_prefixes=patterns)
+
+    if depth >= 1:
+        # clone 内的降级模式：克隆矩阵已由外层（depth=0）真实执行，这里不重复套娃。
+        ok = script_ok and stdlib_main and stdlib_anchor and help_ok and scoped_ok
+        return probe_pid(
+            "P13", "delivery claims S11-01 / S13-01 / S13-02 (one-command repro, scope audit)",
+            "a third party can reproduce and audit the delivery with one command in a clean clone",
+            "PASS" if ok else "PARTIAL",
+            {"nested": True, "depth": depth, "script_present": script_ok,
+             "help_ok": help_ok, "stdlib_only": {"run_all": stdlib_main,
+                                                 "verify_anchor": stdlib_anchor},
+             "scope_ok": scoped_ok,
+             "scope_out_of_scope": scope.get("out_of_scope_count"),
+             "delegated": "clone 矩阵由 depth=0 的父进程真实执行，本层不重复克隆"},
+            "clone 内降级自检（depth=%d）：一键脚本与验证脚本均在、-I 下 --help 通过、"
+            "仅标准库、分账复核通过（范围外 %d 项）。克隆矩阵不在本层重复执行，"
+            "已交由外层真实 clone 运行承担。" % (depth, scope.get("out_of_scope_count")))
+
+    clones = _clone_matrix(tmp)
+    clone_ok = all(c.get("run_rc") == 0 and c.get("summary_ok") is True
+                   and c.get("tree_digest_match") is True and c.get("scope_ok") is True
+                   and c.get("expected_ok") is True and c.get("mismatched_count") == 0
+                   for c in clones.values())
+    negatives_ok = (under_report["ok"] is False and over_report["ok"] is False
+                    and noisy_report["ok"] is False
+                    and bool(under_report["recomputed"]["delivery_missing"] or
+                             under_report["checks"]["all_out_of_scope_accounted"] is False)
+                    and bool(over_report["recomputed"]["not_in_repo"]))
+    ok = (script_ok and helper_ok and stdlib_main and stdlib_anchor and help_ok
+          and scoped_ok and negatives_ok and clone_ok)
+
+    evidence = {
+        "one_command": "python scripts/stage13/run_all.py --root . --skip-tests --skip-network",
+        "scripts": {"run_all": "scripts/stage13/run_all.py",
+                    "verify_anchor": "scripts/stage13/verify_anchor.py",
+                    "build_manifest": "scripts/stage13/build_manifest13.py",
+                    "present": script_ok and helper_ok},
+        "stdlib_only": {"run_all": stdlib_main, "verify_anchor": stdlib_anchor,
+                        "modules_run_all": mods_main, "modules_verify_anchor": mods_anchor},
+        "help_ok_under_isolated": help_ok,
+        "delivery_patterns_file": patterns_file,
+        "scope": {k: scope[k] for k in ("mode", "ok", "tracked_count", "universe_count",
+                                        "declared_count", "out_of_scope_count",
+                                        "out_of_scope_digest", "delivery_missing",
+                                        "ignored_under_delivery", "ignored_unexplained",
+                                        "untracked_uncommitted_count")},
+        "scope_manifest_written": "temp/s13_scope_manifest.json",
+        "scope_negative_cases": {
+            "under_report_removed_one_file": {"ok": under_report["ok"],
+                                              "checks": under_report["checks"]},
+            "over_report_ghost_file": {"ok": over_report["ok"],
+                                       "not_in_repo": over_report["recomputed"]["not_in_repo"]},
+            "ignored_without_reason": {"ok": noisy_report["ok"],
+                                       "checks": noisy_report["checks"]},
+            "all_caught": negatives_ok,
+        },
+        "clone_matrix": clones,
+        "clone_matrix_all_ok": clone_ok,
+    }
+    detail = "; ".join(
+        "%s: rc=%s ok=%s checked=%s digest=%s scope=%s expected=%s"
+        % (k, c.get("run_rc"), c.get("summary_ok"), c.get("checked"),
+           c.get("tree_digest_match"), c.get("scope_ok"), c.get("expected_ok"))
+        for k, c in clones.items())
+    return probe_pid(
+        "P13", "delivery claims S11-01 / S13-01 / S13-02 (one-command repro, scope audit)",
+        "a third party can reproduce and audit the delivery with one command in a clean clone",
+        "PASS" if ok else "PARTIAL",
+        evidence,
+        "一键复现在两个真实 clone 里跑通（%s）。交付范围改为**全仓库分账**：仓库内 %d 个"
+        "待提交文件全部有归属——%d 个进清单、%d 个落在范围外且路径集合摘要锁死为 %s；"
+        "被忽略的 %d 项逐条给出理由。三类作弊全部被机械检出：少交一个文件（%s）、"
+        "塞入不存在的文件（%s）、忽略却不解释（%s）。脚本仅标准库（run_all=%s / "
+        "verify_anchor=%s），-I 隔离下 --help 通过=%s。"
+        % (detail, scope["universe_count"], scope["declared_count"],
+           scope["out_of_scope_count"], (scope["out_of_scope_digest"] or "")[:16],
+           len(scope["ignored_explained"]), under_report["ok"], over_report["ok"],
+           noisy_report["ok"], stdlib_main, stdlib_anchor, help_ok))
+
+
 TSA_DEFAULT_URL = "https://freetsa.org/tsr"
 
 LIVE_RESULTS: list = []
@@ -1205,6 +1399,122 @@ def p_external_anchor(keys: dict, tmp: str) -> dict:
     rework_undetected = (forged_verify.get("verdict") == "VALID"
                          and (not stamp_ok or bool(forge_stamp.get("ok"))))
 
+    # ---- S13 新增：把锚点摘要登记到公共只追加日志（Rekor 类），让「整册重做」可被发现
+    # 一句话：TSA 只证明「摘要某时刻存在」，日志还把这条断言钉在第三方、且不可删；
+    # 于是持回执者事后能发现「眼前这份凭证不是当初被锚定的那一份」。接不上就落桩不冒充。
+    tlog = {"spec": (os.environ.get("SWORDHOLDER_TLOG") or "rekor").strip().lower(),
+            "backend": None, "probe": None, "submitted": False, "submit_error": None,
+            "statement": None, "receipt": None, "receipt_check": None, "rework": None,
+            "independent_verify": None, "warnings": []}
+    seal_digest = tp.sha256_file(seal_path) if (tp and os.path.exists(seal_path)) else None
+    trace_id = body.get("trace_id") or "S12-ANCH"
+    statement = None
+    tlog_receipt = None
+    tlog_backend = None
+    if tp is None:
+        tlog["submit_error"] = "E_TLOG_MODULE_MISSING: swordholder.transparency 不可用"
+    else:
+        try:
+            tlog_backend = tp.make_backend(
+                tlog["spec"], file_path=os.path.join(tmp, "s13_tlog.jsonl"))
+        except Exception as exc:  # 配置错就当没接，如实记
+            tlog["submit_error"] = "%s: %s" % (type(exc).__name__, str(exc)[:160])
+            tlog_backend = None
+        if tlog_backend is not None:
+            tlog["backend"] = {"name": tlog_backend.name,
+                              "external": bool(tlog_backend.external),
+                              "log_url": getattr(tlog_backend, "log_url", None)}
+            try:
+                tlog["probe"] = tlog_backend.probe()
+            except Exception as exc:
+                tlog["probe"] = {"reachable": False,
+                                 "error": "%s: %s" % (type(exc).__name__, str(exc)[:160])}
+            statement = tp.anchor_document(
+                trace_id=trace_id, seal_sha256=seal_digest,
+                tsa_token_sha256=chk.get("token_sha256"), tsa_gen_time=chk.get("gen_time"),
+                tsa_url=url,
+                extra={"probe": "P11", "stage": 13,
+                       "seal_payload_keys": keys_in_payload,
+                       "note": "只登记摘要与标识、不登记凭证正文（日志公开）"})
+            artifact = tp.anchor_bytes(statement)
+            tlog["statement"] = {"schema": statement.get("schema"),
+                                 "digest": tp.anchor_digest(statement),
+                                 "bytes": len(artifact),
+                                 "fields": sorted(statement.keys())}
+            if tlog_backend.external:  # 本机桩文件后端不值得写，只有外部日志才算「接入」
+                try:
+                    tlog_receipt = tlog_backend.submit(artifact, tp.AnchorSigner.generate(),
+                                                       trace_id=trace_id)
+                    tlog["submitted"] = True
+                    tlog["receipt"] = {k: tlog_receipt.get(k) for k in
+                                       ("backend", "external", "immutable", "entry_uuid",
+                                        "log_index", "integrated_time", "log_id",
+                                        "artifact_sha256", "set_verified",
+                                        "already_existed", "anchored_at")}
+                    tlog["receipt"]["signer_public_key_sha256"] = \
+                        tlog_receipt.get("signer_public_key_sha256")
+                except Exception as exc:
+                    tlog["submit_error"] = "%s: %s" % (type(exc).__name__, str(exc)[:200])
+            else:
+                tlog["warnings"].append("backend_not_external: 只落了本机桩，不算外部登记")
+
+            if tlog_receipt is not None:
+                try:
+                    tlog["receipt_check"] = tp.verify_receipt(
+                        tlog_receipt, artifact, backend=tlog_backend, fetch=True)
+                except Exception as exc:
+                    tlog["receipt_check"] = {"ok": False,
+                                             "error": "%s: %s" % (type(exc).__name__,
+                                                                  str(exc)[:200])}
+                # 独立复核：用 scripts/stage13/verify_anchor.py（只用标准库、不 import 本项目）
+                va = os.path.join(REPO, "scripts", "stage13", "verify_anchor.py")
+                if os.path.isfile(va):
+                    rcp_path = os.path.join(tmp, "s13_anchor_receipt.json")
+                    st_path = os.path.join(tmp, "s13_anchor_statement.json")
+                    with open(rcp_path, "w", encoding="utf-8") as fh:
+                        fh.write(tp.receipt_to_json(tlog_receipt))
+                    with open(st_path, "w", encoding="utf-8") as fh:
+                        json.dump(statement, fh, ensure_ascii=False, sort_keys=True, indent=1)
+                    py = os.path.join(REPO, ".venv", "Scripts", "python.exe")
+                    exe = py if os.path.isfile(py) else sys.executable
+                    proc = subprocess.run(
+                        [exe, "-I", va, "--receipt", rcp_path, "--statement", st_path,
+                         "--verify-set"],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    out = (proc.stdout or b"").decode("utf-8", "replace")
+                    try:
+                        doc = json.loads(out)
+                    except ValueError:
+                        doc = {"ok": False, "raw": out[:400]}
+                    tlog["independent_verify"] = {
+                        "script": "scripts/stage13/verify_anchor.py",
+                        "returncode": proc.returncode,
+                        "ok": bool(doc.get("ok")),
+                        "checks": doc.get("checks"),
+                        "reason": doc.get("reason"),
+                        "searchable_by_digest": doc.get("search_finds_entry"),
+                        "set": doc.get("set"),
+                    }
+                # 反例：持钥者把第 7 步改写后整册重做，再拿眼前的凭证去核对手里的回执
+                forged_artifact = tp.anchor_bytes(dict(
+                    statement, seal_sha256=tp.sha256_file(forge_path)
+                    if os.path.exists(forge_path) else "0" * 64))
+                try:
+                    tlog["rework"] = tp.detect_rework(tlog_receipt, forged_artifact,
+                                                      backend=tlog_backend)
+                except Exception as exc:
+                    tlog["rework"] = {"detectable": False,
+                                      "error": "%s: %s" % (type(exc).__name__,
+                                                           str(exc)[:160])}
+
+    tlog_check = tlog.get("receipt_check") or {}
+    tlog_indep = tlog.get("independent_verify") or {}
+    tlog_rework = tlog.get("rework") or {}
+    tlog_externally_ok = bool(tlog_check.get("ok") and tlog_check.get("external")
+                              and tlog_indep.get("ok"))
+    tlog_rework_detectable = bool(tlog_rework.get("detectable")
+                                  and tlog_rework.get("prior_entry_still_present"))
+
     evidence = {
         "tsa_url": url,
         "tsa_stamp_present": stamp_present,
@@ -1225,7 +1535,44 @@ def p_external_anchor(keys: dict, tmp: str) -> dict:
         "rework_stamp_ok": forge_stamp.get("ok"),
         "worm_storage": False,
         "anchor_location": "holder-side file (signed credential); timestamp token inside it",
+        "tlog_spec": tlog.get("spec"),
+        "tlog_backend": tlog.get("backend"),
+        "tlog_probe": tlog.get("probe"),
+        "tlog_submitted": tlog.get("submitted"),
+        "tlog_submit_error": tlog.get("submit_error"),
+        "tlog_statement": tlog.get("statement"),
+        "tlog_receipt": tlog.get("receipt"),
+        "tlog_receipt_check": tlog.get("receipt_check"),
+        "tlog_independent_verify": tlog.get("independent_verify"),
+        "tlog_rework_detection": tlog.get("rework"),
+        "tlog_external_ok": tlog_externally_ok,
+        "tlog_rework_detectable": tlog_rework_detectable,
+        "tlog_warnings": tlog.get("warnings"),
     }
+    if stamp_ok and tlog_externally_ok and tlog_rework_detectable:
+        return probe_pid(
+            "P11", "EU AI Act Art.73(6) + Art.19",
+            "forensic evidence must survive the provider's own control (external anchoring / WORM)",
+            "PARTIAL", evidence,
+            "两级外部锚定都真跑通了：① RFC 3161 时间戳（%s，离线可复核 CMS 签名 / messageImprint"
+            " / nonce）；② 锚点摘要已提交到公共只追加日志（%s，条目 uuid=%s，logIndex=%s，"
+            "SET 验签=%s），并且用**不 import 本项目**的 scripts/stage13/verify_anchor.py 独立"
+            "复核通过（按摘要反查得到同一条目）。反例也随之变强：持钥者改写第 7 步、重算整链、"
+            "重签并重打新戳后，签名校验当然仍判 VALID（%s），但拿手里的回执核对眼前凭证会立刻"
+            " mismatch（本次 detectable=%s，旧条目仍在=%s）——「整册重做」从不可发现变成"
+            "**持回执者可发现、且可拿日志旧条目举证**。仍记 PARTIAL，因为边界没消失："
+            "① 日志只锁摘要不锁正文，凭证正文仍躺在持证方磁盘上，删了日志里查不出内容；"
+            "② 无 WORM 副本；③ 首次核验者手里没有历史回执时，重做对他依然隐形（"
+            "detect_rework 无回执即 E_TLOG_NO_PRIOR_RECEIPT）；④ 同一 trace 可再注册一条新"
+            "锚点，「哪条权威」要靠外部时间线策略仲裁，交付方自己说了不算。"
+            % (chk.get("gen_time"),
+               (tlog.get("backend") or {}).get("log_url"),
+               (tlog.get("receipt") or {}).get("entry_uuid"),
+               (tlog.get("receipt") or {}).get("log_index"),
+               (tlog.get("receipt_check") or {}).get("set_verified"),
+               forged_verify.get("verdict"),
+               (tlog.get("rework") or {}).get("detectable"),
+               (tlog.get("rework") or {}).get("prior_entry_still_present")))
     if stamp_ok:
         return probe_pid(
             "P11", "EU AI Act Art.73(6) + Art.19",
@@ -1235,9 +1582,12 @@ def p_external_anchor(keys: dict, tmp: str) -> dict:
             "状态复核 CMS 签名、messageImprint 与 nonce；未打戳的凭证在 require_external_timestamp"
             "=True 下被拒（E_TRACE_TSA_ABSENT）。但反例显示：持钥者改写第 7 步、重算整链、重签并"
             "重打一枚新戳后，校验仍判 VALID（本次复验结果=%s），因为没有任何第三方留存首枚戳值，"
-            "也没有 WORM 副本可比对。故「同一份证据在事后被整册重做」不可发现，"
-            "记 PARTIAL：外部存在性证明有了，抗内部重做没有。"
-            % (chk.get("gen_time"), forged_verify.get("verdict")))
+            "也没有 WORM 副本可比对。本次公共透明日志未能接入或未通过复核（%s），"
+            "故「整册重做可被发现」仍不成立，记 PARTIAL。"
+            % (chk.get("gen_time"), forged_verify.get("verdict"),
+               tlog.get("submit_error")
+               or (tlog.get("independent_verify") or {}).get("reason")
+               or (tlog.get("receipt_check") or {}).get("error") or "unknown"))
     return probe_pid(
         "P11", "EU AI Act Art.73(6) + Art.19",
         "forensic evidence must survive the provider's own control (external anchoring / WORM)",
@@ -1262,7 +1612,7 @@ def main() -> None:
         for fn in (p_auto_record, p_lifetime, p_event_taxonomy, p_annexiii_fields,
                    p_retention, p_forensic_integrity, p_tamper_proof, p_error_rates,
                    p_continuous_tracking, p_sr_documentation, p_external_anchor,
-                   p_external_reproducible):
+                   p_external_reproducible, p_one_command_and_scope):
             LIVE_RESULTS.append(fn(keys, tmp))
         probes = list(LIVE_RESULTS)
 

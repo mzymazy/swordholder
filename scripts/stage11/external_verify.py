@@ -132,11 +132,116 @@ def compare_expected(expected: dict, actual: dict) -> dict:
     return {"ok": not missing and not diverged, "missing": missing, "diverged": diverged}
 
 
+# ---------------------------------------------------------------- 交付范围分账
+# R1（S12.1 遗留）：以前清单只说"我交了这 74 个文件"，为什么不是 76 个、哪几个被
+# 悄悄排除，全靠交付方自述。现在清单必须给出全仓库分账，审计方用下面这段**独立**
+# 重算：universe = git ls-files（含未被忽略的未提交文件），declared = 清单路径，
+# out_of_scope = universe - declared，两边数量与路径摘要都要对上。
+# 少报一个文件想掩盖 → out_of_scope_digest 变；虚报一个不存在文件 → not_in_repo；
+# 该交没交 → delivery_missing。三条都不是"交付方说了算"。
+def _git_paths(root: str, extra_args: list) -> set | None:
+    import subprocess
+
+    try:
+        res = subprocess.run(["git", "ls-files", "-z"] + list(extra_args), cwd=root,
+                             capture_output=True, timeout=120)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if res.returncode != 0:
+        return None
+    return {p.replace("\\", "/") for p in res.stdout.decode("utf-8", "replace").split("\0")
+            if p}
+
+
+def _pathset_digest(paths) -> str:
+    return hashlib.sha256("\n".join(sorted(paths)).encode("utf-8")).hexdigest()
+
+
+def _is_intrinsic_ignored(path: str) -> bool:
+    """纯运行期产物（__pycache__/*.pyc/.log 等）：无需解释，也不算交付缺口。
+
+    与 swordholder/reproduce.py 的 is_intrinsic_ignored 同规则、独立实现（本文件
+    不 import 本项目，避免"用被审方的代码审被审方"）。
+    """
+    parts = path.replace("\\", "/").split("/")
+    intrinsic_parts = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache",
+                       ".tox", ".eggs", ".venv", "venv", "node_modules",
+                       ".ipynb_checkpoints"}
+    if any(p in intrinsic_parts for p in parts[:-1]):
+        return True
+    name = parts[-1]
+    if name.startswith(".coverage"):
+        return True
+    return os.path.splitext(name)[1].lower() in {
+        ".pyc", ".pyo", ".pyd", ".so", ".dylib", ".dll", ".log", ".err", ".out"}
+
+
+def check_scope(manifest: dict, root: str) -> dict:
+    scope = (manifest.get("extra") or {}).get("scope") or {}
+    if not scope:
+        return {"ok": False, "error": "E_SCOPE_DECLARED_MISSING",
+                "note": "清单未声明 extra.scope，无法核验交付范围"}
+    tracked = _git_paths(root, [])
+    if tracked is None:
+        return {"ok": False, "error": "E_SCOPE_NOT_A_REPO",
+                "note": "%s 不是可读 git 仓库（clone 后应可用）" % root}
+    untracked = _git_paths(root, ["--others", "--exclude-standard"]) or set()
+    ignored = _git_paths(root, ["--others", "--ignored", "--exclude-standard"]) or set()
+    universe = tracked | (untracked - tracked)
+    declared = {f["path"].replace("\\", "/") for f in manifest.get("files", [])}
+    out_of_scope = universe - declared
+    prefixes = [p.replace("\\", "/") for p in (scope.get("delivery_prefixes") or [])]
+
+    def under(path):
+        return any(path == p or path.startswith(p.rstrip("/") + "/") for p in prefixes)
+
+    not_in_repo = sorted(declared - universe)
+    delivery_missing = sorted(p for p in universe if under(p) and p not in declared)
+    ignored_all = sorted(p for p in ignored if under(p))
+    ignored_under = [p for p in ignored_all if not _is_intrinsic_ignored(p)]
+    explained = set(p.replace("\\", "/") for p in (scope.get("ignored_explained") or []))
+    unexplained_ignored = sorted(set(ignored_under) - explained)
+    checks = {
+        "no_unbacked_entries": not not_in_repo,
+        "no_delivery_gap": not delivery_missing,
+        "out_of_scope_count_matches": len(out_of_scope) == scope.get("out_of_scope_count"),
+        "out_of_scope_digest_matches": _pathset_digest(out_of_scope)
+                                       == scope.get("out_of_scope_digest"),
+        "declared_count_matches": len(declared) == scope.get("declared_count"),
+        "ignored_all_explained": not unexplained_ignored,
+        # 交付物必须都落在声明的交付前缀之内：防止"声明 A 目录、实际夹带 B 目录"。
+        # （原先这里比的是 prefixes 自己 vs 自己，恒真，等于没查——已改掉）
+        "declared_within_prefixes": bool(declared) and all(under(p) for p in declared),
+    }
+    return {
+        "ok": all(checks.values()),
+        "checks": checks,
+        "recomputed": {
+            "tracked_count": len(tracked),
+            "universe_count": len(universe),
+            "declared_count": len(declared),
+            "out_of_scope_count": len(out_of_scope),
+            "out_of_scope_digest": _pathset_digest(out_of_scope),
+            "not_in_repo": not_in_repo,
+            "delivery_missing": delivery_missing,
+            "ignored_under_delivery": ignored_under,
+            "ignored_unexplained": unexplained_ignored,
+            "ignored_intrinsic_count": len(ignored_all) - len(ignored_under),
+        },
+        "declared_scope": {"mode": scope.get("mode"),
+                           "declared_count": scope.get("declared_count"),
+                           "out_of_scope_count": scope.get("out_of_scope_count"),
+                           "out_of_scope_digest": scope.get("out_of_scope_digest")},
+    }
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="离线复算交付清单与期望值")
     ap.add_argument("--manifest", required=True)
     ap.add_argument("--root", required=True)
     ap.add_argument("--actual", default=None, help="实测结果 JSON（用于比对 expected）")
+    ap.add_argument("--check-scope", action="store_true",
+                    help="额外核验交付范围分账（需在 git 仓库内运行）")
     ap.add_argument("--json-out", default=None)
     args = ap.parse_args(argv)
 
@@ -149,14 +254,17 @@ def main(argv=None) -> int:
     report = {"manifest": os.path.abspath(args.manifest),
               "root": os.path.abspath(args.root),
               "hashes": verify(manifest, args.root),
-              "expected": None}
+              "expected": None,
+              "scope": check_scope(manifest, args.root) if args.check_scope else None}
 
     if args.actual:
         with open(args.actual, "r", encoding="utf-8") as fh:
             actual = json.load(fh)
         report["expected"] = compare_expected(manifest.get("expected") or {}, actual)
 
-    ok = report["hashes"]["ok"] and (report["expected"] is None or report["expected"]["ok"])
+    ok = (report["hashes"]["ok"]
+          and (report["expected"] is None or report["expected"]["ok"])
+          and (report["scope"] is None or report["scope"]["ok"]))
     report["ok"] = ok
     text = json.dumps(report, ensure_ascii=False, sort_keys=True, indent=1)
     print(text)
