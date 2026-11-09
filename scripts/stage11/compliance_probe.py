@@ -1640,6 +1640,16 @@ def p_external_anchor(keys: dict, tmp: str) -> dict:
                     "fields": sorted((archived["statement"] or {}).keys()),
                     "source": "archived",
                 }
+                # 复用分支也要把回执字段摊到 evidence 里，否则下游只能看到 uuid=None，
+                # 把「没提交」误读成「没锚定」。
+                tlog["receipt"] = {k: tlog_receipt.get(k) for k in
+                                   ("backend", "external", "immutable", "entry_uuid",
+                                    "log_index", "integrated_time", "log_id",
+                                    "artifact_sha256", "set_verified",
+                                    "already_existed", "anchored_at")}
+                tlog["receipt"]["signer_public_key_sha256"] = \
+                    tlog_receipt.get("signer_public_key_sha256")
+                tlog["receipt"]["source"] = "archived"
             elif tlog_backend.external:  # 本机桩文件后端不值得写，只有外部日志才算「接入」
                 try:
                     tlog_receipt = tlog_backend.submit(artifact, tp.AnchorSigner.generate(),
@@ -1765,8 +1775,9 @@ def p_external_anchor(keys: dict, tmp: str) -> dict:
             "forensic evidence must survive the provider's own control (external anchoring / WORM)",
             "PARTIAL", evidence,
             "两级外部锚定都真跑通了：① RFC 3161 时间戳（%s，离线可复核 CMS 签名 / messageImprint"
-            " / nonce）；② 锚点摘要已提交到公共只追加日志（%s，条目 uuid=%s，logIndex=%s，"
-            "SET 验签=%s），并且用**不 import 本项目**的 scripts/stage13/verify_anchor.py 独立"
+            " / nonce）；② 锚点摘要已在公共只追加日志（%s）里可查（条目 uuid=%s，"
+            "logIndex=%s，SET 验签=%s；本轮%s），并且用**不 import 本项目**的 "
+            "scripts/stage13/verify_anchor.py 独立"
             "复核通过（按摘要反查得到同一条目）。反例也随之变强：持钥者改写第 7 步、重算整链、"
             "重签并重打新戳后，签名校验当然仍判 VALID（%s），但拿手里的回执核对眼前凭证会立刻"
             " mismatch（本次 detectable=%s，旧条目仍在=%s）——「整册重做」从不可发现变成"
@@ -1780,6 +1791,9 @@ def p_external_anchor(keys: dict, tmp: str) -> dict:
                (tlog.get("receipt") or {}).get("entry_uuid"),
                (tlog.get("receipt") or {}).get("log_index"),
                (tlog.get("receipt_check") or {}).get("set_verified"),
+               "向公共日志新提交 1 条"
+               if tlog.get("submitted")
+               else "未向公共日志写入，复用已入库回执（只追加日志不重复占用）",
                forged_verify.get("verdict"),
                (tlog.get("rework") or {}).get("detectable"),
                (tlog.get("rework") or {}).get("prior_entry_still_present")))

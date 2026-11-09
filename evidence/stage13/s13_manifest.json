@@ -11,7 +11,7 @@
    "pytest": "9.2.0"
   },
   "git": {
-   "commit": "2beb846df51bf9ba69e8c7d09042f968237ad936",
+   "commit": "23bcde9b6d1998944d270fe1fa37910a46b38b21",
    "dirty": true,
    "dirty_scope": [
     "swordholder",
@@ -167,10 +167,10 @@
    "sha256_raw": "5ea8ae4cced95bd174107478ce217ed556f6af8337d5fc11d39495f5384e4ea3"
   },
   {
-   "bytes": 105054,
+   "bytes": 106014,
    "path": "scripts/stage11/compliance_probe.py",
-   "sha256": "84f914e23fcd3e8d602ca4071675c85de2adecd11e9c99db6fa6d4e985675c36",
-   "sha256_raw": "84f914e23fcd3e8d602ca4071675c85de2adecd11e9c99db6fa6d4e985675c36"
+   "sha256": "ae17263f4a3c0119b16299f0c66a7107ae18249da630b092960d33b8c2ab0e88",
+   "sha256_raw": "ae17263f4a3c0119b16299f0c66a7107ae18249da630b092960d33b8c2ab0e88"
   },
   {
    "bytes": 14992,
@@ -383,10 +383,10 @@
    "sha256_raw": "0b850e0d755551299c30ef6edf57c4255901215c49a18603821542f286378b9d"
   },
   {
-   "bytes": 25995,
+   "bytes": 26228,
    "path": "swordholder/transparency.py",
-   "sha256": "115569c6834d7540873a594071f15ca1bd5aebcc3281cef367508d3a1c20dc2c",
-   "sha256_raw": "115569c6834d7540873a594071f15ca1bd5aebcc3281cef367508d3a1c20dc2c"
+   "sha256": "739f1ab57237124e615ac0160a59b08d4fcb5fb06da61075edf76c71eb6f477d",
+   "sha256_raw": "739f1ab57237124e615ac0160a59b08d4fcb5fb06da61075edf76c71eb6f477d"
   },
   {
    "bytes": 16875,
@@ -599,11 +599,11 @@
    "sha256_raw": "7207c8929361129c51dff32b7afa689c6f3f48e7ce3be23622d41b02ab4416f8"
   }
  ],
- "generated_at": "2026-11-09T15:50:38Z",
+ "generated_at": "2026-11-09T16:04:49Z",
  "hash_mode": "canonical-lf",
  "root_name": "swordholder_mvp",
  "schema": "swordholder.repro_manifest/1",
  "swordholder_version": "0.10.1",
- "total_bytes": 1018836,
- "tree_digest": "e71ddc9f359792f8eed4a50139cc8d9c67d258e87e58331c6c2f03d3016290bc"
+ "total_bytes": 1020029,
+ "tree_digest": "bc19da21d39c0fbc067c5598c41b05673345be2622f33c6a2018c159a7c65597"
 }

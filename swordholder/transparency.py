@@ -333,11 +333,13 @@ class RekorBackend(Backend):
         set_b64 = verification.get("signedEntryTimestamp")
         if not set_b64:
             return False
-        payload = json.dumps({"body": entry.get("body"),
-                              "integratedTime": entry.get("integratedTime"),
-                              "logID": entry.get("logID"),
-                              "logIndex": entry.get("logIndex")},
-                             separators=(",", ":")).encode("utf-8")
+        # SET 的签名载荷必须是 canonical JSON（键排序、紧凑分隔）。这里早先用
+        # json.dumps(separators=...) 未排序，键顺序与日志签发时不同 → 验签恒 False，
+        # 会把「自己算错载荷」误报成「日志签名不对」。
+        payload = canonical_json({"body": entry.get("body"),
+                                  "integratedTime": entry.get("integratedTime"),
+                                  "logID": entry.get("logID"),
+                                  "logIndex": entry.get("logIndex")})
         try:
             pub = serialization.load_pem_public_key(
                 self.rekor_public_pem().encode("ascii"))
