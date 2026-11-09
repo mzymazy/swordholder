@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/stage11/compliance_probe.py",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "python": "3.11.8",
   "counts": {
     "PASS": 10,
@@ -360,7 +360,7 @@
       "result": "PASS",
       "evidence": {
         "first_scan": {
-          "root": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\tmpvhanwf6n\\s11_deploy",
+          "root": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\tmpggklxfrp\\s11_deploy",
           "traces_total": 4,
           "verified_ok": 4,
           "failed": 0,
@@ -473,11 +473,11 @@
         "tsa_url": "https://freetsa.org/tsr",
         "tsa_stamp_present": true,
         "tsa_stamp_ok": true,
-        "tsa_gen_time": "20261109091003Z",
+        "tsa_gen_time": "20261109093737Z",
         "tsa_imprint_match": true,
         "tsa_cms_signature": true,
         "tsa_chain_trusted": true,
-        "tsa_token_sha256": "c80115b56d0e7073155777a1e025f4e0de2a357e264fa4d13759977c294afa34",
+        "tsa_token_sha256": "9070bda6d23da979f4285d8e9274fd619eb05623e63c0d5263c1a5df64f9bd58",
         "tsa_stamp_error": null,
         "tsa_stamp_attempts": [
           {
@@ -503,18 +503,22 @@
         "worm_storage": false,
         "anchor_location": "holder-side file (signed credential); timestamp token inside it"
       },
-      "note": "已真实取得 RFC 3161 外部时间戳（20261109091003Z，说明「该摘要在该时刻已存在」），并且可在离线状态复核 CMS 签名、messageImprint 与 nonce；未打戳的凭证在 require_external_timestamp=True 下被拒（E_TRACE_TSA_ABSENT）。但反例显示：持钥者改写第 7 步、重算整链、重签并重打一枚新戳后，校验仍判 VALID（本次复验结果=VALID），因为没有任何第三方留存首枚戳值，也没有 WORM 副本可比对。故「同一份证据在事后被整册重做」不可发现，记 PARTIAL：外部存在性证明有了，抗内部重做没有。"
+      "note": "已真实取得 RFC 3161 外部时间戳（20261109093737Z，说明「该摘要在该时刻已存在」），并且可在离线状态复核 CMS 签名、messageImprint 与 nonce；未打戳的凭证在 require_external_timestamp=True 下被拒（E_TRACE_TSA_ABSENT）。但反例显示：持钥者改写第 7 步、重算整链、重签并重打一枚新戳后，校验仍判 VALID（本次复验结果=VALID），因为没有任何第三方留存首枚戳值，也没有 WORM 副本可比对。故「同一份证据在事后被整册重做」不可发现，记 PARTIAL：外部存在性证明有了，抗内部重做没有。"
     },
     {
       "id": "P12",
       "clause": "delivery claim S11-01 (external reproducibility)",
-      "requirement": "the delivered tree + manifest can be re-verified offline by a third party, and any byte-level change or tally divergence is detected",
+      "requirement": "a third party who only has the repository can export the delivered tree (git archive), recompute it offline and get the same result, while any content change or tally divergence still fails",
       "result": "PASS",
       "evidence": {
         "manifest_schema": "swordholder.repro_manifest/1",
+        "manifest_hash_mode": "canonical-lf",
         "manifest_written_to": "temp/s12_manifest.json (delivered copy: evidence/stage12/s12_manifest.json)",
-        "real_tree_file_count": 74,
-        "real_tree_bytes": 862213,
+        "tracked_only": true,
+        "untracked_excluded": [
+          "swordholder/samples/alert_02_token.seal.json"
+        ],
+        "untracked_excluded_count": 1,
         "delivery_patterns": 10,
         "delivery_patterns_source": "scripts/stage12/build_manifest12.py",
         "delivery_scope": [
@@ -529,7 +533,26 @@
           "CHANGELOG.md",
           "tests/"
         ],
-        "tree_digest": "94cd83b671116b96eea18cc4af7166f52fd0decb249325d1743ef95aa57eb9a5",
+        "manifest_file_count": 74,
+        "collected_file_count": 75,
+        "file_count_closure": true,
+        "manifest_bytes_canonical": 884844,
+        "tree_digest": "c3fa5535dcae131a2411055239b9d09bda6144e0d03a81c9617d4f6bf3370dee",
+        "archive_source": "git archive --format=tar HEAD",
+        "archive_commit": "3fa195c08b27039262b1d309c2032d86d1f857c2",
+        "archive_ok": true,
+        "archive_entries_extracted": 951,
+        "export_tree_file_count": 951,
+        "export_missing_from_manifest": [],
+        "export_missing_count": 0,
+        "export_tree_exit_code": 0,
+        "export_tree_ok": true,
+        "export_checked_reported": 74,
+        "export_tree_digest_match": true,
+        "workspace_tree_exit_code": 0,
+        "workspace_tree_ok": true,
+        "eol_insensitive_selfcheck": true,
+        "raw_hash_eol_sensitive_selfcheck": true,
         "verifier_ships_with_delivery": true,
         "verifier_stdlib_only": true,
         "verifier_imports": [
@@ -542,7 +565,7 @@
         ],
         "expected_keys_from_probe_tally": true,
         "expected_tally_source": "evidence/stage12/s12_probes_counts.json",
-        "expected_key_count": 12,
+        "expected_key_count": 11,
         "result_P12_source": "上一轮落盘值（自指，不参与本轮交叉核对）",
         "live_tally": {
           "result_P01": "PASS",
@@ -559,11 +582,8 @@
         },
         "live_vs_published_mismatch": {},
         "tally_stable": true,
-        "clean_tree_exit_code": 0,
-        "clean_tree_ok": true,
-        "checked_files_reported": 74,
         "tampered_tree_exit_code": 1,
-        "mismatch_detected": true,
+        "tamper_detected": true,
         "tampered_mismatched_count": 1,
         "expected_tally_enforced_exit_code": 1,
         "expected_tally_enforced": true,
@@ -571,7 +591,7 @@
         "demo_manifest_rejected": true,
         "demo_manifest_file_count": 1
       },
-      "note": "复算对象是真实交付树（74 文件 / 862213 字节，10 个交付范围，取自 scripts/stage12/build_manifest12.py），不是 demo 文件；复算脚本随交付一起发出，用 python -I 在隔离模式、无网络、不装本包的假设下重算逐文件 sha256 与整树摘要：干净树 exit=0 且 checked=74；改一个字节 exit!=0 且有mismatched 明细；改已公布分档 exit!=0；拿 1 文件 demo 清单去复算真实树同样 exit!=0；本轮 P01–P11 分档与上一轮落盘值逐项一致（差异项 0 个）。"
+      "note": "复算对象改为**外部真实取得路径**：git archive HEAD 导出的干净树（951 个条目，提交 3fa195c08b27），不再逐文件 copy 我方工作区。清单口径 canonical-lf 且只收 git 跟踪文件（剔除未跟踪 1 项：swordholder/samples/alert_02_token.seal.json）。导出树复算 exit=0、checked=74、tree_digest_match=True；同一份清单在我方工作区同样 exit=0；canonical 口径对 CRLF/LF 给出同一哈希（自检 True），而 raw 口径对同一内容给出不同哈希（自检 True，这正是 S12 原方案的缺陷所在）；改一字节 exit=1 且 tree_digest 不一致；改已公布分档 exit=1；1 文件 demo 清单 exit=1；本轮 P01–P11 分档与上一轮落盘值一致（差异项 0 个）。"
     }
   ]
 }
