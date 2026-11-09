@@ -17,6 +17,36 @@ AIGC:
 
 ---
 
+## [0.8.0] - 2026-11-08 - S10：记录必备字段与留存期（把两条可修的合规 FAIL 修掉）
+
+本版新增合规字段档位与留存模块，**默认行为与 0.7.5 逐字节一致**。
+
+1. **出发点**：第九阶段探针 11 条中 3 PASS / 4 PARTIAL / 4 FAIL，其中 P04（Art.12(3) Annex III
+   必备字段命中 0/4）与 P05（retention/TTL/archive 关键词命中 0）属功能缺失而非机制上限。
+2. **新增档位**：`TraceLedger(..., profile="annex3-1a")`。显式启用时 Art.12(3) 四项字段
+   （`period` / `db_ref` / `matched_input` / `identity_check`）成为**写入前置条件**，
+   缺一项抛错，不允许「先写后补」——否则日志留合规空档，事后无法区分漏填与被删。
+3. **新增错误码**：`E_ANNEX3_PERIOD_MISSING`、`E_ANNEX3_PERIOD_INVALID`、`E_ANNEX3_DB_REF_MISSING`、
+   `E_ANNEX3_MATCHED_INPUT_MISSING`、`E_ANNEX3_IDENTITY_MISSING`、`E_ANNEX3_FIELD_INVALID`、
+   `E_ANNEX3_IDENTITY_INVALID`。
+4. **入链与防降级**：字段参与 `hash`，只改 `period.end` 即在第 1 步断链、封章判 INVALID
+   （`segment=[1,1]`）；轨迹体声明 `profile` 时摘要 `core` 并入该键，删档位冒充普通轨迹
+   判 `E_TRACE_DIGEST_MISMATCH`。
+5. **新增模块** `swordholder/retention.py`（290 行）：`MIN_RETENTION_DAYS = 183` 为硬下限
+   （`RetentionPolicy(days=180)` 抛 `E_RETENTION_BELOW_FLOOR`）；`classify` 返回
+   `retained` / `archive_due`；`archive_record` 写 `archive/YYYY-MM/<trace_id>.<sha8>.json`
+   并做 schema / body_sha256 / chain / digest 四项校验；`verify_archive` 事后可复核。
+   **不提供删除接口**，到期规则是「可归档」而非「可销毁」。
+6. **实测（同一套探针前后对照）**：PASS 3 → 5、FAIL 4 → 2。P04 档位内 4/4 命中、
+   缺项拒写 6/6；P05 190 天策略下 29 天 `retained`、272 天 `archive_due`，
+   改归档副本内一步即 `E_RETENTION_ARCHIVE_CHAIN`（第 2 步）。
+7. **仍为 FAIL 的两条**（机制上限，未伪装）：P07 tamper-proof——持钥者可改写后重签，
+   本库定位是 tamper-**evident**；P11 无外部锚定——凭证仍在被记录方磁盘上。
+8. **测试**：新增 `tests/test_stage10_annex3_retention.py` 16 用例；全量 504 passed / 0 failed / 0 skipped。
+   机制与边界见 `docs/stage10-compliance-fields.md`。
+
+---
+
 ## [0.7.5] - 2026-11-08 - S8：步级篡改定位（把「检出但指不出哪一步」修掉）
 
 本版只改轨迹账本的凭证格式与定位逻辑，不改判定器语义。

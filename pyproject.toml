@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "swordholder"
-version = "0.7.5"
+version = "0.8.0"
 description = "缁?AI 缁撹鐩栫珷锛氭妸鍛婅鍒嗚瘖缁撹灏佹垚鍙绾跨嫭绔嬮獙绛剧殑 ed25519 鍑瘉锛屽彲鎺ュ叆 SOC / SOAR / MCP"
 readme = "README.md"
 requires-python = ">=3.11"

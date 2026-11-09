@@ -45,6 +45,24 @@ ANCHOR_TRUNC = 16
 ENTRY_KEYS = ("n", "ts", "action", "args", "observation")
 """参与哈希的字段白名单。字段外的东西（如渲染用的备注）不进哈希，避免无关字段造成假断点。"""
 
+AUTH_EXTRA_KEYS = ("period", "db_ref", "matched_input", "identity_check")
+"""0.8.0 新增的可选认证字段（EU AI Act Art.12(3) 高危用途必备记录）。
+
+这四个字段**只有出现时才进哈希**（见 :func:`entry_core`）。这样 0.7.x 的旧轨迹
+一个字节都不用改，重算哈希仍与历史一致；而一旦启用，字段本身也受哈希链保护，
+不会出现「字段在但没被链覆盖、可被悄悄改写」的半吊子实现。
+
+字段语义（对应 Art.12(3)(a)–(d)）
+
+- ``period``：本次使用的起止时间 ``{"start": ISO8601, "end": ISO8601}``；
+- ``db_ref``：被检索的参考数据库（含版本/快照标识）标识符；
+- ``matched_input``：导致命中（match）的那份输入数据或其摘要；
+- ``identity_check``：Art.14(5) 自然人身份核验结果 ``{"verifier", "method", "at"}``。
+"""
+
+ANNEX_III_VARIANTS = ("annex3-1a",)
+"""受支持的记录档位。目前只实现 Art.12(3) 指向的 Annex III 1(a)（生物特征识别类）。"""
+
 
 class TraceError(Exception):
     """轨迹结构非法（缺字段、哈希格式错、步号不连续等）。"""
@@ -60,8 +78,17 @@ def _sha256(text: str) -> str:
 
 
 def entry_core(entry: dict) -> dict:
-    """取出参与哈希的字段，缺失的按 None 补齐（缺失本身也是内容的一部分）。"""
-    return {k: entry.get(k) for k in ENTRY_KEYS}
+    """取出参与哈希的字段，缺失的按 None 补齐（缺失本身也是内容的一部分）。
+
+    ``AUTH_EXTRA_KEYS`` 里的字段是**条件入链**：只有条目里真的带了它才拼进规范化内容。
+    因此不含这些字段的 0.7.x 条目哈希与历史完全一致（向后兼容），含这些字段的条目
+    则把字段一起锁死在哈希链里（无法只改字段不改链）。
+    """
+    core = {k: entry.get(k) for k in ENTRY_KEYS}
+    for k in AUTH_EXTRA_KEYS:
+        if k in entry:
+            core[k] = entry[k]
+    return core
 
 
 def entry_hash(entry: dict, prev_hash: str) -> str:
@@ -70,12 +97,83 @@ def entry_hash(entry: dict, prev_hash: str) -> str:
 
 
 def body_digest(body: dict) -> str:
-    """轨迹摘要 = 只覆盖 (trace_id, step_count, head)，不覆盖全文，故凭证可以很小。"""
-    return _sha256(_c14n({
+    """轨迹摘要 = 只覆盖 (trace_id, step_count, head, profile)，不覆盖全文，故凭证可以很小。
+
+    ``profile`` 只在轨迹体显式声明档位时才并入摘要：不含该键的 0.7.x 轨迹摘要与历史
+    完全一致（旧凭证仍能验），而声明了 ``annex3-1a`` 的轨迹，把声明改掉（例如把档位删了
+    冒充普通轨迹）会让摘要对不上——档位声明本身也被锁进凭证，不只是条目里的字段。
+    """
+    core = {
         "trace_id": body.get("trace_id"),
         "step_count": body.get("step_count"),
         "head": body.get("head"),
-    }))
+    }
+    if body.get("profile") is not None:
+        core["profile"] = body.get("profile")
+    return _sha256(_c14n(core))
+
+
+def _parse_iso(value: Any) -> Any:
+    """把 ISO8601 字符串解析成 datetime；解析不了返回 None（用于区间单调性校验）。"""
+    from datetime import datetime
+
+    if not isinstance(value, str):
+        return None
+    txt = value.strip()
+    if not txt:
+        return None
+    try:
+        return datetime.fromisoformat(txt.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _normalize_period(period: Any) -> dict:
+    """校验并规范化 ``{"start","end"}``：逐字保留调用方时间串，只做缺项/倒序拦截。"""
+    if not isinstance(period, dict):
+        raise TraceError("E_ANNEX3_PERIOD_INVALID: period 必须是 {start,end} 对象，收到 %r"
+                         % (type(period).__name__,))
+    start, end = period.get("start"), period.get("end")
+    for name, val in (("start", start), ("end", end)):
+        if not isinstance(val, str) or not val.strip():
+            raise TraceError("E_ANNEX3_PERIOD_INVALID: period.%s 必须是非空 ISO8601 字符串，"
+                             "收到 %r" % (name, val))
+    ds, de = _parse_iso(start), _parse_iso(end)
+    if ds is None or de is None:
+        raise TraceError("E_ANNEX3_PERIOD_INVALID: period 起止时间必须是可解析的 ISO8601"
+                         "（收到 %r / %r）" % (start, end))
+    if de < ds:
+        raise TraceError("E_ANNEX3_PERIOD_INVALID: period.end（%s）早于 period.start（%s）"
+                         % (end, start))
+    out = {"start": start.strip(), "end": end.strip()}
+    for extra in ("tz", "source"):
+        if extra in period:
+            out[extra] = period[extra]
+    return out
+
+
+def _normalize_ref(value: Any, field: str) -> str:
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    raise TraceError("E_ANNEX3_FIELD_INVALID: %s 必须是非空字符串，收到 %r" % (field, value))
+
+
+def _normalize_identity(identity_check: Any) -> dict:
+    """Art.14(5) 身份核验：至少要有「谁核验的」，方法与时间可缺省但会被显式写 null。"""
+    if isinstance(identity_check, str) and identity_check.strip():
+        identity_check = {"verifier": identity_check.strip()}
+    if not isinstance(identity_check, dict):
+        raise TraceError("E_ANNEX3_IDENTITY_INVALID: identity_check 必须是对象或自然人标识字符串")
+    verifier = identity_check.get("verifier")
+    if not isinstance(verifier, str) or not verifier.strip():
+        raise TraceError("E_ANNEX3_IDENTITY_INVALID: identity_check.verifier 必填（自然人标识）")
+    out = {"verifier": verifier.strip(),
+           "method": identity_check.get("method"),
+           "at": identity_check.get("at")}
+    for extra in ("result", "role"):
+        if extra in identity_check:
+            out[extra] = identity_check[extra]
+    return out
 
 
 class TraceLedger:
@@ -93,17 +191,75 @@ class TraceLedger:
     但会在该步留下 ``serialization: "repr"`` 标记——记录器不得静默丢步。
     """
 
-    def __init__(self, trace_id: str, actor: str | None = None, start_ts: str | None = None):
+    def __init__(self, trace_id: str, actor: str | None = None, start_ts: str | None = None,
+                 profile: str | None = None):
         if not trace_id:
             raise TraceError("trace_id 必填")
+        if profile is not None and profile not in ANNEX_III_VARIANTS:
+            raise TraceError("不支持的记录档位 %r（可选：%s）"
+                             % (profile, ", ".join(ANNEX_III_VARIANTS)))
         self.trace_id = str(trace_id)
         self.actor = actor
         self.start_ts = start_ts
+        self.profile = profile
         self._entries: list[dict] = []
 
     # ------------------------------------------------------------------ 写入
     def append(self, action: str, args: Any = None, observation: Any = None,
-               ts: str | None = None) -> dict:
+               ts: str | None = None, *, period: dict | None = None,
+               db_ref: Any = None, matched_input: Any = None,
+               identity_check: dict | None = None, matched: bool = False,
+               verified_by: str | None = None,
+               verify_method: str = "human_review") -> dict:
+        """追加一步。
+
+        普通用法与 0.7.x 完全一致（``action/args/observation/ts``）——此时条目键集合
+        仍是 ``n/ts/action/args/observation/prev/hash``，哈希与历史逐字节相同。
+
+        启用 ``profile="annex3-1a"``（对应 EU AI Act Art.12(3) 指向的 Annex III 1(a)）
+        时，README 里承诺的四个必备字段变成**写入前置条件**：缺一项直接抛
+        :class:`TraceError`，不允许「先写进去再补」——否则日志里就会出现无字段的
+        合规空档，事后无法区分是漏填还是被删。
+
+        - ``period``：``{"start","end"}``，ISO8601，end 不得早于 start；
+        - ``db_ref``：参考数据库标识（建议含版本/快照号，便于复现命中）；
+        - ``matched``：本步检索是否命中；为 True 时必须给 ``matched_input``；
+        - ``verified_by``：做 Art.14(5) 人工复核的自然人标识，给了就生成
+          ``identity_check = {verifier, method, at}``；档位开启时该项也必填。
+        """
+        prof = self.profile
+        extras: dict[str, Any] = {}
+
+        if period is not None:
+            extras["period"] = _normalize_period(period)
+        if db_ref is not None:
+            extras["db_ref"] = _normalize_ref(db_ref, "db_ref")
+        if matched_input is not None:
+            extras["matched_input"] = matched_input
+        if verified_by is not None:
+            identity_check = {"verifier": _normalize_ref(verified_by, "verifier"),
+                              "method": str(verify_method),
+                              "at": ts or (extras.get("period") or {}).get("end")}
+        if identity_check is not None:
+            extras["identity_check"] = _normalize_identity(identity_check)
+
+        if prof == "annex3-1a":
+            if "period" not in extras:
+                raise TraceError(
+                    "E_ANNEX3_PERIOD_MISSING: Art.12(3)(a) 要求记录本次使用的起止时间，"
+                    "annex3-1a 档位下 period 不可缺省（单点 ts 不构成起止区间）")
+            if "db_ref" not in extras:
+                raise TraceError(
+                    "E_ANNEX3_DB_REF_MISSING: Art.12(3)(b) 要求记录参考数据库，annex3-1a 档位下必填")
+            if matched and "matched_input" not in extras:
+                raise TraceError(
+                    "E_ANNEX3_MATCHED_INPUT_MISSING: Art.12(3)(c) 要求记录导致命中的输入数据，"
+                    "matched=True 时必须给 matched_input")
+            if "identity_check" not in extras:
+                raise TraceError(
+                    "E_ANNEX3_IDENTITY_MISSING: Art.12(3)(d) 要求记录 Art.14(5) 自然人身份核验，"
+                    "annex3-1a 档位下必填（可用 verified_by= 传入）")
+
         prev = self.head
         n = len(self._entries)
         entry: dict[str, Any] = {
@@ -113,7 +269,8 @@ class TraceLedger:
             "args": args,
             "observation": observation,
         }
-        if not _jsonable(entry):
+        entry.update(extras)
+        if not _jsonable({k: v for k, v in entry.items()}):
             entry = {
                 "n": n,
                 "ts": ts,
@@ -122,6 +279,7 @@ class TraceLedger:
                 "observation": repr(observation),
                 "serialization": "repr",
             }
+            entry.update(extras)
         entry["prev"] = prev
         entry["hash"] = entry_hash(entry, prev)
         self._entries.append(entry)
@@ -138,7 +296,7 @@ class TraceLedger:
 
     def body(self) -> dict:
         """产出自包含的轨迹体（可序列化为 JSON 落盘）。"""
-        return {
+        out = {
             "trace_id": self.trace_id,
             "actor": self.actor,
             "start_ts": self.start_ts,
@@ -146,6 +304,9 @@ class TraceLedger:
             "head": self.head,
             "entries": self.entries,
         }
+        if self.profile is not None:
+            out["profile"] = self.profile
+        return out
 
 
 def _jsonable(obj: Any) -> bool:
