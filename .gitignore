@@ -62,3 +62,6 @@ artifacts_s5_*/
 coverage.xml
 htmlcov/
 evidence/stage13/e2e/
+# S13：一键复跑脚本的每次运行摘要（含本机时间戳与耗时，属运行期产物）；
+# 权威结论已固化在 s13_probes.json / s13_manifest.json 内，摘要不入库以免每次跑都变脏
+evidence/stage13/s13_e2e_summary.json

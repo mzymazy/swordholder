@@ -11,8 +11,8 @@
    "pytest": "9.2.0"
   },
   "git": {
-   "commit": "3387f19453909013d4d6b2aa074f66f55becdd01",
-   "dirty": true,
+   "commit": "cfb78877efc61b8dd9f8427f6a199fe2b3e45919",
+   "dirty": false,
    "dirty_scope": [
     "swordholder",
     "scripts/stage11",
@@ -92,7 +92,7 @@
    "mode": "repo-partition",
    "not_in_repo": [],
    "ok": true,
-   "out_of_scope_content_digest": "9101e7125e196fec07af43da45ac797af399d98fb70be42ea5b2e696bd9f8be8",
+   "out_of_scope_content_digest": "da7602d04795931c0e8bd51bd03dea165dcf383a44b286650386ed3f3bf66957",
    "out_of_scope_count": 882,
    "out_of_scope_digest": "41ac506da9b1d8b3016f3a4564bc1a5f608a673a420ec50f8b4eab1426b33cd2",
    "sample_out_of_scope": [
@@ -599,7 +599,7 @@
    "sha256_raw": "7207c8929361129c51dff32b7afa689c6f3f48e7ce3be23622d41b02ab4416f8"
   }
  ],
- "generated_at": "2026-11-09T13:56:40Z",
+ "generated_at": "2026-11-09T15:37:24Z",
  "hash_mode": "canonical-lf",
  "root_name": "swordholder_mvp",
  "schema": "swordholder.repro_manifest/1",
