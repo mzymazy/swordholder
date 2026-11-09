@@ -1250,6 +1250,8 @@ def _clone_matrix(tmp: str) -> dict:
             "scope_ok": facts.get("scope_ok"),
             "scope_out_of_scope": facts.get("scope_out_of_scope"),
             "expected_ok": facts.get("expected_ok"),
+            "expected_missing": facts.get("expected_missing"),
+            "expected_diverged": facts.get("expected_diverged"),
             "mismatched_count": facts.get("mismatched_count"),
             "clone_autocrlf": eol_seen.stdout.decode("utf-8", "replace").strip(),
             "steps": {k: v.get("ok") for k, v in (doc.get("steps") or {}).items()},

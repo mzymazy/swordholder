@@ -360,7 +360,7 @@
       "result": "PASS",
       "evidence": {
         "first_scan": {
-          "root": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\tmpr2nji_jx\\s11_deploy",
+          "root": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\tmp4ualdi4b\\s11_deploy",
           "traces_total": 4,
           "verified_ok": 4,
           "failed": 0,
@@ -472,18 +472,30 @@
       "requirement": "forensic evidence must survive the provider's own control (external anchoring / WORM)",
       "result": "PARTIAL",
       "evidence": {
-        "tsa_url": "https://freetsa.org/tsr",
+        "tsa_url": "http://timestamp.digicert.com",
         "tsa_stamp_present": true,
         "tsa_stamp_ok": true,
-        "tsa_gen_time": "20261109134502Z",
+        "tsa_gen_time": "20261109135215Z",
         "tsa_imprint_match": true,
         "tsa_cms_signature": true,
         "tsa_chain_trusted": true,
-        "tsa_token_sha256": "c2154e80a6278b2695cb7f9eb11317b5f269a71bddf4c3b4bda18c042cca749b",
+        "tsa_token_sha256": "3591eacdb9e1a1781591c2120eeb41689cb8ae3d6f46f03fd1cebc52f889b6e9",
         "tsa_stamp_error": null,
         "tsa_stamp_attempts": [
           {
             "url": "https://freetsa.org/tsr",
+            "attempt": 1,
+            "ok": false,
+            "error": "E_TSA_UNREACHABLE: <urlopen error _ssl.c:989: The handshake operation timed out>"
+          },
+          {
+            "url": "https://freetsa.org/tsr",
+            "attempt": 2,
+            "ok": false,
+            "error": "E_TSA_UNREACHABLE: The read operation timed out"
+          },
+          {
+            "url": "http://timestamp.digicert.com",
             "attempt": 1,
             "ok": true
           }
@@ -516,16 +528,16 @@
           "external": true,
           "log_url": "https://rekor.sigstore.dev",
           "reachable": true,
-          "tree_size": 3643948415,
-          "root_hash": "fdaa33d266f4d5b80488042a719c95b79aba31890227ae9b542bbbd7f9d18f4f",
+          "tree_size": 3643983140,
+          "root_hash": "0ac50636c74f8308fddb99f5cf4e0cc82212dd04250459ed06145e93419cd903",
           "note": "Rekor 只追加：条目写入后不可删除或改写"
         },
         "tlog_submitted": true,
         "tlog_submit_error": null,
         "tlog_statement": {
           "schema": "swordholder.anchor_statement/1",
-          "digest": "030ef76af4cf694a0ffdfa01c8240924372d1994426bb33f3f3fb89e3ab773da",
-          "bytes": 566,
+          "digest": "d01a5ea9de3be2789ea75e390ed8db76a2d7b7ab469257d9e0f9387ce2d688f3",
+          "bytes": 572,
           "fields": [
             "extra",
             "purpose",
@@ -541,15 +553,15 @@
           "backend": "rekor-public",
           "external": true,
           "immutable": true,
-          "entry_uuid": "108e9186e8c5677a44a6e74bf4f648634b6c2f999fe141dd34dd1a86902fb3a5c56ce0e68dae6c7a",
-          "log_index": 3765852840,
-          "integrated_time": 1794231924,
+          "entry_uuid": "108e9186e8c5677aad7440c2efee73aab32ea4ab29636a1e6ddb319a3339bd5de8694a02ee300814",
+          "log_index": 3765887422,
+          "integrated_time": 1794232337,
           "log_id": "c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d",
-          "artifact_sha256": "030ef76af4cf694a0ffdfa01c8240924372d1994426bb33f3f3fb89e3ab773da",
+          "artifact_sha256": "d01a5ea9de3be2789ea75e390ed8db76a2d7b7ab469257d9e0f9387ce2d688f3",
           "set_verified": true,
           "already_existed": false,
-          "anchored_at": "2026-11-09T13:45:25Z",
-          "signer_public_key_sha256": "e41b90535dd0824a720edc254a362ccddca3407daca94aa45c5e4bcbb8e6d0ad"
+          "anchored_at": "2026-11-09T13:52:18Z",
+          "signer_public_key_sha256": "075d8ad3b95d688964ae5ab82ab39bfb40a4eb86192c7b9661c01e6540706fc9"
         },
         "tlog_receipt_check": {
           "schema_ok": true,
@@ -561,13 +573,13 @@
           "externally_checkable": true,
           "index_match": true,
           "backend": "rekor-public",
-          "entry_uuid": "108e9186e8c5677a44a6e74bf4f648634b6c2f999fe141dd34dd1a86902fb3a5c56ce0e68dae6c7a",
-          "log_index": 3765852840,
-          "integrated_time": 1794231924,
+          "entry_uuid": "108e9186e8c5677aad7440c2efee73aab32ea4ab29636a1e6ddb319a3339bd5de8694a02ee300814",
+          "log_index": 3765887422,
+          "integrated_time": 1794232337,
           "ok": true,
-          "local_digest": "030ef76af4cf694a0ffdfa01c8240924372d1994426bb33f3f3fb89e3ab773da",
-          "log_index_fetched": 3765852840,
-          "integrated_time_fetched": 1794231924
+          "local_digest": "d01a5ea9de3be2789ea75e390ed8db76a2d7b7ab469257d9e0f9387ce2d688f3",
+          "log_index_fetched": 3765887422,
+          "integrated_time_fetched": 1794232337
         },
         "tlog_independent_verify": {
           "script": "scripts/stage13/verify_anchor.py",
@@ -589,12 +601,12 @@
           }
         },
         "tlog_rework_detection": {
-          "anchored_digest": "030ef76af4cf694a0ffdfa01c8240924372d1994426bb33f3f3fb89e3ab773da",
-          "current_digest": "4189ffac833e71e642b55834913df1221d0cc068cde6d07adedf13641cf42c67",
+          "anchored_digest": "d01a5ea9de3be2789ea75e390ed8db76a2d7b7ab469257d9e0f9387ce2d688f3",
+          "current_digest": "00cc43978218218836a41c791872cc85d192d338a11ca8a6d2822e14d579eb6b",
           "mismatch": true,
           "detectable": true,
-          "entry_uuid": "108e9186e8c5677a44a6e74bf4f648634b6c2f999fe141dd34dd1a86902fb3a5c56ce0e68dae6c7a",
-          "integrated_time": 1794231924,
+          "entry_uuid": "108e9186e8c5677aad7440c2efee73aab32ea4ab29636a1e6ddb319a3339bd5de8694a02ee300814",
+          "integrated_time": 1794232337,
           "external": true,
           "prior_entry_still_present": true,
           "note": "回执锚定的是另一份凭证，日志条目不可删改，故「整册重做」可被留存过回执的第三方证明"
@@ -608,7 +620,7 @@
         "tlog_rework_detectable": true,
         "tlog_warnings": []
       },
-      "note": "两级外部锚定都真跑通了：① RFC 3161 时间戳（20261109134502Z，离线可复核 CMS 签名 / messageImprint / nonce）；② 锚点摘要已提交到公共只追加日志（https://rekor.sigstore.dev，条目 uuid=108e9186e8c5677a44a6e74bf4f648634b6c2f999fe141dd34dd1a86902fb3a5c56ce0e68dae6c7a，logIndex=3765852840，SET 验签=True），并且用**不 import 本项目**的 scripts/stage13/verify_anchor.py 独立复核通过（按摘要反查得到同一条目）。反例也随之变强：持钥者改写第 7 步、重算整链、重签并重打新戳后，签名校验当然仍判 VALID（VALID），但拿手里的回执核对眼前凭证会立刻 mismatch（本次 detectable=True，旧条目仍在=True）——「整册重做」从不可发现变成**持回执者可发现、且可拿日志旧条目举证**。仍记 PARTIAL，因为边界没消失：① 日志只锁摘要不锁正文，凭证正文仍躺在持证方磁盘上，删了日志里查不出内容；② 无 WORM 副本；③ 首次核验者手里没有历史回执时，重做对他依然隐形（detect_rework 无回执即 E_TLOG_NO_PRIOR_RECEIPT）；④ 同一 trace 可再注册一条新锚点，「哪条权威」要靠外部时间线策略仲裁，交付方自己说了不算。"
+      "note": "两级外部锚定都真跑通了：① RFC 3161 时间戳（20261109135215Z，离线可复核 CMS 签名 / messageImprint / nonce）；② 锚点摘要已提交到公共只追加日志（https://rekor.sigstore.dev，条目 uuid=108e9186e8c5677aad7440c2efee73aab32ea4ab29636a1e6ddb319a3339bd5de8694a02ee300814，logIndex=3765887422，SET 验签=True），并且用**不 import 本项目**的 scripts/stage13/verify_anchor.py 独立复核通过（按摘要反查得到同一条目）。反例也随之变强：持钥者改写第 7 步、重算整链、重签并重打新戳后，签名校验当然仍判 VALID（VALID），但拿手里的回执核对眼前凭证会立刻 mismatch（本次 detectable=True，旧条目仍在=True）——「整册重做」从不可发现变成**持回执者可发现、且可拿日志旧条目举证**。仍记 PARTIAL，因为边界没消失：① 日志只锁摘要不锁正文，凭证正文仍躺在持证方磁盘上，删了日志里查不出内容；② 无 WORM 副本；③ 首次核验者手里没有历史回执时，重做对他依然隐形（detect_rework 无回执即 E_TLOG_NO_PRIOR_RECEIPT）；④ 同一 trace 可再注册一条新锚点，「哪条权威」要靠外部时间线策略仲裁，交付方自己说了不算。"
     },
     {
       "id": "P12",
@@ -643,10 +655,10 @@
         "manifest_file_count": 80,
         "collected_file_count": 81,
         "file_count_closure": true,
-        "manifest_bytes_canonical": 1012929,
-        "tree_digest": "0bf1c545caf99b9ae422795a008c58dd7e497b28652f66fb255e498dd4f09542",
+        "manifest_bytes_canonical": 1014577,
+        "tree_digest": "1bc4b6b3aafa5861fe722d9aa0000519cbcc3c8214efb55a115752db9f0fd452",
         "archive_source": "git archive --format=tar HEAD",
-        "archive_commit": "9ca34e94796e5ad727bf615d2e9258f0448d32d5",
+        "archive_commit": "3387f19453909013d4d6b2aa074f66f55becdd01",
         "archive_ok": true,
         "archive_entries_extracted": 962,
         "export_tree_file_count": 962,
@@ -698,7 +710,7 @@
         "demo_manifest_rejected": true,
         "demo_manifest_file_count": 1
       },
-      "note": "复算对象改为**外部真实取得路径**：git archive HEAD 导出的干净树（962 个条目，提交 9ca34e94796e），不再逐文件 copy 我方工作区。清单口径 canonical-lf 且只收 git 跟踪文件（剔除未跟踪 1 项：swordholder/samples/alert_02_token.seal.json）。导出树复算 exit=0、checked=80、tree_digest_match=True；同一份清单在我方工作区同样 exit=0；canonical 口径对 CRLF/LF 给出同一哈希（自检 True），而 raw 口径对同一内容给出不同哈希（自检 True，这正是 S12 原方案的缺陷所在）；改一字节 exit=1 且 tree_digest 不一致；改已公布分档 exit=1；1 文件 demo 清单 exit=1；本轮 P01–P11 分档与上一轮落盘值一致（差异项 0 个）。"
+      "note": "复算对象改为**外部真实取得路径**：git archive HEAD 导出的干净树（962 个条目，提交 3387f1945390），不再逐文件 copy 我方工作区。清单口径 canonical-lf 且只收 git 跟踪文件（剔除未跟踪 1 项：swordholder/samples/alert_02_token.seal.json）。导出树复算 exit=0、checked=80、tree_digest_match=True；同一份清单在我方工作区同样 exit=0；canonical 口径对 CRLF/LF 给出同一哈希（自检 True），而 raw 口径对同一内容给出不同哈希（自检 True，这正是 S12 原方案的缺陷所在）；改一字节 exit=1 且 tree_digest 不一致；改已公布分档 exit=1；1 文件 demo 清单 exit=1；本轮 P01–P11 分档与上一轮落盘值一致（差异项 0 个）。"
     },
     {
       "id": "P13",
@@ -829,14 +841,14 @@
             "clone_rc": 0,
             "clone_err": "",
             "run_rc": 1,
-            "run_out": "{\r\n \"facts\": {\r\n  \"checked\": 80,\r\n  \"expected_ok\": false,\r\n  \"mismatched_count\": 0,\r\n  \"scope_ok\": false,\r\n  \"tree_digest_match\": true\r\n },\r\n \"failed_steps\": [\r\n  \"verify\",\r\n  \"rebuild\"\r\n ],\r\n \"ok\": false,\r\n \"steps\": {\r\n  \"anchor\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"env\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"probe\": {\r\n   \"ok\": true,\r\n   \"seconds\": 38.78\r\n  },\r\n  \"rebuild\": {\r\n   \"ok\": false,\r\n   \"seconds\": 0.74\r\n  },\r\n  \"tests\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"verify\": {\r\n   \"ok\": false,\r\n   \"seconds\": 0.7\r\n  }\r\n },\r\n \"summary\": \"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\tmpr2nji_jx\\\\clone_autocrlf_true\\\\repo\\\\evidence/stage13/s13_e2e_summary.json\"\r\n}\r\n",
+            "run_out": "{\r\n \"facts\": {\r\n  \"checked\": 80,\r\n  \"expected_ok\": false,\r\n  \"mismatched_count\": 0,\r\n  \"scope_ok\": true,\r\n  \"tree_digest_match\": true\r\n },\r\n \"failed_steps\": [\r\n  \"verify\"\r\n ],\r\n \"ok\": false,\r\n \"steps\": {\r\n  \"anchor\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"env\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"probe\": {\r\n   \"ok\": true,\r\n   \"seconds\": 65.6\r\n  },\r\n  \"rebuild\": {\r\n   \"ok\": true,\r\n   \"seconds\": 0.73\r\n  },\r\n  \"tests\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"verify\": {\r\n   \"ok\": false,\r\n   \"seconds\": 0.67\r\n  }\r\n },\r\n \"summary\": \"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\tmp4ualdi4b\\\\clone_autocrlf_true\\\\repo\\\\evidence/stage13/s13_e2e_summary.json\"\r\n}\r\n",
             "run_err": "",
             "summary_present": true,
             "summary_ok": false,
             "worktree_clean_at_start": true,
             "checked": 80,
             "tree_digest_match": true,
-            "scope_ok": false,
+            "scope_ok": true,
             "scope_out_of_scope": 882,
             "expected_ok": false,
             "mismatched_count": 0,
@@ -845,13 +857,12 @@
               "anchor": true,
               "env": true,
               "probe": true,
-              "rebuild": false,
+              "rebuild": true,
               "tests": true,
               "verify": false
             },
             "failed_steps": [
-              "verify",
-              "rebuild"
+              "verify"
             ],
             "crlf_bytes_observed": null
           },
@@ -860,14 +871,14 @@
             "clone_rc": 0,
             "clone_err": "",
             "run_rc": 1,
-            "run_out": "{\r\n \"facts\": {\r\n  \"checked\": 80,\r\n  \"expected_ok\": false,\r\n  \"mismatched_count\": 0,\r\n  \"scope_ok\": false,\r\n  \"tree_digest_match\": true\r\n },\r\n \"failed_steps\": [\r\n  \"verify\",\r\n  \"rebuild\"\r\n ],\r\n \"ok\": false,\r\n \"steps\": {\r\n  \"anchor\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"env\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"probe\": {\r\n   \"ok\": true,\r\n   \"seconds\": 34.63\r\n  },\r\n  \"rebuild\": {\r\n   \"ok\": false,\r\n   \"seconds\": 0.73\r\n  },\r\n  \"tests\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"verify\": {\r\n   \"ok\": false,\r\n   \"seconds\": 0.7\r\n  }\r\n },\r\n \"summary\": \"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\tmpr2nji_jx\\\\clone_autocrlf_false\\\\repo\\\\evidence/stage13/s13_e2e_summary.json\"\r\n}\r\n",
+            "run_out": "{\r\n \"facts\": {\r\n  \"checked\": 80,\r\n  \"expected_ok\": false,\r\n  \"mismatched_count\": 0,\r\n  \"scope_ok\": true,\r\n  \"tree_digest_match\": true\r\n },\r\n \"failed_steps\": [\r\n  \"verify\"\r\n ],\r\n \"ok\": false,\r\n \"steps\": {\r\n  \"anchor\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"env\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"probe\": {\r\n   \"ok\": true,\r\n   \"seconds\": 59.52\r\n  },\r\n  \"rebuild\": {\r\n   \"ok\": true,\r\n   \"seconds\": 0.73\r\n  },\r\n  \"tests\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"verify\": {\r\n   \"ok\": false,\r\n   \"seconds\": 0.69\r\n  }\r\n },\r\n \"summary\": \"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\tmp4ualdi4b\\\\clone_autocrlf_false\\\\repo\\\\evidence/stage13/s13_e2e_summary.json\"\r\n}\r\n",
             "run_err": "",
             "summary_present": true,
             "summary_ok": false,
             "worktree_clean_at_start": true,
             "checked": 80,
             "tree_digest_match": true,
-            "scope_ok": false,
+            "scope_ok": true,
             "scope_out_of_scope": 882,
             "expected_ok": false,
             "mismatched_count": 0,
@@ -876,20 +887,19 @@
               "anchor": true,
               "env": true,
               "probe": true,
-              "rebuild": false,
+              "rebuild": true,
               "tests": true,
               "verify": false
             },
             "failed_steps": [
-              "verify",
-              "rebuild"
+              "verify"
             ],
             "crlf_bytes_observed": null
           }
         },
         "clone_matrix_all_ok": false
       },
-      "note": "一键复现在两个真实 clone 里跑通（autocrlf_true: rc=1 ok=False checked=80 digest=True scope=False expected=False; autocrlf_false: rc=1 ok=False checked=80 digest=True scope=False expected=False）。交付范围改为**全仓库分账**：仓库内 962 个待提交文件全部有归属——80 个进清单、882 个落在范围外且路径集合摘要锁死为 41ac506da9b1d8b3；被忽略的 1 项逐条给出理由。三类作弊全部被机械检出：少交一个文件（False）、塞入不存在的文件（False）、忽略却不解释（False）。一键脚本模块级纯标准库（run_all=True），验证脚本模块级纯标准库=True 且可选依赖 ['cryptography'] 在缺失时真实降级=True（未声明的第三方 import：无）。"
+      "note": "一键复现在两个真实 clone 里跑通（autocrlf_true: rc=1 ok=False checked=80 digest=True scope=True expected=False; autocrlf_false: rc=1 ok=False checked=80 digest=True scope=True expected=False）。交付范围改为**全仓库分账**：仓库内 962 个待提交文件全部有归属——80 个进清单、882 个落在范围外且路径集合摘要锁死为 41ac506da9b1d8b3；被忽略的 1 项逐条给出理由。三类作弊全部被机械检出：少交一个文件（False）、塞入不存在的文件（False）、忽略却不解释（False）。一键脚本模块级纯标准库（run_all=True），验证脚本模块级纯标准库=True 且可选依赖 ['cryptography'] 在缺失时真实降级=True（未声明的第三方 import：无）。"
     }
   ]
 }

@@ -95,9 +95,15 @@ def probe_counts(probes_path: str) -> dict:
 
 
 def _expected_only(counts: dict) -> dict:
-    """从 probe_counts 的产物里挑出真正参与外部复跑比对的键。"""
-    return {k: v for k, v in counts.items()
-            if k.startswith("result_") or k in ("PASS", "PARTIAL", "FAIL", "probes_total")}
+    """只挑 P01–P11 的逐项分档参与外部复跑比对。
+
+    刻意**不**把 ``probes_total`` / ``PASS`` / ``PARTIAL`` / ``FAIL`` 这几项汇总写进
+    expected：实测 counts 是全量 13 条的汇总，排除自指项后必然对不上，属于自己给
+    自己制造假失败。汇总值留在 ``observed_counts_all`` 里供人看。
+    """
+    keep = {"result_%s" % pid for pid in
+            ("P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "P09", "P10", "P11")}
+    return {k: v for k, v in counts.items() if k in keep}
 
 
 def main(argv=None) -> int:

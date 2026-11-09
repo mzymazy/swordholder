@@ -11,7 +11,7 @@
    "pytest": "9.2.0"
   },
   "git": {
-   "commit": "9ca34e94796e5ad727bf615d2e9258f0448d32d5",
+   "commit": "3387f19453909013d4d6b2aa074f66f55becdd01",
    "dirty": true,
    "dirty_scope": [
     "swordholder",
@@ -33,10 +33,6 @@
   "python": "3.11.8"
  },
  "expected": {
-  "FAIL": 1,
-  "PARTIAL": 1,
-  "PASS": 9,
-  "probes_total": 11,
   "result_P01": "PASS",
   "result_P02": "PASS",
   "result_P03": "PASS",
@@ -171,10 +167,10 @@
    "sha256_raw": "5ea8ae4cced95bd174107478ce217ed556f6af8337d5fc11d39495f5384e4ea3"
   },
   {
-   "bytes": 101654,
+   "bytes": 101782,
    "path": "scripts/stage11/compliance_probe.py",
-   "sha256": "fa862244b4bad17d4705de4fb84356521e5c97fcfb6e1e5a627fc787a47ed381",
-   "sha256_raw": "fa862244b4bad17d4705de4fb84356521e5c97fcfb6e1e5a627fc787a47ed381"
+   "sha256": "16970f4c0aa8a86fd1f75a0cdcfc5ca41b24091f5e199e887414b2e0c52f3767",
+   "sha256_raw": "16970f4c0aa8a86fd1f75a0cdcfc5ca41b24091f5e199e887414b2e0c52f3767"
   },
   {
    "bytes": 14992,
@@ -195,10 +191,10 @@
    "sha256_raw": "b2cebc8426cc0f798a1a46e208e77b6f22a4a4f52cca829844f97da8550ebeae"
   },
   {
-   "bytes": 7988,
+   "bytes": 8322,
    "path": "scripts/stage13/build_manifest13.py",
-   "sha256": "77d34b4a3d94cf7111c5ab1d548e0b6961adc95c86f5aa7b36c57f40caed8cd0",
-   "sha256_raw": "77d34b4a3d94cf7111c5ab1d548e0b6961adc95c86f5aa7b36c57f40caed8cd0"
+   "sha256": "5e2ed5d8e5ec8fcd264bc66484ceb93127736da1b39077b998bdb4932721ba17",
+   "sha256_raw": "5e2ed5d8e5ec8fcd264bc66484ceb93127736da1b39077b998bdb4932721ba17"
   },
   {
    "bytes": 12701,
@@ -603,11 +599,11 @@
    "sha256_raw": "7207c8929361129c51dff32b7afa689c6f3f48e7ce3be23622d41b02ab4416f8"
   }
  ],
- "generated_at": "2026-11-09T13:50:47Z",
+ "generated_at": "2026-11-09T13:56:40Z",
  "hash_mode": "canonical-lf",
  "root_name": "swordholder_mvp",
  "schema": "swordholder.repro_manifest/1",
  "swordholder_version": "0.10.1",
- "total_bytes": 1014577,
- "tree_digest": "1bc4b6b3aafa5861fe722d9aa0000519cbcc3c8214efb55a115752db9f0fd452"
+ "total_bytes": 1015039,
+ "tree_digest": "ae1254165568e107f1e6bf1bf468bd3dddb8ee8f20f2d4447ee9703fd4401b13"
 }
