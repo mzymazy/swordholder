@@ -140,6 +140,19 @@ def p_lifetime(keys: dict, tmp: str) -> dict:
     """Art.12(1) 'over the lifetime'：跨进程续写是不是一等公民接口（而非手工拼 body）。"""
     api = [n for n in dir(tl.TraceLedger) if not n.startswith("_")]
     has_load = any(k in api for k in ("from_body", "load", "resume", "restore"))
+    has_save = hasattr(tl.TraceLedger, "save")
+
+    # 跨版本对照：0.8.0 及更早没有 load/from_body/save，同一探针必须降级而不是崩掉
+    if not (has_load and has_save):
+        return probe_pid(
+            "P02", "EU AI Act Art.12(1) / Recital 71",
+            "recording of events ... over the lifetime of the system",
+            "PARTIAL",
+            {"public_methods": api, "has_public_resume_api": has_load,
+             "has_save_api": has_save, "cross_process_continue_ok": False},
+            "本版本 TraceLedger 公开方法里没有 load/from_body/save：跨进程续写只能由调用方"
+            "自己读 body、拼新条目（等于让使用者自己维护哈希链）。覆盖 lifetime 的「格式」"
+            "存在、「接口」不存在，记 PARTIAL。")
 
     path = os.path.join(tmp, "s11_lifetime.trace.json")
     led = tl.TraceLedger(trace_id="S11-LIFE", actor="agent:s11-probe")
