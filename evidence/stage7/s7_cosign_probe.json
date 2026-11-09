@@ -1,0 +1,101 @@
+{
+  "tool": "cosign",
+  "version": "v2.6.1",
+  "version_lines": {
+    "GitVersion": "v2.6.1",
+    "GitCommit": "634fabe54f9fbbab55d821a83ba93b2d25bdba5f",
+    "BuildDate": "2025-09-26T17:24:36Z",
+    "GoVersion": "go1.25.1",
+    "Platform": "windows/amd64"
+  },
+  "payload": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_bench\\ours_c\\payloads\\trace_5.json",
+  "payload_bytes": 1756,
+  "tuf_cache_dir": "C:\\Users\\Administrator\\AppData\\Local\\sigstore\\cosign",
+  "cases": {
+    "A_online_warm_cache": {
+      "rc": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "ms": [
+        2608.5,
+        2189.94,
+        2753.44,
+        2734.28
+      ],
+      "ms_median": 2734.28,
+      "note": "TUF 缓存存在，仍会向 tuf-repo-cdn.sigstore.dev 拉元数据"
+    },
+    "B_cache_deleted": {
+      "cache_existed_before": false,
+      "cold_ms": 2489.7,
+      "cold_rc": 0,
+      "warm_again_ms": 2305.0,
+      "warm_again_rc": 0,
+      "cache_rebuilt": false
+    },
+    "C_dead_proxy_warm_cache": {
+      "rc": [
+        0,
+        0
+      ],
+      "ms": [
+        49.04,
+        49.44
+      ],
+      "out_tail": [
+        "",
+        ""
+      ],
+      "err_tail": "WARNING: Skipping tlog verification is an insecure practice that lacks transparency and auditability verification for the blob.\nWARNING: Could not fetch trusted_root.json from the TUF repository. Continuing with individual targets. Error from TUF: error getting live trusted root: failed to create TUF client failed to load metadata: tuf refresh failed: Get \"https://tuf-repo-cdn.sigstore.dev/13.root.json\": proxyconnect tcp: dial tcp 127.0.0.1:9: connectex: No connection could be made because the target machine actively refused it.\nVerified OK",
+      "note": "出站被指向 127.0.0.1:9，仍 rc=0 Verified OK —— key-based 验签不依赖网络"
+    },
+    "D_dead_proxy_no_cache": {
+      "rc": 0,
+      "ms": 51.02,
+      "out_tail": "",
+      "err_tail": "WARNING: Skipping tlog verification is an insecure practice that lacks transparency and auditability verification for the blob.\nWARNING: Could not fetch trusted_root.json from the TUF repository. Continuing with individual targets. Error from TUF: error getting live trusted root: failed to create TUF client failed to load metadata: tuf refresh failed: Get \"https://tuf-repo-cdn.sigstore.dev/13.root.json\": proxyconnect tcp: dial tcp 127.0.0.1:9: connectex: No connection could be made because the target machine actively refused it.\nVerified OK",
+      "cache_recreated": false,
+      "note": "缓存被删 + 完全无网，仍 rc=0；说明它只是尝试刷新、失败即降级"
+    },
+    "E_bundle": {
+      "bundle_bytes": 118,
+      "bundle_fields": [
+        "base64Signature"
+      ],
+      "verify_bundle_online_rc": 1,
+      "verify_bundle_online_err": "Error: signature not found in transparency log\nerror during command execution: signature not found in transparency log",
+      "verify_bundle_offline_rc": 1,
+      "verify_bundle_offline_err": "Error: offline verification failed\nerror during command execution: offline verification failed",
+      "note": "sign-blob 用 --tlog-upload=false 产出的 bundle 只有 base64Signature，无 verificationMaterial，故 --bundle 路线一律 Error: offline verification failed；能用的只有 --signature + --key",
+      "with_insecure_ignore_tlog": {
+        "bundle_online_ignore_tlog": {
+          "rc": 0,
+          "ms": 2197.54,
+          "out": "",
+          "err": "WARNING: Skipping tlog verification is an insecure practice that lacks transparency and auditability verification for the blob.\nVerified OK"
+        },
+        "bundle_offline_ignore_tlog": {
+          "rc": 0,
+          "ms": 2625.88,
+          "out": "",
+          "err": "WARNING: Skipping tlog verification is an insecure practice that lacks transparency and auditability verification for the blob.\nVerified OK"
+        }
+      }
+    },
+    "F_keyless_offline": {
+      "rc": 1,
+      "ms": 51.88,
+      "err_first_line": "ansparency logs and cannot be removed later, and is subject to the Immutable Record notice at https://lfprojects.org/policies/hosted-project-tools-immutable-records/.",
+      "note": "keyless 要 OIDC 浏览器流 + Fulcio 证书 + Rekor 日志，无网必然失败"
+    },
+    "G_default_tlog_upload": {
+      "rc": 1,
+      "ms": 46.61,
+      "err_tail": " the statement and the Agreement terms at the URLs listed above.\nAre you sure you would like to continue? [y/N] Error: signing C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_bench\\ours_c\\payloads\\trace_5.json: upload to tlog: user declined the prompt\nerror during command execution: signing C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_bench\\ours_c\\payloads\\trace_5.json: upload to tlog: user declined the prompt",
+      "note": "默认会把签名条目推到 Rekor；非交互环境无人应答条款确认即 rc=1"
+    }
+  }
+}

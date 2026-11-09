@@ -1,0 +1,32 @@
+{
+  "baseline_pipeline": {
+    "steps": 3,
+    "verify_rc": 0,
+    "step_rcs": [
+      0,
+      0,
+      0
+    ],
+    "baseline_ok": true,
+    "link_count": 3,
+    "signed_metadata_bytes": 5081
+  },
+  "offline_verify": {
+    "rc": 0,
+    "ms": 243.29,
+    "cmd": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_intoto_venv\\Scripts\\in-toto-verify.exe --layout root.layout --verification-keys C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_bench\\keys\\owner.pub --link-dir links",
+    "net_hits": 0,
+    "net_events": [],
+    "ok": true,
+    "out_tail": "",
+    "err_tail": ""
+  },
+  "guard": {
+    "sitecustomize": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s7_bench\\guard\\sitecustomize.py",
+    "blocks": [
+      "socket.socket.connect",
+      "socket.create_connection",
+      "socket.getaddrinfo"
+    ]
+  }
+}
