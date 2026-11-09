@@ -148,9 +148,17 @@ def main(argv=None) -> int:
     # ---- 2. 新鲜复跑全部探针
     probes_out = os.path.join(out_dir, "probes.json")
     counts_out = os.path.join(out_dir, "counts.json")
-    steps["probe"] = run([py, os.path.join("scripts", "stage11", "compliance_probe.py"),
-                          "--out", probes_out, "--counts-out", counts_out], root)
+    probe_cmd = [py, os.path.join("scripts", "stage11", "compliance_probe.py"),
+                 "--out", probes_out, "--counts-out", counts_out]
+    # 幂等：树里已带外部日志回执时，让 P11 走「核验既有条目」而不是「再提交一条」。
+    # 否则每个人跑一次一键复现，就往 sigstore 公共日志塞一条无法删除的垃圾条目。
+    anchor_dir = os.path.join(root, "evidence", "stage13")
+    anchor_present = os.path.isfile(os.path.join(anchor_dir, "s13_anchor_receipts.json"))
+    if anchor_present:
+        probe_cmd += ["--anchor-out", anchor_dir]
+    steps["probe"] = run(probe_cmd, root)
     steps["probe"]["counts"] = (load_json(probes_out) or {}).get("counts")
+    steps["probe"]["anchor_reused"] = anchor_present
 
     # ---- 3. 对账：已提交清单 × 本 clone 树 × 本轮分档
     verify_out = os.path.join(out_dir, "external_verify.json")

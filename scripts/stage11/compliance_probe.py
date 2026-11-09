@@ -1442,6 +1442,34 @@ ANCHOR_OUT_DIR = None
 TSA_ROOT_PATH = os.path.join(REPO, "evidence", "stage12_tsa_freetsa_root.pem")
 
 
+def _load_archived_anchor(tp):
+    """读仓库里已存档的外部日志回执，返回 {receipt, statement, artifact, path} 或 None。
+
+    只有「回执声明 external 且 artifact_sha256 与归档声明重算一致」才认——这是为了让
+    复跑变成**核验**而不是**再提交一次**：公共日志只追加，多提交一条就多一条无法删除的
+    条目，还会让第三方分不清哪条才是权威锚定。任何不自洽一律返回 None（宁可重新提交）。
+    """
+    if not ANCHOR_OUT_DIR or tp is None:
+        return None
+    rcp = os.path.join(ANCHOR_OUT_DIR, "s13_anchor_receipts.json")
+    st = os.path.join(ANCHOR_OUT_DIR, "s13_anchor_statement.json")
+    if not (os.path.isfile(rcp) and os.path.isfile(st)):
+        return None
+    try:
+        receipt = tp.load_receipt(rcp)
+        with open(st, "r", encoding="utf-8") as fh:
+            statement = json.load(fh)
+        if not receipt.get("external"):
+            return None
+        artifact = tp.anchor_bytes(statement)
+        if receipt.get("artifact_sha256") != tp.sha256_bytes(artifact):
+            return None
+        return {"receipt": receipt, "statement": statement, "artifact": artifact,
+                "path": os.path.relpath(rcp, REPO).replace("\\", "/")}
+    except Exception:
+        return None
+
+
 def p_external_anchor(keys: dict, tmp: str) -> dict:
     """取证保全的最后一环：锚点有没有离开被记录方自己的介质（外部时间戳 / WORM）。
 
@@ -1583,7 +1611,36 @@ def p_external_anchor(keys: dict, tmp: str) -> dict:
                                  "digest": tp.anchor_digest(statement),
                                  "bytes": len(artifact),
                                  "fields": sorted(statement.keys())}
-            if tlog_backend.external:  # 本机桩文件后端不值得写，只有外部日志才算「接入」
+            # 幂等：仓库里已有外部日志回执时，只**核验**既有条目，不再向公共日志写新条目。
+            # 之前每跑一次就提交一条，既在 sigstore 公共日志里留垃圾，又让"哪条才是权威证据"
+            # 变得含糊（归档回执 kept_existing=True，与本次新条目并存）。锚定是一次性动作，
+            # 复跑只该复核。
+            archived = _load_archived_anchor(tp)
+            if archived is not None and tlog_backend.external:
+                tlog_receipt = archived["receipt"]
+                statement = archived["statement"]
+                artifact = archived["artifact"]
+                tlog["submitted"] = False
+                tlog["reused_archived"] = {
+                    "path": archived["path"],
+                    "entry_uuid": tlog_receipt.get("entry_uuid"),
+                    "log_index": tlog_receipt.get("log_index"),
+                    "anchored_at": tlog_receipt.get("anchored_at"),
+                    "why": "公共日志只追加：锚定件已入库即复用，复跑不重复提交",
+                    # 归档件的 TSA 戳与本轮新取的戳不同源，明确标注避免误读
+                    "statement_tsa_url": (archived["statement"] or {}).get("tsa_url"),
+                    "statement_tsa_gen_time": (archived["statement"] or {}).get("tsa_gen_time"),
+                    "this_run_tsa_url": url,
+                    "this_run_tsa_gen_time": chk.get("gen_time"),
+                }
+                tlog["statement"] = {
+                    "schema": (archived["statement"] or {}).get("schema"),
+                    "digest": tp.anchor_digest(archived["statement"]),
+                    "bytes": len(artifact),
+                    "fields": sorted((archived["statement"] or {}).keys()),
+                    "source": "archived",
+                }
+            elif tlog_backend.external:  # 本机桩文件后端不值得写，只有外部日志才算「接入」
                 try:
                     tlog_receipt = tlog_backend.submit(artifact, tp.AnchorSigner.generate(),
                                                        trace_id=trace_id)
@@ -1691,6 +1748,7 @@ def p_external_anchor(keys: dict, tmp: str) -> dict:
         "tlog_probe": tlog.get("probe"),
         "tlog_submitted": tlog.get("submitted"),
         "tlog_submit_error": tlog.get("submit_error"),
+        "tlog_reused_archived": tlog.get("reused_archived"),
         "tlog_statement": tlog.get("statement"),
         "tlog_receipt": tlog.get("receipt"),
         "tlog_receipt_check": tlog.get("receipt_check"),

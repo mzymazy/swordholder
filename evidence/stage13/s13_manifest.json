@@ -11,8 +11,8 @@
    "pytest": "9.2.0"
   },
   "git": {
-   "commit": "cfb78877efc61b8dd9f8427f6a199fe2b3e45919",
-   "dirty": false,
+   "commit": "2beb846df51bf9ba69e8c7d09042f968237ad936",
+   "dirty": true,
    "dirty_scope": [
     "swordholder",
     "scripts/stage11",
@@ -167,10 +167,10 @@
    "sha256_raw": "5ea8ae4cced95bd174107478ce217ed556f6af8337d5fc11d39495f5384e4ea3"
   },
   {
-   "bytes": 101782,
+   "bytes": 105054,
    "path": "scripts/stage11/compliance_probe.py",
-   "sha256": "16970f4c0aa8a86fd1f75a0cdcfc5ca41b24091f5e199e887414b2e0c52f3767",
-   "sha256_raw": "16970f4c0aa8a86fd1f75a0cdcfc5ca41b24091f5e199e887414b2e0c52f3767"
+   "sha256": "84f914e23fcd3e8d602ca4071675c85de2adecd11e9c99db6fa6d4e985675c36",
+   "sha256_raw": "84f914e23fcd3e8d602ca4071675c85de2adecd11e9c99db6fa6d4e985675c36"
   },
   {
    "bytes": 14992,
@@ -197,10 +197,10 @@
    "sha256_raw": "5e2ed5d8e5ec8fcd264bc66484ceb93127736da1b39077b998bdb4932721ba17"
   },
   {
-   "bytes": 12701,
+   "bytes": 13226,
    "path": "scripts/stage13/run_all.py",
-   "sha256": "986dce9ff6cbd061e5b5f7d0af62557f80290c996e7c8e2ea9189ba2f329bb4c",
-   "sha256_raw": "986dce9ff6cbd061e5b5f7d0af62557f80290c996e7c8e2ea9189ba2f329bb4c"
+   "sha256": "a0f35689b81bced5646661822c9c2106b0a9e493122e191e7afe611882d33d04",
+   "sha256_raw": "a0f35689b81bced5646661822c9c2106b0a9e493122e191e7afe611882d33d04"
   },
   {
    "bytes": 9126,
@@ -599,11 +599,11 @@
    "sha256_raw": "7207c8929361129c51dff32b7afa689c6f3f48e7ce3be23622d41b02ab4416f8"
   }
  ],
- "generated_at": "2026-11-09T15:37:24Z",
+ "generated_at": "2026-11-09T15:50:38Z",
  "hash_mode": "canonical-lf",
  "root_name": "swordholder_mvp",
  "schema": "swordholder.repro_manifest/1",
  "swordholder_version": "0.10.1",
- "total_bytes": 1015039,
- "tree_digest": "ae1254165568e107f1e6bf1bf468bd3dddb8ee8f20f2d4447ee9703fd4401b13"
+ "total_bytes": 1018836,
+ "tree_digest": "e71ddc9f359792f8eed4a50139cc8d9c67d258e87e58331c6c2f03d3016290bc"
 }
