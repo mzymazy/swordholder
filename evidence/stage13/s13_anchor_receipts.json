@@ -1,0 +1,24 @@
+{
+ "already_existed": false,
+ "anchored_at": "2026-11-09T13:40:29Z",
+ "artifact_bytes": 572,
+ "artifact_sha256": "7d1a65ed3c0cdf27095c412c2bd73260d7b874eb9cfeca24d80b33c2ff651a6a",
+ "backend": "rekor-public",
+ "entry_uuid": "108e9186e8c5677aa0e1a8d343bb9dbe9eb6f03fe6737877a70fee2b101633d1b0fe04385675f32f",
+ "external": true,
+ "immutable": true,
+ "inclusion_proof": {
+  "log_index": 3643907907,
+  "root_hash": "28f372aae570aa54087ffcd8b2b3c42fec18162913ac7c2442c903fa997e5ce3",
+  "tree_size": 3643907909
+ },
+ "integrated_time": 1794231629,
+ "log_id": "c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d",
+ "log_index": 3765812169,
+ "log_url": "https://rekor.sigstore.dev",
+ "schema": "swordholder.anchor_receipt/1",
+ "set_base64": "MEYCIQD4/nYz1CfH81oVpJFOQXunJpmkRX//rZ4BKXGRGatkpAIhAJS1B/veJ+6P1jikIfpFmCD4gtIEYSvCGpanBAzbBbky",
+ "set_verified": true,
+ "signer_public_key_sha256": "b2bba556384f7faf179681fc3248521df292065ef14fc1098c7ca890efb2f991",
+ "trace_id": "S12-ANCH"
+}

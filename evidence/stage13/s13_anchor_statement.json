@@ -1,0 +1,23 @@
+{
+ "extra": {
+  "note": "只登记摘要与标识、不登记凭证正文（日志公开）",
+  "probe": "P11",
+  "seal_payload_keys": [
+   "actor",
+   "anchors",
+   "digest",
+   "head",
+   "record_id",
+   "step_count",
+   "trace_id"
+  ],
+  "stage": 13
+ },
+ "purpose": "existence-at-time of a sealed forensic credential",
+ "schema": "swordholder.anchor_statement/1",
+ "seal_sha256": "c21094a1f983e61387bab6e299e0088dea4d5743e03164db14f05c819f78d833",
+ "trace_id": "S12-ANCH",
+ "tsa_gen_time": "20261109134026Z",
+ "tsa_token_sha256": "0abd70910b49a0f65ae717aefab1a84394c09c048c7a59fc56226a97c38a8970",
+ "tsa_url": "http://timestamp.digicert.com"
+}

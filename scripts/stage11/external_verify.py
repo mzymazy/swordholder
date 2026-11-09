@@ -157,6 +157,26 @@ def _pathset_digest(paths) -> str:
     return hashlib.sha256("\n".join(sorted(paths)).encode("utf-8")).hexdigest()
 
 
+def _path_content_digest(root: str, paths, hash_mode: str = "canonical-lf") -> str:
+    """``path\\0sha256\\n`` 逐条串起来再 sha256——把「范围外那一半」的内容也锁死。
+
+    独立实现，口径与交付方 reproduce.py 的 path_content_digest 一致（canonical-lf
+    规范哈希）。缺失文件记 MISSING 而非跳过，删掉一个文件也必须让摘要变。
+    """
+    rows = []
+    for p in sorted({str(p).replace("\\", "/") for p in paths}):
+        full = os.path.join(root, p)
+        if os.path.isfile(full):
+            rows.append("%s\0%s\n" % (p, file_digest(full, hash_mode)))
+        else:
+            rows.append("%s\0MISSING\n" % p)
+    return hashlib.sha256("".join(rows).encode("utf-8")).hexdigest()
+
+
+def _under_prefix(path: str, prefixes) -> bool:
+    return any(path == p or path.startswith(p.rstrip("/") + "/") for p in prefixes)
+
+
 def _is_intrinsic_ignored(path: str) -> bool:
     """纯运行期产物（__pycache__/*.pyc/.log 等）：无需解释，也不算交付缺口。
 
@@ -197,6 +217,14 @@ def check_scope(manifest: dict, root: str) -> dict:
 
     not_in_repo = sorted(declared - universe)
     delivery_missing = sorted(p for p in universe if under(p) and p not in declared)
+    # 内容摘要的豁免前缀：由清单自己声明，但必须与交付前缀互不相交（否则可借"运行
+    # 产物"之名给交付物免检）；evidence/ 下的清单与探针结果本身也在豁免范围内，
+    # 因为它们要被摘要覆盖就等于要求清单预先包含自己的哈希——自指、不可能诚实做到。
+    exclude_prefs = [str(p).replace("\\", "/") for p in
+                     (scope.get("content_exclude_prefixes")
+                      or ["evidence/"])]
+    hash_mode = manifest.get("hash_mode") or "raw"
+    content_covered = {p for p in out_of_scope if not _under_prefix(p, exclude_prefs)}
     ignored_all = sorted(p for p in ignored if under(p))
     ignored_under = [p for p in ignored_all if not _is_intrinsic_ignored(p)]
     explained = set(p.replace("\\", "/") for p in (scope.get("ignored_explained") or []))
@@ -207,6 +235,13 @@ def check_scope(manifest: dict, root: str) -> dict:
         "out_of_scope_count_matches": len(out_of_scope) == scope.get("out_of_scope_count"),
         "out_of_scope_digest_matches": _pathset_digest(out_of_scope)
                                        == scope.get("out_of_scope_digest"),
+        # 范围外那半的内容也要对得上（仅锁路径等于允许改内容）
+        "out_of_scope_content_matches": bool(scope.get("out_of_scope_content_digest"))
+        and _path_content_digest(root, content_covered, hash_mode)
+        == scope.get("out_of_scope_content_digest"),
+        "content_exclusion_safe": not any(under(p) for p in exclude_prefs),
+        # 存在未提交且未被忽略的文件 => 这棵树上还有没交代的东西
+        "no_untracked_in_repo": not (untracked - tracked),
         "declared_count_matches": len(declared) == scope.get("declared_count"),
         "ignored_all_explained": not unexplained_ignored,
         # 交付物必须都落在声明的交付前缀之内：防止"声明 A 目录、实际夹带 B 目录"。
@@ -222,6 +257,10 @@ def check_scope(manifest: dict, root: str) -> dict:
             "declared_count": len(declared),
             "out_of_scope_count": len(out_of_scope),
             "out_of_scope_digest": _pathset_digest(out_of_scope),
+            "out_of_scope_content_digest": _path_content_digest(root, content_covered, hash_mode),
+            "content_exclude_prefixes": exclude_prefs,
+            "content_covered_count": len(content_covered),
+            "untracked_uncommitted_count": len(untracked - tracked),
             "not_in_repo": not_in_repo,
             "delivery_missing": delivery_missing,
             "ignored_under_delivery": ignored_under,
@@ -231,7 +270,9 @@ def check_scope(manifest: dict, root: str) -> dict:
         "declared_scope": {"mode": scope.get("mode"),
                            "declared_count": scope.get("declared_count"),
                            "out_of_scope_count": scope.get("out_of_scope_count"),
-                           "out_of_scope_digest": scope.get("out_of_scope_digest")},
+                           "out_of_scope_digest": scope.get("out_of_scope_digest"),
+                           "out_of_scope_content_digest":
+                               scope.get("out_of_scope_content_digest")},
     }
 
 

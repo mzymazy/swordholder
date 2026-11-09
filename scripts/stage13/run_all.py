@@ -42,14 +42,20 @@ STATEMENT = "evidence/stage13/s13_anchor_statement.json"
 DEFAULT_OUT = "evidence/stage13/e2e"
 
 
-def pick_python(root: str) -> str:
-    """优先仓库自带 .venv（第三方 clone 里通常没有，那就用当前解释器）。"""
-    cands = [os.path.join(root, ".venv", "Scripts", "python.exe"),
-             os.path.join(root, ".venv", "bin", "python")]
-    for c in cands:
-        if os.path.isfile(c):
-            return c
-    return sys.executable
+def pick_python(root: str) -> tuple:
+    """选解释器：优先**这个 root 自带**的 .venv，其次当前解释器。
+
+    注意"自带"二字：在 clone 目录里跑时若误用我方工作区 .venv，等于用我的环境证我
+    的仓库，外部性就没了。这里如实标注 ``origin``，让第三方一眼看出用的是谁的环境。
+    """
+    root_abs = os.path.abspath(root)
+    for parts in (("Scripts", "python.exe"), ("bin", "python")):
+        cand = os.path.join(root_abs, ".venv", *parts)
+        if os.path.isfile(cand):
+            return cand, "root-venv"
+    exe = os.path.abspath(sys.executable).replace("\\", "/").lower()
+    origin = "caller-venv" if "/.venv/" in exe else "caller-interpreter"
+    return sys.executable, origin
 
 
 def run(cmd: list, cwd: str, timeout: float = 1800.0) -> dict:
@@ -101,7 +107,7 @@ def main(argv=None) -> int:
     root = os.path.abspath(args.root)
     out_dir = args.out_dir if os.path.isabs(args.out_dir) else os.path.join(root, args.out_dir)
     summary_path = args.summary if os.path.isabs(args.summary) else os.path.join(root, args.summary)
-    py = pick_python(root)
+    py, py_origin = pick_python(root)
     os.makedirs(out_dir, exist_ok=True)
 
     head = git_out(root, "rev-parse", "HEAD")
@@ -117,7 +123,10 @@ def main(argv=None) -> int:
         "root": root,
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "python": {"executable": py, "version": platform.python_version(),
-                   "isolated_from_source": py != sys.executable},
+                   "origin": py_origin,
+                   "same_as_source_repo": (os.path.abspath(py).lower().startswith(
+                       os.path.abspath(REPO_FALLBACK).lower())),
+                   "caller_executable": sys.executable},
         "env": {"platform": platform.platform(), "head": head,
                 "worktree_clean": not status.strip(),
                 "dirty_entries": len([l for l in status.splitlines() if l.strip()])},

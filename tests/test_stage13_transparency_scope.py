@@ -177,11 +177,11 @@ def test_scope_ledger_covers_every_committable_file():
     scope = m["extra"]["scope"]
     assert scope["ok"] is True, scope
     assert scope["declared_count"] == m["file_count"] == len(declared)
-    assert scope["tracked_count"] >= scope["declared_count"] + scope["out_of_scope_count"] - 0
     assert scope["ignored_unexplained"] == []
     assert scope["not_in_repo"] == [] and scope["delivery_missing"] == []
     # 分账两半必须覆盖整个 universe（不留第三条暗道）
-    assert scope["declared_count"] + scope["out_of_scope_count"] == scope["tracked_count"]
+    assert scope["declared_count"] + scope["out_of_scope_count"] == scope["universe_count"]
+    assert scope["universe_count"] >= scope["tracked_count"]
 
 
 def test_scope_ledger_negative_cases():

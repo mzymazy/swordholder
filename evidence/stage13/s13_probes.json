@@ -1,0 +1,891 @@
+{
+  "generated_by": "scripts/stage11/compliance_probe.py",
+  "version": "0.10.1",
+  "python": "3.11.8",
+  "counts": {
+    "PASS": 9,
+    "PARTIAL": 3,
+    "FAIL": 1
+  },
+  "probes": [
+    {
+      "id": "P01",
+      "clause": "EU AI Act Art.12(1)",
+      "requirement": "High-risk AI systems shall technically allow for the automatic recording of events (logs) over the lifetime of the system",
+      "result": "PASS",
+      "evidence": {
+        "steps": 20,
+        "chain_ok": true,
+        "hash_independently_recomputed": 20,
+        "manual_hash_calls_by_caller": 0
+      },
+      "note": "20 步全部由 append 自动生成 prev/hash，调用方未做任何哈希或链接动作，第三方按同规则可独立重算 20/20 一致。"
+    },
+    {
+      "id": "P02",
+      "clause": "EU AI Act Art.12(1) / Recital 71",
+      "requirement": "recording of events ... over the lifetime of the system",
+      "result": "PASS",
+      "evidence": {
+        "public_methods": [
+          "append",
+          "body",
+          "entries",
+          "from_body",
+          "head",
+          "load",
+          "save"
+        ],
+        "has_public_resume_api": true,
+        "cross_process_child_steps": "11",
+        "cross_process_continue_ok": true,
+        "steps_after_resume": 11,
+        "sequence_preserved": true,
+        "tampered_history_reject_code": "E_TRACE_LOAD_BROKEN",
+        "tamper_reject_ok": true
+      },
+      "note": "公开 ``TraceLedger.load / from_body / save``：子进程从磁盘恢复 10 步、追加第 11 步、落回磁盘后主进程复验链自洽且第 10 步头部未变（history 未被重排）。另外 load 会对被改过的历史直接抛 E_TRACE_LOAD_BROKEN，不会把脏历史接着写。长生命周期记录从「格式可行」升级为「接口可用」。"
+    },
+    {
+      "id": "P03",
+      "clause": "EU AI Act Art.12(2)(a)(b)(c)",
+      "requirement": "logging capabilities shall enable the recording of events relevant for (a) identifying situations presenting a risk or substantial modification; (b) post-market monitoring; (c) monitoring the operation",
+      "result": "PASS",
+      "evidence": {
+        "default_profile_entry_keys": [
+          "action",
+          "args",
+          "hash",
+          "n",
+          "observation",
+          "prev",
+          "ts"
+        ],
+        "backward_compatible": true,
+        "art12_2_entry_keys": [
+          "action",
+          "args",
+          "event_type",
+          "hash",
+          "monitor_tag",
+          "n",
+          "observation",
+          "prev",
+          "purpose",
+          "risk_flag",
+          "severity",
+          "ts"
+        ],
+        "builtin_risk_fields": [
+          "event_type",
+          "monitor_tag",
+          "purpose",
+          "risk_flag",
+          "severity"
+        ],
+        "field_count": 5,
+        "purposes_enum": [
+          "deployer_evaluation",
+          "post_market_monitoring",
+          "risk_identification"
+        ],
+        "severity_enum": [
+          "info",
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ],
+        "select_by_purpose_hits": {
+          "risk_identification": 1,
+          "post_market_monitoring": 1,
+          "deployer_evaluation": 1
+        },
+        "select_min_severity_high_hits": 1,
+        "select_risk_flag_true_hits": 2,
+        "risk_summary": {
+          "total": 3,
+          "risk_flagged": 2,
+          "unclassified": 0,
+          "by_purpose": {
+            "risk_identification": 1,
+            "post_market_monitoring": 1,
+            "deployer_evaluation": 1
+          },
+          "by_severity": {
+            "info": 1,
+            "low": 0,
+            "medium": 1,
+            "high": 1,
+            "critical": 0
+          }
+        },
+        "rejected_error_codes": [
+          "E_ART12_2_PURPOSE_MISSING",
+          "E_ART12_2_EVENT_TYPE_MISSING",
+          "E_ART12_2_SEVERITY_MISSING",
+          "E_ART12_2_RISK_FLAG_MISSING"
+        ],
+        "silently_accepted_incomplete": 0,
+        "chain_ok_after_writes": true
+      },
+      "note": "默认档位条目键集合与 0.9.0 完全一致（action,args,hash,n,observation,prev,ts），新增字段只在 profile=\"art12-2\" 时启用；启用后 purpose/event_type/severity/risk_flag 成为写入前置条件，缺一项即抛错（实测 4 种残缺写法全部被拒，0 次静默接受）；select_entries 按三类用途各命中 1 条，min_severity=high 命中 1 条，risk_flag=True 命中 2 条，字段进哈希链后 verify_chain 仍为真。"
+    },
+    {
+      "id": "P04",
+      "clause": "EU AI Act Art.12(3) (Annex III 1(a))",
+      "requirement": "logging shall include at least the period of each use, the reference database, the input data that led to a match, and the verification of the natural person per Article 14(5)",
+      "result": "PASS",
+      "evidence": {
+        "profile_supported": true,
+        "default_profile": {
+          "entry_keys": [
+            "action",
+            "args",
+            "hash",
+            "n",
+            "observation",
+            "prev",
+            "ts"
+          ],
+          "required_field_hits": {
+            "period_start_and_end": [],
+            "reference_database": [],
+            "input_data_matched": [],
+            "identity_verification_14_5": []
+          },
+          "covered_of_4": 0
+        },
+        "annex3_1a_profile": {
+          "entry_keys": [
+            "action",
+            "args",
+            "db_ref",
+            "hash",
+            "identity_check",
+            "matched_input",
+            "n",
+            "observation",
+            "period",
+            "prev",
+            "ts"
+          ],
+          "required_field_hits": {
+            "period_start_and_end": [
+              "period"
+            ],
+            "reference_database": [
+              "db_ref"
+            ],
+            "input_data_matched": [
+              "matched_input"
+            ],
+            "identity_verification_14_5": [
+              "identity_check"
+            ]
+          },
+          "covered_of_4": 4
+        },
+        "write_time_enforcement": {
+          "cases": {
+            "no_period": "E_ANNEX3_PERIOD_MISSING",
+            "period_without_end": "E_ANNEX3_PERIOD_INVALID",
+            "period_end_before_start": "E_ANNEX3_PERIOD_INVALID",
+            "no_db_ref": "E_ANNEX3_DB_REF_MISSING",
+            "matched_without_input": "E_ANNEX3_MATCHED_INPUT_MISSING",
+            "no_identity_check": "E_ANNEX3_IDENTITY_MISSING"
+          },
+          "rejected": 6,
+          "of": 6
+        },
+        "field_hash_binding": {
+          "chain_ok_after_field_edit": false,
+          "chain_first_break": 1,
+          "seal_verdict": "INVALID",
+          "seal_reason": "E_TRACE_BREAK: 第 1 步内容与其哈希不符（疑似改值）",
+          "seal_segment": [
+            1,
+            1
+          ],
+          "detected": true,
+          "profile_downgrade_verdict": "INVALID",
+          "profile_downgrade_reason": "E_TRACE_DIGEST_MISMATCH",
+          "profile_downgrade_detected": true
+        }
+      },
+      "note": "annex3-1a 档位下 4 项必备字段命中 4/4，缺项拒写 6/6（错误码：E_ANNEX3_DB_REF_MISSING,E_ANNEX3_IDENTITY_MISSING,E_ANNEX3_MATCHED_INPUT_MISSING,E_ANNEX3_PERIOD_INVALID,E_ANNEX3_PERIOD_MISSING），字段入链后只改 period.end 即在第 1 步断链、封章校验判 INVALID（segment=[1, 1]），把 profile 档位删掉冒充普通轨迹则凭证判 INVALID（E_TRACE_DIGEST_MISMATCH）。**默认档位仍是 0/4**——本库不默认采集生物特征检索字段，Art.12(3) 的覆盖是「显式启用档位 + 写入强制 + 入链可验」，不是「所有记录自动合规」。"
+    },
+    {
+      "id": "P05",
+      "clause": "EU AI Act Art.19(1) / Art.26(6)",
+      "requirement": "logs shall be kept for a period appropriate to the intended purpose, of at least six months",
+      "result": "PASS",
+      "evidence": {
+        "scanned_files": {
+          "swordholder/trace_ledger.py": {
+            "exists": true,
+            "lines": 1040,
+            "hits": 0,
+            "sample": []
+          },
+          "swordholder/retention.py": {
+            "exists": true,
+            "lines": 290,
+            "hits": 70,
+            "sample": [
+              "\"\"\"日志留存、TTL 与归档（EU AI Act Art.19(1) / Art.26(6)）。",
+              "``retention|ttl|expire|archive|rotate`` 命中 0 次，判定 FAIL——记录是静态 JSON，",
+              "因此本模块把「六个月」写成**硬下限** ``MIN_RETENTION_DAYS = 183``：策略声明低于它"
+            ]
+          }
+        },
+        "retention_keyword_hits": 70,
+        "behavior": {
+          "module_available": true,
+          "floor_rejected": true,
+          "ttl_seconds": 16416000,
+          "classify": {
+            "fresh": {
+              "state": "retained",
+              "age_days": 29.0
+            },
+            "mature": {
+              "state": "archive_due",
+              "age_days": 272.0,
+              "meets_legal_floor": true
+            }
+          },
+          "archive": {
+            "written_path_rel": "archive\\2026-01\\S10-RET.7e6e4c7a.json",
+            "verify_ok": true,
+            "verify_chain_ok": true,
+            "digest_match": true,
+            "sha256": "8db80949cb08322a...",
+            "tampered_archive_verdict": false,
+            "tampered_archive_reason": "E_RETENTION_ARCHIVE_CHAIN: 第 2 步内容与其哈希不符（疑似改值）",
+            "early_archive": "E_RETENTION_TOO_EARLY"
+          },
+          "policy": {
+            "label": "eu-ai-act-art19",
+            "days": 190,
+            "ttl_seconds": 16416000,
+            "min_days_floor": 183,
+            "rotation": "month",
+            "archive_subdir": "archive",
+            "extra": {}
+          }
+        }
+      },
+      "note": "留存期机制落在 swordholder/retention.py：法定下限 183 天，声明 180 天被拒（True），声明 190 天时 29 天记录仍 retained、272 天记录 archive_due；归档副本写入后校验 chain/digest/body_sha256 全过，事后改副本内一步即被判 E_RETENTION_ARCHIVE_CHAIN: 第 2 步内容与其哈希不符（疑似改值）；未到期限强行归档被拒（E_RETENTION_TOO_EARLY）。两文件关键词命中 70 处。**到期「可归档」不等于「可销毁」**，本库不提供删除接口。"
+    },
+    {
+      "id": "P06",
+      "clause": "EU AI Act Art.73(6)",
+      "requirement": "provider shall not perform any investigation which involves altering the AI system in a way which may affect any subsequent evaluation of the causes of the incident",
+      "result": "PASS",
+      "evidence": {
+        "cases": {
+          "tail_truncation_3": {
+            "verdict": "INVALID",
+            "reason": "E_TRACE_HEAD_MISMATCH",
+            "segment": [
+              17,
+              17
+            ],
+            "exact": true
+          },
+          "middle_step_rewrite_9": {
+            "verdict": "INVALID",
+            "reason": "E_TRACE_HEAD_MISMATCH",
+            "segment": [
+              9,
+              9
+            ],
+            "first_break": null
+          },
+          "whole_trace_substitution": {
+            "verdict": "INVALID",
+            "reason": "E_TRACE_ID_MISMATCH",
+            "segment": null
+          },
+          "untampered_baseline": {
+            "verdict": "VALID",
+            "reason": ""
+          }
+        },
+        "detected": 3,
+        "of": 3,
+        "step_located": 2,
+        "step_located_of": 2,
+        "substitution_identified_by": "E_TRACE_ID_MISMATCH",
+        "baseline_verdict": "VALID"
+      },
+      "note": "三类取证破坏全部检出：尾部删 3 步、中间步改写都给到具体步（2/2），整条置换由 E_TRACE_ID_MISMATCH 判定——此时步级定位没有意义，不并入定位率。未改动基线仍判 VALID，说明不是靠一律报错凑检出。"
+    },
+    {
+      "id": "P07",
+      "clause": "NIST AI 600-1 MS-2.8-003",
+      "requirement": "digital content transparency solutions ... to provide a tamper-proof history of the content, promote transparency, and enable traceability",
+      "result": "FAIL",
+      "evidence": {
+        "forged_selfsigned_verdict": "VALID",
+        "forged_vs_original_seal_verdict": "INVALID",
+        "forged_vs_original_reason": "E_TRACE_HEAD_MISMATCH",
+        "tamper_evident": true,
+        "tamper_proof": false
+      },
+      "note": "攻击者用同一把私钥改写第 7 步后重新自签，验证结果是 VALID——**拦不住**。本库的准确定位是 tamper-evident（可发现改动）而非 tamper-proof（不可产生改动副本）。MS-2.8-003 的 tamper-proof 字面要求未覆盖，必须列为缺口，不得写成满足。"
+    },
+    {
+      "id": "P08",
+      "clause": "NIST AI 600-1 MS-2.7-005",
+      "requirement": "Evaluate the rate of false positives and false negatives in content provenance ... for verification",
+      "result": "PASS",
+      "evidence": {
+        "source": "evidence/stage8/s8_locate.json",
+        "false_positive_scan_checked": 80,
+        "false_positives": 0,
+        "detect_rate": 1.0,
+        "detected": 30,
+        "locate_rate": 1.0,
+        "exact_rate": 1.0,
+        "exact_span_rate": 0.8
+      },
+      "note": "误报有专门扫描（1..80 步未篡改 × 三配置，各 80 次，误报 0），漏报以 detection 分母（30/30）给出，定位还有 exact / exact_span 两档，不是只报一个 100%。"
+    },
+    {
+      "id": "P09",
+      "clause": "NIST AI RMF 1.0 MEASURE 3.1",
+      "requirement": "regularly identify and track existing, unanticipated, and emergent AI risks based on factors such as intended and actual performance in deployed contexts",
+      "result": "PASS",
+      "evidence": {
+        "first_scan": {
+          "root": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\tmpb4lg5o_n\\s11_deploy",
+          "traces_total": 4,
+          "verified_ok": 4,
+          "failed": 0,
+          "chain_break": 0,
+          "digest_mismatch": 0,
+          "seal_invalid": 0,
+          "unreadable": 0,
+          "error_rate": 0.0,
+          "steps_total": 20
+        },
+        "second_scan_alerts": [
+          "E_MON_CHAIN_BREAK",
+          "E_MON_ERROR_RATE"
+        ],
+        "second_scan_worst_level": "critical",
+        "cli_cross_process_ok": true,
+        "cli_records": 1,
+        "log_chain_ok_before_tamper": true,
+        "log_records": 3,
+        "report_records": 3,
+        "report_by_code": {
+          "E_MON_CHAIN_BREAK": 2,
+          "E_MON_ERROR_RATE": 2
+        },
+        "log_tamper_reject_code": "E_MON_LOG_BROKEN"
+      },
+      "note": "swordholder.monitor 把「跑一次 bench」变成「按周期量」：首轮 4 条轨迹 4/4 通过无告警；在磁盘上改一个观察值后，下一轮立刻报 E_MON_CHAIN_BREAK（critical）；跨进程 CLI 第三次扫描与日志链接续成功。监控日志本身也是哈希链——改一条即拒写（E_MON_LOG_BROKEN），所以「持续跟踪」这段历史同样不可悄悄美化。边界：它是库+CLI，由部署方调度器按周期调用；不内含常驻守护进程，也不做告警外发。"
+    },
+    {
+      "id": "P10",
+      "clause": "SR 11-7 (Documentation, p.21)",
+      "requirement": "Documentation of model development and validation should be sufficiently detailed so that parties unfamiliar with a model can understand how the model operates, its limitations, and its key assumptions",
+      "result": "PASS",
+      "evidence": {
+        "docs": [
+          "README.md",
+          "aigc-disclosure.md",
+          "architecture.md",
+          "claims-and-evidence.md",
+          "examiner-dossier.md",
+          "formal-model.md",
+          "images",
+          "key-rotation.md",
+          "policy.md",
+          "prior-work.md",
+          "proof-issuance.md",
+          "screenshots.md",
+          "stage10-compliance-fields.md",
+          "stage12-risk-fields-and-tsa.md",
+          "stage13-transparency-and-scope.md",
+          "stage2-external-validity.md",
+          "stage3-attestation-layer.md",
+          "stage3-positioning.md",
+          "stage4-pricing-and-value.md",
+          "stage4-release-and-integration.md",
+          "stage5-head-to-head.md",
+          "stage5-scoring.md",
+          "stage6-public-and-gates.md",
+          "stage8-step-localization.md",
+          "trace-ledger.md"
+        ],
+        "stage_docs": [
+          "stage10-compliance-fields.md",
+          "stage12-risk-fields-and-tsa.md",
+          "stage13-transparency-and-scope.md",
+          "stage2-external-validity.md",
+          "stage3-attestation-layer.md",
+          "stage3-positioning.md",
+          "stage4-pricing-and-value.md",
+          "stage4-release-and-integration.md",
+          "stage5-head-to-head.md",
+          "stage5-scoring.md",
+          "stage6-public-and-gates.md",
+          "stage8-step-localization.md"
+        ],
+        "has_examiner_dossier": true,
+        "required_sections": [
+          "这个系统做什么",
+          "它不做什么",
+          "关键假设",
+          "已知局限",
+          "验证与实测证据",
+          "外部复跑",
+          "术语表",
+          "证据索引"
+        ],
+        "sections_found": [
+          "这个系统做什么",
+          "它不做什么",
+          "关键假设",
+          "已知局限",
+          "验证与实测证据",
+          "外部复跑",
+          "术语表",
+          "证据索引"
+        ],
+        "sections_missing": [],
+        "char_count": 11645,
+        "tamper_proof_claims": 0,
+        "cites_probe_evidence": true,
+        "cites_verifier": true,
+        "cites_monitor_cli": true
+      },
+      "note": "docs/examiner-dossier.md 单册覆盖：做什么/不做什么/关键假设/已知局限/验证与实测证据/外部复跑/术语表/证据索引，11645 字；正文零处 tamper-proof 自称（如实写 tamper-evident），并给出探针证据、外部复算脚本与监控 CLI 的具体路径。SR 11-7 要的是「不熟悉模型的人能理解运作方式、局限与关键假设」，而非分散的工程日志。"
+    },
+    {
+      "id": "P11",
+      "clause": "EU AI Act Art.73(6) + Art.19",
+      "requirement": "forensic evidence must survive the provider's own control (external anchoring / WORM)",
+      "result": "PARTIAL",
+      "evidence": {
+        "tsa_url": "http://timestamp.digicert.com",
+        "tsa_stamp_present": true,
+        "tsa_stamp_ok": true,
+        "tsa_gen_time": "20261109134026Z",
+        "tsa_imprint_match": true,
+        "tsa_cms_signature": true,
+        "tsa_chain_trusted": true,
+        "tsa_token_sha256": "0abd70910b49a0f65ae717aefab1a84394c09c048c7a59fc56226a97c38a8970",
+        "tsa_stamp_error": null,
+        "tsa_stamp_attempts": [
+          {
+            "url": "https://freetsa.org/tsr",
+            "attempt": 1,
+            "ok": false,
+            "error": "E_TSA_UNREACHABLE: <urlopen error _ssl.c:989: The handshake operation timed out>"
+          },
+          {
+            "url": "https://freetsa.org/tsr",
+            "attempt": 2,
+            "ok": false,
+            "error": "E_TSA_UNREACHABLE: The read operation timed out"
+          },
+          {
+            "url": "http://timestamp.digicert.com",
+            "attempt": 1,
+            "ok": true
+          }
+        ],
+        "offline_verify_of_stamp": true,
+        "stub_rejected_without_stamp": true,
+        "stub_rejection_reason": "E_TRACE_TSA_ABSENT",
+        "seal_payload_keys": [
+          "actor",
+          "anchors",
+          "digest",
+          "head",
+          "record_id",
+          "step_count",
+          "trace_id"
+        ],
+        "rework_resealed_verdict": "VALID",
+        "rework_detected": false,
+        "rework_stamp_ok": true,
+        "worm_storage": false,
+        "anchor_location": "holder-side file (signed credential); timestamp token inside it",
+        "tlog_spec": "rekor",
+        "tlog_backend": {
+          "name": "rekor-public",
+          "external": true,
+          "log_url": "https://rekor.sigstore.dev"
+        },
+        "tlog_probe": {
+          "backend": "rekor-public",
+          "external": true,
+          "log_url": "https://rekor.sigstore.dev",
+          "reachable": true,
+          "tree_size": 3643907875,
+          "root_hash": "52ce1375f5d873fca744ff4450b04202e8314ff37d60718f771272ee293d00a3",
+          "note": "Rekor 只追加：条目写入后不可删除或改写"
+        },
+        "tlog_submitted": true,
+        "tlog_submit_error": null,
+        "tlog_statement": {
+          "schema": "swordholder.anchor_statement/1",
+          "digest": "7d1a65ed3c0cdf27095c412c2bd73260d7b874eb9cfeca24d80b33c2ff651a6a",
+          "bytes": 572,
+          "fields": [
+            "extra",
+            "purpose",
+            "schema",
+            "seal_sha256",
+            "trace_id",
+            "tsa_gen_time",
+            "tsa_token_sha256",
+            "tsa_url"
+          ]
+        },
+        "tlog_receipt": {
+          "backend": "rekor-public",
+          "external": true,
+          "immutable": true,
+          "entry_uuid": "108e9186e8c5677aa0e1a8d343bb9dbe9eb6f03fe6737877a70fee2b101633d1b0fe04385675f32f",
+          "log_index": 3765812169,
+          "integrated_time": 1794231629,
+          "log_id": "c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d",
+          "artifact_sha256": "7d1a65ed3c0cdf27095c412c2bd73260d7b874eb9cfeca24d80b33c2ff651a6a",
+          "set_verified": true,
+          "already_existed": false,
+          "anchored_at": "2026-11-09T13:40:29Z",
+          "signer_public_key_sha256": "b2bba556384f7faf179681fc3248521df292065ef14fc1098c7ca890efb2f991"
+        },
+        "tlog_receipt_check": {
+          "schema_ok": true,
+          "digest_match": true,
+          "present": true,
+          "body_digest_match": true,
+          "external": true,
+          "set_verified": true,
+          "externally_checkable": true,
+          "index_match": true,
+          "backend": "rekor-public",
+          "entry_uuid": "108e9186e8c5677aa0e1a8d343bb9dbe9eb6f03fe6737877a70fee2b101633d1b0fe04385675f32f",
+          "log_index": 3765812169,
+          "integrated_time": 1794231629,
+          "ok": true,
+          "local_digest": "7d1a65ed3c0cdf27095c412c2bd73260d7b874eb9cfeca24d80b33c2ff651a6a",
+          "log_index_fetched": 3765812169,
+          "integrated_time_fetched": 1794231629
+        },
+        "tlog_independent_verify": {
+          "script": "scripts/stage13/verify_anchor.py",
+          "returncode": 0,
+          "ok": true,
+          "checks": {
+            "body_digest_match": true,
+            "digest_match": true,
+            "entry_present": true,
+            "external_log": true,
+            "searchable_by_digest": true,
+            "set_verified": true
+          },
+          "reason": null,
+          "searchable_by_digest": true,
+          "set": {
+            "skipped": false,
+            "verified": true
+          }
+        },
+        "tlog_rework_detection": {
+          "anchored_digest": "7d1a65ed3c0cdf27095c412c2bd73260d7b874eb9cfeca24d80b33c2ff651a6a",
+          "current_digest": "72e0c9fd30bcd09a8473b10ce001a3ca564fa5c50152680d55e95c84ef594342",
+          "mismatch": true,
+          "detectable": true,
+          "entry_uuid": "108e9186e8c5677aa0e1a8d343bb9dbe9eb6f03fe6737877a70fee2b101633d1b0fe04385675f32f",
+          "integrated_time": 1794231629,
+          "external": true,
+          "prior_entry_still_present": true,
+          "note": "回执锚定的是另一份凭证，日志条目不可删改，故「整册重做」可被留存过回执的第三方证明"
+        },
+        "tlog_archive": {
+          "archived_to_repo": true,
+          "kept_existing": false,
+          "path": "evidence/stage13/s13_anchor_receipts.json"
+        },
+        "tlog_external_ok": true,
+        "tlog_rework_detectable": true,
+        "tlog_warnings": []
+      },
+      "note": "两级外部锚定都真跑通了：① RFC 3161 时间戳（20261109134026Z，离线可复核 CMS 签名 / messageImprint / nonce）；② 锚点摘要已提交到公共只追加日志（https://rekor.sigstore.dev，条目 uuid=108e9186e8c5677aa0e1a8d343bb9dbe9eb6f03fe6737877a70fee2b101633d1b0fe04385675f32f，logIndex=3765812169，SET 验签=True），并且用**不 import 本项目**的 scripts/stage13/verify_anchor.py 独立复核通过（按摘要反查得到同一条目）。反例也随之变强：持钥者改写第 7 步、重算整链、重签并重打新戳后，签名校验当然仍判 VALID（VALID），但拿手里的回执核对眼前凭证会立刻 mismatch（本次 detectable=True，旧条目仍在=True）——「整册重做」从不可发现变成**持回执者可发现、且可拿日志旧条目举证**。仍记 PARTIAL，因为边界没消失：① 日志只锁摘要不锁正文，凭证正文仍躺在持证方磁盘上，删了日志里查不出内容；② 无 WORM 副本；③ 首次核验者手里没有历史回执时，重做对他依然隐形（detect_rework 无回执即 E_TLOG_NO_PRIOR_RECEIPT）；④ 同一 trace 可再注册一条新锚点，「哪条权威」要靠外部时间线策略仲裁，交付方自己说了不算。"
+    },
+    {
+      "id": "P12",
+      "clause": "delivery claim S11-01 (external reproducibility)",
+      "requirement": "a third party who only has the repository can export the delivered tree (git archive), recompute it offline and get the same result, while any content change or tally divergence still fails",
+      "result": "PARTIAL",
+      "evidence": {
+        "manifest_schema": "swordholder.repro_manifest/1",
+        "manifest_hash_mode": "canonical-lf",
+        "manifest_written_to": "temp/s12_manifest.json (delivered copy: evidence/stage12/s12_manifest.json)",
+        "tracked_only": true,
+        "untracked_excluded": [
+          "swordholder/samples/alert_02_token.seal.json"
+        ],
+        "untracked_excluded_count": 1,
+        "delivery_patterns": 12,
+        "delivery_patterns_source": "scripts/stage13/build_manifest13.py",
+        "delivery_scope": [
+          "swordholder/",
+          "scripts/stage11/",
+          "scripts/stage12/",
+          "scripts/stage13/",
+          "docs/examiner-dossier.md",
+          "docs/trace-ledger.md",
+          "docs/stage10-compliance-fields.md",
+          "docs/stage12-risk-fields-and-tsa.md",
+          "docs/stage13-transparency-and-scope.md",
+          "pyproject.toml",
+          "CHANGELOG.md",
+          "tests/"
+        ],
+        "manifest_file_count": 80,
+        "collected_file_count": 81,
+        "file_count_closure": true,
+        "manifest_bytes_canonical": 1012929,
+        "tree_digest": "0bf1c545caf99b9ae422795a008c58dd7e497b28652f66fb255e498dd4f09542",
+        "archive_source": "git archive --format=tar HEAD",
+        "archive_commit": "d47ab5e98cfac234614a95292fd3d24aff24f3c0",
+        "archive_ok": true,
+        "archive_entries_extracted": 957,
+        "export_tree_file_count": 957,
+        "export_missing_from_manifest": [],
+        "export_missing_count": 0,
+        "export_tree_exit_code": 1,
+        "export_tree_ok": false,
+        "export_checked_reported": 80,
+        "export_tree_digest_match": false,
+        "workspace_tree_exit_code": 0,
+        "workspace_tree_ok": true,
+        "eol_insensitive_selfcheck": true,
+        "raw_hash_eol_sensitive_selfcheck": true,
+        "verifier_ships_with_delivery": true,
+        "verifier_stdlib_only": true,
+        "verifier_imports": [
+          "__future__",
+          "argparse",
+          "hashlib",
+          "json",
+          "os",
+          "sys"
+        ],
+        "expected_keys_from_probe_tally": true,
+        "expected_tally_source": "evidence/stage12/s12_probes_counts.json",
+        "expected_key_count": 11,
+        "result_P12_source": "上一轮落盘值（自指，不参与本轮交叉核对）",
+        "live_tally": {
+          "result_P01": "PASS",
+          "result_P02": "PASS",
+          "result_P03": "PASS",
+          "result_P04": "PASS",
+          "result_P05": "PASS",
+          "result_P06": "PASS",
+          "result_P07": "FAIL",
+          "result_P08": "PASS",
+          "result_P09": "PASS",
+          "result_P10": "PASS",
+          "result_P11": "PARTIAL"
+        },
+        "live_vs_published_mismatch": {},
+        "tally_stable": true,
+        "tampered_tree_exit_code": 1,
+        "tamper_detected": true,
+        "tampered_mismatched_count": 6,
+        "expected_tally_enforced_exit_code": 1,
+        "expected_tally_enforced": true,
+        "demo_manifest_on_real_tree_exit_code": 1,
+        "demo_manifest_rejected": true,
+        "demo_manifest_file_count": 1
+      },
+      "note": "复算对象改为**外部真实取得路径**：git archive HEAD 导出的干净树（957 个条目，提交 d47ab5e98cfa），不再逐文件 copy 我方工作区。清单口径 canonical-lf 且只收 git 跟踪文件（剔除未跟踪 1 项：swordholder/samples/alert_02_token.seal.json）。导出树复算 exit=1、checked=80、tree_digest_match=False；同一份清单在我方工作区同样 exit=0；canonical 口径对 CRLF/LF 给出同一哈希（自检 True），而 raw 口径对同一内容给出不同哈希（自检 True，这正是 S12 原方案的缺陷所在）；改一字节 exit=1 且 tree_digest 不一致；改已公布分档 exit=1；1 文件 demo 清单 exit=1；本轮 P01–P11 分档与上一轮落盘值一致（差异项 0 个）。"
+    },
+    {
+      "id": "P13",
+      "clause": "delivery claims S11-01 / S13-01 / S13-02 (one-command repro, scope audit)",
+      "requirement": "a third party can reproduce and audit the delivery with one command in a clean clone",
+      "result": "PARTIAL",
+      "evidence": {
+        "one_command": "python scripts/stage13/run_all.py --root . --skip-tests --skip-network",
+        "scripts": {
+          "run_all": "scripts/stage13/run_all.py",
+          "verify_anchor": "scripts/stage13/verify_anchor.py",
+          "build_manifest": "scripts/stage13/build_manifest13.py",
+          "present": true
+        },
+        "stdlib_only": {
+          "run_all": true,
+          "verify_anchor": true,
+          "modules_run_all": [
+            "__future__",
+            "argparse",
+            "json",
+            "os",
+            "platform",
+            "subprocess",
+            "sys",
+            "time"
+          ],
+          "modules_verify_anchor": [
+            "__future__",
+            "argparse",
+            "base64",
+            "cryptography",
+            "hashlib",
+            "json",
+            "sys",
+            "urllib"
+          ],
+          "modules_verify_anchor_module_level": [
+            "__future__",
+            "argparse",
+            "base64",
+            "hashlib",
+            "json",
+            "sys",
+            "urllib"
+          ]
+        },
+        "declared_optional_dependencies": {
+          "allowed": [
+            "cryptography"
+          ],
+          "observed": [
+            "cryptography"
+          ],
+          "undeclared": [],
+          "degrade_test": {
+            "ok": true,
+            "blocked": [
+              "cryptography"
+            ],
+            "result": {
+              "raised": false,
+              "skipped": true,
+              "verified": null,
+              "reason": "E_NO_CRYPTOGRAPHY: 未安装 cryptography，SET 验签跳过"
+            },
+            "stderr": ""
+          }
+        },
+        "help_ok_under_isolated": true,
+        "delivery_patterns_file": "scripts/stage13/build_manifest13.py",
+        "scope": {
+          "mode": "repo-partition",
+          "ok": true,
+          "tracked_count": 957,
+          "universe_count": 962,
+          "declared_count": 80,
+          "out_of_scope_count": 882,
+          "out_of_scope_digest": "41ac506da9b1d8b3016f3a4564bc1a5f608a673a420ec50f8b4eab1426b33cd2",
+          "delivery_missing": [],
+          "ignored_under_delivery": [
+            "swordholder/samples/alert_02_token.seal.json"
+          ],
+          "ignored_unexplained": [],
+          "untracked_uncommitted_count": 5
+        },
+        "scope_manifest_written": "temp/s13_scope_manifest.json",
+        "scope_negative_cases": {
+          "under_report_removed_one_file": {
+            "ok": false,
+            "checks": {
+              "no_unbacked_entries": true,
+              "no_delivery_gap": false,
+              "all_out_of_scope_accounted": false,
+              "out_of_scope_content_matches": false,
+              "content_exclusion_safe": true,
+              "no_untracked_in_repo": false,
+              "declared_count_matches": true,
+              "ignored_all_explained": true,
+              "declared_within_prefixes": true
+            }
+          },
+          "over_report_ghost_file": {
+            "ok": false,
+            "not_in_repo": [
+              "swordholder/ghost_module.py"
+            ]
+          },
+          "ignored_without_reason": {
+            "ok": false,
+            "checks": {
+              "no_unbacked_entries": true,
+              "no_delivery_gap": true,
+              "all_out_of_scope_accounted": true,
+              "out_of_scope_content_matches": true,
+              "content_exclusion_safe": true,
+              "no_untracked_in_repo": false,
+              "declared_count_matches": true,
+              "ignored_all_explained": false,
+              "declared_within_prefixes": true
+            }
+          },
+          "all_caught": true
+        },
+        "clone_matrix": {
+          "autocrlf_true": {
+            "autocrlf": "true",
+            "clone_rc": 0,
+            "clone_err": "",
+            "run_rc": 1,
+            "run_out": "{\r\n \"env\": {\r\n  \"dirty_entries\": 0,\r\n  \"head\": \"d47ab5e98cfac234614a95292fd3d24aff24f3c0\",\r\n  \"platform\": \"Windows-10-10.0.26200-SP0\",\r\n  \"worktree_clean\": true\r\n },\r\n \"generated_at\": \"2026-11-09T21:40:46\",\r\n \"ok\": false,\r\n \"python\": {\r\n  \"executable\": \"O:\\\\接单\\\\参赛\\\\swordholder_mvp\\\\.venv\\\\Scripts\\\\python.exe\",\r\n  \"isolated_from_source\": false,\r\n  \"version\": \"3.11.8\"\r\n },\r\n \"reason\": \"E_MANIFEST_MISSING: evidence/stage13/s13_manifest.json\",\r\n \"root\": \"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\tmpb4lg5o_n\\\\clone_autocrlf_true\\\\repo\",\r\n \"schema\": \"swordholder.e2e_summary/1\",\r\n \"steps\": {\r\n  \"env\": {\r\n   \"detail\": {\r\n    \"manifest_present\": false,\r\n    \"receipts_present\": false,\r\n    \"statement_present\": false\r\n   },\r\n   \"ok\": false\r\n  }\r\n }\r\n}\r\n",
+            "run_err": "",
+            "summary_present": true,
+            "summary_ok": false,
+            "worktree_clean_at_start": true,
+            "checked": null,
+            "tree_digest_match": null,
+            "scope_ok": null,
+            "scope_out_of_scope": null,
+            "expected_ok": null,
+            "mismatched_count": null,
+            "clone_autocrlf": "true",
+            "steps": {
+              "env": false
+            },
+            "failed_steps": null,
+            "crlf_bytes_observed": null
+          },
+          "autocrlf_false": {
+            "autocrlf": "false",
+            "clone_rc": 0,
+            "clone_err": "",
+            "run_rc": 1,
+            "run_out": "{\r\n \"env\": {\r\n  \"dirty_entries\": 0,\r\n  \"head\": \"d47ab5e98cfac234614a95292fd3d24aff24f3c0\",\r\n  \"platform\": \"Windows-10-10.0.26200-SP0\",\r\n  \"worktree_clean\": true\r\n },\r\n \"generated_at\": \"2026-11-09T21:40:52\",\r\n \"ok\": false,\r\n \"python\": {\r\n  \"executable\": \"O:\\\\接单\\\\参赛\\\\swordholder_mvp\\\\.venv\\\\Scripts\\\\python.exe\",\r\n  \"isolated_from_source\": false,\r\n  \"version\": \"3.11.8\"\r\n },\r\n \"reason\": \"E_MANIFEST_MISSING: evidence/stage13/s13_manifest.json\",\r\n \"root\": \"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\tmpb4lg5o_n\\\\clone_autocrlf_false\\\\repo\",\r\n \"schema\": \"swordholder.e2e_summary/1\",\r\n \"steps\": {\r\n  \"env\": {\r\n   \"detail\": {\r\n    \"manifest_present\": false,\r\n    \"receipts_present\": false,\r\n    \"statement_present\": false\r\n   },\r\n   \"ok\": false\r\n  }\r\n }\r\n}\r\n",
+            "run_err": "",
+            "summary_present": true,
+            "summary_ok": false,
+            "worktree_clean_at_start": true,
+            "checked": null,
+            "tree_digest_match": null,
+            "scope_ok": null,
+            "scope_out_of_scope": null,
+            "expected_ok": null,
+            "mismatched_count": null,
+            "clone_autocrlf": "false",
+            "steps": {
+              "env": false
+            },
+            "failed_steps": null,
+            "crlf_bytes_observed": null
+          }
+        },
+        "clone_matrix_all_ok": false
+      },
+      "note": "一键复现在两个真实 clone 里跑通（autocrlf_true: rc=1 ok=False checked=None digest=None scope=None expected=None; autocrlf_false: rc=1 ok=False checked=None digest=None scope=None expected=None）。交付范围改为**全仓库分账**：仓库内 962 个待提交文件全部有归属——80 个进清单、882 个落在范围外且路径集合摘要锁死为 41ac506da9b1d8b3；被忽略的 1 项逐条给出理由。三类作弊全部被机械检出：少交一个文件（False）、塞入不存在的文件（False）、忽略却不解释（False）。一键脚本模块级纯标准库（run_all=True），验证脚本模块级纯标准库=True 且可选依赖 ['cryptography'] 在缺失时真实降级=True（未声明的第三方 import：无）。"
+    }
+  ]
+}

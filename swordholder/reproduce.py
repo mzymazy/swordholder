@@ -195,6 +195,13 @@ def git_tracked_paths(root: str) -> set | None:
 
 SCOPE_MODE = "repo-partition"
 
+# 运行产物目录：参与**路径分账**（谁在仓库里必须交代清楚），但不参与**内容摘要**。
+# 理由不是放水，而是自指：清单自身、探针结果、回执都在 evidence/ 下，把它们算进内容
+# 摘要意味着"清单要预先包含自己的哈希"，任何诚实实现都做不到；真把它们算进去，唯一
+# 能通过的写法就是事后重算——那才是真的自证。内容摘要因此覆盖除运行产物外的全部
+# 未交付文件（代码、脚本、测试、文档），偷改这些照样被抓。
+CONTENT_EXCLUDE_PREFIXES = ("evidence/",)
+
 
 def _git_ls(root: str, extra_args: list[str], *, timeout: float = 90.0) -> set | None:
     """``git ls-files -z`` 的薄封装。非 git 仓库返回 None（不静默当空集）。"""
@@ -232,6 +239,25 @@ def pathset_digest(paths: Iterable[str]) -> str:
     """对一组相对路径取摘要（排序、LF 连接、UTF-8）。用于锁死「不在范围内」那一半。"""
     joined = "\n".join(sorted(paths)).encode("utf-8")
     return hashlib.sha256(joined).hexdigest()
+
+
+def path_content_digest(root: str, paths: Iterable[str],
+                        hash_mode: str = HASH_MODE_CANONICAL) -> str:
+    """对「一组文件的内容」取摘要：``path\\0sha256\\n`` 逐条拼后 sha256。
+
+    与 ``pathset_digest`` 的区别：那个只锁路径集合，内容被改照样对得上；这里连内容
+    一起锁死，于是「不在交付清单里的那部分」也不再是黑盒——交付方偷偷改一个未交付
+    文件（比如 evidence 里的探针结果），摘要立刻对不上。缺失的文件按 ``MISSING``
+    计入而不跳过，避免「删掉就算过」。
+    """
+    rows = []
+    for p in sorted({str(p).replace("\\", "/") for p in paths}):
+        full = os.path.join(root, p)
+        if os.path.isfile(full):
+            rows.append("%s\0%s\n" % (p, digest(full, hash_mode)[0]))
+        else:
+            rows.append("%s\0MISSING\n" % p)
+    return hashlib.sha256("".join(rows).encode("utf-8")).hexdigest()
 
 
 def _under(path: str, prefixes: Iterable[str]) -> bool:
@@ -287,7 +313,9 @@ def _norm_declared(root: str, path: str) -> str:
 
 def scope_report(root: str, declared: Iterable[str], *,
                  delivery_prefixes: Iterable[str] = (),
-                 included_ignored: Iterable[str] = ()) -> dict:
+                 included_ignored: Iterable[str] = (),
+                 content_exclude_prefixes: Iterable[str] = CONTENT_EXCLUDE_PREFIXES,
+                 hash_mode: str = HASH_MODE_CANONICAL) -> dict:
     """把「交付范围」变成可机械复核的全量分账（R1 的收敛手段）。
 
     要解决的问题：以前清单只说「我交了这 74 个文件」，为什么不是 76 个、哪 2 个被
@@ -306,6 +334,9 @@ def scope_report(root: str, declared: Iterable[str], *,
     universe = universe_doc["universe"]
     declared_set = {_norm_declared(root, p) for p in declared}
     out_of_scope = universe - declared_set
+    exclude_prefs = tuple(p.replace("\\", "/") for p in content_exclude_prefixes or ())
+    content_covered = {p for p in out_of_scope if not _under(p, exclude_prefs)}
+    content_excluded = sorted(out_of_scope - content_covered)
     not_in_repo = sorted(declared_set - universe)
     delivery_missing = sorted(p for p in universe
                               if _under(p, delivery_prefixes) and p not in declared_set)
@@ -324,6 +355,11 @@ def scope_report(root: str, declared: Iterable[str], *,
         "declared_count": len(declared_set),
         "out_of_scope_count": len(out_of_scope),
         "out_of_scope_digest": pathset_digest(out_of_scope),
+        "out_of_scope_content_digest": path_content_digest(root, content_covered,
+                                                          hash_mode),
+        "content_exclude_prefixes": sorted(exclude_prefs),
+        "content_excluded_count": len(content_excluded),
+        "content_covered_count": len(content_covered),
         "declared_digest": pathset_digest(declared_set),
         "not_in_repo": not_in_repo,
         "delivery_missing": delivery_missing,
@@ -343,7 +379,10 @@ def verify_scope(manifest: dict, root: str, *, delivery_prefixes: Iterable[str] 
     prefixes = list(delivery_prefixes or scope.get("delivery_prefixes") or [])
     try:
         report = scope_report(root, declared, delivery_prefixes=prefixes,
-                              included_ignored=scope.get("ignored_explained") or [])
+                              included_ignored=scope.get("ignored_explained") or [],
+                              content_exclude_prefixes=scope.get(
+                                  "content_exclude_prefixes", CONTENT_EXCLUDE_PREFIXES),
+                              hash_mode=manifest.get("hash_mode") or HASH_MODE_CANONICAL)
     except ReproduceError as exc:
         return {"ok": False, "error": str(exc)[:200], "checked": len(declared)}
     checks = {
@@ -353,6 +392,19 @@ def verify_scope(manifest: dict, root: str, *, delivery_prefixes: Iterable[str] 
                                        == scope.get("out_of_scope_count")
                                        and report["out_of_scope_digest"]
                                        == scope.get("out_of_scope_digest")),
+        # 范围外那半不只是"路径集合对得上"：内容摘要也要对上，否则交付方改一个
+        # 不在清单里的文件（如未交付的脚本、测试、文档）就能绕过整册校验。
+        "out_of_scope_content_matches": bool(scope.get("out_of_scope_content_digest"))
+        and report["out_of_scope_content_digest"]
+        == scope.get("out_of_scope_content_digest"),
+        # 内容摘要的豁免不能拿来藏东西：被排除在内容摘要外的前缀不得落在交付前缀内，
+        # 否则"交付物"就能以"运行产物"为名免检。
+        "content_exclusion_safe": not any(
+            _under(p, report["delivery_prefixes"])
+            for p in report["content_exclude_prefixes"]),
+        # 仓库里存在未提交且未被忽略的文件 = 这棵树上还有"我看见了但没交代"的东西。
+        # 第三方 clone 后此值必为 0；我方工作区也必须为 0，否则视为交付不闭包。
+        "no_untracked_in_repo": report["untracked_uncommitted_count"] == 0,
         "declared_count_matches": report["declared_count"] == len(declared),
         "ignored_all_explained": not report["ignored_unexplained"],
         # 原来的 prefixes_match 是拿 prefixes 跟自己比，恒真，已废弃。
@@ -364,6 +416,10 @@ def verify_scope(manifest: dict, root: str, *, delivery_prefixes: Iterable[str] 
             "recomputed": {k: report[k] for k in
                            ("tracked_count", "universe_count", "declared_count",
                             "out_of_scope_count", "out_of_scope_digest",
+                            "out_of_scope_content_digest",
+                            "content_exclude_prefixes", "content_covered_count",
+                            "content_excluded_count",
+                            "untracked_uncommitted_count",
                             "not_in_repo", "delivery_missing", "ignored_unexplained")},
             "checked": len(declared)}
 
@@ -429,7 +485,7 @@ def build_manifest(root: str, paths: list[str], *, extra: dict | None = None,
         declared_rel = [_rel(root, p) for p in paths]
         merged_extra["scope"] = scope_report(
             root, declared_rel, delivery_prefixes=delivery_prefixes,
-            included_ignored=ignored_explained or [])
+            included_ignored=ignored_explained or [], hash_mode=hash_mode)
     return {
         "schema": SCHEMA,
         "root_name": os.path.basename(root.rstrip("\\/")),

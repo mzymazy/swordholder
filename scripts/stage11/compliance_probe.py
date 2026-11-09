@@ -639,7 +639,8 @@ def p_tamper_proof(keys: dict, tmp: str) -> dict:
         "PASS" if r_forged["verdict"] == "INVALID" else "FAIL",
         {"forged_selfsigned_verdict": r_forged["verdict"],
          "forged_vs_original_seal_verdict": r_old["verdict"],
-         "forged_vs_original_reason": r_old["reason"],
+         # VALID 判定不会产出拒绝原因，这里必须 .get——用 [] 取会把"通过"当成崩溃。
+         "forged_vs_original_reason": r_old.get("reason"),
          "tamper_evident": True, "tamper_proof": False},
         "攻击者用同一把私钥改写第 7 步后重新自签，验证结果是 %s——**拦不住**。"
         "本库的准确定位是 tamper-evident（可发现改动）而非 tamper-proof（不可产生改动副本）。"
@@ -829,19 +830,97 @@ def _delivery_patterns() -> tuple:
     raise RuntimeError("找不到任何 build_manifest*.py 以确定交付范围")
 
 
-def _stdlib_only(verifier: str) -> tuple:
-    """AST 看真实 import（grep 会被注释/文档串里的 "import swordholder" 误判）。"""
+DECLARED_OPTIONAL_DEPENDENCIES = {"cryptography"}
+"""声明为**可选**的第三方依赖：缺了必须优雅降级，而不是罢工。
+
+``scripts/stage13/verify_anchor.py`` 只在 ``--verify-set`` 分支里 lazy import
+``cryptography``（函数体内 ``try/except ImportError`` → 返回 ``skipped=True``）。把「文件里
+出现过 cryptography」直接判成「非纯标准库」是误伤：审计方没装 cryptography 时脚本仍能
+完成 4/5 项核验并如实报 skipped，这恰恰是可信行为。判定因此拆成两问：**模块级**是否纯
+标准库 + 可选依赖缺省时是否真的降级（下面做真实降级测试，不靠读代码猜）。
+"""
+
+
+def _module_level_imports(path: str) -> list:
+    """只看**模块级** import：函数体内的 lazy import 不是加载依赖。"""
     import ast as _ast
 
-    vsrc = open(verifier, "r", encoding="utf-8").read()
+    tree = _ast.parse(open(path, "r", encoding="utf-8").read())
+    mods = set()
+    for node in tree.body:
+        if isinstance(node, _ast.Import):
+            mods.update(a.name.split(".")[0] for a in node.names)
+        elif isinstance(node, _ast.ImportFrom) and node.module:
+            mods.add(node.module.split(".")[0])
+        elif isinstance(node, _ast.Try):  # 模块级 try/except ImportError 也算可选
+            for sub in node.body:
+                if isinstance(sub, _ast.Import):
+                    mods.update(a.name.split(".")[0] for a in sub.names)
+                elif isinstance(sub, _ast.ImportFrom) and sub.module:
+                    mods.add(sub.module.split(".")[0])
+    return sorted(mods)
+
+
+def _all_imports(path: str) -> list:
+    """全文件出现过的 import 顶层模块名（含函数体内），用于「可选依赖是否越界」核对。"""
+    import ast as _ast
+
+    vsrc = open(path, "r", encoding="utf-8").read()
     mods = set()
     for node in _ast.walk(_ast.parse(vsrc)):
         if isinstance(node, _ast.Import):
             mods.update(a.name.split(".")[0] for a in node.names)
         elif isinstance(node, _ast.ImportFrom) and node.module:
             mods.add(node.module.split(".")[0])
+    return sorted(mods)
+
+
+def _stdlib_only(verifier: str) -> tuple:
+    """模块级 import 是否全在标准库内（grep 会被注释/文档串里的 "import xxx" 误判）。"""
+    mods = _module_level_imports(verifier)
     stdlib_mods = set(getattr(sys, "stdlib_module_names", ())) | {"__future__"}
-    return (not (mods - stdlib_mods)), sorted(mods)
+    return (not (set(mods) - stdlib_mods)), mods
+
+
+def _degrade_test(path: str, func: str, blocked: list) -> dict:
+    """**真实降级测试**：把可选依赖在 ``sys.modules`` 里置 None 后调用目标函数。
+
+    判据不是"代码里有 try/except"，而是"缺依赖时真的不抛异常、且如实报 skipped"。
+    在 ``-I`` 子进程里做，避免污染本进程与站点包；函数若因缺依赖就去联网，会在
+    ImportError 处提前返回，不会产生外部请求。
+    """
+    if not blocked:
+        return {"ok": True, "blocked": [], "note": "无可选依赖需要降级"}
+    script = (
+        "import importlib.util, json, sys\n"
+        "for name in %r:\n"
+        "    sys.modules[name] = None\n"
+        "    for sub in [k for k in list(sys.modules) if k.startswith(name + '.')]:\n"
+        "        sys.modules[sub] = None\n"
+        "spec = importlib.util.spec_from_file_location('candidate', %r)\n"
+        "mod = importlib.util.module_from_spec(spec)\n"
+        "spec.loader.exec_module(mod)\n"
+        "entry = {'verification': {'signedEntryTimestamp': 'AAAA'}, 'body': 'e30=',\n"
+        "         'integratedTime': 1, 'logID': 'degrade-test', 'logIndex': 1}\n"
+        "try:\n"
+        "    res = getattr(mod, %r)(entry, 'http://127.0.0.1:9')\n"
+        "except Exception as exc:\n"
+        "    print(json.dumps({'raised': True, 'error': type(exc).__name__ + ': ' + str(exc)[:120]}))\n"
+        "else:\n"
+        "    print(json.dumps({'raised': False, 'skipped': bool(res.get('skipped')),\n"
+        "                      'verified': res.get('verified'), 'reason': res.get('reason')}))\n"
+        % (blocked, path, func))
+    proc = subprocess.run([sys.executable, "-I", "-c", script], capture_output=True,
+                          timeout=120)
+    out = (proc.stdout or b"").decode("utf-8", "replace").strip()
+    try:
+        doc = json.loads(out.splitlines()[-1]) if out else {}
+    except ValueError:
+        doc = {}
+    ok = (proc.returncode == 0 and doc.get("raised") is False
+          and doc.get("skipped") is True)
+    return {"ok": ok, "blocked": list(blocked), "result": doc,
+            "stderr": (proc.stderr or b"").decode("utf-8", "replace")[-300:]}
 
 
 def p_external_reproducible(keys: dict, tmp: str) -> dict:
@@ -1194,7 +1273,16 @@ def p_one_command_and_scope(keys: dict, tmp: str) -> dict:
     verify_anchor_py = os.path.join(REPO, "scripts", "stage13", "verify_anchor.py")
     script_ok = os.path.isfile(run_all_py) and os.path.isfile(verify_anchor_py)
     stdlib_main, mods_main = _stdlib_only(run_all_py) if script_ok else (False, [])
-    stdlib_anchor, mods_anchor = _stdlib_only(verify_anchor_py) if script_ok else (False, [])
+    stdlib_anchor, mods_anchor_top = _stdlib_only(verify_anchor_py) if script_ok else (False, [])
+    mods_anchor = _all_imports(verify_anchor_py) if script_ok else []
+    stdlib_mods = set(getattr(sys, "stdlib_module_names", ())) | {"__future__"}
+    anchor_nonstdlib = sorted((set(mods_anchor) - set(mods_anchor_top))
+                              | (set(mods_anchor_top) - stdlib_mods))
+    anchor_optional = sorted(set(anchor_nonstdlib) & DECLARED_OPTIONAL_DEPENDENCIES)
+    anchor_undeclared = sorted(set(anchor_nonstdlib) - DECLARED_OPTIONAL_DEPENDENCIES)
+    degrade = (_degrade_test(verify_anchor_py, "verify_set", anchor_optional)
+               if script_ok else {"ok": False, "blocked": [], "note": "脚本缺失"})
+    stdlib_anchor_ok = bool(stdlib_anchor and not anchor_undeclared and degrade.get("ok"))
     helper_ok = os.path.isfile(os.path.join(REPO, "scripts", "stage13", "build_manifest13.py"))
 
     if script_ok:
@@ -1207,17 +1295,20 @@ def p_one_command_and_scope(keys: dict, tmp: str) -> dict:
     # ---- R1：把交付范围做成"全仓库分账"，并验证它能抓出三类作弊
     patterns, patterns_file = _delivery_patterns()
     files = rp.collect(REPO, patterns)
-    scope_declared = [os.path.relpath(os.path.join(REPO, f), REPO).replace("\\", "/")
-                      for f in files]
-    scope = rp.scope_report(REPO, scope_declared, delivery_prefixes=patterns,
-                            included_ignored=["swordholder/samples/alert_02_token.seal.json"])
     manifest = rp.build_manifest(REPO, files, hash_mode=rp.HASH_MODE_CANONICAL,
                                  tracked_only=True, delivery_prefixes=patterns,
                                  ignored_explained=["swordholder/samples/alert_02_token.seal.json"],
                                  extra={"stage": 13})
+    # 分账的 declared 取**清单实际收录**的集合，而不是 collect() 的原始结果：
+    # tracked_only 已把「本地存在、但被 .gitignore 挡住、第三方 clone 拿不到」的运行期
+    # 文件剔除并在 untracked_excluded 里逐条留痕。若拿原始收集结果去对账，清单就会替
+    # 一个 clone 里根本不存在的文件背书——那是清单的错，不是仓库的错。
+    scope_declared = [f["path"] for f in manifest["files"]]
+    scope = rp.scope_report(REPO, scope_declared, delivery_prefixes=patterns,
+                            included_ignored=["swordholder/samples/alert_02_token.seal.json"])
     mpath = os.path.join(tmp, "s13_scope_manifest.json")
     rp.dump(manifest, mpath)
-    scoped_ok = bool((manifest["extra"].get("scope") or {}).get("ok"))
+    scoped_ok = bool((manifest["extra"].get("scope") or {}).get("ok")) and bool(scope.get("ok"))
 
     # 负例①：悄悄少交一个文件（把最后一条从 files 里删掉）——分账必须对不上
     under = copy.deepcopy(manifest)
@@ -1234,20 +1325,26 @@ def p_one_command_and_scope(keys: dict, tmp: str) -> dict:
 
     if depth >= 1:
         # clone 内的降级模式：克隆矩阵已由外层（depth=0）真实执行，这里不重复套娃。
-        ok = script_ok and stdlib_main and stdlib_anchor and help_ok and scoped_ok
+        ok = script_ok and stdlib_main and stdlib_anchor_ok and help_ok and scoped_ok
         return probe_pid(
             "P13", "delivery claims S11-01 / S13-01 / S13-02 (one-command repro, scope audit)",
             "a third party can reproduce and audit the delivery with one command in a clean clone",
             "PASS" if ok else "PARTIAL",
             {"nested": True, "depth": depth, "script_present": script_ok,
              "help_ok": help_ok, "stdlib_only": {"run_all": stdlib_main,
-                                                 "verify_anchor": stdlib_anchor},
+                                                 "verify_anchor": stdlib_anchor_ok},
+             "declared_optional": {"allowed": sorted(DECLARED_OPTIONAL_DEPENDENCIES),
+                                   "used": anchor_optional,
+                                   "undeclared": anchor_undeclared,
+                                   "degrade": degrade},
              "scope_ok": scoped_ok,
              "scope_out_of_scope": scope.get("out_of_scope_count"),
              "delegated": "clone 矩阵由 depth=0 的父进程真实执行，本层不重复克隆"},
             "clone 内降级自检（depth=%d）：一键脚本与验证脚本均在、-I 下 --help 通过、"
-            "仅标准库、分账复核通过（范围外 %d 项）。克隆矩阵不在本层重复执行，"
-            "已交由外层真实 clone 运行承担。" % (depth, scope.get("out_of_scope_count")))
+            "模块级仅标准库、可选依赖 %s 缺省时降级测试通过=%s、分账复核通过（范围外 %d 项）。"
+            "克隆矩阵不在本层重复执行，已交由外层真实 clone 运行承担。"
+            % (depth, anchor_optional or "无", degrade.get("ok"),
+               scope.get("out_of_scope_count")))
 
     clones = _clone_matrix(tmp)
     clone_ok = all(c.get("run_rc") == 0 and c.get("summary_ok") is True
@@ -1259,7 +1356,7 @@ def p_one_command_and_scope(keys: dict, tmp: str) -> dict:
                     and bool(under_report["recomputed"]["delivery_missing"] or
                              under_report["checks"]["all_out_of_scope_accounted"] is False)
                     and bool(over_report["recomputed"]["not_in_repo"]))
-    ok = (script_ok and helper_ok and stdlib_main and stdlib_anchor and help_ok
+    ok = (script_ok and helper_ok and stdlib_main and stdlib_anchor_ok and help_ok
           and scoped_ok and negatives_ok and clone_ok)
 
     evidence = {
@@ -1268,8 +1365,15 @@ def p_one_command_and_scope(keys: dict, tmp: str) -> dict:
                     "verify_anchor": "scripts/stage13/verify_anchor.py",
                     "build_manifest": "scripts/stage13/build_manifest13.py",
                     "present": script_ok and helper_ok},
-        "stdlib_only": {"run_all": stdlib_main, "verify_anchor": stdlib_anchor,
-                        "modules_run_all": mods_main, "modules_verify_anchor": mods_anchor},
+        "stdlib_only": {"run_all": stdlib_main, "verify_anchor": stdlib_anchor_ok,
+                        "modules_run_all": mods_main, "modules_verify_anchor": mods_anchor,
+                        "modules_verify_anchor_module_level": mods_anchor_top},
+        "declared_optional_dependencies": {
+            "allowed": sorted(DECLARED_OPTIONAL_DEPENDENCIES),
+            "observed": anchor_optional,
+            "undeclared": anchor_undeclared,
+            "degrade_test": degrade,
+        },
         "help_ok_under_isolated": help_ok,
         "delivery_patterns_file": patterns_file,
         "scope": {k: scope[k] for k in ("mode", "ok", "tracked_count", "universe_count",
@@ -1303,18 +1407,35 @@ def p_one_command_and_scope(keys: dict, tmp: str) -> dict:
         "一键复现在两个真实 clone 里跑通（%s）。交付范围改为**全仓库分账**：仓库内 %d 个"
         "待提交文件全部有归属——%d 个进清单、%d 个落在范围外且路径集合摘要锁死为 %s；"
         "被忽略的 %d 项逐条给出理由。三类作弊全部被机械检出：少交一个文件（%s）、"
-        "塞入不存在的文件（%s）、忽略却不解释（%s）。脚本仅标准库（run_all=%s / "
-        "verify_anchor=%s），-I 隔离下 --help 通过=%s。"
+        "塞入不存在的文件（%s）、忽略却不解释（%s）。一键脚本模块级纯标准库（run_all=%s），"
+        "验证脚本模块级纯标准库=%s 且可选依赖 %s 在缺失时真实降级=%s（未声明的第三方 import：%s）。"
         % (detail, scope["universe_count"], scope["declared_count"],
            scope["out_of_scope_count"], (scope["out_of_scope_digest"] or "")[:16],
            len(scope["ignored_explained"]), under_report["ok"], over_report["ok"],
-           noisy_report["ok"], stdlib_main, stdlib_anchor, help_ok))
+           noisy_report["ok"], stdlib_main, stdlib_anchor, anchor_optional or "无",
+           degrade.get("ok"), anchor_undeclared or "无"))
 
 
 TSA_DEFAULT_URL = "https://freetsa.org/tsr"
 
+TSA_CANDIDATES = (
+    ("https://freetsa.org/tsr", "freetsa"),
+    ("http://timestamp.digicert.com", None),
+    ("https://rfc3161.ai.moda", None),
+)
+"""公共 RFC 3161 取戳候选：**单个 TSA 抽风不等于外部锚定不可行**。
+
+真实世界里 TSA 的可用性是会飘的（freetsa 的 TLS 握手实测会整分钟级超时，而 digicert /
+rfc3161.ai.moda 同一时刻 0.6s 返回）。只试一家、失败就判「外部锚定失败」，等于把对端网络
+抖动写成自己的机制缺口。候选按序回退，每个最多 2 次，**成功即停**并记录实际生效的那一家；
+全都不通才降级为桩。取戳始终是真实网络行为，绝不用 demo token 冒充。
+"""
+
 LIVE_RESULTS: list = []
 """本轮已跑完的探针结果（P12 需要拿它做跨轮分档交叉核对，而不是自己跟自己比）。"""
+
+ANCHOR_OUT_DIR = None
+"""``--anchor-out`` 指定时，P11 把真实透明日志回执存档到该目录（默认只落临时目录）。"""
 
 TSA_ROOT_PATH = os.path.join(REPO, "evidence", "stage12_tsa_freetsa_root.pem")
 
@@ -1327,37 +1448,56 @@ def p_external_anchor(keys: dict, tmp: str) -> dict:
     messageImprint 与 nonce；随后做反例：持钥者改写第 7 步 + 重算整链 + 重签 + 重打戳，
     看本机制能否发现。答"不能"就如实记在证据里。
     """
-    url = (os.environ.get("SWORDHOLDER_TSA_URL") or TSA_DEFAULT_URL).strip() or None
-    roots = None
-    if os.path.exists(TSA_ROOT_PATH):
-        with open(TSA_ROOT_PATH, "rb") as fh:
-            roots = [fh.read()]
+    env_url = (os.environ.get("SWORDHOLDER_TSA_URL") or "").strip() or None
+    candidates = ([(env_url, "freetsa" if "freetsa" in env_url else None)] if env_url
+                  else list(TSA_CANDIDATES))
+    roots_cache = {}
+
+    def _roots_for(tag):
+        """只对 freetsa 用随仓库分发的根证书；其他 TSA 走系统 CA 库（给了错根反而验不过）。"""
+        if tag != "freetsa":
+            return None
+        if "freetsa" not in roots_cache:
+            roots_cache["freetsa"] = None
+            if os.path.exists(TSA_ROOT_PATH):
+                with open(TSA_ROOT_PATH, "rb") as fh:
+                    roots_cache["freetsa"] = [fh.read()]
+        return roots_cache["freetsa"]
 
     body = build(8, "S12-ANCH")
     seal_path = os.path.join(tmp, "s12_anch.seal.json")
     stamp_error = None
     stamp_attempts = []
     sealed = None
-    for attempt in range(3):  # TSA 偶发 5xx / 序列号冲突，重试属正当取戳行为
-        if os.path.exists(seal_path):
-            os.remove(seal_path)
-        try:
-            sealed = tl.seal_trace(body, keys["private_key_path"], issuer="s9-probe",
-                                   out_path=seal_path, timestamp_url=url,
-                                   timestamp_timeout=20, timestamp_roots=roots)
-            stamp_attempts.append({"attempt": attempt + 1, "ok": True})
-            stamp_error = None
+    url = None
+    roots = None
+    for cand_url, tag in candidates:
+        cand_roots = _roots_for(tag)
+        for attempt in range(2):  # TSA 偶发 5xx / 序列号冲突，重试属正当取戳行为
+            if os.path.exists(seal_path):
+                os.remove(seal_path)
+            try:
+                sealed = tl.seal_trace(body, keys["private_key_path"], issuer="s9-probe",
+                                       out_path=seal_path, timestamp_url=cand_url,
+                                       timestamp_timeout=20, timestamp_roots=cand_roots)
+                stamp_attempts.append({"url": cand_url, "attempt": attempt + 1, "ok": True})
+                stamp_error = None
+                url, roots = cand_url, cand_roots
+                break
+            except Exception as exc:
+                stamp_error = "%s: %s" % (type(exc).__name__, str(exc)[:200])
+                stamp_attempts.append({"url": cand_url, "attempt": attempt + 1, "ok": False,
+                                       "error": str(exc)[:160]})
+                time.sleep(1.0)
+        if url:
             break
-        except Exception as exc:
-            stamp_error = "%s: %s" % (type(exc).__name__, str(exc)[:200])
-            stamp_attempts.append({"attempt": attempt + 1, "ok": False,
-                                   "error": str(exc)[:160]})
-            time.sleep(2.0)
-    if stamp_error:  # 三次都拿不到才降级为桩，绝不冒充
+    if stamp_error or not url:  # 全部候选都拿不到才降级为桩，绝不冒充
         if os.path.exists(seal_path):
             os.remove(seal_path)
         sealed = tl.seal_trace(body, keys["private_key_path"], issuer="s9-probe",
                                out_path=seal_path)
+        roots = _roots_for("freetsa")
+        url = env_url or TSA_DEFAULT_URL
 
     payload = tl._seal_payload(seal_path)  # noqa: SLF001
     keys_in_payload = sorted((payload or {}).keys())
@@ -1469,12 +1609,21 @@ def p_external_anchor(keys: dict, tmp: str) -> dict:
                 # 独立复核：用 scripts/stage13/verify_anchor.py（只用标准库、不 import 本项目）
                 va = os.path.join(REPO, "scripts", "stage13", "verify_anchor.py")
                 if os.path.isfile(va):
-                    rcp_path = os.path.join(tmp, "s13_anchor_receipt.json")
-                    st_path = os.path.join(tmp, "s13_anchor_statement.json")
-                    with open(rcp_path, "w", encoding="utf-8") as fh:
-                        fh.write(tp.receipt_to_json(tlog_receipt))
-                    with open(st_path, "w", encoding="utf-8") as fh:
-                        json.dump(statement, fh, ensure_ascii=False, sort_keys=True, indent=1)
+                    out_dir = ANCHOR_OUT_DIR or tmp
+                    os.makedirs(out_dir, exist_ok=True)
+                    rcp_path = os.path.join(out_dir, "s13_anchor_receipts.json")
+                    st_path = os.path.join(out_dir, "s13_anchor_statement.json")
+                    # 一次性存档语义：公共日志条目不可变，覆盖已存档回执只会让证据漂移。
+                    keep_existing = bool(ANCHOR_OUT_DIR and os.path.isfile(rcp_path))
+                    if not keep_existing:
+                        with open(rcp_path, "w", encoding="utf-8") as fh:
+                            fh.write(tp.receipt_to_json(tlog_receipt))
+                        with open(st_path, "w", encoding="utf-8") as fh:
+                            json.dump(statement, fh, ensure_ascii=False, sort_keys=True, indent=1)
+                    tlog["archive"] = {"archived_to_repo": bool(ANCHOR_OUT_DIR),
+                                       "kept_existing": keep_existing,
+                                       "path": (os.path.relpath(rcp_path, REPO).replace("\\", "/")
+                                                if ANCHOR_OUT_DIR else None)}
                     py = os.path.join(REPO, ".venv", "Scripts", "python.exe")
                     exe = py if os.path.isfile(py) else sys.executable
                     proc = subprocess.run(
@@ -1545,6 +1694,7 @@ def p_external_anchor(keys: dict, tmp: str) -> dict:
         "tlog_receipt_check": tlog.get("receipt_check"),
         "tlog_independent_verify": tlog.get("independent_verify"),
         "tlog_rework_detection": tlog.get("rework"),
+        "tlog_archive": tlog.get("archive"),
         "tlog_external_ok": tlog_externally_ok,
         "tlog_rework_detectable": tlog_rework_detectable,
         "tlog_warnings": tlog.get("warnings"),
@@ -1603,7 +1753,14 @@ def main() -> None:
     ap.add_argument("--out", default=os.path.join(REPO, "evidence/stage11/s11_probes.json"))
     ap.add_argument("--counts-out", default=None,
                     help="另存一份 {分档计数 + 逐条结果}，供外部复算逐项比对")
+    ap.add_argument("--anchor-out", default=None,
+                    help="把本次真实透明日志回执落到该目录（默认只落临时目录）。"
+                         "落进仓库时是**一次性存档**：目标文件已存在则不再覆盖，"
+                         "否则每跑一次探针都会让已提交证据漂移、并让工作区变脏。")
     args = ap.parse_args()
+
+    global ANCHOR_OUT_DIR
+    ANCHOR_OUT_DIR = os.path.abspath(args.anchor_out) if args.anchor_out else None
 
     with tempfile.TemporaryDirectory() as tmp:
         keys = keygen(tmp)
