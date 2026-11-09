@@ -151,3 +151,177 @@ def test_non_matched_step_may_omit_input():
         db_ref="db@1", matched=False, verified_by="op:7721")
     assert "matched_input" not in entry
     assert entry["period"]["end"] == "2026-03-01T08:00:02Z"
+
+
+# ---------------------------------------------------------------- 3. 字段进链
+def test_period_end_tamper_breaks_chain_at_that_step():
+    body = copy.deepcopy(_annex(3).body())
+    body["entries"][1]["period"]["end"] = "2031-01-01T00:00:00Z"
+    res = tl.verify_chain(body)
+    assert res["ok"] is False
+    assert res["first_break"] == 1
+
+
+def test_db_ref_and_identity_tamper_both_break_chain():
+    for field, value in (("db_ref", "other-db@2026.09.01"),
+                         ("identity_check", {"verifier": "op:0000", "method": "none",
+                                             "at": "2026-03-01T08:00:00Z"})):
+        body = copy.deepcopy(_annex(3).body())
+        body["entries"][2][field] = value
+        res = tl.verify_chain(body)
+        assert res["ok"] is False, field
+        assert res["first_break"] == 2, field
+
+
+def test_sealed_annex_trace_reports_invalid_with_step_segment(tmp_path, keys):
+    body = _annex(3).body()
+    trust = _trust(tmp_path, keys["public_key_hex"])
+    seal = tl.seal_trace(body, keys["private_key_path"], issuer="test",
+                         out_path=str(tmp_path / "a3.seal.json"))
+    assert tl.verify_sealed_trace(body, seal["seal_path"], keys_path=trust)["verdict"] == "VALID"
+
+    tampered = copy.deepcopy(body)
+    tampered["entries"][1]["period"]["end"] = "2031-01-01T00:00:00Z"
+    bad = tl.verify_sealed_trace(tampered, seal["seal_path"], keys_path=trust)
+    assert bad["verdict"] == "INVALID"
+    assert bad["reason"].startswith("E_TRACE_BREAK")
+    assert bad["localization"]["mode"] == "chain"
+    assert bad["localization"]["segment"] == [1, 1]
+
+
+def test_profile_downgrade_breaks_digest(tmp_path, keys):
+    """把 profile 键删掉冒充普通轨迹，摘要必须对不上——档位声明也被凭证锁住。"""
+    body = _annex(2).body()
+    trust = _trust(tmp_path, keys["public_key_hex"])
+    seal = tl.seal_trace(body, keys["private_key_path"], issuer="test",
+                         out_path=str(tmp_path / "a3d.seal.json"))
+    downgraded = copy.deepcopy(body)
+    downgraded.pop("profile")
+    assert tl.verify_chain(downgraded)["ok"] is True, "档位不在链里，链本身仍自洽"
+    bad = tl.verify_sealed_trace(downgraded, seal["seal_path"], keys_path=trust)
+    assert bad["verdict"] == "INVALID"
+    assert bad["reason"] == "E_TRACE_DIGEST_MISMATCH"
+
+
+# ---------------------------------------------------------------- 4. 留存期下限
+def test_floor_constant_is_at_least_six_months():
+    assert rt.MIN_RETENTION_DAYS >= 180
+
+
+@pytest.mark.parametrize("days", [0, 30, 179, 180])
+def test_policy_below_floor_rejected(days):
+    with pytest.raises(rt.RetentionError) as exc:
+        rt.RetentionPolicy(days=days)
+    assert "E_RETENTION_BELOW_FLOOR" in str(exc.value)
+
+
+def test_policy_ttl_seconds():
+    pol = rt.RetentionPolicy(days=190)
+    assert pol.ttl_seconds == 190 * 86400
+    assert pol.to_dict()["min_days_floor"] == rt.MIN_RETENTION_DAYS
+
+
+def test_policy_rejects_bad_rotation_and_empty_subdir():
+    with pytest.raises(rt.RetentionError):
+        rt.RetentionPolicy(days=190, rotation="week")
+    with pytest.raises(rt.RetentionError):
+        rt.RetentionPolicy(days=190, archive_subdir="  ")
+
+
+def test_classify_retained_vs_archive_due():
+    pol = rt.RetentionPolicy(days=190)
+    now = "2026-11-09T00:00:00Z"
+    fresh = rt.classify("2026-10-11T00:00:00Z", pol, now=now)   # 29 天
+    mature = rt.classify("2026-02-10T00:00:00Z", pol, now=now)  # 272 天
+    assert fresh["state"] == "retained"
+    assert fresh["meets_legal_floor"] is False
+    assert mature["state"] == "archive_due"
+    assert mature["meets_legal_floor"] is True
+    assert mature["age_days"] > pol.days
+
+
+def test_classify_rejects_missing_or_future_ts():
+    pol = rt.RetentionPolicy(days=190)
+    with pytest.raises(rt.RetentionError):
+        rt.classify(None, pol)
+    with pytest.raises(rt.RetentionError):
+        rt.classify("2026-11-09T00:00:00Z", pol, now="2026-01-01T00:00:00Z")
+
+
+def test_plan_splits_two_groups():
+    pol = rt.RetentionPolicy(days=190)
+    head64 = "0" * 64
+    bodies = [{"trace_id": "T-FRESH", "start_ts": "2026-10-11T00:00:00Z",
+               "step_count": 1, "head": head64, "entries": []},
+              {"trace_id": "T-OLD", "start_ts": "2026-02-10T00:00:00Z",
+               "step_count": 2, "head": "1" * 64, "entries": []}]
+    res = rt.plan(bodies, pol, now="2026-11-09T00:00:00Z")
+    assert res["total"] == 2 and res["retained"] == 1 and res["archive_due"] == 1
+    states = {r["trace_id"]: r["state"] for r in res["records"]}
+    assert states == {"T-FRESH": "retained", "T-OLD": "archive_due"}
+    assert res["records"][1]["rotation"] == "2026-02"
+
+
+# ---------------------------------------------------------------- 5. 归档只写副本
+def test_archive_writes_verifiable_copy_and_keeps_original(tmp_path):
+    pol = rt.RetentionPolicy(days=190)
+    body = _plain(3, trace_id="S10-ARCH").body()
+    body["start_ts"] = "2026-02-10T00:00:00Z"
+    before = copy.deepcopy(body)
+    res = rt.archive_record(body, str(tmp_path / "store"), pol, now="2026-11-09T00:00:00Z")
+    assert res["verified"]["ok"] is True
+    assert res["verified"]["chain_ok"] is True
+    assert res["verified"]["digest_match"] is True
+    assert body == before, "归档不得改动原轨迹体"
+    assert res["state"]["state"] == "archive_due"
+
+
+def test_archive_copy_tamper_detected(tmp_path):
+    pol = rt.RetentionPolicy(days=190)
+    body = _plain(3, trace_id="S10-ARCH-T").body()
+    body["start_ts"] = "2026-02-10T00:00:00Z"
+    res = rt.archive_record(body, str(tmp_path / "store"), pol, now="2026-11-09T00:00:00Z")
+    doc = json.loads(open(res["path"], encoding="utf-8").read())
+    doc["body"]["entries"][2]["args"]["i"] = 99
+    with open(res["path"], "w", encoding="utf-8") as fh:
+        json.dump(doc, fh, ensure_ascii=False, sort_keys=True, indent=1)
+    bad = rt.verify_archive(res["path"])
+    assert bad["ok"] is False
+    assert "E_RETENTION_ARCHIVE_CHAIN" in bad["reason"]
+
+
+def test_archive_too_early_rejected(tmp_path):
+    pol = rt.RetentionPolicy(days=190)
+    body = _plain(2, trace_id="S10-ARCH-EARLY").body()
+    body["start_ts"] = "2026-10-11T00:00:00Z"
+    with pytest.raises(rt.RetentionError) as exc:
+        rt.archive_record(body, str(tmp_path / "store"), pol, now="2026-11-09T00:00:00Z")
+    assert "E_RETENTION_TOO_EARLY" in str(exc.value)
+
+
+def test_archive_refuses_broken_chain(tmp_path):
+    pol = rt.RetentionPolicy(days=190)
+    body = _plain(2, trace_id="S10-ARCH-BROKEN").body()
+    body["start_ts"] = "2026-02-10T00:00:00Z"
+    body["entries"][0]["observation"]["ok"] = False
+    with pytest.raises(rt.RetentionError):
+        rt.archive_record(body, str(tmp_path / "store"), pol, now="2026-11-09T00:00:00Z")
+
+
+def test_module_exposes_no_delete_api():
+    """留存模块只负责保留与归档，不提供任何删除入口——到期可归档 ≠ 可销毁。"""
+    banned = ("delete", "purge", "destroy", "remove", "unlink", "prune", "shred")
+    names = [n for n in dir(rt) if not n.startswith("_")]
+    offenders = [n for n in names if any(b in n.lower() for b in banned)]
+    assert offenders == [], "retention 模块不应暴露删除类接口，发现：%r" % (offenders,)
+
+
+def test_archive_record_never_unlinks_source(tmp_path):
+    """归档后原轨迹体必须仍在原处：函数只写副本。"""
+    pol = rt.RetentionPolicy(days=190)
+    body = _plain(2, trace_id="S10-KEEP").body()
+    body["start_ts"] = "2026-02-10T00:00:00Z"
+    src = tmp_path / "live_trace.json"
+    src.write_text(json.dumps(body, ensure_ascii=False), encoding="utf-8")
+    rt.archive_record(body, str(tmp_path / "store"), pol, now="2026-11-09T00:00:00Z")
+    assert src.exists()
