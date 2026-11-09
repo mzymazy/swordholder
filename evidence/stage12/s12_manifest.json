@@ -11,8 +11,8 @@
    "pytest": "9.2.0"
   },
   "git": {
-   "commit": "fe4b8bb2d7f161b854c4b6946bee701546086942",
-   "dirty": true,
+   "commit": "9dd17be3c24416b5a3449cf168b1b1e07149d415",
+   "dirty": false,
    "dirty_scope": [
     "swordholder",
     "scripts/stage11",
@@ -425,7 +425,7 @@
    "sha256": "7207c8929361129c51dff32b7afa689c6f3f48e7ce3be23622d41b02ab4416f8"
   }
  ],
- "generated_at": "2026-11-09T09:10:28Z",
+ "generated_at": "2026-11-09T09:11:00Z",
  "root_name": "swordholder_mvp",
  "schema": "swordholder.repro_manifest/1",
  "swordholder_version": "0.10.0",
