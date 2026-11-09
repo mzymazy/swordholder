@@ -1,7 +1,7 @@
 {
  "FAIL": 1,
- "PARTIAL": 2,
- "PASS": 10,
+ "PARTIAL": 1,
+ "PASS": 11,
  "probes_total": 13,
  "result_P01": "PASS",
  "result_P02": "PASS",
@@ -15,5 +15,5 @@
  "result_P10": "PASS",
  "result_P11": "PARTIAL",
  "result_P12": "PASS",
- "result_P13": "PARTIAL"
+ "result_P13": "PASS"
 }
