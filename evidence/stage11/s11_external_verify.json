@@ -1,0 +1,19 @@
+{
+ "expected": {
+  "diverged": [],
+  "missing": [],
+  "ok": true
+ },
+ "hashes": {
+  "checked": 69,
+  "declared_tree_digest": "b3c733ac030629505df34f72016fc4f7b91b10c5c6e83ba0786e7d6a9f7f8189",
+  "mismatched": [],
+  "missing": [],
+  "ok": true,
+  "recomputed_tree_digest": "b3c733ac030629505df34f72016fc4f7b91b10c5c6e83ba0786e7d6a9f7f8189",
+  "tree_digest_match": true
+ },
+ "manifest": "O:\\接单\\参赛\\swordholder_mvp\\evidence\\stage11\\s11_manifest.json",
+ "ok": true,
+ "root": "O:\\接单\\参赛\\swordholder_mvp"
+}

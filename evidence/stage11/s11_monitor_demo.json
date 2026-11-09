@@ -1,0 +1,119 @@
+{
+ "cycles": [
+  {
+   "alerts": [],
+   "metrics": {
+    "chain_break": 0,
+    "digest_mismatch": 0,
+    "error_rate": 0.0,
+    "failed": 0,
+    "root": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s11_mon_demo_313sta06",
+    "seal_invalid": 0,
+    "steps_total": 9,
+    "traces_total": 3,
+    "unreadable": 0,
+    "verified_ok": 3
+   },
+   "n": 1,
+   "ts": "2026-11-09T00:00:00Z",
+   "worst_level": "none"
+  },
+  {
+   "alerts": [],
+   "metrics": {
+    "chain_break": 0,
+    "digest_mismatch": 0,
+    "error_rate": 0.0,
+    "failed": 0,
+    "root": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s11_mon_demo_313sta06",
+    "seal_invalid": 0,
+    "steps_total": 9,
+    "traces_total": 3,
+    "unreadable": 0,
+    "verified_ok": 3
+   },
+   "n": 2,
+   "ts": "2026-11-09T00:00:30Z",
+   "worst_level": "none"
+  },
+  {
+   "alerts": [
+    {
+     "code": "E_MON_CHAIN_BREAK",
+     "field": "chain_break",
+     "level": "critical",
+     "message": "轨迹链断裂，存在被改动或写坏的文件",
+     "observed": 1,
+     "threshold": 0
+    },
+    {
+     "code": "E_MON_ERROR_RATE",
+     "field": "error_rate",
+     "level": "medium",
+     "message": "失败率超过部署方阈值",
+     "observed": 0.333333,
+     "threshold": 0.05
+    }
+   ],
+   "metrics": {
+    "chain_break": 1,
+    "digest_mismatch": 0,
+    "error_rate": 0.333333,
+    "failed": 1,
+    "root": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s11_mon_demo_313sta06",
+    "seal_invalid": 0,
+    "steps_total": 9,
+    "traces_total": 3,
+    "unreadable": 0,
+    "verified_ok": 2
+   },
+   "n": 3,
+   "ts": "2026-11-09T00:01:00Z",
+   "worst_level": "critical"
+  }
+ ],
+ "log": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s11_mon_demo_313sta06\\monitor_log.jsonl",
+ "log_verify_after_edit": {
+  "first_break": 1,
+  "ok": false,
+  "reason": "第 1 条记录内容与哈希不符（疑似改值）",
+  "records": 0
+ },
+ "log_verify_before": {
+  "first_break": null,
+  "head": "48d241cad8232e0806a3630d172a7ccac5fb2c2637e37b3c7b6c36674f73a182",
+  "ok": true,
+  "reason": "",
+  "records": 3
+ },
+ "report": {
+  "alerts_total": 2,
+  "by_code": {
+   "E_MON_CHAIN_BREAK": 1,
+   "E_MON_ERROR_RATE": 1
+  },
+  "first_ts": "2026-11-09T00:00:00Z",
+  "last_ts": "2026-11-09T00:01:00Z",
+  "latest_metrics": {
+   "chain_break": 1,
+   "digest_mismatch": 0,
+   "error_rate": 0.333333,
+   "failed": 1,
+   "root": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s11_mon_demo_313sta06",
+   "seal_invalid": 0,
+   "steps_total": 9,
+   "traces_total": 3,
+   "unreadable": 0,
+   "verified_ok": 2
+  },
+  "log_ok": false,
+  "records": 3,
+  "schema": "swordholder.monitor/1"
+ },
+ "scan_after_log_edit": {
+  "error": "E_MON_LOG_BROKEN: 监控日志已不可信，拒绝续写 —— 第 1 条记录内容与哈希不符（疑似改值）",
+  "refused": true
+ },
+ "schema": "swordholder.stage11_monitor_demo/1",
+ "workdir": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s11_mon_demo_313sta06"
+}
