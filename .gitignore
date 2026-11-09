@@ -30,6 +30,9 @@ artifacts_xadv_*/
 # 签名私钥与本地签章产物（私钥永不入库，.seal.json 属运行期记录）
 keys/
 *.pem
+# 例外：FreeTSA 的公开根证书是**公开信任锚**（非私钥），S12 TSA 回归测试要靠它离线复签，
+# 不入库则干净 clone 里 pytest 必挂（FileNotFound）——交付得"clone 下来就能全绿"。
+!evidence/stage12_tsa_freetsa_root.pem
 *.seal.json
 agent/.demo_out/
 

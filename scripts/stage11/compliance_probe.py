@@ -1202,6 +1202,31 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
            len(deterministic_mismatch)))
 
 
+def _crlf_probe(root: str) -> bool:
+    """clone 里到底有没有 CRLF 字节：两种 autocrlf 得真的走出不同检出结果，
+    否则"两种配置都验过"只是跑了两遍同一条路径。"""
+    for rel in ("swordholder/reproduce.py", "README.md", "pyproject.toml"):
+        p = os.path.join(root, rel.replace("/", os.sep))
+        if os.path.isfile(p):
+            try:
+                with open(p, "rb") as fh:
+                    if b"\r\n" in fh.read():
+                        return True
+            except OSError:
+                return False
+    return False
+
+
+def _git_clean(root: str) -> bool:
+    """跑完一键脚本后工作树是否仍干净（脚本不该把仓库跑脏）。"""
+    try:
+        res = subprocess.run(["git", "status", "--porcelain"], cwd=root,
+                             capture_output=True, timeout=120)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return res.returncode == 0 and not res.stdout.strip()
+
+
 def _clone_matrix(tmp: str) -> dict:
     """在两个**全新建出的 clone**里各跑一次 ``run_all.py``，看结论是否一致。
 
@@ -1225,9 +1250,13 @@ def _clone_matrix(tmp: str) -> dict:
         env = dict(os.environ)
         env["SWORDHOLDER_E2E_DEPTH"] = str(int(os.environ.get("SWORDHOLDER_E2E_DEPTH", "0")) + 1)
         env["PYTHONIOENCODING"] = "utf-8"
+        # 不在 clone 里跳步：第三方拿到仓库就是敲这一条命令，pytest 与公开日志实查
+        # 都得真跑。S13 初版这里带了 --skip-tests，结果"clone 后 pytest 全绿"这条
+        # 从未被验证过——实测一跑就挂了 3 条（.pem 未入库、负例依赖本机残留），
+        # 正是跳步把真问题挡住了。
         res = subprocess.run([py, os.path.join("scripts", "stage13", "run_all.py"),
-                              "--root", ".", "--skip-tests", "--skip-network"],
-                             cwd=dst, capture_output=True, timeout=1800, env=env)
+                              "--root", "."],
+                             cwd=dst, capture_output=True, timeout=2400, env=env)
         info["run_rc"] = res.returncode
         info["run_out"] = res.stdout.decode("utf-8", "replace")[-1200:]
         info["run_err"] = res.stderr.decode("utf-8", "replace")[-600:]
@@ -1255,8 +1284,13 @@ def _clone_matrix(tmp: str) -> dict:
             "mismatched_count": facts.get("mismatched_count"),
             "clone_autocrlf": eol_seen.stdout.decode("utf-8", "replace").strip(),
             "steps": {k: v.get("ok") for k, v in (doc.get("steps") or {}).items()},
+            "step_seconds": {k: v.get("seconds")
+                             for k, v in (doc.get("steps") or {}).items()},
+            "tests_ok": ((doc.get("steps") or {}).get("tests") or {}).get("ok"),
+            "tests_tail": ((doc.get("steps") or {}).get("tests") or {}).get("tail"),
             "failed_steps": doc.get("failed_steps"),
-            "crlf_bytes_observed": None,
+            "crlf_bytes_observed": _crlf_probe(dst),
+            "working_tree_clean_after": _git_clean(dst),
         })
         runs[label] = info
     return runs
@@ -1352,6 +1386,7 @@ def p_one_command_and_scope(keys: dict, tmp: str) -> dict:
     clone_ok = all(c.get("run_rc") == 0 and c.get("summary_ok") is True
                    and c.get("tree_digest_match") is True and c.get("scope_ok") is True
                    and c.get("expected_ok") is True and c.get("mismatched_count") == 0
+                   and c.get("tests_ok") is True and c.get("worktree_clean_at_start") is True
                    for c in clones.values())
     negatives_ok = (under_report["ok"] is False and over_report["ok"] is False
                     and noisy_report["ok"] is False
@@ -1362,7 +1397,8 @@ def p_one_command_and_scope(keys: dict, tmp: str) -> dict:
           and scoped_ok and negatives_ok and clone_ok)
 
     evidence = {
-        "one_command": "python scripts/stage13/run_all.py --root . --skip-tests --skip-network",
+        "one_command": "python scripts/stage13/run_all.py --root . "
+                       "（clone 矩阵内不加任何 --skip-*，pytest 与公开日志实查都真跑）",
         "scripts": {"run_all": "scripts/stage13/run_all.py",
                     "verify_anchor": "scripts/stage13/verify_anchor.py",
                     "build_manifest": "scripts/stage13/build_manifest13.py",
@@ -1397,9 +1433,10 @@ def p_one_command_and_scope(keys: dict, tmp: str) -> dict:
         "clone_matrix_all_ok": clone_ok,
     }
     detail = "; ".join(
-        "%s: rc=%s ok=%s checked=%s digest=%s scope=%s expected=%s"
+        "%s: rc=%s ok=%s checked=%s digest=%s scope=%s expected=%s tests=%s crlf=%s"
         % (k, c.get("run_rc"), c.get("summary_ok"), c.get("checked"),
-           c.get("tree_digest_match"), c.get("scope_ok"), c.get("expected_ok"))
+           c.get("tree_digest_match"), c.get("scope_ok"), c.get("expected_ok"),
+           c.get("tests_ok"), c.get("crlf_bytes_observed"))
         for k, c in clones.items())
     return probe_pid(
         "P13", "delivery claims S11-01 / S13-01 / S13-02 (one-command repro, scope audit)",

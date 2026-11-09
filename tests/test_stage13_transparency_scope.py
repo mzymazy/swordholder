@@ -184,7 +184,29 @@ def test_scope_ledger_covers_every_committable_file():
     assert scope["universe_count"] >= scope["tracked_count"]
 
 
-def test_scope_ledger_negative_cases():
+@pytest.fixture()
+def ignored_artifact():
+    """给负例②备一个「真实存在、但被 .gitignore 挡住」的运行期文件。
+
+    干净 clone 里不存在这个 seal 文件；若拿它当断言前提，测试就只在开发机上成立
+    （clone 后 ignored 集合为空，"忽略却不解释"根本触发不了）。所以这里显式造一个、
+    用完删掉——负例检验的是分账逻辑，不该寄生于本机残留。
+    """
+    path = os.path.join(REPO, "swordholder", "samples", "alert_02_token.seal.json")
+    created = False
+    if not os.path.isfile(path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("{}")
+        created = True
+    try:
+        yield path
+    finally:
+        if created and os.path.isfile(path):
+            os.remove(path)
+
+
+def test_scope_ledger_negative_cases(ignored_artifact):
     from swordholder import reproduce as rp  # noqa: PLC0415
 
     bm, m, declared = _declared_and_manifest()
