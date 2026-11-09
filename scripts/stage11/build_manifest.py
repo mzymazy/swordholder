@@ -30,6 +30,7 @@ DELIVERY = [
     "docs/trace-ledger.md",
     "docs/stage10-compliance-fields.md",
     "pyproject.toml",
+    "CHANGELOG.md",
     "tests/",
 ]
 

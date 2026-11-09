@@ -17,6 +17,41 @@ AIGC:
 
 ---
 
+## [0.9.0] - 2026-11-09 - S11：把「外部可复现」做成可交付能力
+
+本版补掉三个可修的缺口（跨会话续写、部署期持续跟踪、examiner 成册），并新增可离线复算的
+交付清单。**默认记录的哈希口径与 0.8.0 一致**，旧轨迹仍可验。
+
+1. **出发点**：第十阶段后 11 条探针为 5 PASS / 4 PARTIAL / 2 FAIL，其中 P02（无公开续写
+   入口）、P09（研发期能测、部署期无组件）、P10（无成册文档）属工程量缺失而非机制上限。
+2. **跨会话续写（G5）**：`TraceLedger.from_body / load / save` 公开。`load` 接受裸轨迹体或
+   带 `body` 外壳的凭证文档；`from_body` 默认整链复算，脏历史抛 `E_TRACE_LOAD_BROKEN`
+   拒收（否则新条目会替旧篡改背书）；`save` 先写 `.tmp` 再 `os.replace`，避免半截文件。
+   实测：子进程恢复 10 步、追加第 11 步后主进程复验链自洽且第 10 步头部未变。
+3. **部署期持续跟踪（G6）**：新增 `swordholder/monitor.py`。`evaluate_trace / scan_dir` 给出
+   `traces_total / verified_ok / chain_break / digest_mismatch / seal_invalid / unreadable /
+   error_rate / steps_total` 度量；`Monitor.scan_once / watch / report` 按周期落链式监控日志
+   （`swordholder.monitor_log/1`），日志自身可 `verify_log` 自校验，被改即拒写
+   `E_MON_LOG_BROKEN`；阈值键写错抛 `E_MON_THRESHOLD_UNKNOWN`（不静默吞掉拼写错误）；
+   CLI 提供 `scan / report / verify-log`。**边界**：库 + CLI，由部署方调度器周期性调用，
+   不含常驻守护进程、不做告警外发。
+4. **examiner 成册（G7）**：`docs/examiner-dossier.md` 10 节（做什么 / 不做什么 / 关键假设
+   A1-A7 / 已知局限 L1-L7 / 验证与实测证据 / 外部复跑 / 部署期持续跟踪 / 术语表 /
+   证据索引 / 追问清单），正文零处 tamper-proof 自称。
+5. **外部可复现**：`swordholder/reproduce.py`（清单 schema `swordholder.repro_manifest/1`，
+   逐文件 sha256 + `tree_digest` + `expected` 分档比对 + 路径逃逸防护 `E_REPRO_PATH_ESCAPE`）与
+   `scripts/stage11/external_verify.py`（**仅标准库**，`python -I` 隔离可跑，退出码
+   0 一致 / 1 不一致 / 2 参数问题）。`dirty` 只针对交付树 pathspec，避免 `evidence/`
+   每轮复跑让清单永远 dirty。
+6. **惰性导出**：`swordholder/__init__.py` 用 PEP 562 `__getattr__` 导出 `monitor / reproduce`，
+   消除 `python -m swordholder.monitor` 的 runpy 重复导入警告。版本 0.9.0。
+7. **测试**：`tests/test_stage11_resume_monitor_repro.py` 20 项；全仓 542 项通过。
+8. **未封口的缺口（照旧不得写成满足）**：MS-2.8-003 的 tamper-proof 字面要求（持钥者可改写后
+   重签，实测重签后判 VALID）、Art.73(6)+Art.19 的外部时间戳 / WORM（锚点在持有方磁盘内）、
+   Art.12(2) 三类用途的内建风险字段、ISO/IEC 42001 正文付费不可核引。
+
+---
+
 ## [0.8.0] - 2026-11-08 - S10：记录必备字段与留存期（把两条可修的合规 FAIL 修掉）
 
 本版新增合规字段档位与留存模块，**默认行为与 0.7.5 逐字节一致**。
