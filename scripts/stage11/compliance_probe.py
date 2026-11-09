@@ -28,12 +28,14 @@ from __future__ import annotations
 
 import argparse
 import copy
+import io
 import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 
@@ -863,7 +865,6 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
 
     patterns, patterns_file = _delivery_patterns()
     files = rp.collect(REPO, patterns)
-    rel = [os.path.relpath(p, REPO).replace("\\", "/") for p in files]
 
     # 期望分档：取上一轮落盘的 stage12 计数（"已公布的期望"），不拿本轮结果自证
     expected = {"file_count": len(files)}
@@ -883,21 +884,44 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
     live_mismatch = {k: (expected.get(k), v) for k, v in live_results.items()
                      if k in expected and expected[k] != v}
 
+    # S12.1 修订：清单口径
+    #   ① hash_mode=canonical-lf——同一份提交在 CRLF 检出与 LF 导出树上算出同一个哈希；
+    #   ② tracked_only——只收 git 跟踪文件，未跟踪的本机产物（*.seal.json）不进清单，
+    #      否则第三方从版本库根本取不到，复算必然 missing。
     manifest = rp.build_manifest(REPO, files, expected=expected,
                                  commands=["python -m pytest tests -q"],
                                  include_git=False,
-                                 extra={"stage": 12, "purpose": "external reproducibility"})
+                                 hash_mode=rp.HASH_MODE_CANONICAL,
+                                 tracked_only=True,
+                                 extra={"stage": 12,
+                                        "purpose": "external reproducibility"})
     mpath = os.path.join(tmp, "s12_manifest.json")
     rp.dump(manifest, mpath)
+    manifest_paths = {f["path"] for f in manifest["files"]}
+    untracked_excluded = list(manifest["extra"].get("untracked_excluded") or [])
+    tracked_only_on = bool(manifest["extra"].get("tracked_only"))
 
-    # 外部机器：只带交付树本体（逐文件复制，不带 .venv/.git/evidence）
-    ext = os.path.join(tmp, "s12_external_machine")
-    if os.path.isdir(ext):
-        shutil.rmtree(ext)
-    for r in rel:
-        dst = os.path.join(ext, r.replace("/", os.sep))
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
-        shutil.copy2(os.path.join(REPO, r.replace("/", os.sep)), dst)
+    # 外部 checkout：用 git archive HEAD 导出干净树。这才是"第三方拿到交付物"的真实路径，
+    # 逐文件 copy 我方工作区只能证明"我这边和我这边一致"，证明不了跨 checkout 一致。
+    ext = os.path.join(tmp, "s12_export_head")
+    os.makedirs(ext, exist_ok=True)
+    arc = subprocess.run(["git", "archive", "--format=tar", "HEAD"], cwd=REPO,
+                         capture_output=True)
+    archive_ok = arc.returncode == 0 and bool(arc.stdout)
+    commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True)
+    commit_id = (commit.stdout or b"").decode("utf-8", "replace").strip()
+    extracted = 0
+    if archive_ok:
+        with tarfile.open(fileobj=io.BytesIO(arc.stdout), mode="r:") as tf:
+            members = [m for m in tf.getmembers() if m.isfile()]
+            tf.extractall(ext)
+            extracted = len(members)
+    export_files = set()
+    for _dirpath, _dirnames, _fnames in os.walk(ext):
+        for fn in _fnames:
+            full = os.path.join(_dirpath, fn)
+            export_files.add(os.path.relpath(full, ext).replace("\\", "/"))
+    export_missing = sorted(manifest_paths - export_files)
 
     verifier_in_ext = os.path.join(ext, "scripts", "stage11", "external_verify.py")
     standalone_verifier = os.path.exists(verifier_in_ext)
@@ -915,7 +939,7 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
         proc = subprocess.run([sys.executable, "-I", verifier_in_ext,
                                "--manifest", manifest_path, "--root", root,
                                "--actual", actual_path, "--json-out", out_json],
-                              capture_output=True, cwd=ext if os.path.isdir(ext) else tmp)
+                              capture_output=True, cwd=tmp)
         stdout = (proc.stdout or b"").decode("utf-8", "replace")
         report = None
         if os.path.exists(out_json):
@@ -926,22 +950,43 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
                 report = None
         return proc.returncode, stdout, report
 
-    rc_ok, _o, rep_ok = run_verifier(ext, mpath, actual, "clean")
-    hashes_ok = (rep_ok or {}).get("hashes") or {}
-    clean_ok = (rc_ok == 0 and bool(hashes_ok.get("ok"))
-                and hashes_ok.get("tree_digest_match") is True
-                and bool((rep_ok or {}).get("ok")))
-    checked = hashes_ok.get("checked")
+    def hashes_of(report) -> dict:
+        return (report or {}).get("hashes") or {}
 
-    # 反例 1：在真实树上改一个字节
-    tamper_target = os.path.join(ext, "swordholder", "trace_ledger.py")
-    if not os.path.exists(tamper_target):
-        tamper_target = os.path.join(ext, rel[0].replace("/", os.sep))
-    with open(tamper_target, "a", encoding="utf-8") as fh:
-        fh.write("\n# probe-tamper\n")
-    rc_bad, _o, rep_bad = run_verifier(ext, mpath, actual, "tampered")
-    hashes_bad = (rep_bad or {}).get("hashes") or {}
-    mismatch_detected = (rc_bad != 0 and len(hashes_bad.get("mismatched") or []) >= 1)
+    # 主判据：干净导出树（git archive HEAD）
+    rc_export, _o, rep_export = run_verifier(ext, mpath, actual, "export")
+    h_export = hashes_of(rep_export)
+    export_ok = (rc_export == 0 and bool(h_export.get("ok"))
+                 and h_export.get("tree_digest_match") is True
+                 and bool((rep_export or {}).get("ok")))
+    checked_export = h_export.get("checked")
+
+    # 辅助：同一份清单在我方工作区照样要过（两侧都过才叫"跨 checkout 一致"）
+    rc_ws, _o, rep_ws = run_verifier(REPO, mpath, actual, "workspace")
+    h_ws = hashes_of(rep_ws)
+    workspace_ok = (rc_ws == 0 and bool(h_ws.get("ok"))
+                    and h_ws.get("tree_digest_match") is True)
+
+    # 换行鲁棒性自检：canonical-lf 对 CRLF/LF 两种检出给出同一哈希，raw 口径给出不同哈希。
+    # 这一对断言说明"修的是换行假失败，而不是把校验放松成永远通过"。
+    eol_dir = os.path.join(tmp, "s12_eol")
+    crlf_dir = os.path.join(eol_dir, "crlf")
+    lf_dir = os.path.join(eol_dir, "lf")
+    os.makedirs(crlf_dir, exist_ok=True)
+    os.makedirs(lf_dir, exist_ok=True)
+    body = b"alpha\nbeta\ngamma\n"
+    with open(os.path.join(crlf_dir, "a.txt"), "wb") as fh:
+        fh.write(body.replace(b"\n", b"\r\n"))
+    with open(os.path.join(lf_dir, "a.txt"), "wb") as fh:
+        fh.write(body)
+    eol_canon = rp.build_manifest(crlf_dir, [os.path.join(crlf_dir, "a.txt")],
+                                 include_git=False, hash_mode=rp.HASH_MODE_CANONICAL)
+    eol_canon_verdict = rp.verify_manifest(eol_canon, lf_dir)
+    eol_insensitive_ok = bool(eol_canon_verdict["ok"]) and not eol_canon_verdict["mismatched"]
+    eol_raw = rp.build_manifest(crlf_dir, [os.path.join(crlf_dir, "a.txt")],
+                                include_git=False, hash_mode=rp.HASH_MODE_RAW)
+    eol_raw_verdict = rp.verify_manifest(eol_raw, lf_dir)
+    raw_eol_sensitive_ok = (not eol_raw_verdict["ok"]) and len(eol_raw_verdict["mismatched"]) == 1
 
     # 反例 2：期望分档不符（改一个已公布的分档值）
     wrong_actual = os.path.join(tmp, "s12_actual_wrong.json")
@@ -969,50 +1014,100 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
     rc_demo, _o, rep_demo = run_verifier(ext, demo_path, actual, "demo")
     demo_rejected = rc_demo != 0
 
+    # 反例 1：在导出树上改一个字节（放在最后，避免污染前面几项）
+    tamper_rel = "swordholder/trace_ledger.py"
+    if tamper_rel not in export_files:
+        tamper_rel = sorted(manifest_paths)[0]
+    tamper_target = os.path.join(ext, tamper_rel.replace("/", os.sep))
+    original = open(tamper_target, "rb").read()
+    with open(tamper_target, "wb") as fh:
+        fh.write(original + b"\n# probe-tamper\n")
+    rc_bad, _o, rep_bad = run_verifier(ext, mpath, actual, "tampered")
+    h_bad = hashes_of(rep_bad)
+    tamper_detected = (rc_bad != 0
+                       and len(h_bad.get("mismatched") or []) >= 1
+                       and h_bad.get("tree_digest_match") is False)
+    with open(tamper_target, "wb") as fh:  # 复原，不留污染
+        fh.write(original)
+
     deterministic_mismatch = {k: v for k, v in live_mismatch.items() if k != "result_P11"}
     tally_stable = probe_expected_loaded and not deterministic_mismatch
     ok = (manifest["schema"] == rp.SCHEMA
+          and manifest.get("hash_mode") == rp.HASH_MODE_CANONICAL
+          and tracked_only_on
           and len(files) >= 60
-          and clean_ok and checked == len(files)
+          and archive_ok and not export_missing
+          and export_ok and checked_export == len(files)
+          and workspace_ok
+          and eol_insensitive_ok and raw_eol_sensitive_ok
           and stdlib_only and standalone_verifier
-          and mismatch_detected and expected_enforced and demo_rejected
+          and tamper_detected and expected_enforced and demo_rejected
           and tally_stable)
+    evidence = {
+        "manifest_schema": manifest["schema"],
+        "manifest_hash_mode": manifest.get("hash_mode"),
+        "manifest_written_to": "temp/s12_manifest.json (delivered copy: evidence/stage12/s12_manifest.json)",
+        "tracked_only": tracked_only_on,
+        "untracked_excluded": untracked_excluded,
+        "untracked_excluded_count": len(untracked_excluded),
+        "delivery_patterns": len(patterns),
+        "delivery_patterns_source": patterns_file,
+        "delivery_scope": patterns,
+        "manifest_file_count": len(files),
+        "manifest_bytes_canonical": manifest["total_bytes"],
+        "tree_digest": manifest["tree_digest"],
+        "archive_source": "git archive --format=tar HEAD",
+        "archive_commit": commit_id,
+        "archive_ok": archive_ok,
+        "archive_entries_extracted": extracted,
+        "export_tree_file_count": len(export_files),
+        "export_missing_from_manifest": export_missing[:10],
+        "export_missing_count": len(export_missing),
+        "export_tree_exit_code": rc_export,
+        "export_tree_ok": export_ok,
+        "export_checked_reported": checked_export,
+        "export_tree_digest_match": h_export.get("tree_digest_match"),
+        "workspace_tree_exit_code": rc_ws,
+        "workspace_tree_ok": workspace_ok,
+        "eol_insensitive_selfcheck": eol_insensitive_ok,
+        "raw_hash_eol_sensitive_selfcheck": raw_eol_sensitive_ok,
+        "verifier_ships_with_delivery": standalone_verifier,
+        "verifier_stdlib_only": stdlib_only,
+        "verifier_imports": mods,
+        "expected_keys_from_probe_tally": probe_expected_loaded,
+        "expected_tally_source": "evidence/stage12/s12_probes_counts.json",
+        "expected_key_count": len(expected),
+        "result_P12_source": "上一轮落盘值（自指，不参与本轮交叉核对）",
+        "live_tally": live_results,
+        "live_vs_published_mismatch": live_mismatch,
+        "tally_stable": tally_stable,
+        "tampered_tree_exit_code": rc_bad,
+        "tamper_detected": tamper_detected,
+        "tampered_mismatched_count": len(h_bad.get("mismatched") or []),
+        "expected_tally_enforced_exit_code": rc_exp,
+        "expected_tally_enforced": expected_enforced,
+        "demo_manifest_on_real_tree_exit_code": rc_demo,
+        "demo_manifest_rejected": demo_rejected,
+        "demo_manifest_file_count": demo_manifest["file_count"],
+    }
     return probe_pid(
         "P12", "delivery claim S11-01 (external reproducibility)",
-        "the delivered tree + manifest can be re-verified offline by a third party, and any "
-        "byte-level change or tally divergence is detected",
+        "a third party who only has the repository can export the delivered tree (git archive), "
+        "recompute it offline and get the same result, while any content change or tally "
+        "divergence still fails",
         "PASS" if ok else "PARTIAL",
-        {"manifest_schema": manifest["schema"],
-         "manifest_written_to": "temp/s12_manifest.json (delivered copy: evidence/stage12/s12_manifest.json)",
-         "real_tree_file_count": len(files), "real_tree_bytes": manifest["total_bytes"],
-         "delivery_patterns": len(patterns),
-         "delivery_patterns_source": patterns_file,
-         "delivery_scope": patterns,
-         "tree_digest": manifest["tree_digest"],
-         "verifier_ships_with_delivery": standalone_verifier,
-         "verifier_stdlib_only": stdlib_only, "verifier_imports": mods,
-         "expected_keys_from_probe_tally": probe_expected_loaded,
-         "expected_tally_source": "evidence/stage12/s12_probes_counts.json",
-         "expected_key_count": len(expected),
-         "result_P12_source": "上一轮落盘值（自指，不参与本轮交叉核对）",
-         "live_tally": live_results,
-         "live_vs_published_mismatch": live_mismatch,
-         "tally_stable": tally_stable,
-         "clean_tree_exit_code": rc_ok, "clean_tree_ok": clean_ok,
-         "checked_files_reported": checked,
-         "tampered_tree_exit_code": rc_bad, "mismatch_detected": mismatch_detected,
-         "tampered_mismatched_count": len(hashes_bad.get("mismatched") or []),
-         "expected_tally_enforced_exit_code": rc_exp,
-         "expected_tally_enforced": expected_enforced,
-         "demo_manifest_on_real_tree_exit_code": rc_demo,
-         "demo_manifest_rejected": demo_rejected,
-         "demo_manifest_file_count": demo_manifest["file_count"]},
-        "复算对象是真实交付树（%d 文件 / %d 字节，%d 个交付范围，取自 %s），不是 demo 文件；"
-        "复算脚本随交付一起发出，用 python -I 在隔离模式、无网络、不装本包的假设下重算"
-        "逐文件 sha256 与整树摘要：干净树 exit=0 且 checked=%s；改一个字节 exit!=0 且有"
-        "mismatched 明细；改已公布分档 exit!=0；拿 1 文件 demo 清单去复算真实树同样 exit!=0；"
-        "本轮 P01–P11 分档与上一轮落盘值逐项一致（差异项 %d 个）。"
-        % (len(files), manifest["total_bytes"], len(patterns), patterns_file, checked,
+        evidence,
+        "复算对象改为**外部真实取得路径**：git archive HEAD 导出的干净树（%d 个条目，提交 %s），"
+        "不再逐文件 copy 我方工作区。清单口径 canonical-lf 且只收 git 跟踪文件"
+        "（剔除未跟踪 %d 项：%s）。导出树复算 exit=%s、checked=%s、tree_digest_match=%s；"
+        "同一份清单在我方工作区同样 exit=%s；canonical 口径对 CRLF/LF 给出同一哈希（自检 %s），"
+        "而 raw 口径对同一内容给出不同哈希（自检 %s，这正是 S12 原方案的缺陷所在）；"
+        "改一字节 exit=%s 且 tree_digest 不一致；改已公布分档 exit=%s；1 文件 demo 清单 exit=%s；"
+        "本轮 P01–P11 分档与上一轮落盘值一致（差异项 %d 个）。"
+        % (extracted, commit_id[:12], len(untracked_excluded),
+           ", ".join(untracked_excluded) or "无",
+           rc_export, checked_export, h_export.get("tree_digest_match"), rc_ws,
+           eol_insensitive_ok, raw_eol_sensitive_ok, rc_bad, rc_exp, rc_demo,
            len(deterministic_mismatch)))
 
 

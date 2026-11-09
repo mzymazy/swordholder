@@ -82,14 +82,23 @@ def main(argv=None) -> int:
         expected=probe_counts(probes_full),
         commands=COMMANDS,
         dirty_scope=[pat.rstrip("/") for pat in patterns],
+        # S12.1：① canonical-lf 口径，使 Windows(CRLF) 检出与 git archive(LF) 导出
+        #        算出同一个哈希；② 只收 git 跟踪的文件，否则会把 *.seal.json 这类
+        #        被忽略的本机产物写进清单，第三方从版本库根本取不到。
+        hash_mode=rp.HASH_MODE_CANONICAL,
+        tracked_only=True,
         extra={"stage": 12,
-               "note": "清单覆盖真实交付树；expected 为探针分档与计数，外部复跑必须逐项一致"},
+               "note": "清单覆盖真实交付树；hash_mode=canonical-lf，仅收 git 跟踪文件；"
+                       "expected 为探针分档与计数，外部复跑必须逐项一致"},
     )
     out = args.out if os.path.isabs(args.out) else os.path.join(root, args.out)
     rp.dump(manifest, out)
     print(json.dumps({"manifest": out, "file_count": manifest["file_count"],
                       "total_bytes": manifest["total_bytes"],
                       "tree_digest": manifest["tree_digest"],
+                      "hash_mode": manifest["hash_mode"],
+                      "tracked_only": manifest["extra"].get("tracked_only"),
+                      "untracked_excluded": manifest["extra"].get("untracked_excluded"),
                       "expected_keys": len(manifest["expected"]),
                       "git": manifest["env"]["git"]},
                      ensure_ascii=False, sort_keys=True, indent=1))

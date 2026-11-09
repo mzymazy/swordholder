@@ -28,6 +28,11 @@ import sys
 
 SCHEMA = "swordholder.repro_manifest/1"
 
+# 哈希口径（与 swordholder/reproduce.py 保持一致，但这里必须独立实现：
+# 第三方手里可能只有这个脚本 + 交付树，不能 import 被审方的包）
+HASH_MODE_CANONICAL = "canonical-lf"
+HASH_MODE_RAW = "raw"
+
 
 def sha256_file(path: str, chunk: int = 1 << 20) -> str:
     h = hashlib.sha256()
@@ -35,6 +40,41 @@ def sha256_file(path: str, chunk: int = 1 << 20) -> str:
         for buf in iter(lambda: fh.read(chunk), b""):
             h.update(buf)
     return h.hexdigest()
+
+
+def sha256_canonical_file(path: str, chunk: int = 1 << 20) -> str:
+    """CRLF 归一为 LF 后算 sha256（分块读，跨块 CRLF 用 carry 处理）。
+
+    为什么必须归一：同一份 git 提交，Linux/macOS 检出是 LF，Windows 上
+    ``core.autocrlf=true`` 检出是 CRLF，``git archive`` 导出又是 LF。按原始字节
+    记哈希，同一提交会算出多个值，外部复算就成了假失败。归一化对两侧施加同一
+    变换，"内容真被改动"依旧会被抓出来（改动不是换行风格差异）。
+    """
+    h = hashlib.sha256()
+    carry = b""
+    with open(path, "rb") as fh:
+        while True:
+            buf = fh.read(chunk)
+            if not buf:
+                break
+            buf = carry + buf
+            if buf.endswith(b"\r"):
+                carry, buf = buf[-1:], buf[:-1]
+            else:
+                carry = b""
+            h.update(buf.replace(b"\r\n", b"\n"))
+    if carry:
+        h.update(carry)
+    return h.hexdigest()
+
+
+def file_digest(path: str, hash_mode: str) -> str:
+    if hash_mode == HASH_MODE_RAW:
+        return sha256_file(path)
+    if hash_mode == HASH_MODE_CANONICAL:
+        return sha256_canonical_file(path)
+    raise SystemExit("清单 hash_mode 非法：%r（支持 %s / %s）"
+                     % (hash_mode, HASH_MODE_CANONICAL, HASH_MODE_RAW))
 
 
 def tree_digest(files: list) -> str:
@@ -47,6 +87,7 @@ def verify(manifest: dict, root: str) -> dict:
     if manifest.get("schema") != SCHEMA:
         raise SystemExit("清单 schema 不符：%r（期望 %s）"
                          % (manifest.get("schema"), SCHEMA))
+    hash_mode = manifest.get("hash_mode") or HASH_MODE_RAW
     missing, mismatched, present = [], [], []
     for item in manifest.get("files", []):
         full = os.path.join(root, item["path"].replace("/", os.sep))
@@ -54,16 +95,24 @@ def verify(manifest: dict, root: str) -> dict:
             missing.append(item["path"])
             continue
         present.append(item)
-        actual = sha256_file(full)
+        actual = file_digest(full, hash_mode)
         if actual != item["sha256"]:
-            mismatched.append({"path": item["path"],
-                               "expected": item["sha256"], "actual": actual})
+            detail = {"path": item["path"],
+                      "expected": item["sha256"], "actual": actual}
+            # 换行差异单独标出来：这类不一致不是内容被改，而是检出风格不同。
+            # 判据：换成另一种口径后，实际文件与清单里记录的该口径哈希仍相同。
+            other = HASH_MODE_RAW if hash_mode == HASH_MODE_CANONICAL else HASH_MODE_CANONICAL
+            recorded = item.get("sha256_raw" if other == HASH_MODE_RAW else "sha256_canonical")
+            other_actual = file_digest(full, other)
+            detail["eol_only"] = bool(recorded is not None and other_actual == recorded)
+            mismatched.append(detail)
     recomputed = (tree_digest(present)
                   if len(present) == len(manifest.get("files", [])) else None)
     declared = manifest.get("tree_digest")
     return {
         "ok": not missing and not mismatched and recomputed == declared,
         "checked": len(manifest.get("files", [])),
+        "hash_mode": hash_mode,
         "missing": missing,
         "mismatched": mismatched,
         "declared_tree_digest": declared,

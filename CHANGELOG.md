@@ -17,6 +17,40 @@ AIGC:
 
 ---
 
+## [0.10.1] - 2026-11-09 - S12.1：交付清单改为跨 checkout 可复算
+
+本版**只修一处真缺陷**：0.10.0 的「外部可复现」只在生成本机工作区成立，第三方拿不到同一结果。
+
+**缺陷（我方自查发现，非外部指出）**：把 `git archive HEAD` 导出的干净树当作 `--root` 复算
+`evidence/stage12/s12_manifest.json`，得 `checked=74` 但 `ok=false`、`tree_digest_match=false`、
+退出码 1。逐文件比对后归为两类：
+
+1. **10 个文件仅因换行风格不符**：清单按「工作区原始字节」记 sha256，而仓库里存的是 LF、
+   Windows 上 `core.autocrlf=true` 检出的是 CRLF、`git archive` 导出的又是 LF。同一份提交
+   因检出方式不同算出不同哈希，外部复算必然假失败；清单里也没有任何 eol 口径声明。
+2. **1 个文件版本库里根本没有**：清单收录了 `swordholder/samples/alert_02_token.seal.json`，
+   该文件被 `.gitignore`（`*.seal.json`）排除、从未被 git 跟踪，第三方从版本库取不到。
+
+**修法**：
+- `swordholder/reproduce.py` 引入显式哈希口径 `hash_mode`：`canonical-lf`（默认，先把 CRLF
+  归一为 LF 再算 sha256，分块读、跨块 CRLF 用 carry 处理）与 `raw`（原始字节，用于旧清单兼容）。
+  清单顶层写下 `hash_mode`，每项另存另一口径哈希作留痕，便于区分「内容被改」与「只是换行」。
+- `build_manifest(..., tracked_only=True)`：只收 `git ls-files` 里的跟踪文件，未跟踪者记入
+  `extra.untracked_excluded`，不再混进清单。
+- `scripts/stage11/external_verify.py` 按清单 `hash_mode` 选口径；**没有该字段的旧清单一律按
+  `raw` 比**，口径不被静默放宽。
+- `scripts/stage12/build_manifest12.py` 生成清单时写 `canonical-lf` + `tracked_only`。
+- P12 判据升级为 v6：复算对象从「逐文件 copy 我方工作区」改为 **`git archive HEAD` 导出树**，
+  且要求导出树与工作区**两侧都 exit=0**；另加两条换行自检（canonical 对 CRLF/LF 同哈希、
+  raw 对同内容不同哈希），证明修的是换行假失败而不是把校验改松。
+
+**结果**：清单从 74 文件降到 73 文件（剔除那个未跟踪的 `*.seal.json`），`hash_mode=canonical-lf`，
+干净导出树复算 `ok=true`、`checked=73`、`tree_digest_match=true`；改一字节仍必失败。
+因此 **0.10.0 的 P12 PASS 判定不成立**，本版按「修复前不成立」下调上一轮自评分并在第十二阶段
+报告里写明修正。
+
+---
+
 ## [0.10.0] - 2026-11-09 - S12：Art.12(2) 可筛风险字段 + RFC 3161 外部时间戳
 
 本版补两块能力、修一处判据，并把没做成的部分如实留在 FAIL/PARTIAL 档上。
