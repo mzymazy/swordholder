@@ -867,7 +867,9 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
     files = rp.collect(REPO, patterns)
 
     # 期望分档：取上一轮落盘的 stage12 计数（"已公布的期望"），不拿本轮结果自证
-    expected = {"file_count": len(files)}
+    # 期望分档只放跨轮可比的分档值；file_count 不参与期望比对（它对清单与收集器是同一
+    # 个数字，写进期望等于自证），改用下面的显式等式单独校验。
+    expected = {}
     counts_path = os.path.join(REPO, "evidence", "stage12", "s12_probes_counts.json")
     probe_expected_loaded = False
     reference_counts = {}
@@ -931,7 +933,7 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
 
     actual = os.path.join(tmp, "s12_actual.json")
     with open(actual, "w", encoding="utf-8") as fh:
-        json.dump({"file_count": len(files), **live_results}, fh)
+        json.dump({"file_count": len(manifest["files"]), **live_results}, fh)
 
     def run_verifier(root: str, manifest_path: str, actual_path: str,
                      out_tag: str) -> tuple:
@@ -1032,12 +1034,14 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
 
     deterministic_mismatch = {k: v for k, v in live_mismatch.items() if k != "result_P11"}
     tally_stable = probe_expected_loaded and not deterministic_mismatch
+    # 收集器看到的文件数 - 显式排除的未跟踪文件 = 清单文件数；三者必须闭合
+    count_closure = (len(manifest["files"]) == len(files) - len(untracked_excluded))
     ok = (manifest["schema"] == rp.SCHEMA
           and manifest.get("hash_mode") == rp.HASH_MODE_CANONICAL
           and tracked_only_on
-          and len(files) >= 60
+          and len(manifest["files"]) >= 60 and count_closure
           and archive_ok and not export_missing
-          and export_ok and checked_export == len(files)
+          and export_ok and checked_export == len(manifest["files"])
           and workspace_ok
           and eol_insensitive_ok and raw_eol_sensitive_ok
           and stdlib_only and standalone_verifier
@@ -1053,7 +1057,9 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
         "delivery_patterns": len(patterns),
         "delivery_patterns_source": patterns_file,
         "delivery_scope": patterns,
-        "manifest_file_count": len(files),
+        "manifest_file_count": len(manifest["files"]),
+        "collected_file_count": len(files),
+        "file_count_closure": count_closure,
         "manifest_bytes_canonical": manifest["total_bytes"],
         "tree_digest": manifest["tree_digest"],
         "archive_source": "git archive --format=tar HEAD",

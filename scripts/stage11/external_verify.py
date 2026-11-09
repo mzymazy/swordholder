@@ -88,14 +88,15 @@ def verify(manifest: dict, root: str) -> dict:
         raise SystemExit("清单 schema 不符：%r（期望 %s）"
                          % (manifest.get("schema"), SCHEMA))
     hash_mode = manifest.get("hash_mode") or HASH_MODE_RAW
-    missing, mismatched, present = [], [], []
+    missing, mismatched, actuals = [], [], []
     for item in manifest.get("files", []):
         full = os.path.join(root, item["path"].replace("/", os.sep))
         if not os.path.isfile(full):
             missing.append(item["path"])
             continue
-        present.append(item)
         actual = file_digest(full, hash_mode)
+        # 整树摘要按实际哈希复算，才能识别"内容被改"；按声明哈希复算等于自证
+        actuals.append({"path": item["path"], "sha256": actual})
         if actual != item["sha256"]:
             detail = {"path": item["path"],
                       "expected": item["sha256"], "actual": actual}
@@ -106,8 +107,8 @@ def verify(manifest: dict, root: str) -> dict:
             other_actual = file_digest(full, other)
             detail["eol_only"] = bool(recorded is not None and other_actual == recorded)
             mismatched.append(detail)
-    recomputed = (tree_digest(present)
-                  if len(present) == len(manifest.get("files", [])) else None)
+    recomputed = (tree_digest(actuals)
+                  if len(actuals) == len(manifest.get("files", [])) else None)
     declared = manifest.get("tree_digest")
     return {
         "ok": not missing and not mismatched and recomputed == declared,

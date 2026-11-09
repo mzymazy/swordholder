@@ -182,3 +182,21 @@ def test_external_verify_defaults_to_raw_for_legacy_manifest(tmp_path):
     assert proc.returncode != 0
     report = json.loads(bad_json.read_text(encoding="utf-8"))
     assert report["hashes"]["mismatched"][0]["eol_only"] is True
+
+
+def test_tree_digest_is_recomputed_from_actual_bytes(tmp_path):
+    """整树摘要必须按实际字节复算：否则改一个字节后摘要校验仍会"通过"。"""
+    src = tmp_path / "src"
+    _write(str(src / "a.txt"), b"alpha\n")
+    _write(str(src / "b.txt"), b"beta\n")
+    manifest = rp.build_manifest(str(src), [str(src / "a.txt"), str(src / "b.txt")],
+                                 include_git=False)
+    clean = rp.verify_manifest(manifest, str(src))
+    assert clean["ok"] is True and clean["tree_digest_match"] is True
+
+    _write(str(src / "a.txt"), b"alpha!\n")  # 内容被改，长度也变了
+    dirty = rp.verify_manifest(manifest, str(src))
+    assert dirty["ok"] is False
+    assert len(dirty["mismatched"]) == 1
+    assert dirty["tree_digest_match"] is False, "摘要必须随实际内容变化"
+    assert dirty["recomputed_tree_digest"] != dirty["declared_tree_digest"]

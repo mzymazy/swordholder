@@ -43,6 +43,9 @@ AIGC:
 - P12 判据升级为 v6：复算对象从「逐文件 copy 我方工作区」改为 **`git archive HEAD` 导出树**，
   且要求导出树与工作区**两侧都 exit=0**；另加两条换行自检（canonical 对 CRLF/LF 同哈希、
   raw 对同内容不同哈希），证明修的是换行假失败而不是把校验改松。
+- 顺带修正一处更隐蔽的漏检：`tree_digest` 原先由**清单里声明的哈希**复算，改一个实际字节后
+  摘要照样"一致"，摘要校验退化成清单自证。现改为按**实际文件哈希**复算，并新增用例
+  `test_tree_digest_is_recomputed_from_actual_bytes` 锁死该行为。
 
 **结果**：清单从 74 文件降到 73 文件（剔除那个未跟踪的 `*.seal.json`），`hash_mode=canonical-lf`，
 干净导出树复算 `ok=true`、`checked=73`、`tree_digest_match=true`；改一字节仍必失败。

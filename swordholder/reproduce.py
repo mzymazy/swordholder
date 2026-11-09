@@ -278,14 +278,16 @@ def verify_manifest(manifest: dict, root: str) -> dict:
     if not isinstance(manifest, dict) or manifest.get("schema") != SCHEMA:
         raise ReproduceError("E_REPRO_SCHEMA: 清单 schema 不符（期望 %s）" % SCHEMA)
     hash_mode = manifest.get("hash_mode") or HASH_MODE_RAW
-    missing, mismatched, present = [], [], []
+    missing, mismatched, actuals = [], [], []
     for item in manifest.get("files", []):
         full = os.path.join(root, item["path"].replace("/", os.sep))
         if not os.path.isfile(full):
             missing.append(item["path"])
             continue
-        present.append(item)
         actual = digest(full, hash_mode)[0]
+        # 整树摘要按**实际**哈希复算：它才真正回答"你手上这棵树是不是清单声明的那棵"；
+        # 若按清单里声明的哈希复算，摘要校验就退化成"清单自我一致"，改一个字节也照样过。
+        actuals.append({"path": item["path"], "sha256": actual})
         if actual != item["sha256"]:
             detail = {"path": item["path"], "expected": item["sha256"], "actual": actual}
             # 换行差异单独标出来：这类不一致不是内容被改，而是检出风格不同。
@@ -296,7 +298,7 @@ def verify_manifest(manifest: dict, root: str) -> dict:
             detail["eol_only"] = bool(recorded is not None and other_actual == recorded)
             mismatched.append(detail)
     declared = manifest.get("tree_digest")
-    recomputed = tree_digest(present) if len(present) == len(manifest.get("files", [])) else None
+    recomputed = tree_digest(actuals) if len(actuals) == len(manifest.get("files", [])) else None
     return {
         "ok": not missing and not mismatched and recomputed == declared,
         "checked": len(manifest.get("files", [])),
