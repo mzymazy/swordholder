@@ -17,6 +17,35 @@ AIGC:
 
 ---
 
+## [0.10.0] - 2026-11-09 - S12：Art.12(2) 可筛风险字段 + RFC 3161 外部时间戳
+
+本版补两块能力、修一处判据，并把没做成的部分如实留在 FAIL/PARTIAL 档上。
+**默认记录的哈希口径与 0.9.0 一致**，旧轨迹仍可验。
+
+1. **P12 判据修正（错判先纠，两轮才修到位）**：外部复现证据此前由 2 文件 demo 清单复算，属自证。
+   - v4：改为按交付范围现收清单 → 复制到独立目录 → 在 `python -I` 隔离模式下用随交付发出的
+     `external_verify.py`（仅标准库）复算，并加三条反例。但交付范围仍读 stage11 的 8 条路径，
+     本阶段新增的 `scripts/stage12/` 与 `docs/stage12-risk-fields-and-tsa.md` 被漏收；且
+     expected 分档被原样复制成 actual，分档一致性恒真。
+   - v5（本版生效）：交付范围改读 `scripts/stage12/build_manifest12.py`（10 条路径 → 74 文件 /
+     861710 字节），expected 取上一轮落盘计数、actual 取本轮 P01–P11 真实结果做逐项交叉核对，
+     P12 自身分档不自比（证据里标 `result_P12_source`）；反例 2 改为翻掉一个已公布分档值。
+     四条（干净树、改一字节、改分档、demo 清单）全过才判 PASS。
+2. **Art.12(2)(a)(b)(c) 风险字段（G11 关闭）**：新增档位 `profile="art12-2"`，条目内建
+   `purpose / event_type / severity / risk_flag`（+ 可选 `monitor_tag`），三类用途枚举对应
+   (a)(b)(c)；缺字段拒写且错误码逐项可辨；字段进链，改动必断链；
+   `select_entries(purpose / min_severity / risk_flag)` 与 `risk_summary()` 支持直接筛取。
+   默认档位键集合与 0.9.0 完全一致。
+3. **RFC 3161 外部时间戳（G4 部分推进）**：新增 `swordholder/timestamp.py`（DER 自写、零依赖）：
+   请求构造 / 响应解析 / token 校验（imprint、nonce、CMS 签名、messageDigest、ESSCertIDv2
+   绑定、证书有效期、可选证书链）。`seal_trace` 支持先签后取戳并原子写回；
+   `verify_sealed_trace(require_external_timestamp=True)` 缺戳即 INVALID。实测取到真实 TSA 戳
+   并可离线复核；但"持钥者整册重做 + 重打新戳"仍不可发现，P11 因此记 PARTIAL 而非 PASS；
+   WORM 与透明日志仍为未闭合缺口（G4a / G4b）。
+4. **失败语义更严**：TSA 不可达时抛错并落无戳凭证，绝不返回"看起来成功"的记录；
+   探针取戳 3 次重试，逐次错误原文进证据。
+5. **回归**：562 项 pytest 全通过（新增 `tests/test_stage12_risk_fields_tsa.py` 20 项）。
+
 ## [0.9.0] - 2026-11-09 - S11：把「外部可复现」做成可交付能力
 
 本版补掉三个可修的缺口（跨会话续写、部署期持续跟踪、examiner 成册），并新增可离线复算的

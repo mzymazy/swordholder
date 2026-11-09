@@ -185,6 +185,53 @@ schtasks /create /tn "Swordholder Monitor" /sc minute /mo 15 /tr ^
 
 ---
 
+## 7.5 Art.12(2) 用途级风险字段：怎么按用途筛（S12 新增）
+
+轨迹默认只记「做了什么」（`action / args / observation / ts`）。监管报送场景常被问的是
+「哪些记录属于风险识别，严重度多高」——这类问题在默认口径下只能人工读日志。
+
+声明 `profile="art12-2"` 后，条目内建四个字段并**进入哈希链**：
+
+| 字段 | 取值 | 对应条文 |
+| --- | --- | --- |
+| `purpose` | `risk_identification` / `post_market_monitoring` / `deployer_evaluation` | Art.12(2)(a) / (b) / (c) |
+| `event_type` | 自由字符串（事件类型） | 同上 |
+| `severity` | `info` / `low` / `medium` / `high` / `critical`（有序） | 同上 |
+| `risk_flag` | 布尔 | 同上 |
+| `monitor_tag` | 可选自由标签 | — |
+
+- 缺任一项**拒写**，错误码逐项可辨（`E_ART12_2_*_MISSING`）；非法取值拒写
+  （`E_ART12_2_PURPOSE_INVALID` / `E_ART12_2_SEVERITY_INVALID`）。
+- 审计方直接筛：`select_entries(body, purpose=...)` / `min_severity="high"` / `risk_flag=True`；
+  汇总：`risk_summary(body)` 给 `total / risk_flagged / unclassified / by_severity / by_purpose`。
+- **默认口径不变**：不声明档位时条目键集合与 0.9.0 逐字节一致，历史轨迹照旧可验。
+
+**边界**：库只保证"写了就进链、缺了拒写、能按值筛出来"，**不替部署方定义严重度评级标准**。
+什么算 `high` 是部署方策略层的事，审查时应索取该策略文件。
+
+---
+
+## 7.6 外部时间戳：证明「这个时刻已存在」，不证明「没有被整册重做」（S12 新增）
+
+签名只能说明"谁用某把私钥签的"，说明不了时间：持钥者今天补签，验签方无从分辨。
+接入 RFC 3161 TSA 后，摘要被交给独立第三方签一份含 `genTime` 的 `TSTInfo`，此后任何人
+可**离线**验证「这个 digest 在 genTime 之前已存在」——要伪造得攻破 TSA 私钥。
+
+- 实现：`swordholder/timestamp.py`（DER 自写、零第三方依赖）。校验项：messageImprint、
+  nonce 回环、CMS 签名（signedAttrs 的 DER 重算）、`messageDigest`、`signingCertificateV2`
+  的 ESSCertIDv2 绑定、证书有效期、可选证书链。
+- 凭证层：`seal_trace(..., timestamp_url=..., timestamp_roots=...)` 先签后取戳、戳原子写回同一凭证；
+  `verify_sealed_trace(..., require_external_timestamp=True)` 缺戳即 `INVALID`（`E_TRACE_TSA_ABSENT`）。
+- 实测：真实取到公开 TSA 的时间戳（`gen_time` 为实测值），离线复核 CMS 签名与证书链通过；
+  未打戳凭证在严格口径下被拒。
+
+**做不到的那一半（请据此判断，不要按"已解决"理解）**：持钥者改写某一步 → 重算整链 →
+重签 → **重打一枚新戳**，校验仍判 `VALID`。因为没有任何第三方留存首枚戳值，也没有 WORM 副本。
+外部时间戳只承诺"该摘要在该时刻存在"，不承诺"这是唯一的一份"。要闭合需要
+append-only 透明日志或第三方存证机构留存首戳（G4a），以及不可改写存储（G4b）。二者均未接入。
+
+---
+
 ## 8. 术语表
 
 | 术语 | 含义 |
@@ -207,7 +254,15 @@ schtasks /create /tn "Swordholder Monitor" /sc minute /mo 15 /tr ^
 
 | 想核对什么 | 去哪看 |
 | --- | --- |
-| 12 条探针的原始判定与数字 | `evidence/stage11/s11_probes.json` |
+| 12 条探针的原始判定与数字（现行口径） | `evidence/stage12/s12_probes.json` |
+| 实测分档的扁平计数（现行，供外部逐项比对） | `evidence/stage12/s12_probes_counts.json` |
+| 交付清单（覆盖真实交付树，逐文件哈希 + 环境 + 期望分档） | `evidence/stage12/s12_manifest.json` |
+| 外部复算结果（现行） | `evidence/stage12/s12_external_verify.json` |
+| 清单生成脚本（stage12 口径） | `scripts/stage12/build_manifest12.py` |
+| 上一轮（第十一阶段）探针与清单 | `evidence/stage11/s11_probes.json`、`evidence/stage11/s11_manifest.json` |
+| 外部时间戳实现 | `swordholder/timestamp.py`、证据 `evidence/stage12_tsa_fixture.json` |
+| 风险字段与外部时间戳边界说明 | `docs/stage12-risk-fields-and-tsa.md` |
+| 12 条探针的原始判定与数字（第十一阶段留档） | `evidence/stage11/s11_probes.json` |
 | 实测分档的扁平计数（供外部逐项比对） | `evidence/stage11/s11_probes_counts.json` |
 | 交付清单（逐文件哈希 + 环境 + 期望分档） | `evidence/stage11/s11_manifest.json` |
 | 外部复算结果 | `evidence/stage11/s11_external_verify.json` |
@@ -232,4 +287,7 @@ schtasks /create /tn "Swordholder Monitor" /sc minute /mo 15 /tr ^
 
 1. **覆盖率**：A3 说只记录经由本库的动作。请索取「工具调用总数 vs 轨迹步数」的对账，而不是看日志有多漂亮。
 2. **信任锚来源**：A1 说公钥需带外可信。请核对公钥分发链路；`trusted_keys.json` 是被审方给的，本身就是单点。
-3. **L1/L2 的残余风险**：持有私钥的一方仍能重写历史、能连证据一起删。这两条目前是 FAIL，不是 PARTIAL——请不要按「已缓解」理解。
+3. **L1/L2 的残余风险**：持有私钥的一方仍能重写历史、能连证据一起删。抗内部重做仍是 FAIL，
+   外部时间戳只把「外部存在性」补到 PARTIAL——请不要按「已缓解」理解。
+4. **首枚戳谁见证**：请索取「TSA 戳值是否被第三方留存」的证据（透明日志 / 存证机构回执）。
+   若只有被审方磁盘上的那份凭证，重打一枚新戳仍可掩盖整册重做。

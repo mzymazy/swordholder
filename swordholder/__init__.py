@@ -24,7 +24,7 @@ from . import seal_schema
 from .trust import (TrustError, add_key, retire_key, revoke_key, revoke_seal,
                     restore_seal, summary, check_rotation, evaluate)
 
-__version__ = "0.9.0"
+__version__ = "0.10.0"
 
 __all__ = [
     "__version__",

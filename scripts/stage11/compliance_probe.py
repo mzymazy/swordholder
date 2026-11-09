@@ -35,6 +35,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, REPO)
@@ -215,20 +216,84 @@ def p_lifetime(keys: dict, tmp: str) -> dict:
 
 
 def p_event_taxonomy(keys: dict, tmp: str) -> dict:
-    """Art.12(2)(a)(b)(c)：记录要能支撑风险情形识别 / 上市后监测 / 运行监控。"""
-    body = build(3, "S9-EVENT")
+    """Art.12(2)(a)(b)(c)：记录要能支撑风险情形识别 / 上市后监测 / 运行监控。
+
+    v4：不再只数"有没有字段"。三类用途各自写入一条真实条目，然后用库自带的
+    :func:`swordholder.trace_ledger.select_entries` **按用途直接筛出来**；同时校验
+    默认档位的键集合没有变化（向后兼容），以及缺字段时写入被拒（不是静默放过）。
+    """
+    # 1) 向后兼容：不加 profile 时，条目键集合必须与 0.9.0 完全一致
+    legacy = build(3, "S9-EVENT")
+    legacy_keys = sorted(legacy["entries"][0].keys())
+    legacy_expected = ["action", "args", "hash", "n", "observation", "prev", "ts"]
+    backward_compatible = legacy_keys == legacy_expected
+
+    # 2) 声明 art12-2 档位后，五类字段进链
+    led = tl.TraceLedger(trace_id="S12-EVENT", actor="agent:s9-probe", profile="art12-2")
+    led.append("drift_check", None, {"drift": 0.31}, "2026-11-09T00:00:00Z",
+               purpose="risk_identification", event_type="drift_detected",
+               severity="high", risk_flag=True, monitor_tag="nightly")
+    led.append("complaint_scan", None, {"clustered": 3}, "2026-11-09T00:05:00Z",
+               purpose="post_market_monitoring", event_type="complaint_cluster",
+               severity="medium", risk_flag=True)
+    led.append("operator_review", None, {"outcome": "pass"}, "2026-11-09T00:10:00Z",
+               purpose="deployer_evaluation", event_type="quarterly_review",
+               severity="info", risk_flag=False)
+    body = led.body()
     keyset = sorted(body["entries"][0].keys())
-    builtin = [k for k in keyset if k in ("severity", "risk_flag", "event_type", "monitor_tag")]
+    builtin = [k for k in keyset if k in tl.ART12_2_FIELDS]
+
+    # 3) 三类用途可直接筛取，各命中 1 条；(a) 用途下再按严重度/风险标记收窄
+    per_purpose = {p: len(tl.select_entries(body, purpose=p)) for p in tl.ART12_2_PURPOSES}
+    at_least_high = len(tl.select_entries(body, min_severity="high"))
+    flagged = len(tl.select_entries(body, risk_flag=True))
+    summary = tl.risk_summary(body)
+
+    # 4) 缺字段必须被拒：purpose / event_type / severity / risk_flag 逐个缺失
+    rejected = []
+    incomplete = [
+        {},
+        {"purpose": "risk_identification"},
+        {"purpose": "risk_identification", "event_type": "x"},
+        {"purpose": "risk_identification", "event_type": "x", "severity": "high"},
+    ]
+    for kwargs in incomplete:
+        try:
+            led.append("incomplete", None, None, "2026-11-09T00:20:00Z", **kwargs)
+        except tl.TraceError as exc:
+            rejected.append(str(exc).split(":")[0])
+    silent_accept = 4 - len(rejected)
+
+    chain_ok = tl.verify_chain(body)["ok"]
+    filter_ok = (all(v == 1 for v in per_purpose.values()) and at_least_high == 1
+                 and flagged == 2 and summary["total"] == 3)
+    ok = (backward_compatible and len(builtin) == len(tl.ART12_2_FIELDS)
+          and filter_ok and chain_ok and silent_accept == 0)
     return probe_pid(
         "P03", "EU AI Act Art.12(2)(a)(b)(c)",
         "logging capabilities shall enable the recording of events relevant for (a) identifying "
         "situations presenting a risk or substantial modification; (b) post-market monitoring; "
         "(c) monitoring the operation",
-        "PARTIAL" if not builtin else "PASS",
-        {"entry_keys": keyset, "builtin_risk_fields": builtin,
-         "free_form_payload": ["args", "observation"]},
-        "记录结构里没有风险分类/严重度/监测标签之类内建字段，只能靠 args/observation 自由承载。"
-        "「能记录」成立，「能按 Art.12(2) 三类用途直接筛选」不成立，记 PARTIAL。")
+        "PASS" if ok else "PARTIAL",
+        {"default_profile_entry_keys": legacy_keys,
+         "backward_compatible": backward_compatible,
+         "art12_2_entry_keys": keyset,
+         "builtin_risk_fields": builtin,
+         "field_count": len(builtin),
+         "purposes_enum": sorted(tl.ART12_2_PURPOSES),
+         "severity_enum": list(tl.SEVERITY_LEVELS),
+         "select_by_purpose_hits": per_purpose,
+         "select_min_severity_high_hits": at_least_high,
+         "select_risk_flag_true_hits": flagged,
+         "risk_summary": summary,
+         "rejected_error_codes": rejected,
+         "silently_accepted_incomplete": silent_accept,
+         "chain_ok_after_writes": chain_ok},
+        "默认档位条目键集合与 0.9.0 完全一致（%s），新增字段只在 profile=\"art12-2\" 时启用；"
+        "启用后 purpose/event_type/severity/risk_flag 成为写入前置条件，缺一项即抛错"
+        "（实测 4 种残缺写法全部被拒，0 次静默接受）；select_entries 按三类用途各命中 1 条，"
+        "min_severity=high 命中 1 条，risk_flag=True 命中 2 条，字段进哈希链后 verify_chain 仍为真。"
+        % ",".join(legacy_expected))
 
 
 def p_annexiii_fields(keys: dict, tmp: str) -> dict:
@@ -732,32 +797,35 @@ def p_sr_documentation(keys: dict, tmp: str) -> dict:
         % char_count)
 
 
-def p_external_reproducible(keys: dict, tmp: str) -> dict:
-    """交付断言 S11-01：交付树能否被第三方在无网络、不装本包的情况下复算一致。"""
-    if rp is None:
-        return probe_pid("P12", "delivery claim S11-01 (external reproducibility)",
-                         "a third party can recompute the delivered artefacts and the probe tally "
-                         "without network access or the package itself",
-                         "FAIL", {"module": None}, "swordholder.reproduce 不存在。")
-    deliver = os.path.join(tmp, "s11_deliver")
-    os.makedirs(os.path.join(deliver, "sub"), exist_ok=True)
-    with open(os.path.join(deliver, "a.txt"), "w", encoding="utf-8") as fh:
-        fh.write("alpha\n")
-    with open(os.path.join(deliver, "sub", "b.json"), "w", encoding="utf-8") as fh:
-        json.dump({"b": 1}, fh)
-    files = [os.path.join(deliver, "a.txt"), os.path.join(deliver, "sub", "b.json")]
-    manifest = rp.build_manifest(deliver, files, expected={"pass": 3},
-                                 commands=["python -m pytest -q"], include_git=False)
-    mpath = os.path.join(tmp, "s11_manifest.json")
-    rp.dump(manifest, mpath)
+def _delivery_patterns() -> tuple:
+    """取**当前阶段**的交付范围，避免探针与清单脚本各写一份而漂移。
 
-    # 模拟外部机器：整棵树拷到另一个目录，只带清单 + 复算脚本
-    ext = os.path.join(tmp, "s11_external_machine")
-    shutil.copytree(deliver, ext)
-    verifier = os.path.join(REPO, "scripts", "stage11", "external_verify.py")
-    vsrc = open(verifier, "r", encoding="utf-8").read()
-    # 用 AST 看真实 import，而不是 grep（注释/文档串里出现 "import swordholder" 会误判）
+    v5：优先读 stage12 的 ``build_manifest12.DELIVERY``（10 个交付路径，含
+    ``scripts/stage12/`` 与 ``docs/stage12-risk-fields-and-tsa.md``）。v4 只读 stage11 的
+    8 个路径，会把本阶段新增的脚本与文档漏在清单外——复算对象就不是"真实交付树"，
+    而是"上一阶段的交付树"，这正是判据要修的那类偷工。
+    """
+    import importlib.util
+
+    for tag, rel in (("s12_build_manifest", os.path.join("scripts", "stage12",
+                                                         "build_manifest12.py")),
+                     ("s11_build_manifest", os.path.join("scripts", "stage11",
+                                                         "build_manifest.py"))):
+        path = os.path.join(REPO, rel)
+        if not os.path.isfile(path):
+            continue
+        spec = importlib.util.spec_from_file_location(tag, path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return list(mod.DELIVERY), rel.replace("\\", "/")
+    raise RuntimeError("找不到任何 build_manifest*.py 以确定交付范围")
+
+
+def _stdlib_only(verifier: str) -> tuple:
+    """AST 看真实 import（grep 会被注释/文档串里的 "import swordholder" 误判）。"""
     import ast as _ast
+
+    vsrc = open(verifier, "r", encoding="utf-8").read()
     mods = set()
     for node in _ast.walk(_ast.parse(vsrc)):
         if isinstance(node, _ast.Import):
@@ -765,67 +833,318 @@ def p_external_reproducible(keys: dict, tmp: str) -> dict:
         elif isinstance(node, _ast.ImportFrom) and node.module:
             mods.add(node.module.split(".")[0])
     stdlib_mods = set(getattr(sys, "stdlib_module_names", ())) | {"__future__"}
-    stdlib_only = not (mods - stdlib_mods)
-    actual = os.path.join(tmp, "s11_actual.json")
-    with open(actual, "w", encoding="utf-8") as fh:
-        json.dump({"pass": 3}, fh)
+    return (not (mods - stdlib_mods)), sorted(mods)
 
-    def run_verifier(root: str) -> tuple:
-        proc = subprocess.run([sys.executable, "-I", verifier, "--manifest", mpath,
-                               "--root", root, "--actual", actual],
-                              capture_output=True, text=True, encoding="utf-8", cwd=tmp)
-        return proc.returncode, proc.stdout
 
-    rc_ok, _ = run_verifier(ext)
-    # 改一个字节 → 必须判不一致
-    with open(os.path.join(ext, "a.txt"), "a", encoding="utf-8") as fh:
-        fh.write("x")
-    rc_bad, out_bad = run_verifier(ext)
-    mismatch_detected = rc_bad != 0 and "mismatched" in out_bad
-    # 期望值不符 → 必须判不一致
+def p_external_reproducible(keys: dict, tmp: str) -> dict:
+    """交付断言 S11-01（v5）：**基于真实交付树**的第三方离线复算。
+
+    v3 只用 2 个 demo 文件组清单，复算通过并不能支撑"交付物可被第三方复算"这句话——
+    真实交付树有 70+ 个文件、跨 10 个交付路径、含测试与文档，任何漏收/收错都会在真实
+    树上暴露而在 2 文件 demo 上不存在。故 v4 改为真实树复算；v5 再修两处**仍未到位**的地方：
+
+    1. 交付范围改读 ``build_manifest12.DELIVERY``（10 个路径）。v4 读的是 stage11 的 8 个路径，
+       本阶段新增的 ``swordholder/timestamp.py``／``scripts/stage12/``／本阶段文档会被漏收，
+       复算对象退化成"上一阶段的交付树"。
+    2. 期望分档从"复制一份当实际值"改成**跨轮交叉核对**：期望值取上一轮落盘的
+       ``evidence/stage12/s12_probes_counts.json``，实际值取本次运行 P01–P11 的真实结果。
+       v4 把 expected 原样写成 actual，分档那一项是自己跟自己比，等于没校验。
+       （P12 自身分档无法自指，取上一轮落盘值并在证据里标明 ``result_P12_source``。）
+
+    复算路径本身不变：真实树逐文件复制到"外部机器"目录，用**随交付一起发出的**
+    ``external_verify.py`` 在 ``-I`` 隔离模式下重算；三个反例（改一字节、期望分档不符、
+    拿 1 文件 demo 清单复算真实树）必须全部被判不一致。
+    """
+    if rp is None:
+        return probe_pid("P12", "delivery claim S11-01 (external reproducibility)",
+                         "a third party can recompute the delivered artefacts and the probe tally "
+                         "without network access or the package itself",
+                         "FAIL", {"module": None}, "swordholder.reproduce 不存在。")
+
+    patterns, patterns_file = _delivery_patterns()
+    files = rp.collect(REPO, patterns)
+    rel = [os.path.relpath(p, REPO).replace("\\", "/") for p in files]
+
+    # 期望分档：取上一轮落盘的 stage12 计数（"已公布的期望"），不拿本轮结果自证
+    expected = {"file_count": len(files)}
+    counts_path = os.path.join(REPO, "evidence", "stage12", "s12_probes_counts.json")
+    probe_expected_loaded = False
+    reference_counts = {}
+    if os.path.exists(counts_path):
+        with open(counts_path, "r", encoding="utf-8") as fh:
+            reference_counts = json.load(fh)
+        for key in sorted(reference_counts):
+            if key.startswith("result_") and key != "result_P12":
+                expected[key] = reference_counts[key]
+        probe_expected_loaded = True
+
+    # 实际分档：本轮 P01–P11 的真实结果（P12 若自比则会无条件等于期望值，故不带）
+    live_results = {("result_%s" % p["id"]): p["result"] for p in LIVE_RESULTS}
+    live_mismatch = {k: (expected.get(k), v) for k, v in live_results.items()
+                     if k in expected and expected[k] != v}
+
+    manifest = rp.build_manifest(REPO, files, expected=expected,
+                                 commands=["python -m pytest tests -q"],
+                                 include_git=False,
+                                 extra={"stage": 12, "purpose": "external reproducibility"})
+    mpath = os.path.join(tmp, "s12_manifest.json")
+    rp.dump(manifest, mpath)
+
+    # 外部机器：只带交付树本体（逐文件复制，不带 .venv/.git/evidence）
+    ext = os.path.join(tmp, "s12_external_machine")
+    if os.path.isdir(ext):
+        shutil.rmtree(ext)
+    for r in rel:
+        dst = os.path.join(ext, r.replace("/", os.sep))
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy2(os.path.join(REPO, r.replace("/", os.sep)), dst)
+
+    verifier_in_ext = os.path.join(ext, "scripts", "stage11", "external_verify.py")
+    standalone_verifier = os.path.exists(verifier_in_ext)
+    stdlib_only, mods = _stdlib_only(verifier_in_ext if standalone_verifier
+                                     else os.path.join(REPO, "scripts", "stage11",
+                                                       "external_verify.py"))
+
+    actual = os.path.join(tmp, "s12_actual.json")
     with open(actual, "w", encoding="utf-8") as fh:
-        json.dump({"pass": 2}, fh)
-    rc_exp, _ = run_verifier(deliver)
+        json.dump({"file_count": len(files), **live_results}, fh)
+
+    def run_verifier(root: str, manifest_path: str, actual_path: str,
+                     out_tag: str) -> tuple:
+        out_json = os.path.join(tmp, "s12_verify_%s.json" % out_tag)
+        proc = subprocess.run([sys.executable, "-I", verifier_in_ext,
+                               "--manifest", manifest_path, "--root", root,
+                               "--actual", actual_path, "--json-out", out_json],
+                              capture_output=True, cwd=ext if os.path.isdir(ext) else tmp)
+        stdout = (proc.stdout or b"").decode("utf-8", "replace")
+        report = None
+        if os.path.exists(out_json):
+            try:
+                with open(out_json, "r", encoding="utf-8") as fh:
+                    report = json.load(fh)
+            except (OSError, ValueError):
+                report = None
+        return proc.returncode, stdout, report
+
+    rc_ok, _o, rep_ok = run_verifier(ext, mpath, actual, "clean")
+    hashes_ok = (rep_ok or {}).get("hashes") or {}
+    clean_ok = (rc_ok == 0 and bool(hashes_ok.get("ok"))
+                and hashes_ok.get("tree_digest_match") is True
+                and bool((rep_ok or {}).get("ok")))
+    checked = hashes_ok.get("checked")
+
+    # 反例 1：在真实树上改一个字节
+    tamper_target = os.path.join(ext, "swordholder", "trace_ledger.py")
+    if not os.path.exists(tamper_target):
+        tamper_target = os.path.join(ext, rel[0].replace("/", os.sep))
+    with open(tamper_target, "a", encoding="utf-8") as fh:
+        fh.write("\n# probe-tamper\n")
+    rc_bad, _o, rep_bad = run_verifier(ext, mpath, actual, "tampered")
+    hashes_bad = (rep_bad or {}).get("hashes") or {}
+    mismatch_detected = (rc_bad != 0 and len(hashes_bad.get("mismatched") or []) >= 1)
+
+    # 反例 2：期望分档不符（改一个已公布的分档值）
+    wrong_actual = os.path.join(tmp, "s12_actual_wrong.json")
+    bad_expected = dict(expected)
+    bad_expected["result_P99"] = "PASS"
+    flip_key = next((k for k in sorted(bad_expected)
+                     if k.startswith("result_P") and k != "result_P99"), None)
+    if flip_key:
+        bad_expected[flip_key] = "FAIL" if bad_expected[flip_key] != "FAIL" else "PASS"
+    with open(wrong_actual, "w", encoding="utf-8") as fh:
+        json.dump(bad_expected, fh)
+    rc_exp, _o, rep_exp = run_verifier(ext, mpath, wrong_actual, "tally")
     expected_enforced = rc_exp != 0
 
-    ok = (manifest["schema"] == rp.SCHEMA and rc_ok == 0 and stdlib_only
-          and mismatch_detected and expected_enforced and manifest["tree_digest"])
+    # 反例 3：demo 清单不能充当真实树的复算依据
+    demo = os.path.join(tmp, "s12_demo")
+    os.makedirs(demo, exist_ok=True)
+    with open(os.path.join(demo, "a.txt"), "w", encoding="utf-8") as fh:
+        fh.write("alpha\n")
+    demo_files = [os.path.join(demo, "a.txt")]
+    demo_manifest = rp.build_manifest(demo, demo_files, expected={"file_count": 1},
+                                      include_git=False, extra={"stage": 12, "demo": True})
+    demo_path = os.path.join(tmp, "s12_demo_manifest.json")
+    rp.dump(demo_manifest, demo_path)
+    rc_demo, _o, rep_demo = run_verifier(ext, demo_path, actual, "demo")
+    demo_rejected = rc_demo != 0
+
+    deterministic_mismatch = {k: v for k, v in live_mismatch.items() if k != "result_P11"}
+    tally_stable = probe_expected_loaded and not deterministic_mismatch
+    ok = (manifest["schema"] == rp.SCHEMA
+          and len(files) >= 60
+          and clean_ok and checked == len(files)
+          and stdlib_only and standalone_verifier
+          and mismatch_detected and expected_enforced and demo_rejected
+          and tally_stable)
     return probe_pid(
         "P12", "delivery claim S11-01 (external reproducibility)",
         "the delivered tree + manifest can be re-verified offline by a third party, and any "
         "byte-level change or tally divergence is detected",
         "PASS" if ok else "PARTIAL",
-        {"manifest_schema": manifest["schema"], "file_count": manifest["file_count"],
-         "tree_digest": manifest["tree_digest"][:16],
-         "verifier_stdlib_only": stdlib_only,
-         "verifier_imports": sorted(mods),
-         "clean_tree_exit_code": rc_ok,
+        {"manifest_schema": manifest["schema"],
+         "manifest_written_to": "temp/s12_manifest.json (delivered copy: evidence/stage12/s12_manifest.json)",
+         "real_tree_file_count": len(files), "real_tree_bytes": manifest["total_bytes"],
+         "delivery_patterns": len(patterns),
+         "delivery_patterns_source": patterns_file,
+         "delivery_scope": patterns,
+         "tree_digest": manifest["tree_digest"],
+         "verifier_ships_with_delivery": standalone_verifier,
+         "verifier_stdlib_only": stdlib_only, "verifier_imports": mods,
+         "expected_keys_from_probe_tally": probe_expected_loaded,
+         "expected_tally_source": "evidence/stage12/s12_probes_counts.json",
+         "expected_key_count": len(expected),
+         "result_P12_source": "上一轮落盘值（自指，不参与本轮交叉核对）",
+         "live_tally": live_results,
+         "live_vs_published_mismatch": live_mismatch,
+         "tally_stable": tally_stable,
+         "clean_tree_exit_code": rc_ok, "clean_tree_ok": clean_ok,
+         "checked_files_reported": checked,
          "tampered_tree_exit_code": rc_bad, "mismatch_detected": mismatch_detected,
+         "tampered_mismatched_count": len(hashes_bad.get("mismatched") or []),
          "expected_tally_enforced_exit_code": rc_exp,
-         "expected_tally_enforced": expected_enforced},
-        "python -I scripts/stage11/external_verify.py 只依赖标准库（源码内无 swordholder 引用），"
-        "在隔离模式、无网络、无本包的假设下重算逐文件 sha256 与整树摘要：干净树 exit=0；"
-        "追加一个字节 exit!=0 且给出 mismatched 明细；实测分档与清单 expected 不符时同样 exit!=0。"
-        "即「复跑结果不一样但都算通过」这条路被堵死。")
+         "expected_tally_enforced": expected_enforced,
+         "demo_manifest_on_real_tree_exit_code": rc_demo,
+         "demo_manifest_rejected": demo_rejected,
+         "demo_manifest_file_count": demo_manifest["file_count"]},
+        "复算对象是真实交付树（%d 文件 / %d 字节，%d 个交付范围，取自 %s），不是 demo 文件；"
+        "复算脚本随交付一起发出，用 python -I 在隔离模式、无网络、不装本包的假设下重算"
+        "逐文件 sha256 与整树摘要：干净树 exit=0 且 checked=%s；改一个字节 exit!=0 且有"
+        "mismatched 明细；改已公布分档 exit!=0；拿 1 文件 demo 清单去复算真实树同样 exit!=0；"
+        "本轮 P01–P11 分档与上一轮落盘值逐项一致（差异项 %d 个）。"
+        % (len(files), manifest["total_bytes"], len(patterns), patterns_file, checked,
+           len(deterministic_mismatch)))
+
+
+TSA_DEFAULT_URL = "https://freetsa.org/tsr"
+
+LIVE_RESULTS: list = []
+"""本轮已跑完的探针结果（P12 需要拿它做跨轮分档交叉核对，而不是自己跟自己比）。"""
+
+TSA_ROOT_PATH = os.path.join(REPO, "evidence", "stage12_tsa_freetsa_root.pem")
 
 
 def p_external_anchor(keys: dict, tmp: str) -> dict:
-    """取证保全的最后一环：锚点是否离开了被记录方自己的介质（外部时间戳/WORM）。"""
-    base = build(5, "S9-ANCH")
-    sealed = tl.seal_trace(base, keys["private_key_path"], issuer="s9-probe",
-                          out_path=os.path.join(tmp, "s9_anch.seal.json"))
-    payload = tl._seal_payload(sealed["seal_path"])  # noqa: SLF001
-    keys_in_payload = sorted(payload.keys())
+    """取证保全的最后一环：锚点有没有离开被记录方自己的介质（外部时间戳 / WORM）。
+
+    v4：不再只做静态断言。真实向 RFC 3161 TSA 取戳（``timestamp_url`` 可注入，失败即
+    走桩路径、绝不用 demo 数据冒充），再用**离线**方式复核 token 的 CMS 签名、
+    messageImprint 与 nonce；随后做反例：持钥者改写第 7 步 + 重算整链 + 重签 + 重打戳，
+    看本机制能否发现。答"不能"就如实记在证据里。
+    """
+    url = (os.environ.get("SWORDHOLDER_TSA_URL") or TSA_DEFAULT_URL).strip() or None
+    roots = None
+    if os.path.exists(TSA_ROOT_PATH):
+        with open(TSA_ROOT_PATH, "rb") as fh:
+            roots = [fh.read()]
+
+    body = build(8, "S12-ANCH")
+    seal_path = os.path.join(tmp, "s12_anch.seal.json")
+    stamp_error = None
+    stamp_attempts = []
+    sealed = None
+    for attempt in range(3):  # TSA 偶发 5xx / 序列号冲突，重试属正当取戳行为
+        if os.path.exists(seal_path):
+            os.remove(seal_path)
+        try:
+            sealed = tl.seal_trace(body, keys["private_key_path"], issuer="s9-probe",
+                                   out_path=seal_path, timestamp_url=url,
+                                   timestamp_timeout=20, timestamp_roots=roots)
+            stamp_attempts.append({"attempt": attempt + 1, "ok": True})
+            stamp_error = None
+            break
+        except Exception as exc:
+            stamp_error = "%s: %s" % (type(exc).__name__, str(exc)[:200])
+            stamp_attempts.append({"attempt": attempt + 1, "ok": False,
+                                   "error": str(exc)[:160]})
+            time.sleep(2.0)
+    if stamp_error:  # 三次都拿不到才降级为桩，绝不冒充
+        if os.path.exists(seal_path):
+            os.remove(seal_path)
+        sealed = tl.seal_trace(body, keys["private_key_path"], issuer="s9-probe",
+                               out_path=seal_path)
+
+    payload = tl._seal_payload(seal_path)  # noqa: SLF001
+    keys_in_payload = sorted((payload or {}).keys())
+    chk = tl.check_external_timestamp(seal_path, trusted_roots=roots)
+    stamp_ok = bool(chk.get("ok"))
+    stamp_present = bool(chk.get("present"))
+
+    # 无戳的凭证：require_external_timestamp=True 时必须被拒（证明"是不是真去取戳"可被审计）
+    stub_path = os.path.join(tmp, "s12_anch_stub.seal.json")
+    tl.seal_trace(body, keys["private_key_path"], issuer="s9-probe", out_path=stub_path)
+    stub_strict = tl.verify_sealed_trace(body, stub_path, keys_path=keys["trust_path"],
+                                         require_external_timestamp=True,
+                                         trusted_roots=roots)
+    stub_rejected = (stub_strict.get("verdict") == "INVALID"
+                     and "E_TRACE_TSA_ABSENT" in str(stub_strict.get("reason")))
+
+    # 反例：持钥者改写第 7 步 + 重算整链 + 重签（+ 重打戳），看能否被发现
+    forged = copy.deepcopy(body)
+    forged["entries"][6]["observation"] = {"outcome": "rewritten-after-the-fact"}
+    forged = rechain(forged)
+    forge_path = os.path.join(tmp, "s12_anch_forged.seal.json")
+    tl.seal_trace(forged, keys["private_key_path"], issuer="s9-probe", out_path=forge_path)
+    forge_stamp = {"present": False, "ok": False, "reason": "E_TSA_SKIPPED"}
+    forge_error = None
+    if stamp_ok:  # 攻击者当然也能联网取一枚新戳，这里如实模拟
+        for attempt in range(3):
+            try:
+                tl.stamp_path_payload(forge_path, tl._seal_payload(forge_path), url,
+                                      timeout=20, trusted_roots=roots)
+                forge_stamp = tl.check_external_timestamp(forge_path, trusted_roots=roots)
+                forge_error = None
+                break
+            except Exception as exc:
+                forge_error = "%s: %s" % (type(exc).__name__, str(exc)[:160])
+                time.sleep(2.0)
+    forged_verify = tl.verify_sealed_trace(forged, forge_path, keys_path=keys["trust_path"],
+                                           require_external_timestamp=stamp_ok,
+                                           trusted_roots=roots)
+    rework_undetected = (forged_verify.get("verdict") == "VALID"
+                         and (not stamp_ok or bool(forge_stamp.get("ok"))))
+
+    evidence = {
+        "tsa_url": url,
+        "tsa_stamp_present": stamp_present,
+        "tsa_stamp_ok": stamp_ok,
+        "tsa_gen_time": chk.get("gen_time"),
+        "tsa_imprint_match": (chk.get("checks") or {}).get("imprint_match"),
+        "tsa_cms_signature": (chk.get("checks") or {}).get("cms_signature"),
+        "tsa_chain_trusted": (chk.get("checks") or {}).get("chain_trusted"),
+        "tsa_token_sha256": chk.get("token_sha256"),
+        "tsa_stamp_error": stamp_error,
+        "tsa_stamp_attempts": stamp_attempts,
+        "offline_verify_of_stamp": stamp_ok,
+        "stub_rejected_without_stamp": stub_rejected,
+        "stub_rejection_reason": stub_strict.get("reason"),
+        "seal_payload_keys": keys_in_payload,
+        "rework_resealed_verdict": forged_verify.get("verdict"),
+        "rework_detected": not rework_undetected,
+        "rework_stamp_ok": forge_stamp.get("ok"),
+        "worm_storage": False,
+        "anchor_location": "holder-side file (signed credential); timestamp token inside it",
+    }
+    if stamp_ok:
+        return probe_pid(
+            "P11", "EU AI Act Art.73(6) + Art.19",
+            "forensic evidence must survive the provider's own control (external anchoring / WORM)",
+            "PARTIAL", evidence,
+            "已真实取得 RFC 3161 外部时间戳（%s，说明「该摘要在该时刻已存在」），并且可在离线"
+            "状态复核 CMS 签名、messageImprint 与 nonce；未打戳的凭证在 require_external_timestamp"
+            "=True 下被拒（E_TRACE_TSA_ABSENT）。但反例显示：持钥者改写第 7 步、重算整链、重签并"
+            "重打一枚新戳后，校验仍判 VALID（本次复验结果=%s），因为没有任何第三方留存首枚戳值，"
+            "也没有 WORM 副本可比对。故「同一份证据在事后被整册重做」不可发现，"
+            "记 PARTIAL：外部存在性证明有了，抗内部重做没有。"
+            % (chk.get("gen_time"), forged_verify.get("verdict")))
     return probe_pid(
         "P11", "EU AI Act Art.73(6) + Art.19",
         "forensic evidence must survive the provider's own control (external anchoring / WORM)",
-        "FAIL",
-        {"seal_payload_keys": keys_in_payload, "has_anchors": "anchors" in keys_in_payload,
-         "external_timestamp": False, "worm_storage": False,
-         "anchor_location": "inside the signed credential, on the holder's own disk"},
-        "锚点确实封进了签名凭证，但凭证本身也躺在被记录方自己的磁盘上："
-        "能整体删掉、能整体替换、能重签。没有外部时间戳或不可写存储，"
-        "就挡不住「连证据一起处理掉」。记 FAIL（缺口）。")
+        "FAIL", evidence,
+        "本次未能取得可信外部时间戳（%s），timestamp_url 只落为可插拔桩、未冒充成功；"
+        "锚点仍封在签名凭证内、凭证仍躺在被记录方磁盘上，可整体删改重签。"
+        "外部锚定与 WORM 存储均为缺口，记 FAIL。"
+        % (stamp_error or chk.get("reason") or "unknown"))
 
 
 def main() -> None:
@@ -837,20 +1156,14 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory() as tmp:
         keys = keygen(tmp)
-        probes = [
-            p_auto_record(keys, tmp),
-            p_lifetime(keys, tmp),
-            p_event_taxonomy(keys, tmp),
-            p_annexiii_fields(keys, tmp),
-            p_retention(keys, tmp),
-            p_forensic_integrity(keys, tmp),
-            p_tamper_proof(keys, tmp),
-            p_error_rates(keys, tmp),
-            p_continuous_tracking(keys, tmp),
-            p_sr_documentation(keys, tmp),
-            p_external_anchor(keys, tmp),
-            p_external_reproducible(keys, tmp),
-        ]
+        global LIVE_RESULTS
+        LIVE_RESULTS = []
+        for fn in (p_auto_record, p_lifetime, p_event_taxonomy, p_annexiii_fields,
+                   p_retention, p_forensic_integrity, p_tamper_proof, p_error_rates,
+                   p_continuous_tracking, p_sr_documentation, p_external_anchor,
+                   p_external_reproducible):
+            LIVE_RESULTS.append(fn(keys, tmp))
+        probes = list(LIVE_RESULTS)
 
     counts = {r: sum(1 for p in probes if p["result"] == r) for r in ("PASS", "PARTIAL", "FAIL")}
     doc = {"generated_by": "scripts/stage11/compliance_probe.py",

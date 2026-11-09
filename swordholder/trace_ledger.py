@@ -26,6 +26,7 @@ ed25519 密钥与同一套验签口径，区别只是被签名的对象从「结
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -45,10 +46,12 @@ ANCHOR_TRUNC = 16
 ENTRY_KEYS = ("n", "ts", "action", "args", "observation")
 """参与哈希的字段白名单。字段外的东西（如渲染用的备注）不进哈希，避免无关字段造成假断点。"""
 
-AUTH_EXTRA_KEYS = ("period", "db_ref", "matched_input", "identity_check")
-"""0.8.0 新增的可选认证字段（EU AI Act Art.12(3) 高危用途必备记录）。
+AUTH_EXTRA_KEYS = ("period", "db_ref", "matched_input", "identity_check",
+                   "purpose", "event_type", "severity", "risk_flag", "monitor_tag")
+"""可选认证字段。前四个是 0.8.0 的 Art.12(3) 高危用途必备记录，后五个是 0.9.1 的
+Art.12(2)(a)(b)(c) 风险事件字段（见 ``ART12_2_FIELDS``）。
 
-这四个字段**只有出现时才进哈希**（见 :func:`entry_core`）。这样 0.7.x 的旧轨迹
+这九个字段**只有出现时才进哈希**（见 :func:`entry_core`）。这样 0.7.x / 0.8.0 的旧轨迹
 一个字节都不用改，重算哈希仍与历史一致；而一旦启用，字段本身也受哈希链保护，
 不会出现「字段在但没被链覆盖、可被悄悄改写」的半吊子实现。
 
@@ -60,8 +63,42 @@ AUTH_EXTRA_KEYS = ("period", "db_ref", "matched_input", "identity_check")
 - ``identity_check``：Art.14(5) 自然人身份核验结果 ``{"verifier", "method", "at"}``。
 """
 
+EXT_TS_KEY = "external_timestamp"
+"""凭证文件里承载 RFC 3161 时间戳的键名（与 payload 平级，不参与签名）。"""
+
 ANNEX_III_VARIANTS = ("annex3-1a",)
 """受支持的记录档位。目前只实现 Art.12(3) 指向的 Annex III 1(a)（生物特征识别类）。"""
+
+ART12_2_FIELDS = ("purpose", "event_type", "severity", "risk_flag", "monitor_tag")
+"""``profile="art12-2"`` 档位的内建风险字段（EU AI Act Art.12(2)(a)(b)(c)）。
+
+为什么要有这五个字段：Art.12(2) 要求高风险系统的日志能**按用途与风险情形筛出**——
+(a) 识别风险情形、(b) 上市后监测、(c) 部署方对已部署系统的评估。只有时间戳和动作名
+的日志，只能证明"发生过什么"，没法回答"哪几步属于风险识别"这类合规提问，筛取只能
+靠调用方自己在外层约定字段名，第三方审计时无从对齐。故把用途/事件类型/严重度/风险
+标记/监测标签做成**档位前置的必填字段**，缺失即拒绝写入（不允许事后补，否则日志里
+会出现无法区分「漏填」与「被删」的空档）。
+
+向后兼容：默认档位（``profile=None``）下条目键集合仍是
+``n/ts/action/args/observation/prev/hash``，一个字节不变；这五个字段只在显式传入或
+档位开启时才进哈希（见 :func:`entry_core`）。
+"""
+
+ART12_2_PURPOSES = {
+    "risk_identification": "Art.12(2)(a)",
+    "post_market_monitoring": "Art.12(2)(b)",
+    "deployer_evaluation": "Art.12(2)(c)",
+}
+"""用途取值 → 条文出处。(a) 风险情形识别；(b) Art.72 上市后监测；(c) Art.26(5) 部署方评估。"""
+
+SEVERITY_LEVELS = ("info", "low", "medium", "high", "critical")
+"""严重度序数。比较用 :data:`SEVERITY_RANK`，不靠字符串排序。"""
+
+SEVERITY_RANK = {name: i for i, name in enumerate(SEVERITY_LEVELS)}
+
+SUPPORTED_PROFILES = ("annex3-1a", "art12-2")
+"""``TraceLedger(profile=...)`` 可接受的档位。``annex3-1a`` 管 Art.12(3) 生物识别类，
+``art12-2`` 管 Art.12(2) 三类用途的风险字段。"""
 
 
 class TraceError(Exception):
@@ -75,6 +112,106 @@ def _c14n(obj: Any) -> str:
 
 def _sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _normalize_risk_fields(purpose: Any = None, event_type: Any = None,
+                           severity: Any = None, risk_flag: Any = None,
+                           monitor_tag: Any = None) -> dict:
+    """校验并归一化 Art.12(2) 风险字段；未传的字段不出现在返回值里。
+
+    取值一律**闭集**校验（用途、严重度），避免"high"/"High"/"高风险"混写导致筛取漏项。
+    """
+    out: dict[str, Any] = {}
+    if purpose is not None:
+        val = str(purpose)
+        if val not in ART12_2_PURPOSES:
+            raise TraceError("E_ART12_2_PURPOSE_INVALID: purpose=%r 不在允许取值内（%s）"
+                             % (purpose, ", ".join(ART12_2_PURPOSES)))
+        out["purpose"] = val
+    if event_type is not None:
+        val = _normalize_ref(event_type, "event_type")
+        out["event_type"] = val
+    if severity is not None:
+        val = str(severity).lower()
+        if val not in SEVERITY_RANK:
+            raise TraceError("E_ART12_2_SEVERITY_INVALID: severity=%r 不在允许取值内（%s）"
+                             % (severity, ", ".join(SEVERITY_LEVELS)))
+        out["severity"] = val
+    if risk_flag is not None:
+        if not isinstance(risk_flag, bool):
+            raise TraceError("E_ART12_2_RISK_FLAG_INVALID: risk_flag 必须是布尔，收到 %r"
+                             % (risk_flag,))
+        out["risk_flag"] = risk_flag
+    if monitor_tag is not None:
+        out["monitor_tag"] = _normalize_ref(monitor_tag, "monitor_tag")
+    return out
+
+
+def select_entries(body: dict, *, purpose: Any = None, event_type: Any = None,
+                   severity: Any = None, min_severity: Any = None,
+                   risk_flag: Any = None, monitor_tag: Any = None) -> list[dict]:
+    """在轨迹体里按 Art.12(2) 字段筛选条目（纯读，不改链、不改文件）。
+
+    这就是"可直接筛取"的那一半：审计方不需要知道调用方私有的字段命名约定，
+    用 ``purpose="risk_identification"`` 或 ``min_severity="high"`` 就能把
+    (a)/(b)/(c) 三类用途的日志分别取出来。``min_severity`` 用 :data:`SEVERITY_RANK`
+    比较，不做字符串排序。未声明档位的旧轨迹里没有这些字段，筛取结果自然为空
+    （而不是报错），便于对同一批日志混跑新旧格式。
+    """
+    want: dict[str, Any] = {}
+    if purpose is not None:
+        want["purpose"] = str(purpose)
+    if event_type is not None:
+        want["event_type"] = str(event_type)
+    if severity is not None:
+        want["severity"] = str(severity).lower()
+    if risk_flag is not None:
+        want["risk_flag"] = bool(risk_flag)
+    if monitor_tag is not None:
+        want["monitor_tag"] = str(monitor_tag)
+    floor = None
+    if min_severity is not None:
+        key = str(min_severity).lower()
+        if key not in SEVERITY_RANK:
+            raise TraceError("E_ART12_2_MIN_SEVERITY_INVALID: min_severity=%r 不在允许取值内"
+                             % (min_severity,))
+        floor = SEVERITY_RANK[key]
+
+    hits: list[dict] = []
+    for entry in (body or {}).get("entries") or []:
+        if not isinstance(entry, dict):
+            continue
+        if any(entry.get(k) != v for k, v in want.items()):
+            continue
+        if floor is not None:
+            got = entry.get("severity")
+            if got not in SEVERITY_RANK or SEVERITY_RANK[got] < floor:
+                continue
+        hits.append(entry)
+    return hits
+
+
+def risk_summary(body: dict) -> dict:
+    """按用途/严重度给一份计数摘要，便于把"日志里有多少风险情形"变成可核对的数字。"""
+    entries = [e for e in ((body or {}).get("entries") or []) if isinstance(e, dict)]
+    by_purpose = {k: 0 for k in ART12_2_PURPOSES}
+    by_severity = {k: 0 for k in SEVERITY_LEVELS}
+    flagged = 0
+    unclassified = 0
+    for e in entries:
+        purpose = e.get("purpose")
+        severity = e.get("severity")
+        if purpose in by_purpose:
+            by_purpose[purpose] += 1
+        if severity in by_severity:
+            by_severity[severity] += 1
+        if e.get("risk_flag") is True:
+            flagged += 1
+        if purpose is None and severity is None and "risk_flag" not in e:
+            unclassified += 1
+    return {"total": len(entries), "risk_flagged": flagged,
+            "unclassified": unclassified, "by_purpose": by_purpose,
+            "by_severity": by_severity}
 
 
 def entry_core(entry: dict) -> dict:
@@ -195,9 +332,9 @@ class TraceLedger:
                  profile: str | None = None):
         if not trace_id:
             raise TraceError("trace_id 必填")
-        if profile is not None and profile not in ANNEX_III_VARIANTS:
+        if profile is not None and profile not in SUPPORTED_PROFILES:
             raise TraceError("不支持的记录档位 %r（可选：%s）"
-                             % (profile, ", ".join(ANNEX_III_VARIANTS)))
+                             % (profile, ", ".join(SUPPORTED_PROFILES)))
         self.trace_id = str(trace_id)
         self.actor = actor
         self.start_ts = start_ts
@@ -210,7 +347,10 @@ class TraceLedger:
                db_ref: Any = None, matched_input: Any = None,
                identity_check: dict | None = None, matched: bool = False,
                verified_by: str | None = None,
-               verify_method: str = "human_review") -> dict:
+               verify_method: str = "human_review",
+               purpose: str | None = None, event_type: str | None = None,
+               severity: str | None = None, risk_flag: bool | None = None,
+               monitor_tag: str | None = None) -> dict:
         """追加一步。
 
         普通用法与 0.7.x 完全一致（``action/args/observation/ts``）——此时条目键集合
@@ -226,6 +366,20 @@ class TraceLedger:
         - ``matched``：本步检索是否命中；为 True 时必须给 ``matched_input``；
         - ``verified_by``：做 Art.14(5) 人工复核的自然人标识，给了就生成
           ``identity_check = {verifier, method, at}``；档位开启时该项也必填。
+
+        启用 ``profile="art12-2"``（对应 Art.12(2)(a)(b)(c)）时，``purpose`` /
+        ``event_type`` / ``severity`` / ``risk_flag`` 变成写入前置条件（缺一项抛
+        :class:`TraceError`），``monitor_tag`` 仍可选：
+
+        - ``purpose``：``risk_identification`` / ``post_market_monitoring`` /
+          ``deployer_evaluation``，分别对应 (a)/(b)/(c)；
+        - ``event_type``：事件类型短标识（如 ``drift_detected``），用于同用途下细分；
+        - ``severity``：``info/low/medium/high/critical`` 五档；
+        - ``risk_flag``：本步是否属于已识别的风险情形（布尔，必填 —— 不填与"没有风险"
+          在日志里无法区分）；
+        - ``monitor_tag``：监测通道/批次标签，便于按来源筛取。
+
+        未启用该档位时这五个字段仍可显式传入（进哈希、可筛取），只是不强制。
         """
         prof = self.profile
         extras: dict[str, Any] = {}
@@ -242,6 +396,9 @@ class TraceLedger:
                               "at": ts or (extras.get("period") or {}).get("end")}
         if identity_check is not None:
             extras["identity_check"] = _normalize_identity(identity_check)
+        extras.update(_normalize_risk_fields(purpose=purpose, event_type=event_type,
+                                            severity=severity, risk_flag=risk_flag,
+                                            monitor_tag=monitor_tag))
 
         if prof == "annex3-1a":
             if "period" not in extras:
@@ -259,6 +416,24 @@ class TraceLedger:
                 raise TraceError(
                     "E_ANNEX3_IDENTITY_MISSING: Art.12(3)(d) 要求记录 Art.14(5) 自然人身份核验，"
                     "annex3-1a 档位下必填（可用 verified_by= 传入）")
+
+        if prof == "art12-2":
+            if "purpose" not in extras:
+                raise TraceError(
+                    "E_ART12_2_PURPOSE_MISSING: Art.12(2)(a)(b)(c) 要求日志可按用途筛取，"
+                    "art12-2 档位下 purpose 必填（可选：%s）" % ", ".join(ART12_2_PURPOSES))
+            if "event_type" not in extras:
+                raise TraceError(
+                    "E_ART12_2_EVENT_TYPE_MISSING: Art.12(2) 要求日志能定位到具体风险事件，"
+                    "art12-2 档位下 event_type 必填")
+            if "severity" not in extras:
+                raise TraceError(
+                    "E_ART12_2_SEVERITY_MISSING: Art.12(2) 要求按风险情形筛取，"
+                    "art12-2 档位下 severity 必填（可选：%s）" % ", ".join(SEVERITY_LEVELS))
+            if "risk_flag" not in extras:
+                raise TraceError(
+                    "E_ART12_2_RISK_FLAG_MISSING: Art.12(2)(a) 要区分「属风险情形」与普通步骤，"
+                    "art12-2 档位下 risk_flag 必填（不确定不等于没风险，不填即拒绝）")
 
         prev = self.head
         n = len(self._entries)
@@ -574,7 +749,9 @@ def locate_step(body: dict, sealed_anchors: dict) -> dict:
 def seal_trace(body: dict, private_key_path: str, issuer: str, subject: str | None = None,
                out_path: str | None = None, challenge: str | None = None,
                exit_name: str = "cli:seal", anchor_stride: int | None = None,
-               anchor_max: int = ANCHOR_MAX, anchor_trunc: int = ANCHOR_TRUNC) -> dict:
+               anchor_max: int = ANCHOR_MAX, anchor_trunc: int = ANCHOR_TRUNC,
+               timestamp_url: str | None = None, timestamp_timeout: float | None = None,
+               timestamp_roots: Any = None) -> dict:
     """把「轨迹头 + 摘要 + 步级锚点」盖章封存。
 
     被封存的 payload 含 ``trace_id / step_count / head / digest / anchors``，**不含逐步全文**：
@@ -588,6 +765,12 @@ def seal_trace(body: dict, private_key_path: str, issuer: str, subject: str | No
     不绕开 ``tests/test_exit_integrity.py`` 的静态 AST 门禁。``exit_name`` 必须是
     已注册出口，默认借用 ``cli:seal``；新增专用出口需要同时补 EXITS 与最少载荷用例，
     属于门禁变更，走 GOVERNANCE 流程，这里不擅自放宽。
+
+    ``timestamp_url`` 非空时，把 payload 的规范化摘要交给该 RFC 3161 TSA 换取外部
+    时间戳，token 与 payload 一起落在同一份凭证文件里（见
+    :func:`check_external_timestamp`）。**只承诺「这份摘要在该时刻已存在」**：TSA
+    不保管你的文件，事后把整份凭证连同重签一起重做、再换一个新时间戳，仍然无法被
+    本机制发现——那需要第三方留存或 WORM，不在此处。
     """
     from . import exit_guard
 
@@ -606,15 +789,154 @@ def seal_trace(body: dict, private_key_path: str, issuer: str, subject: str | No
         payload["anchors"] = build_anchors(body, stride=anchor_stride,
                                           trunc=anchor_trunc, max_anchors=anchor_max)
     exit_guard.judge(exit_name, payload, basis="attested")
-    return exit_guard.issue_credential(payload, private_key_path, issuer,
-                                       exit_name=exit_name,
-                                       subject=subject or body.get("trace_id"),
-                                       out_path=out_path, challenge=challenge)
+    res = exit_guard.issue_credential(payload, private_key_path, issuer,
+                                      exit_name=exit_name,
+                                      subject=subject or body.get("trace_id"),
+                                      out_path=out_path, challenge=challenge)
+    if timestamp_url:
+        seal_path = res.get("seal_path") or out_path
+        stamp_res = stamp_path_payload(seal_path, payload, timestamp_url,
+                                      timeout=timestamp_timeout,
+                                      trusted_roots=timestamp_roots)
+        out = dict(res)
+        out["external_timestamp"] = stamp_res
+        return out
+    return res
+
+
+def payload_imprint(payload: dict) -> str:
+    """外部时间戳覆盖的摘要 = SHA256(规范化 payload)。跨机器可重算。"""
+    return _sha256(_c14n(payload))
+
+
+def stamp_path_payload(seal_path: str, payload: dict, url: str,
+                       timeout: float | None = None,
+                       trusted_roots: Any = None) -> dict:
+    """为已签发的凭证补一枚外部时间戳（RFC 3161），写回同一份凭证文件。
+
+    与 ``seal_trace(timestamp_url=...)`` 二选一使用：那条路径是签发时顺手打戳，这条是
+    对既有凭证补打（例如先离线签、后联网打戳）。
+    """
+    from . import timestamp as _timestamp
+
+    if not seal_path or not os.path.exists(seal_path):
+        raise TraceError("补打时间戳失败：凭证文件不存在 —— %s" % seal_path)
+    kwargs = {} if timeout is None else {"timeout": float(timeout)}
+    digest = _timestamp.digest_of(_c14n(payload).encode("utf-8"))
+    stamp = _timestamp.stamp_digest(digest, url, trusted_roots=trusted_roots, **kwargs)
+    record = {
+        "schema": _timestamp.SCHEMA,
+        "url": stamp["url"],
+        "gen_time": stamp["verified"]["tst"]["gen_time"],
+        "digest_alg": stamp["digest_alg"],
+        "imprint_sha256": stamp["digest_hex"],
+        "nonce": stamp["nonce"],
+        "token_b64": stamp["token_b64"],
+        "token_sha256": stamp["token_sha256"],
+    }
+    _write_seal_ext(seal_path, record)
+    return {"present": True, "ok": True, "gen_time": record["gen_time"],
+            "url": record["url"], "token_sha256": record["token_sha256"],
+            "imprint_sha256": record["imprint_sha256"]}
+
+
+def _write_seal_ext(seal_path: str, record: dict) -> None:
+    """原子地把 ``external_timestamp`` 段写进凭证文件（不改动 payload）。"""
+    with open(seal_path, "r", encoding="utf-8") as fh:
+        doc = json.load(fh)
+    if not isinstance(doc, dict):
+        raise TraceError("补打时间戳失败：凭证文件结构非法")
+    doc[EXT_TS_KEY] = record
+    tmp = seal_path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(doc, fh, ensure_ascii=False, sort_keys=True, indent=1)
+    os.replace(tmp, seal_path)
+
+
+def check_external_timestamp(seal_path: str, payload: dict | None = None,
+                            trusted_roots: Any = None) -> dict:
+    """离线复核凭证里的外部时间戳（不联网）。
+
+    ``ok=True`` 需同时满足：token 能被解析、CMS 签名可信、``messageImprint`` 等于
+    **当前** payload 的规范化摘要、nonce/ESS 绑定都对得上。因此 payload 被改过时，
+    即便凭证签名那一段被绕过，时间戳这一层也会失配。
+    """
+    from . import timestamp as _timestamp
+
+    out: dict[str, Any] = {"present": False, "ok": False, "reason": "E_TSA_ABSENT"}
+    if not seal_path or not os.path.exists(seal_path):
+        return out
+    try:
+        with open(seal_path, "r", encoding="utf-8") as fh:
+            doc = json.load(fh)
+    except (OSError, ValueError) as exc:
+        out["reason"] = "E_TSA_SEAL_UNREADABLE: %s" % exc
+        return out
+    record = doc.get(EXT_TS_KEY) if isinstance(doc, dict) else None
+    if not isinstance(record, dict):
+        return out
+    ctx = payload if payload is not None else _seal_payload(seal_path)
+    if not isinstance(ctx, dict):
+        out.update({"present": True, "reason": "E_TSA_NO_PAYLOAD"})
+        return out
+    out.update({"present": True, "url": record.get("url"),
+                "gen_time": record.get("gen_time"),
+                "token_sha256": record.get("token_sha256"),
+                "sealed_imprint_sha256": record.get("imprint_sha256")})
+    try:
+        token = base64.b64decode(record.get("token_b64") or "")
+        digest = _timestamp.digest_of(_c14n(ctx).encode("utf-8"))
+        res = _timestamp.verify_token(token, digest,
+                                      hash_name=record.get("digest_alg", "sha256"),
+                                      expected_nonce=record.get("nonce"),
+                                      trusted_roots=trusted_roots)
+    except (TraceError, ValueError, TypeError) as exc:  # binascii.Error 属 ValueError 子类
+        out["reason"] = "E_TSA_TOKEN_UNUSABLE: %s" % exc
+        return out
+    out["ok"] = bool(res.get("ok"))
+    out["reason"] = "" if out["ok"] else (res.get("reason") or "E_TSA_VERIFY_FAILED")
+    out["checks"] = res.get("checks")
+    out["recomputed_imprint_sha256"] = digest.hex()
+    return out
 
 
 def verify_sealed_trace(body: dict, seal_path: str, keys_path: str | None = None,
                         expected_challenge: str | None = None,
-                        require_anchors: bool = False) -> dict:
+                        require_anchors: bool = False,
+                        require_external_timestamp: bool = False,
+                        trusted_roots: Any = None) -> dict:
+    """三段式校验（链 / 签名 / 头摘要）+ 第四段：凭证里若带外部时间戳则离线复核。
+
+    前三段的行为与返回值见 :func:`_verify_sealed_trace_stages`。返回体固定多一个
+    ``external_timestamp``：``present`` 表示该凭证是否打了戳，``ok`` 表示戳本身是否
+    通过（token 可解析、CMS 签名可信、imprint 等于**当前** payload 摘要、nonce/ESS 绑定成立）。
+
+    ``require_external_timestamp=True`` 时，缺戳或戳不成立一律 ``verdict="INVALID"``
+    （``E_TRACE_TSA_ABSENT`` / ``E_TRACE_TSA_INVALID``）——这是"要外部时间背书才算数"
+    的口径；默认 ``False`` 时戳只是附加证据，不影响前三级判定，避免旧凭证集体失效。
+    """
+    res = _verify_sealed_trace_stages(body, seal_path, keys_path=keys_path,
+                                      expected_challenge=expected_challenge,
+                                      require_anchors=require_anchors)
+    ext = check_external_timestamp(seal_path, trusted_roots=trusted_roots)
+    res["external_timestamp"] = ext
+    if not require_external_timestamp:
+        return res
+    if not ext.get("present"):
+        out = dict(res)
+        out.update({"verdict": "INVALID", "reason": "E_TRACE_TSA_ABSENT"})
+        return out
+    if not ext.get("ok"):
+        out = dict(res)
+        out.update({"verdict": "INVALID",
+                    "reason": "E_TRACE_TSA_INVALID: %s" % ext.get("reason")})
+        return out
+    return res
+
+
+def _verify_sealed_trace_stages(body: dict, seal_path: str, keys_path: str | None = None,
+                               expected_challenge: str | None = None,
+                               require_anchors: bool = False) -> dict:
     """三段式校验：① 链自洽 ② 凭证签名可信 ③ 凭证里的头/摘要与本轨迹一致。
 
     任一段不通过都返回 ``verdict = "INVALID"``，并给 ``reason``。只有三段全过才是 ``VALID``。

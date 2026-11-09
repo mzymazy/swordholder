@@ -1,0 +1,18 @@
+{
+ "FAIL": 1,
+ "PARTIAL": 1,
+ "PASS": 10,
+ "probes_total": 12,
+ "result_P01": "PASS",
+ "result_P02": "PASS",
+ "result_P03": "PASS",
+ "result_P04": "PASS",
+ "result_P05": "PASS",
+ "result_P06": "PASS",
+ "result_P07": "FAIL",
+ "result_P08": "PASS",
+ "result_P09": "PASS",
+ "result_P10": "PASS",
+ "result_P11": "PARTIAL",
+ "result_P12": "PASS"
+}
