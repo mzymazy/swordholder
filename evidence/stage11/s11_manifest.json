@@ -11,7 +11,7 @@
    "pytest": "9.2.0"
   },
   "git": {
-   "commit": "03b294963253d27654ea9e859f1a11476599eb3d",
+   "commit": "5cf34f79b7637319f03c3477a8804193e08f8c57",
    "dirty": false,
    "dirty_scope": [
     "swordholder",
@@ -83,9 +83,9 @@
    "sha256": "5ea8ae4cced95bd174107478ce217ed556f6af8337d5fc11d39495f5384e4ea3"
   },
   {
-   "bytes": 46836,
+   "bytes": 47650,
    "path": "scripts/stage11/compliance_probe.py",
-   "sha256": "2225865f156298d1ecdfd02d48edd3bf3dfdd94d19701646b264d9ad4c41191f"
+   "sha256": "4dc341a61b7cc379299e89561516e80b3a5c0602a1587bfab27390c86ff45390"
   },
   {
    "bytes": 4494,
@@ -398,10 +398,10 @@
    "sha256": "7207c8929361129c51dff32b7afa689c6f3f48e7ce3be23622d41b02ab4416f8"
   }
  ],
- "generated_at": "2026-11-09T06:55:03Z",
+ "generated_at": "2026-11-09T06:59:36Z",
  "root_name": "swordholder_mvp",
  "schema": "swordholder.repro_manifest/1",
  "swordholder_version": "0.9.0",
- "total_bytes": 768675,
- "tree_digest": "b3c733ac030629505df34f72016fc4f7b91b10c5c6e83ba0786e7d6a9f7f8189"
+ "total_bytes": 769489,
+ "tree_digest": "dc5bbc81cd18de84c65e68986fe41b64d8346989a446213b8a68133af6304a01"
 }

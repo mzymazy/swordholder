@@ -1,0 +1,382 @@
+{
+ "counts": {
+  "FAIL": 4,
+  "PARTIAL": 3,
+  "PASS": 5
+ },
+ "generated_by": "scripts/stage11/compliance_probe.py",
+ "probes": [
+  {
+   "clause": "EU AI Act Art.12(1)",
+   "evidence": {
+    "chain_ok": true,
+    "hash_independently_recomputed": 20,
+    "manual_hash_calls_by_caller": 0,
+    "steps": 20
+   },
+   "id": "P01",
+   "note": "20 步全部由 append 自动生成 prev/hash，调用方未做任何哈希或链接动作，第三方按同规则可独立重算 20/20 一致。",
+   "requirement": "High-risk AI systems shall technically allow for the automatic recording of events (logs) over the lifetime of the system",
+   "result": "PASS"
+  },
+  {
+   "clause": "EU AI Act Art.12(1) / Recital 71",
+   "evidence": {
+    "cross_process_continue_ok": false,
+    "has_public_resume_api": false,
+    "has_save_api": false,
+    "public_methods": [
+     "append",
+     "body",
+     "entries",
+     "head"
+    ]
+   },
+   "id": "P02",
+   "note": "本版本 TraceLedger 公开方法里没有 load/from_body/save：跨进程续写只能由调用方自己读 body、拼新条目（等于让使用者自己维护哈希链）。覆盖 lifetime 的「格式」存在、「接口」不存在，记 PARTIAL。",
+   "requirement": "recording of events ... over the lifetime of the system",
+   "result": "PARTIAL"
+  },
+  {
+   "clause": "EU AI Act Art.12(2)(a)(b)(c)",
+   "evidence": {
+    "builtin_risk_fields": [],
+    "entry_keys": [
+     "action",
+     "args",
+     "hash",
+     "n",
+     "observation",
+     "prev",
+     "ts"
+    ],
+    "free_form_payload": [
+     "args",
+     "observation"
+    ]
+   },
+   "id": "P03",
+   "note": "记录结构里没有风险分类/严重度/监测标签之类内建字段，只能靠 args/observation 自由承载。「能记录」成立，「能按 Art.12(2) 三类用途直接筛选」不成立，记 PARTIAL。",
+   "requirement": "logging capabilities shall enable the recording of events relevant for (a) identifying situations presenting a risk or substantial modification; (b) post-market monitoring; (c) monitoring the operation",
+   "result": "PARTIAL"
+  },
+  {
+   "clause": "EU AI Act Art.12(3) (Annex III 1(a))",
+   "evidence": {
+    "annex3_1a_profile": {
+     "covered_of_4": 4,
+     "entry_keys": [
+      "action",
+      "args",
+      "db_ref",
+      "hash",
+      "identity_check",
+      "matched_input",
+      "n",
+      "observation",
+      "period",
+      "prev",
+      "ts"
+     ],
+     "required_field_hits": {
+      "identity_verification_14_5": [
+       "identity_check"
+      ],
+      "input_data_matched": [
+       "matched_input"
+      ],
+      "period_start_and_end": [
+       "period"
+      ],
+      "reference_database": [
+       "db_ref"
+      ]
+     }
+    },
+    "default_profile": {
+     "covered_of_4": 0,
+     "entry_keys": [
+      "action",
+      "args",
+      "hash",
+      "n",
+      "observation",
+      "prev",
+      "ts"
+     ],
+     "required_field_hits": {
+      "identity_verification_14_5": [],
+      "input_data_matched": [],
+      "period_start_and_end": [],
+      "reference_database": []
+     }
+    },
+    "field_hash_binding": {
+     "chain_first_break": 1,
+     "chain_ok_after_field_edit": false,
+     "detected": true,
+     "profile_downgrade_detected": true,
+     "profile_downgrade_reason": "E_TRACE_DIGEST_MISMATCH",
+     "profile_downgrade_verdict": "INVALID",
+     "seal_reason": "E_TRACE_BREAK: 第 1 步内容与其哈希不符（疑似改值）",
+     "seal_segment": [
+      1,
+      1
+     ],
+     "seal_verdict": "INVALID"
+    },
+    "profile_supported": true,
+    "write_time_enforcement": {
+     "cases": {
+      "matched_without_input": "E_ANNEX3_MATCHED_INPUT_MISSING",
+      "no_db_ref": "E_ANNEX3_DB_REF_MISSING",
+      "no_identity_check": "E_ANNEX3_IDENTITY_MISSING",
+      "no_period": "E_ANNEX3_PERIOD_MISSING",
+      "period_end_before_start": "E_ANNEX3_PERIOD_INVALID",
+      "period_without_end": "E_ANNEX3_PERIOD_INVALID"
+     },
+     "of": 6,
+     "rejected": 6
+    }
+   },
+   "id": "P04",
+   "note": "annex3-1a 档位下 4 项必备字段命中 4/4，缺项拒写 6/6（错误码：E_ANNEX3_DB_REF_MISSING,E_ANNEX3_IDENTITY_MISSING,E_ANNEX3_MATCHED_INPUT_MISSING,E_ANNEX3_PERIOD_INVALID,E_ANNEX3_PERIOD_MISSING），字段入链后只改 period.end 即在第 1 步断链、封章校验判 INVALID（segment=[1, 1]），把 profile 档位删掉冒充普通轨迹则凭证判 INVALID（E_TRACE_DIGEST_MISMATCH）。**默认档位仍是 0/4**——本库不默认采集生物特征检索字段，Art.12(3) 的覆盖是「显式启用档位 + 写入强制 + 入链可验」，不是「所有记录自动合规」。",
+   "requirement": "logging shall include at least the period of each use, the reference database, the input data that led to a match, and the verification of the natural person per Article 14(5)",
+   "result": "PASS"
+  },
+  {
+   "clause": "EU AI Act Art.19(1) / Art.26(6)",
+   "evidence": {
+    "behavior": {
+     "archive": {
+      "digest_match": true,
+      "early_archive": "E_RETENTION_TOO_EARLY",
+      "sha256": "8db80949cb08322a...",
+      "tampered_archive_reason": "E_RETENTION_ARCHIVE_CHAIN: 第 2 步内容与其哈希不符（疑似改值）",
+      "tampered_archive_verdict": false,
+      "verify_chain_ok": true,
+      "verify_ok": true,
+      "written_path_rel": "archive\\2026-01\\S10-RET.7e6e4c7a.json"
+     },
+     "classify": {
+      "fresh": {
+       "age_days": 29.0,
+       "state": "retained"
+      },
+      "mature": {
+       "age_days": 272.0,
+       "meets_legal_floor": true,
+       "state": "archive_due"
+      }
+     },
+     "floor_rejected": true,
+     "module_available": true,
+     "policy": {
+      "archive_subdir": "archive",
+      "days": 190,
+      "extra": {},
+      "label": "eu-ai-act-art19",
+      "min_days_floor": 183,
+      "rotation": "month",
+      "ttl_seconds": 16416000
+     },
+     "ttl_seconds": 16416000
+    },
+    "retention_keyword_hits": 70,
+    "scanned_files": {
+     "swordholder/retention.py": {
+      "exists": true,
+      "hits": 70,
+      "lines": 290,
+      "sample": [
+       "\"\"\"日志留存、TTL 与归档（EU AI Act Art.19(1) / Art.26(6)）。",
+       "``retention|ttl|expire|archive|rotate`` 命中 0 次，判定 FAIL——记录是静态 JSON，",
+       "因此本模块把「六个月」写成**硬下限** ``MIN_RETENTION_DAYS = 183``：策略声明低于它"
+      ]
+     },
+     "swordholder/trace_ledger.py": {
+      "exists": true,
+      "hits": 0,
+      "lines": 664,
+      "sample": []
+     }
+    }
+   },
+   "id": "P05",
+   "note": "留存期机制落在 swordholder/retention.py：法定下限 183 天，声明 180 天被拒（True），声明 190 天时 29 天记录仍 retained、272 天记录 archive_due；归档副本写入后校验 chain/digest/body_sha256 全过，事后改副本内一步即被判 E_RETENTION_ARCHIVE_CHAIN: 第 2 步内容与其哈希不符（疑似改值）；未到期限强行归档被拒（E_RETENTION_TOO_EARLY）。两文件关键词命中 70 处。**到期「可归档」不等于「可销毁」**，本库不提供删除接口。",
+   "requirement": "logs shall be kept for a period appropriate to the intended purpose, of at least six months",
+   "result": "PASS"
+  },
+  {
+   "clause": "EU AI Act Art.73(6)",
+   "evidence": {
+    "baseline_verdict": "VALID",
+    "cases": {
+     "middle_step_rewrite_9": {
+      "first_break": null,
+      "reason": "E_TRACE_HEAD_MISMATCH",
+      "segment": [
+       9,
+       9
+      ],
+      "verdict": "INVALID"
+     },
+     "tail_truncation_3": {
+      "exact": true,
+      "reason": "E_TRACE_HEAD_MISMATCH",
+      "segment": [
+       17,
+       17
+      ],
+      "verdict": "INVALID"
+     },
+     "untampered_baseline": {
+      "reason": "",
+      "verdict": "VALID"
+     },
+     "whole_trace_substitution": {
+      "reason": "E_TRACE_ID_MISMATCH",
+      "segment": null,
+      "verdict": "INVALID"
+     }
+    },
+    "detected": 3,
+    "of": 3,
+    "step_located": 2,
+    "step_located_of": 2,
+    "substitution_identified_by": "E_TRACE_ID_MISMATCH"
+   },
+   "id": "P06",
+   "note": "三类取证破坏全部检出：尾部删 3 步、中间步改写都给到具体步（2/2），整条置换由 E_TRACE_ID_MISMATCH 判定——此时步级定位没有意义，不并入定位率。未改动基线仍判 VALID，说明不是靠一律报错凑检出。",
+   "requirement": "provider shall not perform any investigation which involves altering the AI system in a way which may affect any subsequent evaluation of the causes of the incident",
+   "result": "PASS"
+  },
+  {
+   "clause": "NIST AI 600-1 MS-2.8-003",
+   "evidence": {
+    "forged_selfsigned_verdict": "VALID",
+    "forged_vs_original_reason": "E_TRACE_HEAD_MISMATCH",
+    "forged_vs_original_seal_verdict": "INVALID",
+    "tamper_evident": true,
+    "tamper_proof": false
+   },
+   "id": "P07",
+   "note": "攻击者用同一把私钥改写第 7 步后重新自签，验证结果是 VALID——**拦不住**。本库的准确定位是 tamper-evident（可发现改动）而非 tamper-proof（不可产生改动副本）。MS-2.8-003 的 tamper-proof 字面要求未覆盖，必须列为缺口，不得写成满足。",
+   "requirement": "digital content transparency solutions ... to provide a tamper-proof history of the content, promote transparency, and enable traceability",
+   "result": "FAIL"
+  },
+  {
+   "clause": "NIST AI 600-1 MS-2.7-005",
+   "evidence": {
+    "detect_rate": 1.0,
+    "detected": 30,
+    "exact_rate": 1.0,
+    "exact_span_rate": 0.8,
+    "false_positive_scan_checked": 80,
+    "false_positives": 0,
+    "locate_rate": 1.0,
+    "source": "evidence/stage8/s8_locate.json"
+   },
+   "id": "P08",
+   "note": "误报有专门扫描（1..80 步未篡改 × 三配置，各 80 次，误报 0），漏报以 detection 分母（30/30）给出，定位还有 exact / exact_span 两档，不是只报一个 100%。",
+   "requirement": "Evaluate the rate of false positives and false negatives in content provenance ... for verification",
+   "result": "PASS"
+  },
+  {
+   "clause": "NIST AI RMF 1.0 MEASURE 3.1",
+   "evidence": {
+    "module": null
+   },
+   "id": "P09",
+   "note": "swordholder.monitor 不存在，部署期无任何跟踪组件。",
+   "requirement": "regularly identify and track existing, unanticipated, and emergent AI risks based on factors such as intended and actual performance in deployed contexts",
+   "result": "FAIL"
+  },
+  {
+   "clause": "SR 11-7 (Documentation, p.21)",
+   "evidence": {
+    "docs": [
+     "README.md",
+     "aigc-disclosure.md",
+     "architecture.md",
+     "claims-and-evidence.md",
+     "formal-model.md",
+     "images",
+     "key-rotation.md",
+     "policy.md",
+     "prior-work.md",
+     "proof-issuance.md",
+     "screenshots.md",
+     "stage10-compliance-fields.md",
+     "stage2-external-validity.md",
+     "stage3-attestation-layer.md",
+     "stage3-positioning.md",
+     "stage4-pricing-and-value.md",
+     "stage4-release-and-integration.md",
+     "stage5-head-to-head.md",
+     "stage5-scoring.md",
+     "stage6-public-and-gates.md",
+     "stage8-step-localization.md",
+     "trace-ledger.md"
+    ],
+    "has_examiner_dossier": false,
+    "stage_docs": [
+     "stage10-compliance-fields.md",
+     "stage2-external-validity.md",
+     "stage3-attestation-layer.md",
+     "stage3-positioning.md",
+     "stage4-pricing-and-value.md",
+     "stage4-release-and-integration.md",
+     "stage5-head-to-head.md",
+     "stage5-scoring.md",
+     "stage6-public-and-gates.md",
+     "stage8-step-localization.md"
+    ]
+   },
+   "id": "P10",
+   "note": "有分阶段技术文档（10 份 stage*.md），但没有面向 examiner 的成册文档。",
+   "requirement": "Documentation of model development and validation should be sufficiently detailed so that parties unfamiliar with a model can understand how the model operates, its limitations, and its key assumptions",
+   "result": "PARTIAL"
+  },
+  {
+   "clause": "EU AI Act Art.73(6) + Art.19",
+   "evidence": {
+    "anchor_location": "inside the signed credential, on the holder's own disk",
+    "external_timestamp": false,
+    "has_anchors": true,
+    "seal_payload_keys": [
+     "actor",
+     "anchors",
+     "digest",
+     "head",
+     "record_id",
+     "step_count",
+     "trace_id"
+    ],
+    "worm_storage": false
+   },
+   "id": "P11",
+   "note": "锚点确实封进了签名凭证，但凭证本身也躺在被记录方自己的磁盘上：能整体删掉、能整体替换、能重签。没有外部时间戳或不可写存储，就挡不住「连证据一起处理掉」。记 FAIL（缺口）。",
+   "requirement": "forensic evidence must survive the provider's own control (external anchoring / WORM)",
+   "result": "FAIL"
+  },
+  {
+   "clause": "delivery claim S11-01 (external reproducibility)",
+   "evidence": {
+    "module": null
+   },
+   "id": "P12",
+   "note": "swordholder.reproduce 不存在。",
+   "requirement": "a third party can recompute the delivered artefacts and the probe tally without network access or the package itself",
+   "result": "FAIL"
+  }
+ ],
+ "python": "3.11.8",
+ "snapshot": {
+  "commit": "d722e71",
+  "kind": "before_fix",
+  "note": "用同一份 scripts/stage11/compliance_probe.py（v3）在 d722e71 工作树上跑出来的对照快照；运行时剥离了指向主工作树的 editable finder，避免 0.8.0 代码被 0.9.0 模块污染。",
+  "version": "0.8.0"
+ },
+ "version": "0.8.0"
+}
