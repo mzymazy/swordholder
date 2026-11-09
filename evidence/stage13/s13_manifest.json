@@ -11,7 +11,7 @@
    "pytest": "9.2.0"
   },
   "git": {
-   "commit": "e364da3865f2bb42253a7fda7e53c70bfd5a7312",
+   "commit": "06001c152e2d67c7789345ecaab41b12f12feaf3",
    "dirty": false,
    "dirty_scope": [
     "swordholder",
@@ -59,11 +59,11 @@
   "note": "清单覆盖真实交付树；hash_mode=canonical-lf，仅收 git 跟踪文件；extra.scope 为全仓库分账（每个待提交文件必有归属）；expected 为 P01–P11 探针分档与计数（P12/P13 自指，显式排除），外部复跑必须逐项一致",
   "one_command": "python scripts/stage13/run_all.py --root . --out-dir evidence/stage13/e2e --summary evidence/stage13/s13_e2e_summary.json",
   "scope": {
-   "content_covered_count": 664,
+   "content_covered_count": 673,
    "content_exclude_prefixes": [
     "evidence/"
    ],
-   "content_excluded_count": 219,
+   "content_excluded_count": 226,
    "declared_count": 80,
    "declared_digest": "c4a1f509276a98b23758fcc5b3ce03c533b8c51d9f412660647b6230b4db53ce",
    "delivery_missing": [],
@@ -92,9 +92,9 @@
    "mode": "repo-partition",
    "not_in_repo": [],
    "ok": true,
-   "out_of_scope_content_digest": "059b2d6f53cc26941e37d998924c046e164326a6949bb8887c5aac89995b9dc3",
-   "out_of_scope_count": 883,
-   "out_of_scope_digest": "e6b466d55f31ce4510789813637cef7ee9f746e060cb31bdb831bd3cc9b262c0",
+   "out_of_scope_content_digest": "ebca640f35015dffdfe425f7ee5809f1becabfe0ff2165bd1c57ecfd39552aca",
+   "out_of_scope_count": 899,
+   "out_of_scope_digest": "04afa192deeff56f30e274325df74df4361efc5e656b85a3144a4ffb25986741",
    "sample_out_of_scope": [
     ".dockerignore",
     ".gitattributes",
@@ -105,8 +105,8 @@
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".github/workflows/mcp-selftest.yml"
    ],
-   "tracked_count": 963,
-   "universe_count": 963,
+   "tracked_count": 979,
+   "universe_count": 979,
    "untracked_uncommitted_count": 0
   },
   "stage": 13,
@@ -599,7 +599,7 @@
    "sha256_raw": "7207c8929361129c51dff32b7afa689c6f3f48e7ce3be23622d41b02ab4416f8"
   }
  ],
- "generated_at": "2026-11-09T16:58:07Z",
+ "generated_at": "2026-11-09T20:47:40Z",
  "hash_mode": "canonical-lf",
  "root_name": "swordholder_mvp",
  "schema": "swordholder.repro_manifest/1",
