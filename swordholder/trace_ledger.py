@@ -285,6 +285,60 @@ class TraceLedger:
         self._entries.append(entry)
         return entry
 
+    # ------------------------------------------------------------------ 续写
+    @classmethod
+    def from_body(cls, body: dict, *, verify: bool = True) -> "TraceLedger":
+        """从已有轨迹体恢复账本，用于跨进程 / 跨会话续写。
+
+        ``verify=True``（默认）先重算整链，链不自洽直接拒收——否则新条目会给旧篡改
+        背书。恢复后 ``append`` 从原头部继续链接，``step_count`` 自然递增。
+        """
+        if not isinstance(body, dict):
+            raise TraceError("E_TRACE_BODY_INVALID: 轨迹体必须是 dict")
+        trace_id = body.get("trace_id")
+        if not trace_id:
+            raise TraceError("E_TRACE_BODY_INVALID: 轨迹体缺少 trace_id")
+        entries = body.get("entries")
+        if not isinstance(entries, list):
+            raise TraceError("E_TRACE_BODY_INVALID: entries 必须是列表")
+        if verify:
+            check = verify_chain(body)
+            if not check["ok"]:
+                raise TraceError("E_TRACE_LOAD_BROKEN: 拒绝续写不自洽的轨迹 —— %s"
+                                 % check["reason"])
+        profile = body.get("profile")
+        if profile is not None and profile not in ANNEX_III_VARIANTS:
+            raise TraceError("E_TRACE_BODY_INVALID: 未知记录档位 %r" % (profile,))
+        obj = cls(trace_id=trace_id, actor=body.get("actor"),
+                  start_ts=body.get("start_ts"), profile=profile)
+        obj._entries = [dict(e) for e in entries]  # noqa: SLF001
+        return obj
+
+    @classmethod
+    def load(cls, path: str, *, verify: bool = True) -> "TraceLedger":
+        """从磁盘轨迹 JSON 恢复账本（接受裸轨迹体或带 body 外壳的凭证文档）。"""
+        if not os.path.exists(path):
+            raise TraceError("E_TRACE_FILE_MISSING: 轨迹文件不存在：%s" % path)
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                doc = json.load(fh)
+        except (OSError, ValueError) as exc:
+            raise TraceError("E_TRACE_FILE_UNREADABLE: %s" % exc)
+        if isinstance(doc, dict) and isinstance(doc.get("body"), dict):
+            doc = doc["body"]
+        return cls.from_body(doc, verify=verify)
+
+    def save(self, path: str) -> str:
+        """把当前轨迹体原子写入磁盘（先写 .tmp 再替换，避免半截文件）。"""
+        target_dir = os.path.dirname(os.path.abspath(path))
+        if target_dir:
+            os.makedirs(target_dir, exist_ok=True)
+        tmp = path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(self.body(), fh, ensure_ascii=False, sort_keys=True, indent=1)
+        os.replace(tmp, path)
+        return path
+
     # ------------------------------------------------------------------ 读取
     @property
     def entries(self) -> list[dict]:

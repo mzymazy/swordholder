@@ -24,7 +24,7 @@ from . import seal_schema
 from .trust import (TrustError, add_key, retire_key, revoke_key, revoke_seal,
                     restore_seal, summary, check_rotation, evaluate)
 
-__version__ = "0.8.0"
+__version__ = "0.9.0"
 
 __all__ = [
     "__version__",
@@ -39,6 +39,8 @@ __all__ = [
     "rule_triage",
     "load_alert",
     "Store",
+    "monitor",
+    "reproduce",
     "SealError",
     "AlertError",
     "trust",
@@ -57,3 +59,12 @@ __all__ = [
     "MIN_RETENTION_DAYS",
 ]
 
+
+def __getattr__(name):  # PEP 562：按需加载，避免 ``python -m swordholder.monitor`` 的 runpy 警告
+    if name in ("monitor", "reproduce"):
+        import importlib
+
+        mod = importlib.import_module("." + name, __name__)
+        globals()[name] = mod
+        return mod
+    raise AttributeError("module %r has no attribute %r" % (__name__, name))
