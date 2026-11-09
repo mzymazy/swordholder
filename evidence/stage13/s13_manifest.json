@@ -11,8 +11,8 @@
    "pytest": "9.2.0"
   },
   "git": {
-   "commit": "23bcde9b6d1998944d270fe1fa37910a46b38b21",
-   "dirty": true,
+   "commit": "5eb53cf654a30c11f5ae7e21b0d0dd3ca0d0bc83",
+   "dirty": false,
    "dirty_scope": [
     "swordholder",
     "scripts/stage11",
@@ -63,7 +63,7 @@
    "content_exclude_prefixes": [
     "evidence/"
    ],
-   "content_excluded_count": 218,
+   "content_excluded_count": 219,
    "declared_count": 80,
    "declared_digest": "c4a1f509276a98b23758fcc5b3ce03c533b8c51d9f412660647b6230b4db53ce",
    "delivery_missing": [],
@@ -92,9 +92,9 @@
    "mode": "repo-partition",
    "not_in_repo": [],
    "ok": true,
-   "out_of_scope_content_digest": "da7602d04795931c0e8bd51bd03dea165dcf383a44b286650386ed3f3bf66957",
-   "out_of_scope_count": 882,
-   "out_of_scope_digest": "41ac506da9b1d8b3016f3a4564bc1a5f608a673a420ec50f8b4eab1426b33cd2",
+   "out_of_scope_content_digest": "059b2d6f53cc26941e37d998924c046e164326a6949bb8887c5aac89995b9dc3",
+   "out_of_scope_count": 883,
+   "out_of_scope_digest": "e6b466d55f31ce4510789813637cef7ee9f746e060cb31bdb831bd3cc9b262c0",
    "sample_out_of_scope": [
     ".dockerignore",
     ".gitattributes",
@@ -105,8 +105,8 @@
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".github/workflows/mcp-selftest.yml"
    ],
-   "tracked_count": 962,
-   "universe_count": 962,
+   "tracked_count": 963,
+   "universe_count": 963,
    "untracked_uncommitted_count": 0
   },
   "stage": 13,
@@ -167,10 +167,10 @@
    "sha256_raw": "5ea8ae4cced95bd174107478ce217ed556f6af8337d5fc11d39495f5384e4ea3"
   },
   {
-   "bytes": 106014,
+   "bytes": 107954,
    "path": "scripts/stage11/compliance_probe.py",
-   "sha256": "ae17263f4a3c0119b16299f0c66a7107ae18249da630b092960d33b8c2ab0e88",
-   "sha256_raw": "ae17263f4a3c0119b16299f0c66a7107ae18249da630b092960d33b8c2ab0e88"
+   "sha256": "2e9caf7c3dccf11d20ddea9ea1075da218ee35df1ee5adedad9401578db5a969",
+   "sha256_raw": "2e9caf7c3dccf11d20ddea9ea1075da218ee35df1ee5adedad9401578db5a969"
   },
   {
    "bytes": 14992,
@@ -557,10 +557,10 @@
    "sha256_raw": "39ae60cf6f467d2fb167ed2b79307888e771ce2d6dd73b61e6a1a7ef655c2cce"
   },
   {
-   "bytes": 12492,
+   "bytes": 13381,
    "path": "tests/test_stage13_transparency_scope.py",
-   "sha256": "e49b63af87ae982693ff590d84fa4db2aebb2620d5a6715e5098926dc1ada104",
-   "sha256_raw": "e49b63af87ae982693ff590d84fa4db2aebb2620d5a6715e5098926dc1ada104"
+   "sha256": "71ccdd8a131abf51a45c0421906fe05cc997eb443e5b637436019faee1cf6c22",
+   "sha256_raw": "71ccdd8a131abf51a45c0421906fe05cc997eb443e5b637436019faee1cf6c22"
   },
   {
    "bytes": 4240,
@@ -599,11 +599,11 @@
    "sha256_raw": "7207c8929361129c51dff32b7afa689c6f3f48e7ce3be23622d41b02ab4416f8"
   }
  ],
- "generated_at": "2026-11-09T16:04:49Z",
+ "generated_at": "2026-11-09T16:49:31Z",
  "hash_mode": "canonical-lf",
  "root_name": "swordholder_mvp",
  "schema": "swordholder.repro_manifest/1",
  "swordholder_version": "0.10.1",
- "total_bytes": 1020029,
- "tree_digest": "bc19da21d39c0fbc067c5598c41b05673345be2622f33c6a2018c159a7c65597"
+ "total_bytes": 1022858,
+ "tree_digest": "a87c80bcd50215ade4ecab8ba128eb369dc2d1c1689bedfcc99b36b5f55a74c0"
 }
