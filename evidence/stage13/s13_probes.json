@@ -3,8 +3,8 @@
   "version": "0.10.1",
   "python": "3.11.8",
   "counts": {
-    "PASS": 9,
-    "PARTIAL": 3,
+    "PASS": 10,
+    "PARTIAL": 2,
     "FAIL": 1
   },
   "probes": [
@@ -360,7 +360,7 @@
       "result": "PASS",
       "evidence": {
         "first_scan": {
-          "root": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\tmpb4lg5o_n\\s11_deploy",
+          "root": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\tmpr2nji_jx\\s11_deploy",
           "traces_total": 4,
           "verified_ok": 4,
           "failed": 0,
@@ -472,30 +472,18 @@
       "requirement": "forensic evidence must survive the provider's own control (external anchoring / WORM)",
       "result": "PARTIAL",
       "evidence": {
-        "tsa_url": "http://timestamp.digicert.com",
+        "tsa_url": "https://freetsa.org/tsr",
         "tsa_stamp_present": true,
         "tsa_stamp_ok": true,
-        "tsa_gen_time": "20261109134026Z",
+        "tsa_gen_time": "20261109134502Z",
         "tsa_imprint_match": true,
         "tsa_cms_signature": true,
         "tsa_chain_trusted": true,
-        "tsa_token_sha256": "0abd70910b49a0f65ae717aefab1a84394c09c048c7a59fc56226a97c38a8970",
+        "tsa_token_sha256": "c2154e80a6278b2695cb7f9eb11317b5f269a71bddf4c3b4bda18c042cca749b",
         "tsa_stamp_error": null,
         "tsa_stamp_attempts": [
           {
             "url": "https://freetsa.org/tsr",
-            "attempt": 1,
-            "ok": false,
-            "error": "E_TSA_UNREACHABLE: <urlopen error _ssl.c:989: The handshake operation timed out>"
-          },
-          {
-            "url": "https://freetsa.org/tsr",
-            "attempt": 2,
-            "ok": false,
-            "error": "E_TSA_UNREACHABLE: The read operation timed out"
-          },
-          {
-            "url": "http://timestamp.digicert.com",
             "attempt": 1,
             "ok": true
           }
@@ -528,16 +516,16 @@
           "external": true,
           "log_url": "https://rekor.sigstore.dev",
           "reachable": true,
-          "tree_size": 3643907875,
-          "root_hash": "52ce1375f5d873fca744ff4450b04202e8314ff37d60718f771272ee293d00a3",
+          "tree_size": 3643948415,
+          "root_hash": "fdaa33d266f4d5b80488042a719c95b79aba31890227ae9b542bbbd7f9d18f4f",
           "note": "Rekor 只追加：条目写入后不可删除或改写"
         },
         "tlog_submitted": true,
         "tlog_submit_error": null,
         "tlog_statement": {
           "schema": "swordholder.anchor_statement/1",
-          "digest": "7d1a65ed3c0cdf27095c412c2bd73260d7b874eb9cfeca24d80b33c2ff651a6a",
-          "bytes": 572,
+          "digest": "030ef76af4cf694a0ffdfa01c8240924372d1994426bb33f3f3fb89e3ab773da",
+          "bytes": 566,
           "fields": [
             "extra",
             "purpose",
@@ -553,15 +541,15 @@
           "backend": "rekor-public",
           "external": true,
           "immutable": true,
-          "entry_uuid": "108e9186e8c5677aa0e1a8d343bb9dbe9eb6f03fe6737877a70fee2b101633d1b0fe04385675f32f",
-          "log_index": 3765812169,
-          "integrated_time": 1794231629,
+          "entry_uuid": "108e9186e8c5677a44a6e74bf4f648634b6c2f999fe141dd34dd1a86902fb3a5c56ce0e68dae6c7a",
+          "log_index": 3765852840,
+          "integrated_time": 1794231924,
           "log_id": "c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d",
-          "artifact_sha256": "7d1a65ed3c0cdf27095c412c2bd73260d7b874eb9cfeca24d80b33c2ff651a6a",
+          "artifact_sha256": "030ef76af4cf694a0ffdfa01c8240924372d1994426bb33f3f3fb89e3ab773da",
           "set_verified": true,
           "already_existed": false,
-          "anchored_at": "2026-11-09T13:40:29Z",
-          "signer_public_key_sha256": "b2bba556384f7faf179681fc3248521df292065ef14fc1098c7ca890efb2f991"
+          "anchored_at": "2026-11-09T13:45:25Z",
+          "signer_public_key_sha256": "e41b90535dd0824a720edc254a362ccddca3407daca94aa45c5e4bcbb8e6d0ad"
         },
         "tlog_receipt_check": {
           "schema_ok": true,
@@ -573,13 +561,13 @@
           "externally_checkable": true,
           "index_match": true,
           "backend": "rekor-public",
-          "entry_uuid": "108e9186e8c5677aa0e1a8d343bb9dbe9eb6f03fe6737877a70fee2b101633d1b0fe04385675f32f",
-          "log_index": 3765812169,
-          "integrated_time": 1794231629,
+          "entry_uuid": "108e9186e8c5677a44a6e74bf4f648634b6c2f999fe141dd34dd1a86902fb3a5c56ce0e68dae6c7a",
+          "log_index": 3765852840,
+          "integrated_time": 1794231924,
           "ok": true,
-          "local_digest": "7d1a65ed3c0cdf27095c412c2bd73260d7b874eb9cfeca24d80b33c2ff651a6a",
-          "log_index_fetched": 3765812169,
-          "integrated_time_fetched": 1794231629
+          "local_digest": "030ef76af4cf694a0ffdfa01c8240924372d1994426bb33f3f3fb89e3ab773da",
+          "log_index_fetched": 3765852840,
+          "integrated_time_fetched": 1794231924
         },
         "tlog_independent_verify": {
           "script": "scripts/stage13/verify_anchor.py",
@@ -601,32 +589,32 @@
           }
         },
         "tlog_rework_detection": {
-          "anchored_digest": "7d1a65ed3c0cdf27095c412c2bd73260d7b874eb9cfeca24d80b33c2ff651a6a",
-          "current_digest": "72e0c9fd30bcd09a8473b10ce001a3ca564fa5c50152680d55e95c84ef594342",
+          "anchored_digest": "030ef76af4cf694a0ffdfa01c8240924372d1994426bb33f3f3fb89e3ab773da",
+          "current_digest": "4189ffac833e71e642b55834913df1221d0cc068cde6d07adedf13641cf42c67",
           "mismatch": true,
           "detectable": true,
-          "entry_uuid": "108e9186e8c5677aa0e1a8d343bb9dbe9eb6f03fe6737877a70fee2b101633d1b0fe04385675f32f",
-          "integrated_time": 1794231629,
+          "entry_uuid": "108e9186e8c5677a44a6e74bf4f648634b6c2f999fe141dd34dd1a86902fb3a5c56ce0e68dae6c7a",
+          "integrated_time": 1794231924,
           "external": true,
           "prior_entry_still_present": true,
           "note": "回执锚定的是另一份凭证，日志条目不可删改，故「整册重做」可被留存过回执的第三方证明"
         },
         "tlog_archive": {
           "archived_to_repo": true,
-          "kept_existing": false,
+          "kept_existing": true,
           "path": "evidence/stage13/s13_anchor_receipts.json"
         },
         "tlog_external_ok": true,
         "tlog_rework_detectable": true,
         "tlog_warnings": []
       },
-      "note": "两级外部锚定都真跑通了：① RFC 3161 时间戳（20261109134026Z，离线可复核 CMS 签名 / messageImprint / nonce）；② 锚点摘要已提交到公共只追加日志（https://rekor.sigstore.dev，条目 uuid=108e9186e8c5677aa0e1a8d343bb9dbe9eb6f03fe6737877a70fee2b101633d1b0fe04385675f32f，logIndex=3765812169，SET 验签=True），并且用**不 import 本项目**的 scripts/stage13/verify_anchor.py 独立复核通过（按摘要反查得到同一条目）。反例也随之变强：持钥者改写第 7 步、重算整链、重签并重打新戳后，签名校验当然仍判 VALID（VALID），但拿手里的回执核对眼前凭证会立刻 mismatch（本次 detectable=True，旧条目仍在=True）——「整册重做」从不可发现变成**持回执者可发现、且可拿日志旧条目举证**。仍记 PARTIAL，因为边界没消失：① 日志只锁摘要不锁正文，凭证正文仍躺在持证方磁盘上，删了日志里查不出内容；② 无 WORM 副本；③ 首次核验者手里没有历史回执时，重做对他依然隐形（detect_rework 无回执即 E_TLOG_NO_PRIOR_RECEIPT）；④ 同一 trace 可再注册一条新锚点，「哪条权威」要靠外部时间线策略仲裁，交付方自己说了不算。"
+      "note": "两级外部锚定都真跑通了：① RFC 3161 时间戳（20261109134502Z，离线可复核 CMS 签名 / messageImprint / nonce）；② 锚点摘要已提交到公共只追加日志（https://rekor.sigstore.dev，条目 uuid=108e9186e8c5677a44a6e74bf4f648634b6c2f999fe141dd34dd1a86902fb3a5c56ce0e68dae6c7a，logIndex=3765852840，SET 验签=True），并且用**不 import 本项目**的 scripts/stage13/verify_anchor.py 独立复核通过（按摘要反查得到同一条目）。反例也随之变强：持钥者改写第 7 步、重算整链、重签并重打新戳后，签名校验当然仍判 VALID（VALID），但拿手里的回执核对眼前凭证会立刻 mismatch（本次 detectable=True，旧条目仍在=True）——「整册重做」从不可发现变成**持回执者可发现、且可拿日志旧条目举证**。仍记 PARTIAL，因为边界没消失：① 日志只锁摘要不锁正文，凭证正文仍躺在持证方磁盘上，删了日志里查不出内容；② 无 WORM 副本；③ 首次核验者手里没有历史回执时，重做对他依然隐形（detect_rework 无回执即 E_TLOG_NO_PRIOR_RECEIPT）；④ 同一 trace 可再注册一条新锚点，「哪条权威」要靠外部时间线策略仲裁，交付方自己说了不算。"
     },
     {
       "id": "P12",
       "clause": "delivery claim S11-01 (external reproducibility)",
       "requirement": "a third party who only has the repository can export the delivered tree (git archive), recompute it offline and get the same result, while any content change or tally divergence still fails",
-      "result": "PARTIAL",
+      "result": "PASS",
       "evidence": {
         "manifest_schema": "swordholder.repro_manifest/1",
         "manifest_hash_mode": "canonical-lf",
@@ -658,16 +646,16 @@
         "manifest_bytes_canonical": 1012929,
         "tree_digest": "0bf1c545caf99b9ae422795a008c58dd7e497b28652f66fb255e498dd4f09542",
         "archive_source": "git archive --format=tar HEAD",
-        "archive_commit": "d47ab5e98cfac234614a95292fd3d24aff24f3c0",
+        "archive_commit": "9ca34e94796e5ad727bf615d2e9258f0448d32d5",
         "archive_ok": true,
-        "archive_entries_extracted": 957,
-        "export_tree_file_count": 957,
+        "archive_entries_extracted": 962,
+        "export_tree_file_count": 962,
         "export_missing_from_manifest": [],
         "export_missing_count": 0,
-        "export_tree_exit_code": 1,
-        "export_tree_ok": false,
+        "export_tree_exit_code": 0,
+        "export_tree_ok": true,
         "export_checked_reported": 80,
-        "export_tree_digest_match": false,
+        "export_tree_digest_match": true,
         "workspace_tree_exit_code": 0,
         "workspace_tree_ok": true,
         "eol_insensitive_selfcheck": true,
@@ -703,14 +691,14 @@
         "tally_stable": true,
         "tampered_tree_exit_code": 1,
         "tamper_detected": true,
-        "tampered_mismatched_count": 6,
+        "tampered_mismatched_count": 1,
         "expected_tally_enforced_exit_code": 1,
         "expected_tally_enforced": true,
         "demo_manifest_on_real_tree_exit_code": 1,
         "demo_manifest_rejected": true,
         "demo_manifest_file_count": 1
       },
-      "note": "复算对象改为**外部真实取得路径**：git archive HEAD 导出的干净树（957 个条目，提交 d47ab5e98cfa），不再逐文件 copy 我方工作区。清单口径 canonical-lf 且只收 git 跟踪文件（剔除未跟踪 1 项：swordholder/samples/alert_02_token.seal.json）。导出树复算 exit=1、checked=80、tree_digest_match=False；同一份清单在我方工作区同样 exit=0；canonical 口径对 CRLF/LF 给出同一哈希（自检 True），而 raw 口径对同一内容给出不同哈希（自检 True，这正是 S12 原方案的缺陷所在）；改一字节 exit=1 且 tree_digest 不一致；改已公布分档 exit=1；1 文件 demo 清单 exit=1；本轮 P01–P11 分档与上一轮落盘值一致（差异项 0 个）。"
+      "note": "复算对象改为**外部真实取得路径**：git archive HEAD 导出的干净树（962 个条目，提交 9ca34e94796e），不再逐文件 copy 我方工作区。清单口径 canonical-lf 且只收 git 跟踪文件（剔除未跟踪 1 项：swordholder/samples/alert_02_token.seal.json）。导出树复算 exit=0、checked=80、tree_digest_match=True；同一份清单在我方工作区同样 exit=0；canonical 口径对 CRLF/LF 给出同一哈希（自检 True），而 raw 口径对同一内容给出不同哈希（自检 True，这正是 S12 原方案的缺陷所在）；改一字节 exit=1 且 tree_digest 不一致；改已公布分档 exit=1；1 文件 demo 清单 exit=1；本轮 P01–P11 分档与上一轮落盘值一致（差异项 0 个）。"
     },
     {
       "id": "P13",
@@ -785,7 +773,7 @@
         "scope": {
           "mode": "repo-partition",
           "ok": true,
-          "tracked_count": 957,
+          "tracked_count": 962,
           "universe_count": 962,
           "declared_count": 80,
           "out_of_scope_count": 882,
@@ -795,7 +783,7 @@
             "swordholder/samples/alert_02_token.seal.json"
           ],
           "ignored_unexplained": [],
-          "untracked_uncommitted_count": 5
+          "untracked_uncommitted_count": 0
         },
         "scope_manifest_written": "temp/s13_scope_manifest.json",
         "scope_negative_cases": {
@@ -807,7 +795,7 @@
               "all_out_of_scope_accounted": false,
               "out_of_scope_content_matches": false,
               "content_exclusion_safe": true,
-              "no_untracked_in_repo": false,
+              "no_untracked_in_repo": true,
               "declared_count_matches": true,
               "ignored_all_explained": true,
               "declared_within_prefixes": true
@@ -827,7 +815,7 @@
               "all_out_of_scope_accounted": true,
               "out_of_scope_content_matches": true,
               "content_exclusion_safe": true,
-              "no_untracked_in_repo": false,
+              "no_untracked_in_repo": true,
               "declared_count_matches": true,
               "ignored_all_explained": false,
               "declared_within_prefixes": true
@@ -841,22 +829,30 @@
             "clone_rc": 0,
             "clone_err": "",
             "run_rc": 1,
-            "run_out": "{\r\n \"env\": {\r\n  \"dirty_entries\": 0,\r\n  \"head\": \"d47ab5e98cfac234614a95292fd3d24aff24f3c0\",\r\n  \"platform\": \"Windows-10-10.0.26200-SP0\",\r\n  \"worktree_clean\": true\r\n },\r\n \"generated_at\": \"2026-11-09T21:40:46\",\r\n \"ok\": false,\r\n \"python\": {\r\n  \"executable\": \"O:\\\\接单\\\\参赛\\\\swordholder_mvp\\\\.venv\\\\Scripts\\\\python.exe\",\r\n  \"isolated_from_source\": false,\r\n  \"version\": \"3.11.8\"\r\n },\r\n \"reason\": \"E_MANIFEST_MISSING: evidence/stage13/s13_manifest.json\",\r\n \"root\": \"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\tmpb4lg5o_n\\\\clone_autocrlf_true\\\\repo\",\r\n \"schema\": \"swordholder.e2e_summary/1\",\r\n \"steps\": {\r\n  \"env\": {\r\n   \"detail\": {\r\n    \"manifest_present\": false,\r\n    \"receipts_present\": false,\r\n    \"statement_present\": false\r\n   },\r\n   \"ok\": false\r\n  }\r\n }\r\n}\r\n",
+            "run_out": "{\r\n \"facts\": {\r\n  \"checked\": 80,\r\n  \"expected_ok\": false,\r\n  \"mismatched_count\": 0,\r\n  \"scope_ok\": false,\r\n  \"tree_digest_match\": true\r\n },\r\n \"failed_steps\": [\r\n  \"verify\",\r\n  \"rebuild\"\r\n ],\r\n \"ok\": false,\r\n \"steps\": {\r\n  \"anchor\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"env\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"probe\": {\r\n   \"ok\": true,\r\n   \"seconds\": 38.78\r\n  },\r\n  \"rebuild\": {\r\n   \"ok\": false,\r\n   \"seconds\": 0.74\r\n  },\r\n  \"tests\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"verify\": {\r\n   \"ok\": false,\r\n   \"seconds\": 0.7\r\n  }\r\n },\r\n \"summary\": \"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\tmpr2nji_jx\\\\clone_autocrlf_true\\\\repo\\\\evidence/stage13/s13_e2e_summary.json\"\r\n}\r\n",
             "run_err": "",
             "summary_present": true,
             "summary_ok": false,
             "worktree_clean_at_start": true,
-            "checked": null,
-            "tree_digest_match": null,
-            "scope_ok": null,
-            "scope_out_of_scope": null,
-            "expected_ok": null,
-            "mismatched_count": null,
+            "checked": 80,
+            "tree_digest_match": true,
+            "scope_ok": false,
+            "scope_out_of_scope": 882,
+            "expected_ok": false,
+            "mismatched_count": 0,
             "clone_autocrlf": "true",
             "steps": {
-              "env": false
+              "anchor": true,
+              "env": true,
+              "probe": true,
+              "rebuild": false,
+              "tests": true,
+              "verify": false
             },
-            "failed_steps": null,
+            "failed_steps": [
+              "verify",
+              "rebuild"
+            ],
             "crlf_bytes_observed": null
           },
           "autocrlf_false": {
@@ -864,28 +860,36 @@
             "clone_rc": 0,
             "clone_err": "",
             "run_rc": 1,
-            "run_out": "{\r\n \"env\": {\r\n  \"dirty_entries\": 0,\r\n  \"head\": \"d47ab5e98cfac234614a95292fd3d24aff24f3c0\",\r\n  \"platform\": \"Windows-10-10.0.26200-SP0\",\r\n  \"worktree_clean\": true\r\n },\r\n \"generated_at\": \"2026-11-09T21:40:52\",\r\n \"ok\": false,\r\n \"python\": {\r\n  \"executable\": \"O:\\\\接单\\\\参赛\\\\swordholder_mvp\\\\.venv\\\\Scripts\\\\python.exe\",\r\n  \"isolated_from_source\": false,\r\n  \"version\": \"3.11.8\"\r\n },\r\n \"reason\": \"E_MANIFEST_MISSING: evidence/stage13/s13_manifest.json\",\r\n \"root\": \"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\tmpb4lg5o_n\\\\clone_autocrlf_false\\\\repo\",\r\n \"schema\": \"swordholder.e2e_summary/1\",\r\n \"steps\": {\r\n  \"env\": {\r\n   \"detail\": {\r\n    \"manifest_present\": false,\r\n    \"receipts_present\": false,\r\n    \"statement_present\": false\r\n   },\r\n   \"ok\": false\r\n  }\r\n }\r\n}\r\n",
+            "run_out": "{\r\n \"facts\": {\r\n  \"checked\": 80,\r\n  \"expected_ok\": false,\r\n  \"mismatched_count\": 0,\r\n  \"scope_ok\": false,\r\n  \"tree_digest_match\": true\r\n },\r\n \"failed_steps\": [\r\n  \"verify\",\r\n  \"rebuild\"\r\n ],\r\n \"ok\": false,\r\n \"steps\": {\r\n  \"anchor\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"env\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"probe\": {\r\n   \"ok\": true,\r\n   \"seconds\": 34.63\r\n  },\r\n  \"rebuild\": {\r\n   \"ok\": false,\r\n   \"seconds\": 0.73\r\n  },\r\n  \"tests\": {\r\n   \"ok\": true,\r\n   \"seconds\": null\r\n  },\r\n  \"verify\": {\r\n   \"ok\": false,\r\n   \"seconds\": 0.7\r\n  }\r\n },\r\n \"summary\": \"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\tmpr2nji_jx\\\\clone_autocrlf_false\\\\repo\\\\evidence/stage13/s13_e2e_summary.json\"\r\n}\r\n",
             "run_err": "",
             "summary_present": true,
             "summary_ok": false,
             "worktree_clean_at_start": true,
-            "checked": null,
-            "tree_digest_match": null,
-            "scope_ok": null,
-            "scope_out_of_scope": null,
-            "expected_ok": null,
-            "mismatched_count": null,
+            "checked": 80,
+            "tree_digest_match": true,
+            "scope_ok": false,
+            "scope_out_of_scope": 882,
+            "expected_ok": false,
+            "mismatched_count": 0,
             "clone_autocrlf": "false",
             "steps": {
-              "env": false
+              "anchor": true,
+              "env": true,
+              "probe": true,
+              "rebuild": false,
+              "tests": true,
+              "verify": false
             },
-            "failed_steps": null,
+            "failed_steps": [
+              "verify",
+              "rebuild"
+            ],
             "crlf_bytes_observed": null
           }
         },
         "clone_matrix_all_ok": false
       },
-      "note": "一键复现在两个真实 clone 里跑通（autocrlf_true: rc=1 ok=False checked=None digest=None scope=None expected=None; autocrlf_false: rc=1 ok=False checked=None digest=None scope=None expected=None）。交付范围改为**全仓库分账**：仓库内 962 个待提交文件全部有归属——80 个进清单、882 个落在范围外且路径集合摘要锁死为 41ac506da9b1d8b3；被忽略的 1 项逐条给出理由。三类作弊全部被机械检出：少交一个文件（False）、塞入不存在的文件（False）、忽略却不解释（False）。一键脚本模块级纯标准库（run_all=True），验证脚本模块级纯标准库=True 且可选依赖 ['cryptography'] 在缺失时真实降级=True（未声明的第三方 import：无）。"
+      "note": "一键复现在两个真实 clone 里跑通（autocrlf_true: rc=1 ok=False checked=80 digest=True scope=False expected=False; autocrlf_false: rc=1 ok=False checked=80 digest=True scope=False expected=False）。交付范围改为**全仓库分账**：仓库内 962 个待提交文件全部有归属——80 个进清单、882 个落在范围外且路径集合摘要锁死为 41ac506da9b1d8b3；被忽略的 1 项逐条给出理由。三类作弊全部被机械检出：少交一个文件（False）、塞入不存在的文件（False）、忽略却不解释（False）。一键脚本模块级纯标准库（run_all=True），验证脚本模块级纯标准库=True 且可选依赖 ['cryptography'] 在缺失时真实降级=True（未声明的第三方 import：无）。"
     }
   ]
 }

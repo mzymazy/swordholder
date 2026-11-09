@@ -66,15 +66,38 @@ COMMANDS = [
 ]
 
 
+SELF_REFERENTIAL = ("P12", "P13")
+"""自身分档会随"清单/提交状态"变化的两条探针，不能写进 expected。
+
+P12 验证的是"清单能否被外部复算"，P13 验证的是"干净 clone 里一键脚本是否跑通"。
+它们的分档取决于清单自身与本仓库的提交状态：一旦把它们钉进 expected，
+就会出现"修好了反而失配"的死锁（清单要求 P13=PARTIAL，修好后跑到 PASS 即判失败）。
+所以 expected 只锁 P01–P11 这些**内容型**判据，自指项单独声明并显式排除。
+"""
+
+
 def probe_counts(probes_path: str) -> dict:
     with open(probes_path, "r", encoding="utf-8") as fh:
         doc = json.load(fh)
-    counts = dict(doc.get("counts") or {})
-    out = {"probes_total": len(doc.get("probes") or [])}
-    out.update({k: v for k, v in counts.items()})
-    for item in doc.get("probes") or []:
+    items = [it for it in (doc.get("probes") or [])
+             if it.get("id") not in SELF_REFERENTIAL]
+    tally: dict = {}
+    for item in items:
+        tally[item["result"]] = tally.get(item["result"], 0) + 1
+    out = {"probes_total": len(items)}
+    out.update(tally)
+    for item in items:
         out["result_%s" % item["id"]] = item["result"]
+    # 全量计数仅供参考，不进 expected（含自指项的实时结果）
+    out["observed_counts_all"] = dict(doc.get("counts") or {})
+    out["excluded_self_referential"] = list(SELF_REFERENTIAL)
     return out
+
+
+def _expected_only(counts: dict) -> dict:
+    """从 probe_counts 的产物里挑出真正参与外部复跑比对的键。"""
+    return {k: v for k, v in counts.items()
+            if k.startswith("result_") or k in ("PASS", "PARTIAL", "FAIL", "probes_total")}
 
 
 def main(argv=None) -> int:
@@ -102,9 +125,10 @@ def main(argv=None) -> int:
 
     patterns = list(DELIVERY) + list(args.extra_path)
     paths = list(rp.collect(root, patterns))
+    expected = _expected_only(probe_counts(probes_full))
     manifest = rp.build_manifest(
         root, paths,
-        expected=probe_counts(probes_full),
+        expected=expected,
         commands=COMMANDS,
         dirty_scope=[pat.rstrip("/") for pat in patterns],
         hash_mode=rp.HASH_MODE_CANONICAL,
@@ -114,8 +138,14 @@ def main(argv=None) -> int:
         extra={"stage": 13,
                "note": "清单覆盖真实交付树；hash_mode=canonical-lf，仅收 git 跟踪文件；"
                        "extra.scope 为全仓库分账（每个待提交文件必有归属）；"
-                       "expected 为探针分档与计数，外部复跑必须逐项一致",
+                       "expected 为 P01–P11 探针分档与计数（P12/P13 自指，显式排除），"
+                       "外部复跑必须逐项一致",
                "ignored_reasons": IGNORED_REASONS,
+               "expected_excluded": {
+                   "probes": list(SELF_REFERENTIAL),
+                   "reason": "P12/P13 的判定对象就是清单与提交状态，钉进 expected 会形成"
+                             "『修好即失配』的死锁；两条探针的实时结果另见 "
+                             "evidence/stage13/s13_probes.json，由 run_all 全量复跑给出"},
                "one_command": "python scripts/stage13/run_all.py --root . --out-dir "
                               "evidence/stage13/e2e --summary evidence/stage13/s13_e2e_summary.json"},
     )
