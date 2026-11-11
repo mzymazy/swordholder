@@ -17,6 +17,47 @@ AIGC:
 
 ---
 
+## [未发布] - 2026-11-11 - 质量门禁恢复真实：先修崩溃，再补测到线
+
+本段**不升版本**（仍是 0.10.1，未打新 tag），只修「CI 一直红、且红在哪被前一步掩盖」的问题。
+
+### 修复（先让门禁跑得完，才看得见真实数字）
+
+- `scripts/stage13/run_all.py`：Windows runner 默认 `cp1252` 输出中文 print 直接抛
+  `UnicodeEncodeError`，`--help` 都跑不完。改为启动时把 stdout/stderr 统一
+  `reconfigure(encoding="utf-8", errors="replace")`，并对不支持 reconfigure 的流做
+  兜底；顺带修 143 行 E741。同一处根因曾让 quality-gate 只红在 ruff、覆盖率步骤
+  从未执行——**实际覆盖率此前一直是未知数**。
+- `swordholder/reproduce.py`：删未用 `typing.Any`（F401）。
+- `tests/test_stage13_transparency_scope.py`：89 行 `l` → `line`（E741）；删 239 行
+  `from swordholder import reproduce as rp`——该用例验的是"审计方不 import 本项目"，
+  自己却 import，等于把要证的命题写反。
+
+### 新增测试（把覆盖率从 81.83% 补到 85.80%，门禁 `fail_under=85` 不变）
+
+- `tests/test_stage11_monitor_runtime.py`：`monitor.py` 的坏输入判定、目录扫描问题
+  分类与 error_rate 告警、日志链断点定位、watch 周期、report 空日志、CLI 三种子命令
+  返回码。其中 `evaluate_trace` 对带封签轨迹未传 `seal_path`、一律判
+  `E_MON_SEAL_INVALID` 的既有缺陷，用 `xfail(strict=True)` 如实标注（修好会 XPASS 转红，
+  强迫同步移除标记）。
+- `tests/test_transparency_offline.py`：锚点签名器、后端选择（file/none/rekor 与非法
+  配置）、回执校验的四种失败（摘要不符 / 日志查不到 / 条目体不是这份 / 索引对不上）、
+  file 后端"能对上摘要但不出控制域 → 不给 ok"、重做检出的三种结果。
+- `tests/test_trace_seal_ext.py`：封签里外部时间戳段的写入/读回、缺戳与坏戳的判定，
+  以及 `require_external_timestamp=True` 时"无戳即 INVALID"不放水。
+- `tests/test_retention_archive_edges.py`：重复归档必须拒；归档副本 chain / digest /
+  body 三种损坏必须给出**可区分**的原因。
+- `tests/test_verify_scope_recompute.py`：`verify_scope` 的复算回归（此前只有生产口径
+  没有验收口径）。
+
+### 文档据实修正（原文是假话，已改成可复现的数字）
+
+- `README.md`：`swordholder --version` 注释 0.7.4 → **0.10.1**（与 `pyproject.toml` 一致）；
+  测试数 587 → **638 passed, 1 xfailed**；覆盖率 88.19% → **85.80%**；`dist/` 下 wheel
+  示例文件名随 `pyproject.toml` 改为 `0.10.1`。
+- 公开渠道安装那段的 `v0.7.4` **保持原样**：那是真实存在的唯一公开 release，未打新 tag
+  之前不能改写。
+
 ## [0.10.1] - 2026-11-09 - S12.1：交付清单改为跨 checkout 可复算
 
 本版**只修一处真缺陷**：0.10.0 的「外部可复现」只在生成本机工作区成立，第三方拿不到同一结果。

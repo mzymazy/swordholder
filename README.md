@@ -1,4 +1,4 @@
----
+﻿---
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
@@ -42,7 +42,7 @@ AIGC:
 ```bash
 git clone https://github.com/mzymazy/swordholder && cd swordholder
 pip install -e .            # 运行时依赖 3 个：cryptography / pyyaml / jsonschema
-swordholder --version       # swordholder 0.7.4（与 pyproject.toml 一致）
+swordholder --version       # swordholder 0.10.1（与 pyproject.toml 一致）
 ```
 
 > **包里没有 PyPI 发布**：`pip install swordholder` 会 `No matching distribution found`，这是预期行为，不是环境问题。请用上面的源码安装（`-e .`），或隔离环境用 `pipx install .` / `pip install .`（非 editable，等价于本地打 wheel 安装）。Python 3.11+。
@@ -51,8 +51,8 @@ swordholder --version       # swordholder 0.7.4（与 pyproject.toml 一致）
 >
 > ```bash
 > pip install -e ".[dev]"
-> pytest                      # 587 passed（pyproject 已默认 addopts=-q，再传一次 -q 会吞掉汇总行）
-> pytest --cov=swordholder --cov=mcp_server --cov-report=term   # 覆盖率 88.19%（门禁 fail_under=85）
+> pytest                      # 639 passed（其中 1 个 xfail，如实标注既有缺陷；pyproject 已默认 addopts=-q，再传一次 -q 会吞掉汇总行）
+> pytest --cov=swordholder --cov=mcp_server --cov-report=term   # 覆盖率 85.80%，门禁 fail_under=85（贴线，新增未测代码会立即红）
 > ruff check swordholder mcp_server tests                       # 静态检查，0 issue
 > python scripts/worldclass_probe.py --assert   # 57/57 安全属性断言通过（不调用模型）
 > python mcp_server/selftest.py   # 10/10 通过
@@ -70,7 +70,7 @@ swordholder --version       # swordholder 0.7.4（与 pyproject.toml 一致）
 
 ```bash
 python scripts/build_release.py                       # 1) 构建 wheel/sdist（dist/ 不入库，clone 后需自建）
-pip install dist/swordholder-0.7.4-py3-none-any.whl   # 2) 离线可装（--no-index 也能过）
+pip install dist/swordholder-0.10.1-py3-none-any.whl   # 2) 离线可装（--no-index 也能过）
 python examples/minimal_integration.py --out minimal_check.json   # 3) 13/13 接入检查
 python scripts/verify_release.py --out release_check.json         # 4) 发行物隔离验收 7/7
 ```
@@ -81,7 +81,7 @@ python scripts/verify_release.py --out release_check.json         # 4) 发行物
 
 | 产出 | 说明 |
 |---|---|
-| `dist/swordholder-0.7.4-py3-none-any.whl` / `.tar.gz` | 可安装发行物，SHA256 见 `dist/SHA256SUMS`（`dist/` 不入库，用 `build_release.py` 重建；字节数与哈希以每次构建后的 `SHA256SUMS` 为准，不在此写死） |
+| `dist/swordholder-0.10.1-py3-none-any.whl` / `.tar.gz` | 可安装发行物，SHA256 见 `dist/SHA256SUMS`（`dist/` 不入库，用 `build_release.py` 重建；字节数与哈希以每次构建后的 `SHA256SUMS` 为准，不在此写死） |
 | `examples/minimal_integration.py` | 只用公开 API 跑 13 项检查：签发 / 验签 / 3 类篡改 / 2 类类型混淆 / 重放 / 确定性 / 性能 |
 | `scripts/verify_release.py` | 在**隔离目录**装 wheel 再跑接入示例，校验版本一致、包数据齐全、SHA256 匹配 |
 | `examples/README.md` | 接入文档与三条使用约定（判定对错由人负责 / 以 `seal_header.subject` 为准 / 信任锚自己维护） |

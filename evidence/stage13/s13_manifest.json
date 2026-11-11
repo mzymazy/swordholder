@@ -11,8 +11,8 @@
    "pytest": "9.2.0"
   },
   "git": {
-   "commit": "06001c152e2d67c7789345ecaab41b12f12feaf3",
-   "dirty": false,
+   "commit": "ed0ebc8eecca952a6214a99f4676601e6ba9ba2c",
+   "dirty": true,
    "dirty_scope": [
     "swordholder",
     "scripts/stage11",
@@ -64,8 +64,8 @@
     "evidence/"
    ],
    "content_excluded_count": 226,
-   "declared_count": 80,
-   "declared_digest": "c4a1f509276a98b23758fcc5b3ce03c533b8c51d9f412660647b6230b4db53ce",
+   "declared_count": 85,
+   "declared_digest": "44b654ce2bb76ade12495adb784b88a6ebbfe94bafb81acf27dbd285242a7d8f",
    "delivery_missing": [],
    "delivery_prefixes": [
     "CHANGELOG.md",
@@ -84,7 +84,7 @@
    "ignored_explained": [
     "swordholder/samples/alert_02_token.seal.json"
    ],
-   "ignored_intrinsic_count": 69,
+   "ignored_intrinsic_count": 74,
    "ignored_under_delivery": [
     "swordholder/samples/alert_02_token.seal.json"
    ],
@@ -92,7 +92,7 @@
    "mode": "repo-partition",
    "not_in_repo": [],
    "ok": true,
-   "out_of_scope_content_digest": "ebca640f35015dffdfe425f7ee5809f1becabfe0ff2165bd1c57ecfd39552aca",
+   "out_of_scope_content_digest": "5feada6015796418b36993856a0945ee8a7d09486dfaae15623c1450bf3f74ec",
    "out_of_scope_count": 899,
    "out_of_scope_digest": "04afa192deeff56f30e274325df74df4361efc5e656b85a3144a4ffb25986741",
    "sample_out_of_scope": [
@@ -105,8 +105,8 @@
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".github/workflows/mcp-selftest.yml"
    ],
-   "tracked_count": 979,
-   "universe_count": 979,
+   "tracked_count": 984,
+   "universe_count": 984,
    "untracked_uncommitted_count": 0
   },
   "stage": 13,
@@ -116,13 +116,13 @@
   ],
   "untracked_excluded_count": 1
  },
- "file_count": 80,
+ "file_count": 85,
  "files": [
   {
-   "bytes": 76367,
+   "bytes": 79209,
    "path": "CHANGELOG.md",
-   "sha256": "59ddbf398d93057ea7c841cce02ec9979967ff38bd68acc22d7262fbaeb7ba30",
-   "sha256_raw": "59ddbf398d93057ea7c841cce02ec9979967ff38bd68acc22d7262fbaeb7ba30"
+   "sha256": "aadce946bb7fd566879db3d5c3e795aa69d7121ea615a28ec03911989a9881f4",
+   "sha256_raw": "aadce946bb7fd566879db3d5c3e795aa69d7121ea615a28ec03911989a9881f4"
   },
   {
    "bytes": 20133,
@@ -197,10 +197,10 @@
    "sha256_raw": "5e2ed5d8e5ec8fcd264bc66484ceb93127736da1b39077b998bdb4932721ba17"
   },
   {
-   "bytes": 13226,
+   "bytes": 13912,
    "path": "scripts/stage13/run_all.py",
-   "sha256": "a0f35689b81bced5646661822c9c2106b0a9e493122e191e7afe611882d33d04",
-   "sha256_raw": "a0f35689b81bced5646661822c9c2106b0a9e493122e191e7afe611882d33d04"
+   "sha256": "e3d2c2ed344f8c4cb012e48260640077224b4121fedfa77dd4497d95aadcc787",
+   "sha256_raw": "e3d2c2ed344f8c4cb012e48260640077224b4121fedfa77dd4497d95aadcc787"
   },
   {
    "bytes": 9126,
@@ -287,10 +287,10 @@
    "sha256_raw": "72d146467d83c43152ae8a7ba6a45ebb4500cbfb21d77887ee6c0ab35c70419a"
   },
   {
-   "bytes": 27950,
+   "bytes": 27945,
    "path": "swordholder/reproduce.py",
-   "sha256": "c2b464dc99bd04a3ee279dbb832e94aff70062db339b9c5c823742e32e84af9d",
-   "sha256_raw": "c2b464dc99bd04a3ee279dbb832e94aff70062db339b9c5c823742e32e84af9d"
+   "sha256": "db85c6a7b5156bf875b91cb17ab8f5ff1d676377bad4b02f6ba6f8f47a4f1e2f",
+   "sha256_raw": "db85c6a7b5156bf875b91cb17ab8f5ff1d676377bad4b02f6ba6f8f47a4f1e2f"
   },
   {
    "bytes": 12847,
@@ -491,6 +491,12 @@
    "sha256_raw": "0f71e5f36fdac54dda3a5ad5be73c5990e05602faf32318f0149cb9e1b6cf29d"
   },
   {
+   "bytes": 4113,
+   "path": "tests/test_retention_archive_edges.py",
+   "sha256": "99feb6e21c83404a85e65063c07d6cc31fe13cf3c301f70c6736556940709277",
+   "sha256_raw": "99feb6e21c83404a85e65063c07d6cc31fe13cf3c301f70c6736556940709277"
+  },
+  {
    "bytes": 8808,
    "path": "tests/test_rules_and_llm.py",
    "sha256": "2da12c0f2faeed4c882c44c24943ac74c25e504cec8b7e9c861493025d526dcb",
@@ -539,6 +545,12 @@
    "sha256_raw": "3f5360c2a36e7404489200fbf12041dd7a80bdc8946d566cd89487737e2aa1a9"
   },
   {
+   "bytes": 12524,
+   "path": "tests/test_stage11_monitor_runtime.py",
+   "sha256": "0ee27f24a46f3b56a393dacb2366b8bc8ad2f6afdfd37924252740c67f103a44",
+   "sha256_raw": "0ee27f24a46f3b56a393dacb2366b8bc8ad2f6afdfd37924252740c67f103a44"
+  },
+  {
    "bytes": 10869,
    "path": "tests/test_stage11_resume_monitor_repro.py",
    "sha256": "a373f25d2439b330feee0a9d91717be254d30c1840281024bb54bfa6dc8e4fc6",
@@ -557,10 +569,10 @@
    "sha256_raw": "39ae60cf6f467d2fb167ed2b79307888e771ce2d6dd73b61e6a1a7ef655c2cce"
   },
   {
-   "bytes": 13381,
+   "bytes": 13328,
    "path": "tests/test_stage13_transparency_scope.py",
-   "sha256": "71ccdd8a131abf51a45c0421906fe05cc997eb443e5b637436019faee1cf6c22",
-   "sha256_raw": "71ccdd8a131abf51a45c0421906fe05cc997eb443e5b637436019faee1cf6c22"
+   "sha256": "202d9eda8b49a5cc42e3301b98aa503c5a7eb5fba3dca6be9df834400621997f",
+   "sha256_raw": "202d9eda8b49a5cc42e3301b98aa503c5a7eb5fba3dca6be9df834400621997f"
   },
   {
    "bytes": 4240,
@@ -575,6 +587,18 @@
    "sha256_raw": "7859baa798d4068aa99d7926fc67d8c14450a4097e7e47427ba9850b7e7f9a96"
   },
   {
+   "bytes": 5637,
+   "path": "tests/test_trace_seal_ext.py",
+   "sha256": "ffb30b4914ad1e65ffff6f16eaa29b2d6f6c9cee01baf2db83f9aa7a6d15a25a",
+   "sha256_raw": "ffb30b4914ad1e65ffff6f16eaa29b2d6f6c9cee01baf2db83f9aa7a6d15a25a"
+  },
+  {
+   "bytes": 9602,
+   "path": "tests/test_transparency_offline.py",
+   "sha256": "8590c7aec5602e5ec21cfef695bc290c11e58ed935968905ff17c3a86954b32e",
+   "sha256_raw": "8590c7aec5602e5ec21cfef695bc290c11e58ed935968905ff17c3a86954b32e"
+  },
+  {
    "bytes": 14217,
    "path": "tests/test_trust.py",
    "sha256": "8fbee771c7871738e8580e8b4c78dc945012eaa351deb37debfb29a939b54b17",
@@ -585,6 +609,12 @@
    "path": "tests/test_verify_proof_env.py",
    "sha256": "d39935ef0e856353cb2f67a389fa8e708c5f76ae6d697cfb9f821b00db4be2de",
    "sha256_raw": "d39935ef0e856353cb2f67a389fa8e708c5f76ae6d697cfb9f821b00db4be2de"
+  },
+  {
+   "bytes": 4137,
+   "path": "tests/test_verify_scope_recompute.py",
+   "sha256": "d2161922a46cf1d7e4c4bfab5d903ee1aca4be024d4ffd8a85ccce6fc6af344d",
+   "sha256_raw": "d2161922a46cf1d7e4c4bfab5d903ee1aca4be024d4ffd8a85ccce6fc6af344d"
   },
   {
    "bytes": 1773,
@@ -599,11 +629,11 @@
    "sha256_raw": "7207c8929361129c51dff32b7afa689c6f3f48e7ce3be23622d41b02ab4416f8"
   }
  ],
- "generated_at": "2026-11-09T20:47:40Z",
+ "generated_at": "2026-11-11T06:09:04Z",
  "hash_mode": "canonical-lf",
  "root_name": "swordholder_mvp",
  "schema": "swordholder.repro_manifest/1",
  "swordholder_version": "0.10.1",
- "total_bytes": 1022858,
- "tree_digest": "a87c80bcd50215ade4ecab8ba128eb369dc2d1c1689bedfcc99b36b5f55a74c0"
+ "total_bytes": 1062341,
+ "tree_digest": "8691a14df8569d5026370f5747b99d7e443bc23649c1634e73957af4e0173d9d"
 }
