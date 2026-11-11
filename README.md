@@ -51,7 +51,7 @@ swordholder --version       # swordholder 0.7.4（与 pyproject.toml 一致）
 >
 > ```bash
 > pip install -e ".[dev]"
-> pytest                      # 472 passed（pyproject 已默认 addopts=-q，再传一次 -q 会吞掉汇总行）
+> pytest                      # 587 passed（pyproject 已默认 addopts=-q，再传一次 -q 会吞掉汇总行）
 > pytest --cov=swordholder --cov=mcp_server --cov-report=term   # 覆盖率 88.19%（门禁 fail_under=85）
 > ruff check swordholder mcp_server tests                       # 静态检查，0 issue
 > python scripts/worldclass_probe.py --assert   # 57/57 安全属性断言通过（不调用模型）

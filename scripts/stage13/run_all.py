@@ -34,6 +34,17 @@ import subprocess
 import sys
 import time
 
+# Windows 控制台默认编码不是 UTF-8（英文 runner 上是 cp1252），而本脚本的 argparse
+# 描述与进度文案是中文：打印 usage 时 ``print()`` 会抛
+# ``UnicodeEncodeError: 'charmap' codec can't encode ...``，``--help`` 遂以 1 退出。
+# 这里把两个输出流统一成 UTF-8（不可编码字符退化为替代符而非抛异常），保证
+# ``--help`` 与诊断输出在任意 locale 下都能跑完并返回 0。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):  # 输出流被重定向成不支持 reconfigure 的对象
+        pass
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO_FALLBACK = os.path.dirname(os.path.dirname(HERE))
 MANIFEST = "evidence/stage13/s13_manifest.json"
@@ -129,7 +140,7 @@ def main(argv=None) -> int:
                    "caller_executable": sys.executable},
         "env": {"platform": platform.platform(), "head": head,
                 "worktree_clean": not status.strip(),
-                "dirty_entries": len([l for l in status.splitlines() if l.strip()])},
+                "dirty_entries": len([line for line in status.splitlines() if line.strip()])},
         "steps": steps,
     }
 

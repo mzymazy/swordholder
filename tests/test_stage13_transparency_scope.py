@@ -86,7 +86,7 @@ def test_file_backend_is_append_only_and_idempotent(tmp_path):
     assert r3["entry_uuid"] != r1["entry_uuid"]
     assert be.fetch(r1["entry_uuid"]) is not None
     with open(path, "r", encoding="utf-8") as fh:
-        assert len([l for l in fh.read().splitlines() if l.strip()]) == 2
+        assert len([line for line in fh.read().splitlines() if line.strip()]) == 2
 
 
 def test_file_backend_receipt_is_not_externally_checkable(tmp_path):
@@ -235,8 +235,6 @@ def test_scope_ledger_negative_cases(ignored_artifact):
 
 def test_external_verify_recomputes_scope_without_importing_project(tmp_path):
     """审计方那条路径：external_verify 不 import 本项目，也要重算得出同一结论。"""
-    from swordholder import reproduce as rp  # noqa: PLC0415
-
     bm, m, declared = _declared_and_manifest()
     m = dict(m, extra=dict(m["extra"]))
     m["git"] = {}

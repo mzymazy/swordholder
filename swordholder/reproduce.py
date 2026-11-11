@@ -25,7 +25,7 @@ import os
 import platform
 import subprocess
 import sys
-from typing import Any, Iterable
+from typing import Iterable
 
 SCHEMA = "swordholder.repro_manifest/1"
 
